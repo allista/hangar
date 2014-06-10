@@ -105,7 +105,7 @@ namespace AtHangar
 			
 			//change volume if the part is a hangar
 			Hangar hangar = part.Modules.OfType<Hangar>().SingleOrDefault();
-			if(hangar != null) hangar.RecalculateVolume();
+			if(hangar != null) hangar.Setup();
 		
 			scaleNode (part.findAttachNode ("top"), scale, true);
 			scaleNode (part.findAttachNode ("bottom"), scale, true);

@@ -2,7 +2,7 @@ using System;
 
 namespace AtHangar
 {
-	public enum HangarState
+	public enum HangarGates
     {
         Opened,
         Opening,
@@ -12,25 +12,54 @@ namespace AtHangar
 	
 	public interface IHangarAnimator
 	{
-        HangarState CurrentState { get; }
+        HangarGates GatesState { get; }
         void Open();
         void Close();
-		void Toggle();
+		bool Toggle();
     }
 	
-	public class DummyHangarAnimator : IHangarAnimator
+	public class DummyHangarAnimator : PartModule, IHangarAnimator
 	{
-        public HangarState CurrentState { get; private set; }
-        public void Open() { CurrentState = HangarState.Opened; }
-        public void Close() { CurrentState = HangarState.Closed; }
-		public void Toggle()
+		[KSPField(isPersistant = true)]
+        public string State;
+		
+        public HangarGates GatesState 
 		{
-			if (CurrentState == HangarState.Closed || CurrentState == HangarState.Closing)
-				Open ();
-			else Close ();
+			get
+            {
+                try { return (HangarGates)Enum.Parse(typeof(HangarGates), State); }
+                catch
+                {
+                    GatesState = HangarGates.Closed;
+                    return GatesState;
+                }
+            }
+            private set { State = Enum.GetName(typeof(HangarGates), value); }
 		}
-
-        public DummyHangarAnimator() { CurrentState = HangarState.Closed; }
+		
+		public override void OnStart(StartState state)
+        {
+            if (GatesState == HangarGates.Opening) { GatesState = HangarGates.Closed; }
+            else if (GatesState == HangarGates.Closing) { GatesState = HangarGates.Opened; }
+        }
+		
+        public void Open() { GatesState = HangarGates.Opened; }
+        public void Close() { GatesState = HangarGates.Closed; }
+		
+		public bool Toggle()
+		{
+			if(GatesState == HangarGates.Closed 
+			   || GatesState == HangarGates.Closing)
+			{
+				Open ();
+				return true;
+			}
+			else 
+			{
+				Close ();
+				return false;
+			}
+		}
 	}
 }
 
