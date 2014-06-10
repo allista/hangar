@@ -103,5 +103,36 @@ namespace AtHangar
 				return mass.ToString ("n3") + "t";
 		}
 	}
+	
+	
+	[KSPAddon(KSPAddon.Startup.Flight, false)]
+	public class FlightScreenMessager : MonoBehaviour
+	{
+		static float osdMessageTime = 0;
+		static string osdMessageText = null;
+
+		public static void showMessage (string msg, float delay)
+		{
+			osdMessageText = msg;
+			osdMessageTime = Time.time + delay;
+		}
+
+		public void OnGUI ()
+		{
+			if (!HighLogic.LoadedSceneIsFlight)	return;
+
+			if (Time.time < osdMessageTime) 
+			{
+				GUI.skin = HighLogic.Skin;
+				GUIStyle style = new GUIStyle ("Label");
+				style.alignment = TextAnchor.MiddleCenter;
+				style.fontSize = 20;
+				style.normal.textColor = Color.black;
+				GUI.Label (new Rect (2, 2 + (Screen.height / 9), Screen.width, 50), osdMessageText, style);
+				style.normal.textColor = Color.yellow;
+				GUI.Label (new Rect (0, Screen.height / 9, Screen.width, 50), osdMessageText, style);
+			}
+		}
+	}
 }
 
