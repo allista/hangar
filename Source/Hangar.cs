@@ -13,7 +13,7 @@ namespace AtHangar
 		IHangarAnimator hangar_state;
 		double usefull_volume_ratio = 0.7;
 		double used_volume = 0;
-		double total_volume;
+		double total_volume = 0;
 		List<Vessel> stored_vessels = new List<Vessel>();
 		
 		//gui fields
@@ -33,7 +33,10 @@ namespace AtHangar
 			part.force_activate();
             hangar_state = part.Modules.OfType<IHangarAnimator>().SingleOrDefault();
 			if (hangar_state == null)
+			{
                 hangar_state = new DummyHangarAnimator();
+				Debug.Log("[Hangar] Using DummyHangarAnimator");
+			}
             else
             {
                 Events["Open"].guiActiveEditor = true;
@@ -69,7 +72,7 @@ namespace AtHangar
 		
 		//calculate approximate volume of a vessel 
 		//as the sum of volumes of bounding boxes of its parts
-		private double VesselVolume(Vessel vsl)
+		public static double VesselVolume(Vessel vsl)
 		{
 			if (vsl == null) return -1;
 			double vol = 0;
@@ -127,7 +130,7 @@ namespace AtHangar
 		{ 
 			
 			//always load in closed state
-			Close();
+			if(hangar_state != null) Close();
 		}
 		
 		
