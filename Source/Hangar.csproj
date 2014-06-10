@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{382B8257-AD02-4655-B7C7-B54F56C2957B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Hangar</RootNamespace>
+    <RootNamespace>AtHangar</RootNamespace>
     <AssemblyName>Hangar</AssemblyName>
     <newfilesearch>OnLoadAutoInsert</newfilesearch>
   </PropertyGroup>
@@ -39,10 +39,17 @@
       <HintPath>..\..\..\..\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="KSPAPIExtensions">
+      <HintPath>..\GameData\Hangar\Plugins\KSPAPIExtensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="HangarModule.cs" />
+    <Compile Include="Hangar.cs" />
+    <Compile Include="HangarAnimator.cs" />
+    <Compile Include="IHangarAnimator.cs" />
+    <Compile Include="AtPartResizer.cs" />
+    <Compile Include="AtUtils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

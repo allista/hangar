@@ -1,8 +1,11 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="HangarModule.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Hangar.cs">
     <Files>
-      <File FileName="HangarModule.cs" Line="10" Column="3" />
+      <File FileName="Hangar.cs" Line="7" Column="19" />
+      <File FileName="HangarAnimator.cs" Line="9" Column="6" />
+      <File FileName="IHangarAnimator.cs" Line="29" Column="13" />
+      <File FileName="AtPartResizer.cs" Line="14" Column="27" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
