@@ -10,19 +10,19 @@ namespace AtHangar
 {
 	public class AtPartResizer : PartModule
 	{
-		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Size", guiFormat="S4", guiUnits="m")]
-		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.1f, maxValue=5, incrementLarge=1.25f, incrementSmall=0.125f, incrementSlide=0.001f)]
-		public float size=1.25f;
+		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Scale", guiFormat="S4")]
+		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.1f, maxValue=10, incrementLarge=1.25f, incrementSmall=0.125f, incrementSlide=0.001f)]
+		public float size=1.0f;
 		
-		[KSPField] public float sizeStepLarge = 1.25f;
-		[KSPField] public float sizeStepSmall = 0.125f;
+		[KSPField] public float sizeStepLarge = 1f;
+		[KSPField] public float sizeStepSmall = 0.1f;
 		
 		[KSPField] public Vector4 specificMass = new Vector4(0.005f, 0.011f, 0.009f, 0f);
 		[KSPField] public float specificBreakingForce  = 1536;
 		[KSPField] public float specificBreakingTorque = 1536;
 		
-		[KSPField] public string minSizeName = "HANGAR_MINSIZE";
-		[KSPField] public string maxSizeName = "HANGAR_MAXSIZE";
+		[KSPField] public string minSizeName = "HANGAR_MINSCALE";
+		[KSPField] public string maxSizeName = "HANGAR_MAXSCALE";
 		
 		[KSPField(isPersistant=false, guiActive=false, guiActiveEditor=true, guiName="Mass")]
 		public string massDisplay;
@@ -36,8 +36,8 @@ namespace AtHangar
 			base.OnStart (state);
 			
 			if (HighLogic.LoadedSceneIsEditor) {
-				float minSize = AtUtils.getTechMinValue (minSizeName, 0.25f);
-				float maxSize = AtUtils.getTechMaxValue (maxSizeName, 30);
+				float minSize = AtUtils.getTechMinValue (minSizeName, 0.1f);
+				float maxSize = AtUtils.getTechMaxValue (maxSizeName, 10);
 			
 				AtUtils.setFieldRange (Fields ["size"], minSize, maxSize);
 			
