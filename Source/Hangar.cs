@@ -9,11 +9,18 @@ namespace AtHangar
 	//this module adds the ability to store a vessel in a packed state inside
 	public class Hangar : PartModule
 	{
-		private enum HangarState{Ready,Busy};
+		public enum HangarState{Ready,Busy};
+		
+		public class VesselInfo
+		{
+			public Guid vid;
+			public string vesselName;
+		}
 		
 		//internal properties
 		private IHangarAnimator hangar_gates;
-		private HangarState hangar_state;
+		public HangarGates gates_state { get { return hangar_gates.GatesState; } }
+		public HangarState hangar_state { get; private set;}
 		private double total_volume = 0;
 		private double usefull_volume_ratio = 0.7; //only 70% of the volume may be used by docking vessels
 		//persistent private fields
@@ -22,9 +29,9 @@ namespace AtHangar
 		[KSPField (isPersistant = true)] private float vessels_mass = 0;
 		
 		//vessels
-		Dictionary<Guid, ProtoVessel> stored_vessels = new Dictionary<Guid, ProtoVessel>();
-		List<Guid> stored_vids = new List<Guid>();
-		Dictionary<Guid, bool> probed_ids = new Dictionary<Guid, bool>();
+		private Dictionary<Guid, ProtoVessel> stored_vessels = new Dictionary<Guid, ProtoVessel>();
+		private List<Guid> stored_vids = new List<Guid>();
+		private Dictionary<Guid, bool> probed_ids = new Dictionary<Guid, bool>();
 		
 		//vessel spawn
 		[KSPField (isPersistant = false)] public float  SpawnHeightOffset = 0.0f;
@@ -38,6 +45,34 @@ namespace AtHangar
 		[KSPField (guiName = "Hangar state", guiActive = true)] public string state;
 		[KSPField (guiName = "Volume used", guiActive = true)] public string used_v;
 		[KSPField (guiName = "Vessels stored", guiActive = true)] public string vessels;
+		
+		
+		//for GUI
+		public List<VesselInfo> GetVessels()
+		{
+			List<VesselInfo> _vessels = new List<VesselInfo>();
+			foreach(Guid vid in stored_vessels.Keys)
+			{
+				VesselInfo vinfo = new VesselInfo();
+				vinfo.vid = vid; vinfo.vesselName = stored_vessels[vid].vesselName;
+				_vessels.Add(vinfo);
+			}
+			return _vessels;
+		}
+		
+		public void UpdateMenus (bool visible)
+		{
+			Events["HideUI"].active = visible;
+			Events["ShowUI"].active = !visible;
+		}
+		
+		[KSPEvent (guiActive = true, guiName = "Hide Controls", active = false)]
+		public void HideUI () { HangarWindow.HideGUI (); }
+
+		[KSPEvent (guiActive = true, guiName = "Show Controls", active = false)]
+		public void ShowUI () { HangarWindow.ShowGUI (); }
+		
+		public int numVessels() { return stored_vessels.Count; }
 		
 		
 		//all initialization goes here instead of the constructor as documented in Unity API
@@ -75,11 +110,15 @@ namespace AtHangar
 		//calculate part volume as the sum of bounding boxes of its rendered components
 		public static double PartVolume(Part p)
 		{
+			
+			var model = p.FindModelTransform("model");
+			if (model == null) return 0;
+			double V_scale = model.localScale.x*model.localScale.y*model.localScale.z;
 			double vol = 0;
 			foreach(MeshFilter m in p.gameObject.GetComponentsInChildren<MeshFilter>())
 			{
 				Vector3 s = m.mesh.bounds.size;
-				vol += s.x*s.y*s.z;
+				vol += s.x*s.y*s.z*V_scale;
 			}
 			return vol;
 		}
@@ -208,7 +247,7 @@ namespace AtHangar
 		}
 		
 		//restore vessel
-		private void TryRestoreVessel(Guid vid)
+		public void TryRestoreVessel(Guid vid)
 		{
 			//if hangar is not ready, return
 			if(hangar_state == HangarState.Busy) 

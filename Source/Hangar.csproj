@@ -42,6 +42,10 @@
     <Reference Include="KSPAPIExtensions">
       <HintPath>..\GameData\Hangar\Plugins\KSPAPIExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="aaa_Toolbar">
+      <HintPath>..\..\..\..\GameData\000_Toolbar\Toolbar.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -50,6 +54,11 @@
     <Compile Include="IHangarAnimator.cs" />
     <Compile Include="AtPartResizer.cs" />
     <Compile Include="AtUtils.cs" />
+    <Compile Include="HangarWindow.cs" />
+    <Compile Include="DropDownList.cs" />
+    <Compile Include="VesselInfoWindow.cs" />
+    <Compile Include="AddonWindowBase.cs" />
+    <Compile Include="Toolbar.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
