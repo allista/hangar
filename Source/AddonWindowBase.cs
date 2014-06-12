@@ -111,7 +111,6 @@ namespace AtHangar
 		
 		public void LoadSettings()
 		{
-			Debug.Log(String.Format("{0} loading settings", typeof(T).Name));
 			configfile.load();
 			windowPos = configfile.GetValue<Rect>(mangleName("windowPos"));
 			gui_enabled = configfile.GetValue<bool>(mangleName("gui_enabled"));

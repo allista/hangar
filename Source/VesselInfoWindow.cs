@@ -24,9 +24,7 @@ namespace AtHangar
 			if(parts.Count < 1) return 0;
 			//calculate ship's volume
 			double vol = 0;
-//			Debug.Log (String.Format("[Hangar] calculating volume of new vessel"));
 			foreach(Part p in parts) vol += Hangar.PartVolume(p);
-//			Debug.Log (String.Format("[Hangar] volume of new vessel calculated"));
 			return vol;
 		}
 		
@@ -45,7 +43,7 @@ namespace AtHangar
 		override public void WindowGUI(int windowID)
 		{ 
 			GUILayout.BeginVertical();
-			GUILayout.Label(Utils.formatVolume(vessel_volume), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Vessel Volume: "+Utils.formatVolume(vessel_volume), GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 10000, 20));
 		}
@@ -57,7 +55,7 @@ namespace AtHangar
 			windowPos = GUILayout.Window(GetInstanceID(),
 										 windowPos, WindowGUI,
 										 window_name,
-										 GUILayout.Width(150));
+										 GUILayout.Width(200));
 		}
 	}
 }
