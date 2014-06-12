@@ -17,20 +17,27 @@ namespace AtHangar
 			public string vesselName;
 		}
 		
+		public class StoredVessel
+		{
+			public ProtoVessel vessel;
+			public List<ProtoCrewMember> crew;
+		}
+		
 		//internal properties
 		private IHangarAnimator hangar_gates;
 		public HangarGates gates_state { get { return hangar_gates.GatesState; } }
 		public HangarState hangar_state { get; private set;}
 		private double total_volume = 0;
 		private double usefull_volume_ratio = 0.7; //only 70% of the volume may be used by docking vessels
+		private double crew_volume_ratio = 0.3; //only 30% of the remaining volyme may be used for crew (i.e. V*(1-usefull_r)*crew_r)
+		private double volume_per_kerbal = 1.3; //m^3
 		//persistent private fields
 		[KSPField (isPersistant = true)] private double used_volume = 0;
 		[KSPField (isPersistant = true)] private float base_mass    = 0;
 		[KSPField (isPersistant = true)] private float vessels_mass = 0;
 		
 		//vessels
-		private Dictionary<Guid, ProtoVessel> stored_vessels = new Dictionary<Guid, ProtoVessel>();
-		private List<Guid> stored_vids = new List<Guid>();
+		private Dictionary<Guid, StoredVessel> stored_vessels = new Dictionary<Guid, StoredVessel>();
 		private Dictionary<Guid, bool> probed_ids = new Dictionary<Guid, bool>();
 		
 		//vessel spawn
@@ -40,11 +47,12 @@ namespace AtHangar
 		
 		//gui fields
 		[KSPField (guiName = "Volume", guiActive = true, guiActiveEditor=true)] public string total_v;
+		[KSPField (guiName = "Volume used", guiActive = true)] public string used_v;
+		[KSPField (guiName = "Vessels docked", guiActive = true)] public string vessels_docked;
+		[KSPField (guiName = "Crew capacity", guiActive = true, guiActiveEditor=true)] public string crew_capacity;
 		[KSPField (guiName = "Mass", guiActive = true)] public string total_m;
 		[KSPField (guiName = "Hangar doors", guiActive = true)] public string doors;
 		[KSPField (guiName = "Hangar state", guiActive = true)] public string state;
-		[KSPField (guiName = "Volume used", guiActive = true)] public string used_v;
-		[KSPField (guiName = "Vessels stored", guiActive = true)] public string vessels;
 		
 		
 		//for GUI
@@ -54,7 +62,7 @@ namespace AtHangar
 			foreach(Guid vid in stored_vessels.Keys)
 			{
 				VesselInfo vinfo = new VesselInfo();
-				vinfo.vid = vid; vinfo.vesselName = stored_vessels[vid].vesselName;
+				vinfo.vid = vid; vinfo.vesselName = stored_vessels[vid].vessel.vesselName;
 				_vessels.Add(vinfo);
 			}
 			return _vessels;
@@ -115,25 +123,24 @@ namespace AtHangar
 			if (model == null) return 0;
 			float V_scale = model.localScale.x*model.localScale.y*model.localScale.z;
 			double vol = 0;
-//			Debug.Log (String.Format("[Hangar] calculating volume of '{0}'; scale is: {1}", p.name, model.localScale));
 			foreach(MeshFilter m in p.FindModelComponents<MeshFilter>())
 			{
 				Vector3 s = Vector3.Scale(m.mesh.bounds.size, m.transform.localScale);
 				double mvol = s.x*s.y*s.z*V_scale;
 				if(mvol > vol) vol = mvol;
-//				Debug.Log (String.Format("[Hangar] mesh {0}: local scale {1}, scale {2}, local size {3}, size {4}, volume {5}", 
-//				                         m.transform.name, 
-//				                         m.transform.localScale, Vector3.Scale(m.transform.localScale, model.localScale), 
-//				                         s, Vector3.Scale(s, model.localScale), 
-//				                         mvol));
 			}
 			return vol;
 		}
 		
 		public void RecalculateVolume()
 		{
-			total_volume = PartVolume(part)*usefull_volume_ratio;
+			//recalculate total volume
+			double part_V =PartVolume(part);
+			total_volume = part_V*usefull_volume_ratio;
 			total_v = Utils.formatVolume(total_volume);
+			//calculate crew capacity from remaining volume
+			part.CrewCapacity = (int)(part_V*(1-usefull_volume_ratio)*crew_volume_ratio/volume_per_kerbal);
+			crew_capacity = part.CrewCapacity.ToString();
 		}
 		
 		//calculate transform of restored vessel
@@ -196,11 +203,19 @@ namespace AtHangar
 		public bool CanStore(Vessel vsl)
 		{
 			if(vsl == null) return false;
+			//check if the vessel is EVA. Maybe get EVA on board too?
 			if(vsl.isEVA) 
 			{
 				FlightScreenMessager.showMessage("Kerbals cannot be docked", 3);
 				return false;
 			}
+			//check vessel crew
+			if(vsl.GetCrewCount() > vessel.GetCrewCapacity()-vessel.GetCrewCount())
+			{
+				FlightScreenMessager.showMessage("Not enough space for the crew of a docking vessel", 3);
+				return false;
+			}
+			//check vessel volume
 			double vol = VesselVolume(vsl);
 			if(vol <= 0) return false;
 			if(vol > total_volume-used_volume) 
@@ -209,6 +224,42 @@ namespace AtHangar
 				return false;
 			}
 			return true;
+		}
+		
+		//add some crew to the part
+		private static bool addCrew(Part p, List<ProtoCrewMember> crew)
+		{
+			if(crew.Count == 0) return false;
+			if(p.CrewCapacity <= p.protoModuleCrew.Count) return false;
+			while(p.protoModuleCrew.Count < p.CrewCapacity && crew.Count > 0)
+			{
+				crew[0].rosterStatus = ProtoCrewMember.RosterStatus.ASSIGNED;
+				p.AddCrewmember(crew[0]);
+				crew.RemoveAt(0);
+			}
+			return true;
+		}
+		
+		//add some crew to the vessel
+		private static void addCrew(Vessel vsl, List<ProtoCrewMember> crew)
+		{
+			foreach(Part p in vsl.parts)
+			{
+				if(crew.Count == 0) break;
+				addCrew(p, crew);
+			}
+			vsl.SpawnCrew();
+		}
+		
+		//remove crew from the part
+		private static List<ProtoCrewMember> delCrew(Part p, List<ProtoCrewMember> crew)
+		{
+			List<ProtoCrewMember> deleted = new List<ProtoCrewMember>();
+			if(p.CrewCapacity == 0 || p.protoModuleCrew.Count == 0) return deleted;
+			foreach(ProtoCrewMember cr in p.protoModuleCrew)
+			{ if(crew.Contains(cr)) deleted.Add(cr); }
+			foreach(ProtoCrewMember cr in deleted) p.RemoveCrewmember(cr);
+			return deleted;
 		}
 		
 		//store vessel
@@ -225,7 +276,7 @@ namespace AtHangar
 			{
 			case ClearToSaveStatus.NOT_WHILE_ABOUT_TO_CRASH:
 			{
-				FlightScreenMessager.showMessage("Cannot accept vessel while about to crush.", 3);
+				FlightScreenMessager.showMessage("Cannot accept the vessel while about to crush.", 3);
 				return;
 			}
 			default:
@@ -238,18 +289,26 @@ namespace AtHangar
 				can_store = CanStore(vsl);
 				probed_ids.Add(vsl.id, can_store);
 			}
-			if(!can_store) return;
-			//store vessel implementation//
-			ProtoVessel saved_vessel = vsl.BackupVessel();
-			if(stored_vessels.ContainsKey(vsl.id)) return;
-			stored_vessels.Add(vsl.id, saved_vessel);
-			stored_vids.Add(vsl.id);
+			if(!can_store || stored_vessels.ContainsKey(vsl.id)) return;
+			//dock the vessel
+			StoredVessel stored_vessel = new StoredVessel();
+			//get vessel crew on board
+			stored_vessel.crew = vsl.GetVesselCrew();
+			List<ProtoCrewMember> _crew = new List<ProtoCrewMember>(stored_vessel.crew);
+			vsl.DespawnCrew();
+			//first of, add crew to the hangar if there's a place
+			addCrew(part, _crew);
+			//then add to other vessel parts if needed
+			addCrew(vessel, _crew);
+			//store vessel
+			stored_vessel.vessel = vsl.BackupVessel();
+			stored_vessels.Add(vsl.id, stored_vessel);
 			used_volume += VesselVolume(vsl);
 			vessels_mass += vsl.GetTotalMass();
 			SetMass();
+			//destroy vessel
 			vsl.Die ();
 			FlightScreenMessager.showMessage("Vessel has been docked inside the hangar", 3);
-			Events["Restore"].active = true;
 			Close();
 		}
 		
@@ -295,25 +354,29 @@ namespace AtHangar
 				break;
 			}
 			//get vessel
-			ProtoVessel stored_vessel;
+			StoredVessel stored_vessel;
 			if(!stored_vessels.TryGetValue(vid, out stored_vessel)) return;
 			//clean up
 			stored_vessels.Remove(vid);
-			stored_vids.Remove(vid);
+			//switch hangar state
+			hangar_state = HangarState.Busy;
+			Events["Prepare"].active = true;
 			//set restored vessel orbit
 			GetRestoreTransform();
-			PositionVessel(stored_vessel);
+			PositionVessel(stored_vessel.vessel);
 			//restore vessel
-			Game state = FlightDriver.FlightStateCache;
-			stored_vessel.Load(state.flightState);
+			stored_vessel.vessel.Load(FlightDriver.FlightStateCache.flightState);
 			//get restored vessel from the world
 			Vessel vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count-1];
+			//transfer crew back to the launched vessel
+			List<ProtoCrewMember> transfered_crew = new List<ProtoCrewMember>();
+			foreach(Part p in vessel.parts)	transfered_crew.AddRange(delCrew(p, stored_vessel.crew));
+			addCrew(vsl, transfered_crew);
 			//change volume and mass
 			if(stored_vessels.Count < 1) 
 			{
 				used_volume = 0;
 				vessels_mass = 0;
-				Events["Restore"].active = false;
 			}
 			else
 			{
@@ -321,19 +384,10 @@ namespace AtHangar
 				vessels_mass -= vsl.GetTotalMass();
 			}
 			SetMass();
-			hangar_state = HangarState.Busy;
-			Events["Prepare"].active = true;
 			//switch to restored vessel
 			FlightGlobals.ForceSetActiveVessel(vsl);
 			Staging.beginFlight();
 			Open();
-		}
-		
-		private void TryRestoreLastVessel()
-		{
-			if(stored_vessels.Count < 1) return;
-			Guid vid = stored_vids[stored_vids.Count-1];
-			TryRestoreVessel(vid);
 		}
 		
 		//called every frame while part collider is touching the trigger
@@ -377,15 +431,6 @@ namespace AtHangar
 			Events["Close"].active = false;
 		}
 		
-		//restore event
-		[KSPEvent (guiActive = true, guiName = "Launch last vessel", active = false)]
-		public void Restore()
-		{
-			if(hangar_gates.GatesState != HangarGates.Opened)
-				FlightScreenMessager.showMessage("Open the hangar first", 3);
-			else TryRestoreLastVessel();
-		}
-		
 		//prepare event
 		[KSPEvent (guiActive = true, guiName = "Prepare hangar", active = false)]
 		public void Prepare()
@@ -427,10 +472,19 @@ namespace AtHangar
 			//hangar state
 			node.AddValue("hangarState", hangar_state.ToString());
 			//save stored vessels
-			foreach(ProtoVessel pv in stored_vessels.Values)
+			if(stored_vessels.Count == 0) return;
+			ConfigNode vessels_node = node.AddNode("STORED_VESSELS");
+			foreach(StoredVessel sv in stored_vessels.Values)
 			{
-				ConfigNode vessel_node = node.AddNode("VESSEL");
-				pv.Save(vessel_node);
+				ConfigNode stored_vessel_node = vessels_node.AddNode("STORED_VESSEL");
+				ConfigNode vessel_node = stored_vessel_node.AddNode("VESSEL");
+				ConfigNode crew_node = stored_vessel_node.AddNode("CREW");
+				sv.vessel.Save(vessel_node);
+				foreach(ProtoCrewMember c in sv.crew)
+				{
+					ConfigNode n = crew_node.AddNode(c.name);
+					c.Save(n);
+				}
 			}
 		}
 		
@@ -438,14 +492,22 @@ namespace AtHangar
 		public override void OnLoad(ConfigNode node)
 		{ 
 			//hangar state
-			if (node.HasValue ("hangarState"))
+			if(node.HasValue ("hangarState"))
 				hangar_state = (HangarState)Enum.Parse(typeof(HangarState), node.GetValue("hangarState"));
 			//restore stored vessels
-			foreach(ConfigNode n in node.nodes)
+			if(node.HasNode("STORED_VESSELS"))
 			{
-				if (n.name != "VESSEL") continue;
-				ProtoVessel pv = new ProtoVessel(n, FlightDriver.FlightStateCache);
-				stored_vessels.Add(pv.vesselID, pv);
+				ConfigNode vessels_node = node.GetNode("STORED_VESSELS");
+				foreach(ConfigNode vn in vessels_node.nodes)
+				{
+					ConfigNode vessel_node = vn.GetNode("VESSEL");
+					ConfigNode crew_node = vn.GetNode("CREW");
+					StoredVessel sv = new StoredVessel();
+					sv.vessel = new ProtoVessel(vessel_node, FlightDriver.FlightStateCache);
+					sv.crew = new List<ProtoCrewMember>();
+					foreach(ConfigNode cn in crew_node.nodes) sv.crew.Add(new ProtoCrewMember(cn));
+					stored_vessels.Add(sv.vessel.vesselID, sv);
+				}
 			}
 		}
 		
@@ -455,8 +517,9 @@ namespace AtHangar
 			doors = hangar_gates.GatesState.ToString();
 			state = hangar_state.ToString();
 			used_v = Utils.formatVolume(used_volume);
-			vessels = String.Format ("{0}", stored_vessels.Count);
+			vessels_docked = String.Format ("{0}", stored_vessels.Count);
 			total_m = Utils.formatMass(part.mass);
+			crew_capacity = part.CrewCapacity.ToString();
 		}
 		
 	}
