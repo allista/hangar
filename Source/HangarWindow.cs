@@ -178,6 +178,17 @@ namespace AtHangar
 			GUILayout.EndHorizontal();
 		}
 		
+		//info labels
+		void HangarInfo()
+		{
+			GUILayout.BeginVertical();
+			GUILayout.Label("Total volume: "+selected_hangar.total_v, GUILayout.ExpandWidth(true));
+			GUILayout.Label("Used volume: "+selected_hangar.used_v, GUILayout.ExpandWidth(true));
+			GUILayout.Label("Vessels docked: "+selected_hangar.vessels_docked, GUILayout.ExpandWidth(true));
+			GUILayout.Label(String.Format("Vessel crew: {0}/{1}", selected_hangar.vessel.GetCrewCount(), selected_hangar.vessel.GetCrewCapacity()), GUILayout.ExpandWidth(true));
+			GUILayout.EndVertical();
+		}
+		
 		
 		//Hangar selection list
 		void SelectHangar_start() 
@@ -253,6 +264,7 @@ namespace AtHangar
 			//hangar list
 			SelectHangar_start();
 			GUILayout.BeginVertical();
+			HangarInfo();
 			SelectHangar();
 			GUILayout.EndVertical();
 			GUILayout.BeginHorizontal();
