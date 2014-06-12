@@ -9,7 +9,7 @@ using KSPAPIExtensions;
 
 namespace AtHangar
 {
-	public class AtUtils
+	public class Utils
 	{
 		static bool haveTech (string name)
 		{
@@ -98,9 +98,17 @@ namespace AtHangar
 		public static string formatMass (float mass)
 		{
 			if (mass < 0.01f)
-				return (mass * 1e3f).ToString ("n3") + "kg";
+				return (mass * 1e3f).ToString ("n3") + " kg";
 			else
-				return mass.ToString ("n3") + "t";
+				return mass.ToString ("n3") + " t";
+		}
+		
+		public static string formatVolume (double volume)
+		{
+			if (volume < 0.1f)
+				return (volume * 1e3f).ToString ("n0") + " L";
+			else
+				return volume.ToString ("n1") + " m^3";
 		}
 	}
 	

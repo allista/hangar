@@ -8,7 +8,7 @@ using KSPAPIExtensions;
 
 namespace AtHangar
 {
-	public class AtPartResizer : PartModule
+	public class HangarPartResizer : PartModule
 	{
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Scale", guiFormat="S4")]
 		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.1f, maxValue=10, incrementLarge=1.25f, incrementSmall=0.125f, incrementSlide=0.001f)]
@@ -36,10 +36,10 @@ namespace AtHangar
 			base.OnStart (state);
 			
 			if (HighLogic.LoadedSceneIsEditor) {
-				float minSize = AtUtils.getTechMinValue (minSizeName, 0.1f);
-				float maxSize = AtUtils.getTechMaxValue (maxSizeName, 10);
+				float minSize = Utils.getTechMinValue (minSizeName, 0.1f);
+				float maxSize = Utils.getTechMaxValue (maxSizeName, 10);
 			
-				AtUtils.setFieldRange (Fields ["size"], minSize, maxSize);
+				Utils.setFieldRange (Fields ["size"], minSize, maxSize);
 			
 				((UI_FloatEdit)Fields ["size"].uiControlEditor).incrementLarge = sizeStepLarge;
 				((UI_FloatEdit)Fields ["size"].uiControlEditor).incrementSmall = sizeStepSmall;
@@ -68,7 +68,7 @@ namespace AtHangar
 				return;
 			node.position = node.originalPosition * scale;
 			if (!just_loaded)
-				AtUtils.updateAttachedPartPos (node, part);
+				Utils.updateAttachedPartPos (node, part);
 			if (setSize)
 				node.size = Mathf.RoundToInt (scale / sizeStepLarge);
 		}
@@ -92,7 +92,7 @@ namespace AtHangar
 		
 			//change mass and forces
 			part.mass = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z) * scale + specificMass.w;
-			massDisplay = AtUtils.formatMass (part.mass);
+			massDisplay = Utils.formatMass (part.mass);
 			part.breakingForce = specificBreakingForce * Mathf.Pow (scale, 2);
 			part.breakingTorque = specificBreakingTorque * Mathf.Pow (scale, 2);
 			
