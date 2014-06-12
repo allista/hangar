@@ -125,9 +125,9 @@ namespace AtHangar
 			UpdateGUIState();
 		}
 
-		void Awake()
+		new void Awake()
 		{
-			instance = this;
+			base.Awake();
 			GameEvents.onVesselChange.Add(onVesselChange);
 			GameEvents.onVesselWasModified.Add(onVesselWasModified);
 			GameEvents.onHideUI.Add(onHideUI);
@@ -135,13 +135,13 @@ namespace AtHangar
 			enabled = false;
 		}
 
-		void OnDestroy()
+		new void OnDestroy()
 		{
-			instance = null;
 			GameEvents.onVesselChange.Remove(onVesselChange);
 			GameEvents.onVesselWasModified.Remove(onVesselWasModified);
 			GameEvents.onHideUI.Remove(onHideUI);
 			GameEvents.onShowUI.Remove(onShowUI);
+			base.OnDestroy();
 		}
 		
 		//buttons
