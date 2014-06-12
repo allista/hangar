@@ -70,10 +70,12 @@ namespace AtHangar
 		}
 		
 		protected static T instance;
+		protected static KSP.IO.PluginConfiguration configfile = KSP.IO.PluginConfiguration.CreateForType<T>();
 		protected static Rect windowPos = new Rect();
 		protected static bool gui_enabled = true;
 		protected string window_name = "";
 		
+		//GUI toggles
 		public static void ToggleGUI()
 		{
 			gui_enabled = !gui_enabled;
@@ -100,36 +102,31 @@ namespace AtHangar
 		
 		virtual public void UpdateGUIState() { enabled = gui_enabled; }
 		
-		void Awake() { instance = (T)this; }
-		void OnDestroy() { instance = null; }
+		//init-destroy
+		protected void Awake() { LoadSettings(); instance = (T)this; }
+		protected void OnDestroy() { SaveSettings(); instance = null;  }
 		
-		public static void LoadSettings(ConfigNode node)
+		//settings
+		public static string mangleName(string name) { return typeof(T).Name+"-"+name; }
+		
+		public void LoadSettings()
 		{
-			string val = node.GetValue("rect");
-			if(val != null) {
-				Quaternion pos;
-				pos = ConfigNode.ParseQuaternion(val);
-				windowPos.x = pos.x;
-				windowPos.y = pos.y;
-				windowPos.width = pos.z;
-				windowPos.height = pos.w;
-			}
-			val = node.GetValue("visible");
-			if(val != null)
-				bool.TryParse(val, out gui_enabled);
+			Debug.Log(String.Format("{0} loading settings", typeof(T).Name));
+			configfile.load();
+			windowPos = configfile.GetValue<Rect>(mangleName("windowPos"));
+			gui_enabled = configfile.GetValue<bool>(mangleName("gui_enabled"));
+			UpdateGUIState();
+			
 		}
 
-		public static void SaveSettings(ConfigNode node)
+		public void SaveSettings()
 		{
-			Quaternion pos;
-			pos.x = windowPos.x;
-			pos.y = windowPos.y;
-			pos.z = windowPos.width;
-			pos.w = windowPos.height;
-			node.AddValue("rect", KSPUtil.WriteQuaternion(pos));
-			node.AddValue("visible", gui_enabled);
+			configfile.SetValue(mangleName("windowPos"), windowPos);
+			configfile.SetValue(mangleName("gui_enabled"), gui_enabled);
+			configfile.save();
 		}
 		
+		//GUI staff
 		abstract public void WindowGUI(int windowID);
 		
 		abstract public void OnGUI();
