@@ -107,18 +107,25 @@ namespace AtHangar
 			part.mass = base_mass+vessels_mass; 
 		}
 		
-		//calculate part volume as the sum of bounding boxes of its rendered components
+		//calculate part volume as the volume of the biggest of bounding boxes of model meshes
 		public static double PartVolume(Part p)
 		{
-			
+			if(p == null) return 0;
 			var model = p.FindModelTransform("model");
 			if (model == null) return 0;
-			double V_scale = model.localScale.x*model.localScale.y*model.localScale.z;
+			float V_scale = model.localScale.x*model.localScale.y*model.localScale.z;
 			double vol = 0;
-			foreach(MeshFilter m in p.gameObject.GetComponentsInChildren<MeshFilter>())
+//			Debug.Log (String.Format("[Hangar] calculating volume of '{0}'; scale is: {1}", p.name, model.localScale));
+			foreach(MeshFilter m in p.FindModelComponents<MeshFilter>())
 			{
-				Vector3 s = m.mesh.bounds.size;
-				vol += s.x*s.y*s.z*V_scale;
+				Vector3 s = Vector3.Scale(m.mesh.bounds.size, m.transform.localScale);
+				double mvol = s.x*s.y*s.z*V_scale;
+				if(mvol > vol) vol = mvol;
+//				Debug.Log (String.Format("[Hangar] mesh {0}: local scale {1}, scale {2}, local size {3}, size {4}, volume {5}", 
+//				                         m.transform.name, 
+//				                         m.transform.localScale, Vector3.Scale(m.transform.localScale, model.localScale), 
+//				                         s, Vector3.Scale(s, model.localScale), 
+//				                         mvol));
 			}
 			return vol;
 		}
@@ -126,7 +133,7 @@ namespace AtHangar
 		public void RecalculateVolume()
 		{
 			total_volume = PartVolume(part)*usefull_volume_ratio;
-			total_v = String.Format ("{0:F1} m^3", total_volume);
+			total_v = Utils.formatVolume(total_volume);
 		}
 		
 		//calculate transform of restored vessel
@@ -319,6 +326,7 @@ namespace AtHangar
 			//switch to restored vessel
 			FlightGlobals.ForceSetActiveVessel(vsl);
 			Staging.beginFlight();
+			Open();
 		}
 		
 		private void TryRestoreLastVessel()
@@ -446,9 +454,9 @@ namespace AtHangar
 		{
 			doors = hangar_gates.GatesState.ToString();
 			state = hangar_state.ToString();
-			used_v = String.Format ("{0:F1} m^3", used_volume);
+			used_v = Utils.formatVolume(used_volume);
 			vessels = String.Format ("{0}", stored_vessels.Count);
-			total_m = AtUtils.formatMass(part.mass);
+			total_m = Utils.formatMass(part.mass);
 		}
 		
 	}
