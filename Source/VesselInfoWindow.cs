@@ -12,6 +12,8 @@ namespace AtHangar
 	{
 		private double vessel_volume = 0;
 		private new string window_name = "Hangar info";
+		private float next_update = 0;
+		private static float update_interval = 0.2f;
 		
 		private double vesselVolume()
 		{
@@ -22,18 +24,28 @@ namespace AtHangar
 			if(parts.Count < 1) return 0;
 			//calculate ship's volume
 			double vol = 0;
-			foreach(Part p in parts) 
-				vol += Hangar.PartVolume(p);
+//			Debug.Log (String.Format("[Hangar] calculating volume of new vessel"));
+			foreach(Part p in parts) vol += Hangar.PartVolume(p);
+//			Debug.Log (String.Format("[Hangar] volume of new vessel calculated"));
 			return vol;
 		}
 		
-		public void Update() {vessel_volume = vesselVolume();}
+		public void Update() 
+		{ 
+			if(Time.time > next_update)
+			{
+				vessel_volume = vesselVolume();
+				next_update += update_interval;
+			}
+		}
+			
+		new void Awake() { base.Awake(); next_update = Time.time; }
 		
 		//draw main window
 		override public void WindowGUI(int windowID)
 		{ 
 			GUILayout.BeginVertical();
-			GUILayout.Label(String.Format("Volume: {0:F1} m^3", vessel_volume), GUILayout.ExpandWidth(true));
+			GUILayout.Label(Utils.formatVolume(vessel_volume), GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 10000, 20));
 		}
