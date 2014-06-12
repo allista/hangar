@@ -52,16 +52,17 @@
     <Compile Include="Hangar.cs" />
     <Compile Include="HangarAnimator.cs" />
     <Compile Include="IHangarAnimator.cs" />
-    <Compile Include="AtPartResizer.cs" />
-    <Compile Include="AtUtils.cs" />
     <Compile Include="HangarWindow.cs" />
     <Compile Include="DropDownList.cs" />
     <Compile Include="VesselInfoWindow.cs" />
     <Compile Include="AddonWindowBase.cs" />
     <Compile Include="Toolbar.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="HangarPartResizer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="Hangar.userprefs" />
+    <None Include="TODO.md" />
   </ItemGroup>
 </Project>
