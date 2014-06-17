@@ -110,6 +110,9 @@ namespace AtHangar
 			else
 				return volume.ToString ("n1") + " m^3";
 		}
+		
+		public static string formatDimensions(Vector3 size)
+		{ return string.Format("{0:F1}m x {1:F1}m x {2:F1}m", size.x, size.y, size.z); }
 	}
 	
 	

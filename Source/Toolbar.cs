@@ -5,36 +5,19 @@ using UnityEngine;
 using Toolbar;
 
 namespace AtHangar {
-	
-	[KSPAddon (KSPAddon.Startup.EditorAny, false)]
-	public class HangarToolbar_Editor : MonoBehaviour
+	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
+	public class HangarToolbar : MonoBehaviour
 	{
-		private IButton HangarEditorButton;
+		private IButton HangarButton;
 
 		public void Awake ()
 		{
-			HangarEditorButton = ToolbarManager.Instance.add ("Hangar", "HangarEditorButton");
-			HangarEditorButton.TexturePath = "Hangar/Textures/icon_button";
-			HangarEditorButton.ToolTip = "Hangar info display";
-			HangarEditorButton.OnClick += (e) => VesselInfoWindow.ToggleGUI ();
+			HangarButton = ToolbarManager.Instance.add ("Hangar", "HangarButton");
+			HangarButton.TexturePath = "Hangar/Textures/icon_button";
+			HangarButton.ToolTip = "Hangar controls and info";
+			HangarButton.OnClick += (e) => HangarWindow.ToggleGUI ();
 		}
 
-		void OnDestroy() { HangarEditorButton.Destroy(); }
-	}
-
-	[KSPAddon (KSPAddon.Startup.Flight, false)]
-	public class HangarToolbar_Flight : MonoBehaviour
-	{
-		private IButton HangarFlightButton;
-
-		public void Awake ()
-		{
-			HangarFlightButton = ToolbarManager.Instance.add ("Hangar", "HangarFlightButton");
-			HangarFlightButton.TexturePath = "Hangar/Textures/icon_button";
-			HangarFlightButton.ToolTip = "Hangar controls";
-			HangarFlightButton.OnClick += (e) => HangarWindow.ToggleGUI ();
-		}
-
-		void OnDestroy() { HangarFlightButton.Destroy(); }
+		void OnDestroy() { HangarButton.Destroy(); }
 	}
 }

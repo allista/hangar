@@ -71,9 +71,13 @@ namespace AtHangar
 		
 		protected static T instance;
 		protected static KSP.IO.PluginConfiguration configfile = KSP.IO.PluginConfiguration.CreateForType<T>();
-		protected static Rect windowPos = new Rect();
 		protected static bool gui_enabled = true;
-		protected string window_name = "";
+		protected static bool hide_ui = false;
+		
+		//update parameters
+		float next_update = 0;
+		static float update_interval = 0.2f;
+		
 		
 		//GUI toggles
 		public static void ToggleGUI()
@@ -100,34 +104,67 @@ namespace AtHangar
 			}
 		}
 		
-		virtual public void UpdateGUIState() { enabled = gui_enabled; }
+		public void onHideUI()
+		{
+			hide_ui = true;
+			instance.UpdateGUIState();
+		}
+
+		public void onShowUI()
+		{
+			hide_ui = false;
+			instance.UpdateGUIState();
+		}
 		
-		//init-destroy
-		protected void Awake() { LoadSettings(); instance = (T)this; }
-		protected void OnDestroy() { SaveSettings(); instance = null;  }
+		virtual public void UpdateGUIState() { enabled = !hide_ui && gui_enabled; }
+		
+		//update-init-destroy
+		abstract public void OnUpdate();
+		
+		void Update() 
+		{ 
+			if(Time.time > next_update)
+			{
+				OnUpdate();
+				next_update += update_interval;
+			}
+		}
+		
+		protected void Awake() 
+		{ 
+			LoadSettings(); 
+			instance = (T)this; 
+			next_update = Time.time; 
+			GameEvents.onHideUI.Add(onHideUI);
+			GameEvents.onShowUI.Add(onShowUI);
+		}
+		
+		protected void OnDestroy() 
+		{ 
+			SaveSettings(); 
+			GameEvents.onHideUI.Remove(onHideUI);
+			GameEvents.onShowUI.Remove(onShowUI);
+			instance = null;  
+		}
 		
 		//settings
 		public static string mangleName(string name) { return typeof(T).Name+"-"+name; }
 		
-		public void LoadSettings()
+		virtual public void LoadSettings()
 		{
 			configfile.load();
-			windowPos = configfile.GetValue<Rect>(mangleName("windowPos"));
 			gui_enabled = configfile.GetValue<bool>(mangleName("gui_enabled"));
 			UpdateGUIState();
 			
 		}
 
-		public void SaveSettings()
+		virtual public void SaveSettings()
 		{
-			configfile.SetValue(mangleName("windowPos"), windowPos);
 			configfile.SetValue(mangleName("gui_enabled"), gui_enabled);
 			configfile.save();
 		}
 		
 		//GUI staff
-		abstract public void WindowGUI(int windowID);
-		
 		abstract public void OnGUI();
 	}
 }
