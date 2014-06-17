@@ -12,10 +12,14 @@ namespace AtHangar
 	{
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Scale", guiFormat="S4")]
 		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.1f, maxValue=10, incrementLarge=1.25f, incrementSmall=0.125f, incrementSlide=0.001f)]
-		public float size=1.0f;
+		public float size = 1.0f;
 		
-		[KSPField] public float sizeStepLarge = 1f;
-		[KSPField] public float sizeStepSmall = 0.1f;
+//		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Length", guiFormat="S4")]
+//		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.1f, maxValue=10, incrementLarge=1.25f, incrementSmall=0.125f, incrementSlide=0.001f)]
+//		public float length = 1.0f;
+		
+		[KSPField] public float sizeStepLarge = 1.25f;
+		[KSPField] public float sizeStepSmall = 0.125f;
 		
 		[KSPField] public Vector4 specificMass = new Vector4(0.005f, 0.011f, 0.009f, 0f);
 		[KSPField] public float specificBreakingForce  = 1536;
@@ -101,7 +105,7 @@ namespace AtHangar
 			if (model != null)
 				model.localScale = Vector3.one * scale;
 			else
-				Debug.LogError ("[AtPartResizer] No 'model' transform in the part", this);
+				Debug.LogError ("[HangarPartResizer] No 'model' transform in the part", this);
 			
 			//change volume if the part is a hangar
 			Hangar hangar = part.Modules.OfType<Hangar>().SingleOrDefault();
