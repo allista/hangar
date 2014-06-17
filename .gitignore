@@ -2,6 +2,7 @@
 /KSP_test
 /Resources
 /Temp
+/Library/metadata/**
 /Library/*Cache*
 /GameData/Hangar/Plugins/PluginData/Hangar/config.xml
 *~
