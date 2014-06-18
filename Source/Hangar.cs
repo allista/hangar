@@ -44,7 +44,11 @@ namespace AtHangar
 		[KSPField (isPersistant = false)] public float  LaunchHeightOffset = 0.0f;
 		[KSPField (isPersistant = false)] public string LaunchTransform;
 		[KSPField (isPersistant = false)] public string HangarSpace;
-		Transform restoreTransform;
+		Transform launchTransform;
+		Vessel launched_vessel;
+		Vector3 launch_offset;
+		DockedVesselInfo dock_info;
+		Part launched_root;
 		
 		//gui fields
 		[KSPField (guiName = "Volume", guiActive = true, guiActiveEditor=true)] public string hangar_v;
@@ -84,10 +88,33 @@ namespace AtHangar
 		public int numVessels() { return stored_vessels.Count; }
 		
 		
+		private void onVesselSituationChange(GameEvents.HostedFromToAction<Vessel, Vessel.Situations> vs)
+		{ if (vs.host != vessel) return; }
+
+		void onVesselWasModified(Vessel v)
+		{
+			if (v == vessel) 
+			{
+				if(launched_root != null && launched_root.vessel != vessel) 
+				{
+					launched_root = null;
+					ReleaseVessel();
+				}
+			}
+		}
+		
 		public override void OnAwake()
 		{
 			base.OnAwake ();
 			usefull_volume_ratio = (float)Math.Pow(usefull_volume_ratio, 1/3f);
+			GameEvents.onVesselSituationChange.Add (onVesselSituationChange);
+			GameEvents.onVesselWasModified.Add (onVesselWasModified);
+		}
+		
+		void OnDestroy ()
+		{
+			GameEvents.onVesselSituationChange.Remove (onVesselSituationChange);
+			GameEvents.onVesselWasModified.Remove (onVesselWasModified);
 		}
 		
 		
@@ -142,12 +169,12 @@ namespace AtHangar
 		}
 		
 		//calculate transform of restored vessel
-		private Transform GetRestoreTransform ()
+		private Transform get_launch_transform()
 		{
-			restoreTransform = null;
+			launchTransform = null;
 			if(LaunchTransform != "")
-				restoreTransform = part.FindModelTransform(LaunchTransform);
-			if(restoreTransform == null)
+				launchTransform = part.FindModelTransform(LaunchTransform);
+			if(launchTransform == null)
 			{
 				Vector3 offset = Vector3.up * LaunchHeightOffset;
 				Transform t = part.transform;
@@ -155,57 +182,33 @@ namespace AtHangar
 				restorePos.transform.position = t.position;
 				restorePos.transform.position += t.TransformDirection (offset);
 				restorePos.transform.rotation = t.rotation;
-				restoreTransform = restorePos.transform;
+				launchTransform = restorePos.transform;
 				Debug.Log(string.Format("LaunchTransform not found. Using offset."));
 			}
-			Debug.Log(string.Format("LaunchTransform used: {0}, {1}-{2}",restoreTransform.name, restoreTransform.position,  restoreTransform.rotation.eulerAngles));
-			return restoreTransform;
+			Debug.Log(string.Format("LaunchTransform used: {0}, {1}-{2}",launchTransform.name, launchTransform.position,  launchTransform.rotation.eulerAngles));
+			return launchTransform;
 		}
 		
 		//dock launched vessel to the hangar to prevent its krakenization 
-		private void coupleVessel(Vessel vsl)
+		private void couple_vessel()
 		{
-			Part root = vsl.rootPart;
-			DockedVesselInfo vesselInfo = new DockedVesselInfo ();
-			vesselInfo.name = vsl.vesselName;
-			vesselInfo.vesselType = vsl.vesselType;
-			vesselInfo.rootPartUId = root.flightID;
-			root.Couple(part);
+			launched_root = launched_vessel.rootPart;
+			Debug.Log(string.Format("Vessel root: {0}, parts count: {1}", launched_root, launched_vessel.parts.Count));
+			dock_info = new DockedVesselInfo ();
+			Debug.Log("5.1");
+			dock_info.name = launched_vessel.vesselName;
+			Debug.Log("5.2");
+			dock_info.vesselType = launched_vessel.vesselType;
+			Debug.Log("5.3");
+			dock_info.rootPartUId = launched_root.flightID;
+			Debug.Log(string.Format("5.4: parts {0}", launched_vessel.parts.Count));
+			launched_root.Couple(part);
+			Debug.Log(string.Format("5.5: parts {0}", launched_vessel.parts.Count));
 			if (vessel != FlightGlobals.ActiveVessel)
 				FlightGlobals.ForceSetActiveVessel(vessel);
+			Events["ReleaseVessel"].active = true;
 		}
 		
-		//position launched vessel part by part
-		private IEnumerator<YieldInstruction>captureVessel(Vessel vsl, Vector3 offset)
-		{
-			Vector3 pos;
-			Debug.Log("1");
-			while(true) 
-			{
-				bool partsInitialized = true;
-				foreach (Part p in vsl.parts) 
-				{
-					if (!p.started)
-					{
-						partsInitialized = false;
-						break;
-					}
-				}
-				pos = restoreTransform.TransformPoint(offset);
-				vsl.SetPosition(pos, true);
-				if (partsInitialized) break;
-				OrbitPhysicsManager.HoldVesselUnpack(2);
-				Debug.Log("2");
-				yield return null;
-			}
-			Debug.Log("3");
-			FlightGlobals.overrideOrbit = false;
-			Debug.Log("4");
-			vsl.GoOffRails ();
-			Debug.Log("5");
-			coupleVessel(vsl);
-			Debug.Log("6");
-		}
 		
 		//set vessel orbit, transform, coordinates
 		private void PositionVessel(ProtoVessel pv)
@@ -213,25 +216,21 @@ namespace AtHangar
 			//state
 			pv.splashed  = vessel.Landed;
 			pv.landed    = vessel.Splashed;
-			pv.orbitSnapShot = new OrbitSnapshot(vessel.orbit);
 			//rotation
-			Debug.Log(string.Format("[Hangar] part position: {0}", part.transform.position));
-			Debug.Log(string.Format("[Hangar] part rotation: {0}", part.transform.rotation.eulerAngles));
-			Debug.Log(string.Format("[Hangar] old position: {0}", pv.position));
-			Debug.Log(string.Format("[Hangar] old rotation: {0}", pv.rotation.eulerAngles));
-			pv.rotation = restoreTransform.rotation; //TODO: is this correct?
+			pv.rotation = launchTransform.rotation; //TODO: is this correct?
+			pv.position = launchTransform.position;
 			//Debug.Log(string.Format("[Hangar] new position: {0}", pv.position));
 			//Debug.Log(string.Format("[Hangar] new rotation: {0}", pv.rotation.eulerAngles));
 			//surface
 			if(vessel.LandedOrSplashed)
 			{
-				Vector3 v  = restoreTransform.position;
+				Vector3 v  = launchTransform.position;
 				v = new Vector3d(v.x, v.y, v.z);
 				pv.longitude = vessel.mainBody.GetLongitude(v);
 				pv.latitude  = vessel.mainBody.GetLatitude(v);
 				pv.altitude  = vessel.mainBody.GetAltitude(v);
 			}
-			else pv.position = restoreTransform.position;
+			else pv.orbitSnapShot = new OrbitSnapshot(vessel.orbit);
 		}
 		
 		private void PositionVessel(Vessel vsl)
@@ -240,17 +239,10 @@ namespace AtHangar
 			vsl.Splashed  = false;//vessel.Landed;
 			vsl.Landed    = false;//vessel.Splashed;
 			//rotation
-			Debug.Log(string.Format("[Hangar] part rotation: {0}", part.transform.rotation.eulerAngles));
-			Debug.Log(string.Format("[Hangar] part position: {0}", part.transform.position));
-			Debug.Log(string.Format("[Hangar] old rotation: {0}", vsl.transform.rotation.eulerAngles));
-			Debug.Log(string.Format("[Hangar] old position: {0}", vsl.transform.position));
-			vsl.vesselTransform.rotation = restoreTransform.rotation; //TODO: is this correct?
-			Debug.Log(string.Format("[Hangar] new rotation: {0}", vsl.transform.rotation.eulerAngles));
-			Debug.Log(string.Format("[Hangar] new position: {0}", vsl.transform.position));
 			//surface
 			if(vessel.LandedOrSplashed)
 			{
-				Vector3 v  = restoreTransform.position;
+				Vector3 v  = launchTransform.position;
 				v = new Vector3d(v.x, v.y, v.z);
 				vsl.longitude = vessel.mainBody.GetLongitude(v);
 				vsl.latitude  = vessel.mainBody.GetLatitude(v);
@@ -258,41 +250,50 @@ namespace AtHangar
 			}
 			else
 			{
-				//transform
-//				vsl.vesselTransform = restoreTransform;
 				//orbit
 				vsl.orbitDriver.SetOrbitMode(OrbitDriver.UpdateMode.UPDATE);
 				vsl.orbit.UpdateFromOrbitAtUT(vessel.orbit, Planetarium.GetUniversalTime(), vessel.mainBody);
 			}
 		}
 		
-		//if a vessel can be stored in the hangar
-		public bool CanStore(Vessel vsl)
+		
+		//position launched vessel part by part
+		private IEnumerator<YieldInstruction> capture_vessel()
 		{
-			if(vsl == null || vsl == vessel) return false;
-			//check if the vessel is EVA. Maybe get EVA on board too?
-			if(vsl.isEVA) return false;
-			//check vessel crew
-			if(vsl.GetCrewCount() > vessel.GetCrewCapacity()-vessel.GetCrewCount())
+			Debug.Log(string.Format("1: parts {0}", launched_vessel.parts.Count));
+			while(true) 
 			{
-				FlightScreenMessager.showMessage("Not enough space for the crew of a docking vessel", 3);
-				return false;
+				bool partsInitialized = true;
+				Debug.Log(string.Format("2.1: parts {0}", launched_vessel.parts.Count));
+				foreach (Part p in launched_vessel.parts) 
+				{
+					Debug.Log(string.Format("2.2: {0}", p.name));
+					if (!p.started)
+					{
+						Debug.Log("2.2.1");
+						partsInitialized = false;
+						break;
+					}
+				}
+				Debug.Log("2.3");
+				launched_vessel.SetPosition(launch_offset);
+				launched_vessel.SetRotation(launchTransform.rotation);
+				Debug.Log(string.Format("2.4: parts {0}", launched_vessel.parts.Count));
+				if(partsInitialized) break;
+				OrbitPhysicsManager.HoldVesselUnpack(2);
+				Debug.Log(string.Format("2.5: parts {0}", launched_vessel.parts.Count));
+				yield return null;
 			}
-			//check vessel metrics
-			Metric metric = new Metric(vsl);
-			if(metric.volume > hangar_metric.volume-used_volume) 
-			{
-				FlightScreenMessager.showMessage("There's no room in the hangar for this vessel", 3);
-				return false;
-			}
-			if(!metric.fits(hangar_metric))
-			{
-				FlightScreenMessager.showMessage("The vessel does not fit into this hangar", 3);
-				return false;
-			}	
-			return true;
+			Debug.Log(string.Format("3: parts {0}", launched_vessel.parts.Count));
+			FlightGlobals.overrideOrbit = false;
+			Debug.Log(string.Format("4: parts {0}", launched_vessel.parts.Count));
+			launched_vessel.GoOffRails ();
+			Debug.Log(string.Format("5: parts {0}", launched_vessel.parts.Count));
+			couple_vessel();
+			Debug.Log(string.Format("6: parts {0}", launched_vessel.parts.Count));
 		}
 		
+
 		//add some crew to the part
 		private static bool addCrew(Part p, List<ProtoCrewMember> crew)
 		{
@@ -327,6 +328,34 @@ namespace AtHangar
 			{ if(crew.Contains(cr)) deleted.Add(cr); }
 			foreach(ProtoCrewMember cr in deleted) p.RemoveCrewmember(cr);
 			return deleted;
+		}
+		
+		
+		//if a vessel can be stored in the hangar
+		public bool CanStore(Vessel vsl)
+		{
+			if(vsl == null || vsl == vessel) return false;
+			//check if the vessel is EVA. Maybe get EVA on board too?
+			if(vsl.isEVA) return false;
+			//check vessel crew
+			if(vsl.GetCrewCount() > vessel.GetCrewCapacity()-vessel.GetCrewCount())
+			{
+				FlightScreenMessager.showMessage("Not enough space for the crew of a docking vessel", 3);
+				return false;
+			}
+			//check vessel metrics
+			Metric metric = new Metric(vsl);
+			if(metric.volume > hangar_metric.volume-used_volume) 
+			{
+				FlightScreenMessager.showMessage("There's no room in the hangar for this vessel", 3);
+				return false;
+			}
+			if(!metric.fits(hangar_metric))
+			{
+				FlightScreenMessager.showMessage("The vessel does not fit into this hangar", 3);
+				return false;
+			}	
+			return true;
 		}
 		
 		//store vessel
@@ -379,22 +408,23 @@ namespace AtHangar
 			//destroy vessel
 			vsl.Die();
 			FlightScreenMessager.showMessage("Vessel has been docked inside the hangar", 3);
-			Close();
+//			Close();
 		}
 		
+		
 		//restore vessel
-		public void TryRestoreVessel(Guid vid)
+		private bool CanRestore()
 		{
 			//if hangar is not ready, return
 			if(hangar_state == HangarState.Busy) 
 			{
 				FlightScreenMessager.showMessage("Prepare hangar first", 3);
-				return;
+				return false;
 			}
 			if(hangar_gates.GatesState != HangarGates.Opened) 
 			{
 				FlightScreenMessager.showMessage("Open hangar gates first", 3);
-				return;
+				return false;
 			}
 			//if in orbit or on the ground and not moving
 			switch(FlightGlobals.ClearToSave()) 
@@ -402,32 +432,38 @@ namespace AtHangar
 			case ClearToSaveStatus.NOT_IN_ATMOSPHERE:
 			{
 				FlightScreenMessager.showMessage("Cannot launch vessel while flying in atmosphere", 3);
-				return;
+				return false;
 			}
 			case ClearToSaveStatus.NOT_UNDER_ACCELERATION:
 			{
 				FlightScreenMessager.showMessage("Cannot launch vessel hangar is under accelleration", 3);
-				return;
+				return false;
 			}
 			case ClearToSaveStatus.NOT_WHILE_ABOUT_TO_CRASH:
 			{
 				FlightScreenMessager.showMessage("Cannot launch vessel while about to crush", 3);
-				return;
+				return false;
 			}
 			case ClearToSaveStatus.NOT_WHILE_MOVING_OVER_SURFACE:
 			{
 				FlightScreenMessager.showMessage("Cannot launch vessel while moving on the surface", 3);
-				return;
+				return false;
 			}
 			case ClearToSaveStatus.NOT_WHILE_THROTTLED_UP:
 			{
 				FlightScreenMessager.showMessage("Cannot launch vessel while thottled up", 3);
-				return;
+				return false;
 			}
 			default:
 				FlightScreenMessager.showMessage("Launching vessel...", 3);
 				break;
 			}
+			return true;
+		}
+		
+		public void TryRestoreVessel(Guid vid)
+		{
+			if(!CanRestore()) return;
 			//get vessel
 			StoredVessel stored_vessel;
 			if(!stored_vessels.TryGetValue(vid, out stored_vessel)) return;
@@ -437,63 +473,62 @@ namespace AtHangar
 			hangar_state = HangarState.Busy;
 			Events["Prepare"].active = true;
 			//set restored vessel orbit
-			GetRestoreTransform();
-			PositionVessel(stored_vessel.vessel);
+			get_launch_transform();
 			//restore vessel
 			stored_vessel.vessel.Load(FlightDriver.FlightStateCache.flightState);
+			stored_vessel.vessel.LoadObjects();
 			//get restored vessel from the world
-			Vessel vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count-1];
-			vsl.Splashed = vessel.Splashed;
-			vsl.Landed = vessel.Landed;
+			launched_vessel = stored_vessel.vessel.vesselRef;
+			launch_offset = launchTransform.position;//+launchTransform.up*(new Metric(launched_vessel.parts)).size.y/2f;
 			//transfer crew back to the launched vessel
 			List<ProtoCrewMember> transfered_crew = new List<ProtoCrewMember>();
 			foreach(Part p in vessel.parts)	transfered_crew.AddRange(delCrew(p, stored_vessel.crew));
-			addCrew(vsl, transfered_crew);
+			addCrew(launched_vessel, transfered_crew);
 			//change volume and mass
 			if(stored_vessels.Count < 1) 
 			{
-				used_volume = 0;
+				used_volume  = 0;
 				vessels_mass = 0;
 			}
 			else
 			{
-				used_volume -= Metric.Volume(vsl);
-				vessels_mass -= vsl.GetTotalMass();
+				used_volume  -= Metric.Volume(launched_vessel);
+				vessels_mass -= launched_vessel.GetTotalMass();
 			}
 			SetMass();
 			//switch to restored vessel
-			FlightGlobals.ForceSetActiveVessel(vsl);
-			Staging.beginFlight();
+			launched_vessel.Landed = launched_vessel.Splashed = false;
 			FlightGlobals.overrideOrbit = true;
-			StartCoroutine(captureVessel(vsl, Vector3.zero));
-			Debug.Log(string.Format("[Hangar] actual new rotation: {0}", vsl.vesselTransform.rotation.eulerAngles));
-			Debug.Log(string.Format("[Hangar] actual new position: {0}", vsl.vesselTransform.position));
-			Open();
+			FlightGlobals.ForceSetActiveVessel(launched_vessel);
+			Staging.beginFlight();
+			StartCoroutine(capture_vessel());
 		}
 		
 		//called every frame while part collider is touching the trigger
 		public void OnTriggerStay (Collider col) //see Unity docs
 		{
-			if(col == null) return;
-			if (hangar_gates.GatesState != HangarGates.Opened
+			if(hangar_gates.GatesState != HangarGates.Opened
+				||  col == null
 				|| !col.CompareTag ("Untagged")
-				|| col.gameObject.name == "MapOverlay collider"// kethane
-			    || col.attachedRigidbody == null)
+				||  col.gameObject.name == "MapOverlay collider"// kethane
+				||  col.attachedRigidbody == null)
 				return;
 			//get part and try to store vessel
 			Part p = col.attachedRigidbody.GetComponent<Part>();
-			if (p == null) return;
+			if(p == null || p.vessel == null) return;
 			TryStoreVessel(p.vessel);
 		}
 		
 		//called when part collider exits the trigger
 		public void OnTriggerExit(Collider col)
 		{
-			if (!col.CompareTag("Untagged")
-				|| col.gameObject.name == "MapOverlay collider" // kethane
-				|| col.attachedRigidbody == null)
+			if(col == null
+				|| !col.CompareTag("Untagged")
+				||  col.gameObject.name == "MapOverlay collider" // kethane
+				||  col.attachedRigidbody == null)
 				return;
 			Part p = col.attachedRigidbody.GetComponent<Part>();
+			if(p == null || p.vessel == null) return;
 			if(probed_ids.ContainsKey(p.vessel.id)) probed_ids.Remove(p.vessel.id);
 		}
 		
@@ -523,6 +558,22 @@ namespace AtHangar
 		{
 			hangar_state = HangarState.Ready;
 			Events["Prepare"].active = false;
+		}
+		
+		//release docked vessel
+		[KSPEvent (guiActive = true, guiName = "Release vessel", active = false)]
+		public void ReleaseVessel()
+		{
+			if(launched_root != null) 
+			{
+				launched_root.Undock(dock_info);
+				Vessel vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1];
+				FlightGlobals.ForceSetActiveVessel(vsl);
+			}
+			dock_info = null;
+			launched_vessel = null;
+			launched_root = null;
+			Events["ReleaseVessel"].active = false;
 		}
 		
 		
