@@ -9,7 +9,7 @@ namespace AtHangar
 {
 	abstract public class AddonWindowBase<T> : MonoBehaviour where T : AddonWindowBase<T>
 	{
-		public class Styles 
+		public class Styles //This is the code from Extraplanetary Launchpad plugin.
 		{
 			public static GUIStyle normal;
 			public static GUIStyle red;
