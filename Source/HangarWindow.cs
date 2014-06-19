@@ -173,6 +173,15 @@ namespace AtHangar
 				selected_hangar.TryRestoreVessel(selected_vessel.vid);
 		}
 		
+		void ReleaseButton()
+		{
+			if(selected_hangar.dock_info != null)
+			{
+				if(GUILayout.Button("Release Vessel", GUILayout.ExpandWidth(true)))
+					selected_hangar.ReleaseVessel();
+			}
+		}
+		
 		void ToggleGatesButton()
 		{
 			if(selected_hangar.gates_state == HangarGates.Closed ||
@@ -320,6 +329,7 @@ namespace AtHangar
 				LaunchButton();
 				
 			}
+			ReleaseButton();
 			CloseButton();
 			SelectHangar_end();
 			SelectVessel_end();
