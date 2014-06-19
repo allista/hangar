@@ -1,17 +1,15 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../Resources/Extraplanetary-Launchpads-master/Source/ExLaunchPad.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="HangarPartResizer.cs">
     <Files>
-      <File FileName="Hangar.cs" Line="464" Column="42" />
-      <File FileName="Metric.cs" Line="11" Column="44" />
-      <File FileName="AddonWindowBase.cs" Line="119" Column="56" />
-      <File FileName="HangarWindow.cs" Line="347" Column="31" />
-      <File FileName="../Resources/Extraplanetary-Launchpads-master/Source/ExLaunchPad.cs" Line="344" Column="8" />
-      <File FileName="Toolbar.cs" Line="9" Column="28" />
-      <File FileName="HangarPartResizer.cs" Line="108" Column="29" />
+      <File FileName="Hangar.cs" Line="1" Column="78" />
+      <File FileName="Metric.cs" Line="12" Column="44" />
+      <File FileName="AddonWindowBase.cs" Line="12" Column="22" />
+      <File FileName="HangarWindow.cs" Line="332" Column="20" />
+      <File FileName="../Resources/Extraplanetary-Launchpads-master/Source/ExLaunchPad.cs" Line="115" Column="3" />
       <File FileName="HangarAnimator.cs" Line="22" Column="77" />
       <File FileName="BaseHangarAnimator.cs" Line="38" Column="26" />
-      <File FileName="Utils.cs" Line="115" Column="54" />
+      <File FileName="HangarPartResizer.cs" Line="56" Column="6" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
