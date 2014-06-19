@@ -1,8 +1,10 @@
+//This code is partly based on the code from Extraplanetary Launchpad plugin. ExLaunchPad and Recycler classes.
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+
 
 namespace AtHangar
 {
@@ -29,8 +31,8 @@ namespace AtHangar
 		public HangarState hangar_state { get; private set;}
 		public Metric hangar_metric;
 		private float usefull_volume_ratio = 0.7f; //only 70% of the volume may be used by docking vessels
-		private float crew_volume_ratio    = 0.3f; //only 30% of the remaining volyme may be used for crew (i.e. V*(1-usefull_r)*crew_r)
-		private float volume_per_kerbal    = 1.5f; //m^3
+		private float crew_volume_ratio    = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
+		[KSPField (isPersistant = false)] private float volume_per_kerbal = 3f; //m^3
 		//persistent private fields
 		[KSPField (isPersistant = true)] private float used_volume  = 0f;
 		[KSPField (isPersistant = true)] private float base_mass    = 0f;
@@ -47,11 +49,12 @@ namespace AtHangar
 		Transform launchTransform;
 		Vessel launched_vessel;
 		Vector3 launch_offset;
-		DockedVesselInfo dock_info;
+		public DockedVesselInfo dock_info;
 		Part launched_root;
 		
 		//gui fields
 		[KSPField (guiName = "Volume", guiActive = true, guiActiveEditor=true)] public string hangar_v;
+		[KSPField (guiName = "Dimensions", guiActive = true, guiActiveEditor=true)] public string hangar_d;
 		[KSPField (guiName = "Volume used", guiActive = true)] public string used_v;
 		[KSPField (guiName = "Vessels docked", guiActive = true)] public string vessels_docked;
 		[KSPField (guiName = "Crew capacity", guiActive = true, guiActiveEditor=true)] public string crew_capacity;
@@ -103,6 +106,8 @@ namespace AtHangar
 			}
 		}
 		
+		
+		//all initialization goes here instead of the constructor as documented in Unity API
 		public override void OnAwake()
 		{
 			base.OnAwake ();
@@ -117,8 +122,6 @@ namespace AtHangar
 			GameEvents.onVesselWasModified.Remove (onVesselWasModified);
 		}
 		
-		
-		//all initialization goes here instead of the constructor as documented in Unity API
 		public override void OnStart(StartState state)
 		{
 			//base OnStart
@@ -166,6 +169,7 @@ namespace AtHangar
 			}
 			//calculate hangar volume
 			hangar_v = Utils.formatVolume(hangar_metric.volume);
+			hangar_d = Utils.formatDimensions(hangar_metric.size);
 		}
 		
 		//calculate transform of restored vessel
@@ -654,6 +658,7 @@ namespace AtHangar
 			doors = hangar_gates.GatesState.ToString();
 			state = hangar_state.ToString();
 			used_v = Utils.formatVolume(used_volume);
+			hangar_d = Utils.formatDimensions(hangar_metric.size);
 			vessels_docked = String.Format ("{0}", stored_vessels.Count);
 			total_m = Utils.formatMass(part.mass);
 			crew_capacity = part.CrewCapacity.ToString();
