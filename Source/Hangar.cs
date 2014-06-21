@@ -32,7 +32,7 @@ namespace AtHangar
 		public Metric hangar_metric;
 		private float usefull_volume_ratio = 0.7f; //only 70% of the volume may be used by docking vessels
 		private float crew_volume_ratio    = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
-		[KSPField (isPersistant = false)] private float volume_per_kerbal = 3f; //m^3
+		[KSPField (isPersistant = false)] private float volumePerKerbal = 3f; //m^3
 		//persistent private fields
 		[KSPField (isPersistant = true)] private float used_volume  = 0f;
 		[KSPField (isPersistant = true)] private float base_mass    = 0f;
@@ -666,4 +666,3 @@ namespace AtHangar
 		
 	}
 }
-
