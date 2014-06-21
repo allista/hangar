@@ -41,6 +41,8 @@ ModelImporter:
     100070: dockingNode
     100072: hangar_space
     100074: hangar_tirgger
+    100076: launch_transform
+    100078: launch_position
     400000: Camera
     400002: collider
     400004: collider.bottom
@@ -79,6 +81,8 @@ ModelImporter:
     400070: dockingNode
     400072: hangar_space
     400074: hangar_tirgger
+    400076: launch_transform
+    400078: launch_position
     2300000: collider.bottom
     2300002: collider.left
     2300004: collider.left.bottom
@@ -108,6 +112,7 @@ ModelImporter:
     2300052: inline-hangar
     2300054: hangar_space
     2300056: hangar_tirgger
+    2300058: //RootNode
     3300000: collider.bottom
     3300002: collider.left
     3300004: collider.left.bottom
@@ -137,6 +142,7 @@ ModelImporter:
     3300052: inline-hangar
     3300054: hangar_space
     3300056: hangar_tirgger
+    3300058: //RootNode
     4300000: hinge-1
     4300002: hinge-i
     4300004: model
