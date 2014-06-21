@@ -1,0 +1,349 @@
+fileFormatVersion: 2
+guid: d7a89fa422246f24e83724f79a6142a2
+ModelImporter:
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: Camera
+    100002: collider
+    100004: collider.bottom
+    100006: collider.left
+    100008: collider.left.bottom
+    100010: collider.right
+    100012: collider.right.bottom
+    100014: collider.top
+    100016: docking_port
+    100018: hinge-1
+    100020: hinge-d-l
+    100022: hinge-d-l-i
+    100024: hinge-d-r
+    100026: hinge-d-r-i
+    100028: hinge-i
+    100030: hinge-t-l
+    100032: hinge-t-l-i
+    100034: hinge-t-r
+    100036: hinge-t-r-i
+    100038: //RootNode
+    100040: Lamp
+    100042: left-gate
+    100044: left-gate-axis
+    100046: left-gate-axis.001
+    100048: model
+    100050: right-gate
+    100052: collider_bottom
+    100054: collider_left
+    100056: collider_left_bottom
+    100058: collider_right
+    100060: collider_right_bottom
+    100062: collider_top
+    100064: left-gate-axis_001
+    100066: right-gate-axis
+    100068: inline-hangar
+    100070: dockingNode
+    100072: hangar_space
+    100074: hangar_tirgger
+    400000: Camera
+    400002: collider
+    400004: collider.bottom
+    400006: collider.left
+    400008: collider.left.bottom
+    400010: collider.right
+    400012: collider.right.bottom
+    400014: collider.top
+    400016: docking_port
+    400018: hinge-1
+    400020: hinge-d-l
+    400022: hinge-d-l-i
+    400024: hinge-d-r
+    400026: hinge-d-r-i
+    400028: hinge-i
+    400030: hinge-t-l
+    400032: hinge-t-l-i
+    400034: hinge-t-r
+    400036: hinge-t-r-i
+    400038: //RootNode
+    400040: Lamp
+    400042: left-gate
+    400044: left-gate-axis
+    400046: left-gate-axis.001
+    400048: model
+    400050: right-gate
+    400052: collider_bottom
+    400054: collider_left
+    400056: collider_left_bottom
+    400058: collider_right
+    400060: collider_right_bottom
+    400062: collider_top
+    400064: left-gate-axis_001
+    400066: right-gate-axis
+    400068: inline-hangar
+    400070: dockingNode
+    400072: hangar_space
+    400074: hangar_tirgger
+    2300000: collider.bottom
+    2300002: collider.left
+    2300004: collider.left.bottom
+    2300006: collider.right
+    2300008: collider.right.bottom
+    2300010: collider.top
+    2300012: docking_port
+    2300014: hinge-1
+    2300016: hinge-d-l
+    2300018: hinge-d-l-i
+    2300020: hinge-d-r
+    2300022: hinge-d-r-i
+    2300024: hinge-i
+    2300026: hinge-t-l
+    2300028: hinge-t-l-i
+    2300030: hinge-t-r
+    2300032: hinge-t-r-i
+    2300034: left-gate
+    2300036: model
+    2300038: right-gate
+    2300040: collider_bottom
+    2300042: collider_left
+    2300044: collider_left_bottom
+    2300046: collider_right
+    2300048: collider_right_bottom
+    2300050: collider_top
+    2300052: inline-hangar
+    2300054: hangar_space
+    2300056: hangar_tirgger
+    3300000: collider.bottom
+    3300002: collider.left
+    3300004: collider.left.bottom
+    3300006: collider.right
+    3300008: collider.right.bottom
+    3300010: collider.top
+    3300012: docking_port
+    3300014: hinge-1
+    3300016: hinge-d-l
+    3300018: hinge-d-l-i
+    3300020: hinge-d-r
+    3300022: hinge-d-r-i
+    3300024: hinge-i
+    3300026: hinge-t-l
+    3300028: hinge-t-l-i
+    3300030: hinge-t-r
+    3300032: hinge-t-r-i
+    3300034: left-gate
+    3300036: model
+    3300038: right-gate
+    3300040: collider_bottom
+    3300042: collider_left
+    3300044: collider_left_bottom
+    3300046: collider_right
+    3300048: collider_right_bottom
+    3300050: collider_top
+    3300052: inline-hangar
+    3300054: hangar_space
+    3300056: hangar_tirgger
+    4300000: hinge-1
+    4300002: hinge-i
+    4300004: model
+    4300006: hinge-d-r
+    4300008: hinge-t-r
+    4300010: hinge-d-l
+    4300012: hinge-t-l
+    4300014: collider.bottom
+    4300016: collider.left
+    4300018: collider.left.bottom
+    4300020: collider.right
+    4300022: collider.right.bottom
+    4300024: collider.top
+    4300026: docking_port
+    4300028: left-gate
+    4300030: hinge-d-l-i
+    4300032: hinge-t-l-i
+    4300034: right-gate
+    4300036: hinge-d-r-i
+    4300038: hinge-t-r-i
+    4300040: collider_bottom
+    4300042: collider_left
+    4300044: collider_left_bottom
+    4300046: collider_right
+    4300048: collider_right_bottom
+    4300050: collider_top
+    4300052: inline-hangar
+    4300054: hangar_space
+    4300056: hangar_tirgger
+    7400000: hinge-1|left-gateAction.001
+    7400002: hinge-1|right-gateAction
+    7400004: hinge-i|left-gateAction.001
+    7400006: hinge-i|right-gateAction
+    7400008: model|left-gateAction.001
+    7400010: model|right-gateAction
+    7400012: hinge-d-r|left-gateAction.001
+    7400014: hinge-d-r|right-gateAction
+    7400016: hinge-t-r|left-gateAction.001
+    7400018: hinge-t-r|right-gateAction
+    7400020: left-gate-axis.001|left-gateAction.001
+    7400022: left-gate-axis.001|right-gateAction
+    7400024: left-gate-axis|left-gateAction.001
+    7400026: left-gate-axis|right-gateAction
+    7400028: hinge-d-l|left-gateAction.001
+    7400030: hinge-d-l|right-gateAction
+    7400032: hinge-t-l|left-gateAction.001
+    7400034: hinge-t-l|right-gateAction
+    7400036: collider|left-gateAction.001
+    7400038: collider|right-gateAction
+    7400040: collider.bottom|left-gateAction.001
+    7400042: collider.bottom|right-gateAction
+    7400044: collider.left|left-gateAction.001
+    7400046: collider.left|right-gateAction
+    7400048: collider.left.bottom|left-gateAction.001
+    7400050: collider.left.bottom|right-gateAction
+    7400052: collider.right|left-gateAction.001
+    7400054: collider.right|right-gateAction
+    7400056: collider.right.bottom|left-gateAction.001
+    7400058: collider.right.bottom|right-gateAction
+    7400060: collider.top|left-gateAction.001
+    7400062: collider.top|right-gateAction
+    7400064: docking_port|left-gateAction.001
+    7400066: docking_port|right-gateAction
+    7400068: left-gate|left-gateAction.001
+    7400070: left-gate|right-gateAction
+    7400072: hinge-d-l-i|left-gateAction.001
+    7400074: hinge-d-l-i|right-gateAction
+    7400076: hinge-t-l-i|left-gateAction.001
+    7400078: hinge-t-l-i|right-gateAction
+    7400080: right-gate|left-gateAction.001
+    7400082: right-gate|right-gateAction
+    7400084: hinge-d-r-i|left-gateAction.001
+    7400086: hinge-d-r-i|right-gateAction
+    7400088: hinge-t-r-i|left-gateAction.001
+    7400090: hinge-t-r-i|right-gateAction
+    7400092: Lamp|left-gateAction.001
+    7400094: Lamp|right-gateAction
+    7400096: Camera|left-gateAction.001
+    7400098: Camera|right-gateAction
+    7400100: open-gates
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: open-gates
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 109.000008
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Camera
+        weight: 1
+      - path: Lamp
+        weight: 1
+      - path: model
+        weight: 1
+      - path: model/collider
+        weight: 1
+      - path: model/collider/collider_bottom
+        weight: 1
+      - path: model/collider/collider_left
+        weight: 1
+      - path: model/collider/collider_left_bottom
+        weight: 1
+      - path: model/collider/collider_right
+        weight: 1
+      - path: model/collider/collider_right_bottom
+        weight: 1
+      - path: model/collider/collider_top
+        weight: 1
+      - path: model/docking_port
+        weight: 1
+      - path: model/hinge-d-l
+        weight: 1
+      - path: model/hinge-d-r
+        weight: 1
+      - path: model/hinge-t-l
+        weight: 1
+      - path: model/hinge-t-r
+        weight: 1
+      - path: model/left-gate
+        weight: 1
+      - path: model/left-gate/hinge-d-l-i
+        weight: 1
+      - path: model/left-gate/hinge-t-l-i
+        weight: 1
+      - path: model/left-gate-axis
+        weight: 1
+      - path: model/left-gate-axis_001
+        weight: 1
+      - path: model/right-gate
+        weight: 1
+      - path: model/right-gate/hinge-d-r-i
+        weight: 1
+      - path: model/right-gate/hinge-t-r-i
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  additionalBone: 0
+  userData: 
