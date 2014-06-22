@@ -102,6 +102,7 @@ namespace AtHangar
 		{
 			setNodeSize(part.findAttachNode ("top"), scale);
 			setNodeSize(part.findAttachNode ("bottom"), scale);
+			setNodeSize(part.findAttachNode ("docking"), scale);
 		}
 		
 		public virtual void resizePart (float scale, float len)
@@ -129,6 +130,7 @@ namespace AtHangar
 		
 			scaleNode (part.findAttachNode ("top"), scale, len, true);
 			scaleNode (part.findAttachNode ("bottom"), scale, len, true);
+			scaleNode (part.findAttachNode ("docking"), scale, len, true);
 		}
 	}
 }
