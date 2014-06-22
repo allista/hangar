@@ -23,6 +23,7 @@ namespace AtHangar
 		{
 			public ProtoVessel vessel;
 			public List<ProtoCrewMember> crew;
+			public Metric metric;
 		}
 		
 		//internal properties
@@ -32,7 +33,8 @@ namespace AtHangar
 		public Metric hangar_metric;
 		private float usefull_volume_ratio = 0.7f; //only 70% of the volume may be used by docking vessels
 		private float crew_volume_ratio    = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
-		[KSPField (isPersistant = false)] private float volumePerKerbal = 3f; //m^3
+		[KSPField (isPersistant = false)] public float volumePerKerbal = 3f; //m^3
+		[KSPField (isPersistant = false)] public bool StaticCrewCapacity = false;
 		//persistent private fields
 		[KSPField (isPersistant = true)] private float used_volume  = 0f;
 		[KSPField (isPersistant = true)] private float base_mass    = 0f;
@@ -138,11 +140,11 @@ namespace AtHangar
                 hangar_gates = new BaseHangarAnimator();
 				Debug.Log("[Hangar] Using BaseHangarAnimator");
 			}
-            else
-            {
-                Events["Open"].guiActiveEditor = true;
-                Events["Close"].guiActiveEditor = true;
-            }
+//            else
+//            {
+//                Events["Open"].guiActiveEditor = true;
+//                Events["Close"].guiActiveEditor = true;
+//            }
 		}
 		
 		public void Setup()	{ SetMass (); RecalculateVolume(); }
@@ -162,9 +164,9 @@ namespace AtHangar
 			if(hangar_metric == null || hangar_metric.empy())
 				hangar_metric = part_metric*usefull_volume_ratio;
 			//calculate crew capacity from remaining volume
-			if(part.Modules.OfType<HangarPartResizer>().SingleOrDefault() != null)
+			if(!StaticCrewCapacity)
 			{
-				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/volume_per_kerbal);
+				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/volumePerKerbal);
 				crew_capacity = part.CrewCapacity.ToString();
 			}
 			//calculate hangar volume
@@ -218,23 +220,43 @@ namespace AtHangar
 		private void PositionVessel(ProtoVessel pv)
 		{
 			//state
-			pv.splashed  = vessel.Landed;
-			pv.landed    = vessel.Splashed;
+			pv.splashed = vessel.Landed;
+			pv.landed   = vessel.Splashed;
 			//rotation
-			pv.rotation = launchTransform.rotation; //TODO: is this correct?
-			pv.position = launchTransform.position;
-			//Debug.Log(string.Format("[Hangar] new position: {0}", pv.position));
-			//Debug.Log(string.Format("[Hangar] new rotation: {0}", pv.rotation.eulerAngles));
+			ProtoVessel hpv = vessel.BackupVessel();
+			Quaternion proto_rot  = hpv.rotation;
+			Quaternion hangar_rot = vessel.vesselTransform.rotation;
+			pv.rotation = proto_rot*hangar_rot.Inverse()*launchTransform.rotation;
+			//debug
+			Debug.Log(string.Format("[Hangar] vessel CoM: {0}", vessel.findWorldCenterOfMass()));
+			Debug.Log(string.Format("[Hangar] proto CoM: {0}", vessel.protoVessel.CoM));
+			Debug.Log(string.Format("[Hangar] vessel rotation: {0}", vessel.vesselTransform.rotation.eulerAngles));
+			Debug.Log(string.Format("[Hangar] vessel proto-rotation: {0}", hpv.rotation.eulerAngles));
+			
+			Debug.Log(string.Format("[Hangar] part position: {0}", part.partTransform.position));
+			Debug.Log(string.Format("[Hangar] part rotation: {0}", part.partTransform.rotation.eulerAngles));
+			
+			Debug.Log(string.Format("[Hangar] orb position: {0}", vessel.orbit.pos));
+			
+			Debug.Log(string.Format("[Hangar] new position: {0}", pv.position));
+			Debug.Log(string.Format("[Hangar] new rotation: {0}", pv.rotation.eulerAngles));
 			//surface
 			if(vessel.LandedOrSplashed)
 			{
-				Vector3 v  = launchTransform.position;
-				v = new Vector3d(v.x, v.y, v.z);
+				Vector3d v   = Vector3d.zero+launchTransform.position;
 				pv.longitude = vessel.mainBody.GetLongitude(v);
 				pv.latitude  = vessel.mainBody.GetLatitude(v);
 				pv.altitude  = vessel.mainBody.GetAltitude(v);
 			}
-			else pv.orbitSnapShot = new OrbitSnapshot(vessel.orbit);
+			else //setup new orbit
+			{
+				Orbit horb = vessel.orbit;
+				Orbit vorb = new Orbit();
+				Vector3 d_pos = launchTransform.position-vessel.findWorldCenterOfMass();
+				Vector3d vpos = horb.pos+new Vector3d(d_pos.x, d_pos.z, d_pos.y);
+				vorb.UpdateFromStateVectors(vpos, horb.vel, horb.referenceBody, Planetarium.GetUniversalTime());
+				pv.orbitSnapShot = new OrbitSnapshot(vorb);
+			}
 		}
 		
 		private void PositionVessel(Vessel vsl)
@@ -475,15 +497,16 @@ namespace AtHangar
 			stored_vessels.Remove(vid);
 			//switch hangar state
 			hangar_state = HangarState.Busy;
-			Events["Prepare"].active = true;
+//			Events["Prepare"].active = true;
 			//set restored vessel orbit
 			get_launch_transform();
+			PositionVessel(stored_vessel.vessel);
 			//restore vessel
 			stored_vessel.vessel.Load(FlightDriver.FlightStateCache.flightState);
 			stored_vessel.vessel.LoadObjects();
 			//get restored vessel from the world
 			launched_vessel = stored_vessel.vessel.vesselRef;
-			launch_offset = launchTransform.position;//+launchTransform.up*(new Metric(launched_vessel.parts)).size.y/2f;
+//			launch_offset = launchTransform.position;//+launchTransform.up*(new Metric(launched_vessel.parts)).size.y/2f;
 			//transfer crew back to the launched vessel
 			List<ProtoCrewMember> transfered_crew = new List<ProtoCrewMember>();
 			foreach(Part p in vessel.parts)	transfered_crew.AddRange(delCrew(p, stored_vessel.crew));
@@ -501,11 +524,14 @@ namespace AtHangar
 			}
 			SetMass();
 			//switch to restored vessel
-			launched_vessel.Landed = launched_vessel.Splashed = false;
-			FlightGlobals.overrideOrbit = true;
+//			launched_vessel.Landed = launched_vessel.Splashed = false;
+//			FlightGlobals.overrideOrbit = true;
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
 			Staging.beginFlight();
-			StartCoroutine(capture_vessel());
+//			StartCoroutine(capture_vessel());
+			Debug.Log(string.Format("[Hangar] actual orb position: {0}", launched_vessel.orbit.pos));
+			Debug.Log(string.Format("[Hangar] actual position: {0}", launched_vessel.vesselTransform.position));
+			Debug.Log(string.Format("[Hangar] actual rotation: {0}", launched_vessel.vesselTransform.rotation.eulerAngles));
 		}
 		
 		//called every frame while part collider is touching the trigger
@@ -539,7 +565,7 @@ namespace AtHangar
 		
 		//events
 		//open event
-		[KSPEvent (guiActive = true, guiName = "Open hangar", active = true)]
+//		[KSPEvent (guiActive = true, guiName = "Open hangar", active = true)]
 		public void Open()
 		{
 			hangar_gates.Open();
@@ -548,7 +574,7 @@ namespace AtHangar
 		}
 	
 		//close event
-		[KSPEvent (guiActive = true, guiName = "Close hangar", active = false)]
+//		[KSPEvent (guiActive = true, guiName = "Close hangar", active = false)]
 		public void Close()
 		{
 			hangar_gates.Close();
@@ -557,7 +583,7 @@ namespace AtHangar
 		}
 		
 		//prepare event
-		[KSPEvent (guiActive = true, guiName = "Prepare hangar", active = false)]
+//		[KSPEvent (guiActive = true, guiName = "Prepare hangar", active = false)]
 		public void Prepare()
 		{
 			hangar_state = HangarState.Ready;
@@ -565,7 +591,7 @@ namespace AtHangar
 		}
 		
 		//release docked vessel
-		[KSPEvent (guiActive = true, guiName = "Release vessel", active = false)]
+//		[KSPEvent (guiActive = true, guiName = "Release vessel", active = false)]
 		public void ReleaseVessel()
 		{
 			if(launched_root != null) 
