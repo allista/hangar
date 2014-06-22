@@ -22,8 +22,48 @@ namespace AtHangar
 		public class StoredVessel
 		{
 			public ProtoVessel vessel;
-			public List<ProtoCrewMember> crew;
+			public Vector3 CoM;
+			public Vector3 CoG; //center of geometry
+			public float mass;
 			public Metric metric;
+			public List<ProtoCrewMember> crew;
+			
+			public StoredVessel() {}
+			
+			public StoredVessel(ConfigNode node) { Load(node); }
+			
+			public void Save(ConfigNode node)
+			{
+				//nodes
+				ConfigNode vessel_node = node.AddNode("VESSEL");
+				ConfigNode metric_node = node.AddNode("METRIC");
+				ConfigNode crew_node   = node.AddNode("CREW");
+				vessel.Save(vessel_node);
+				metric.Save(metric_node);
+				foreach(ProtoCrewMember c in crew)
+				{
+					ConfigNode n = crew_node.AddNode(c.name);
+					c.Save(n);
+				}
+				//values
+				node.AddValue("CoM", CoM);
+				node.AddValue("CoG", CoG);
+				node.AddValue("mass", mass);
+			}
+			
+			public void Load(ConfigNode node)
+			{
+				ConfigNode vessel_node = node.GetNode("VESSEL");
+				ConfigNode metric_node = node.GetNode("METRIC");
+				ConfigNode crew_node   = node.GetNode("CREW");
+				vessel = new ProtoVessel(vessel_node, FlightDriver.FlightStateCache);
+				metric = new Metric(metric_node);
+				crew   = new List<ProtoCrewMember>();
+				foreach(ConfigNode cn in crew_node.nodes) crew.Add(new ProtoCrewMember(cn));
+				CoM  = ConfigNode.ParseVector3(node.GetValue("CoM"));
+				CoG  = ConfigNode.ParseVector3(node.GetValue("CoG"));
+				mass = float.Parse(node.GetValue("mass"));
+			}
 		}
 		
 		//internal properties
@@ -50,9 +90,6 @@ namespace AtHangar
 		[KSPField (isPersistant = false)] public string HangarSpace;
 		Transform launchTransform;
 		Vessel launched_vessel;
-		Vector3 launch_offset;
-		public DockedVesselInfo dock_info;
-		Part launched_root;
 		
 		//gui fields
 		[KSPField (guiName = "Volume", guiActive = true, guiActiveEditor=true)] public string hangar_v;
@@ -93,35 +130,11 @@ namespace AtHangar
 		public int numVessels() { return stored_vessels.Count; }
 		
 		
-		private void onVesselSituationChange(GameEvents.HostedFromToAction<Vessel, Vessel.Situations> vs)
-		{ if (vs.host != vessel) return; }
-
-		void onVesselWasModified(Vessel v)
-		{
-			if (v == vessel) 
-			{
-				if(launched_root != null && launched_root.vessel != vessel) 
-				{
-					launched_root = null;
-					ReleaseVessel();
-				}
-			}
-		}
-		
-		
 		//all initialization goes here instead of the constructor as documented in Unity API
 		public override void OnAwake()
 		{
 			base.OnAwake ();
 			usefull_volume_ratio = (float)Math.Pow(usefull_volume_ratio, 1/3f);
-			GameEvents.onVesselSituationChange.Add (onVesselSituationChange);
-			GameEvents.onVesselWasModified.Add (onVesselWasModified);
-		}
-		
-		void OnDestroy ()
-		{
-			GameEvents.onVesselSituationChange.Remove (onVesselSituationChange);
-			GameEvents.onVesselWasModified.Remove (onVesselWasModified);
 		}
 		
 		public override void OnStart(StartState state)
@@ -140,11 +153,6 @@ namespace AtHangar
                 hangar_gates = new BaseHangarAnimator();
 				Debug.Log("[Hangar] Using BaseHangarAnimator");
 			}
-//            else
-//            {
-//                Events["Open"].guiActiveEditor = true;
-//                Events["Close"].guiActiveEditor = true;
-//            }
 		}
 		
 		public void Setup()	{ SetMass (); RecalculateVolume(); }
@@ -161,7 +169,7 @@ namespace AtHangar
 			Metric part_metric = new Metric(part);
 			if(HangarSpace != "") 
 				hangar_metric = new Metric(part, HangarSpace);
-			if(hangar_metric == null || hangar_metric.empy())
+			if(hangar_metric == null || hangar_metric.Empy())
 				hangar_metric = part_metric*usefull_volume_ratio;
 			//calculate crew capacity from remaining volume
 			if(!StaticCrewCapacity)
@@ -195,30 +203,10 @@ namespace AtHangar
 			return launchTransform;
 		}
 		
-		//dock launched vessel to the hangar to prevent its krakenization 
-		private void couple_vessel()
-		{
-			launched_root = launched_vessel.rootPart;
-			Debug.Log(string.Format("Vessel root: {0}, parts count: {1}", launched_root, launched_vessel.parts.Count));
-			dock_info = new DockedVesselInfo ();
-			Debug.Log("5.1");
-			dock_info.name = launched_vessel.vesselName;
-			Debug.Log("5.2");
-			dock_info.vesselType = launched_vessel.vesselType;
-			Debug.Log("5.3");
-			dock_info.rootPartUId = launched_root.flightID;
-			Debug.Log(string.Format("5.4: parts {0}", launched_vessel.parts.Count));
-			launched_root.Couple(part);
-			Debug.Log(string.Format("5.5: parts {0}", launched_vessel.parts.Count));
-			if (vessel != FlightGlobals.ActiveVessel)
-				FlightGlobals.ForceSetActiveVessel(vessel);
-			Events["ReleaseVessel"].active = true;
-		}
-		
-		
 		//set vessel orbit, transform, coordinates
-		private void PositionVessel(ProtoVessel pv)
+		private void PositionVessel(StoredVessel sv)
 		{
+			ProtoVessel pv = sv.vessel;
 			//state
 			pv.splashed = vessel.Landed;
 			pv.landed   = vessel.Splashed;
@@ -240,10 +228,12 @@ namespace AtHangar
 			
 			Debug.Log(string.Format("[Hangar] new position: {0}", pv.position));
 			Debug.Log(string.Format("[Hangar] new rotation: {0}", pv.rotation.eulerAngles));
+			//calculate launch launch offset from vessel bounds
+			Vector3 bounds_offset = sv.CoM - sv.CoG + launchTransform.up*sv.metric.bounds.extents.y;
 			//surface
 			if(vessel.LandedOrSplashed)
 			{
-				Vector3d v   = Vector3d.zero+launchTransform.position;
+				Vector3d v   = Vector3d.zero+launchTransform.position+bounds_offset;
 				pv.longitude = vessel.mainBody.GetLongitude(v);
 				pv.latitude  = vessel.mainBody.GetLatitude(v);
 				pv.altitude  = vessel.mainBody.GetAltitude(v);
@@ -252,73 +242,12 @@ namespace AtHangar
 			{
 				Orbit horb = vessel.orbit;
 				Orbit vorb = new Orbit();
-				Vector3 d_pos = launchTransform.position-vessel.findWorldCenterOfMass();
+				Vector3 d_pos = launchTransform.position-vessel.findWorldCenterOfMass()+bounds_offset;
 				Vector3d vpos = horb.pos+new Vector3d(d_pos.x, d_pos.z, d_pos.y);
 				vorb.UpdateFromStateVectors(vpos, horb.vel, horb.referenceBody, Planetarium.GetUniversalTime());
 				pv.orbitSnapShot = new OrbitSnapshot(vorb);
 			}
 		}
-		
-		private void PositionVessel(Vessel vsl)
-		{
-			//state
-			vsl.Splashed  = false;//vessel.Landed;
-			vsl.Landed    = false;//vessel.Splashed;
-			//rotation
-			//surface
-			if(vessel.LandedOrSplashed)
-			{
-				Vector3 v  = launchTransform.position;
-				v = new Vector3d(v.x, v.y, v.z);
-				vsl.longitude = vessel.mainBody.GetLongitude(v);
-				vsl.latitude  = vessel.mainBody.GetLatitude(v);
-				vsl.altitude  = vessel.mainBody.GetAltitude(v);
-			}
-			else
-			{
-				//orbit
-				vsl.orbitDriver.SetOrbitMode(OrbitDriver.UpdateMode.UPDATE);
-				vsl.orbit.UpdateFromOrbitAtUT(vessel.orbit, Planetarium.GetUniversalTime(), vessel.mainBody);
-			}
-		}
-		
-		
-		//position launched vessel part by part
-		private IEnumerator<YieldInstruction> capture_vessel()
-		{
-			Debug.Log(string.Format("1: parts {0}", launched_vessel.parts.Count));
-			while(true) 
-			{
-				bool partsInitialized = true;
-				Debug.Log(string.Format("2.1: parts {0}", launched_vessel.parts.Count));
-				foreach (Part p in launched_vessel.parts) 
-				{
-					Debug.Log(string.Format("2.2: {0}", p.name));
-					if (!p.started)
-					{
-						Debug.Log("2.2.1");
-						partsInitialized = false;
-						break;
-					}
-				}
-				Debug.Log("2.3");
-				launched_vessel.SetPosition(launch_offset);
-				launched_vessel.SetRotation(launchTransform.rotation);
-				Debug.Log(string.Format("2.4: parts {0}", launched_vessel.parts.Count));
-				if(partsInitialized) break;
-				OrbitPhysicsManager.HoldVesselUnpack(2);
-				Debug.Log(string.Format("2.5: parts {0}", launched_vessel.parts.Count));
-				yield return null;
-			}
-			Debug.Log(string.Format("3: parts {0}", launched_vessel.parts.Count));
-			FlightGlobals.overrideOrbit = false;
-			Debug.Log(string.Format("4: parts {0}", launched_vessel.parts.Count));
-			launched_vessel.GoOffRails ();
-			Debug.Log(string.Format("5: parts {0}", launched_vessel.parts.Count));
-			couple_vessel();
-			Debug.Log(string.Format("6: parts {0}", launched_vessel.parts.Count));
-		}
-		
 
 		//add some crew to the part
 		private static bool addCrew(Part p, List<ProtoCrewMember> crew)
@@ -376,7 +305,7 @@ namespace AtHangar
 				FlightScreenMessager.showMessage("There's no room in the hangar for this vessel", 3);
 				return false;
 			}
-			if(!metric.fits(hangar_metric))
+			if(!metric.Fits(hangar_metric))
 			{
 				FlightScreenMessager.showMessage("The vessel does not fit into this hangar", 3);
 				return false;
@@ -415,7 +344,7 @@ namespace AtHangar
 			//switch to hangar vessel before storing
 			if(FlightGlobals.ActiveVessel != vessel)
 				FlightGlobals.ForceSetActiveVessel(vessel);
-			//dock the vessel
+			//store the vessel
 			StoredVessel stored_vessel = new StoredVessel();
 			//get vessel crew on board
 			stored_vessel.crew = vsl.GetVesselCrew();
@@ -427,9 +356,14 @@ namespace AtHangar
 			addCrew(vessel, _crew);
 			//store vessel
 			stored_vessel.vessel = vsl.BackupVessel();
+			stored_vessel.metric = new Metric(vsl);
+			stored_vessel.CoM    = vsl.findWorldCenterOfMass();
+			stored_vessel.CoG    = vsl.vesselTransform.TransformPoint(stored_vessel.metric.bounds.center);
+			stored_vessel.mass   = vsl.GetTotalMass();
 			stored_vessels.Add(vsl.id, stored_vessel);
-			used_volume += Metric.Volume(vsl);
-			vessels_mass += vsl.GetTotalMass();
+			//recalculate volume and mass
+			used_volume  += stored_vessel.metric.volume;
+			vessels_mass += stored_vessel.mass;
 			SetMass();
 			//destroy vessel
 			vsl.Die();
@@ -497,16 +431,14 @@ namespace AtHangar
 			stored_vessels.Remove(vid);
 			//switch hangar state
 			hangar_state = HangarState.Busy;
-//			Events["Prepare"].active = true;
 			//set restored vessel orbit
 			get_launch_transform();
-			PositionVessel(stored_vessel.vessel);
+			PositionVessel(stored_vessel);
 			//restore vessel
 			stored_vessel.vessel.Load(FlightDriver.FlightStateCache.flightState);
 			stored_vessel.vessel.LoadObjects();
 			//get restored vessel from the world
 			launched_vessel = stored_vessel.vessel.vesselRef;
-//			launch_offset = launchTransform.position;//+launchTransform.up*(new Metric(launched_vessel.parts)).size.y/2f;
 			//transfer crew back to the launched vessel
 			List<ProtoCrewMember> transfered_crew = new List<ProtoCrewMember>();
 			foreach(Part p in vessel.parts)	transfered_crew.AddRange(delCrew(p, stored_vessel.crew));
@@ -519,19 +451,13 @@ namespace AtHangar
 			}
 			else
 			{
-				used_volume  -= Metric.Volume(launched_vessel);
-				vessels_mass -= launched_vessel.GetTotalMass();
+				used_volume  -= stored_vessel.metric.volume;
+				vessels_mass -= stored_vessel.mass;
 			}
 			SetMass();
 			//switch to restored vessel
-//			launched_vessel.Landed = launched_vessel.Splashed = false;
-//			FlightGlobals.overrideOrbit = true;
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
 			Staging.beginFlight();
-//			StartCoroutine(capture_vessel());
-			Debug.Log(string.Format("[Hangar] actual orb position: {0}", launched_vessel.orbit.pos));
-			Debug.Log(string.Format("[Hangar] actual position: {0}", launched_vessel.vesselTransform.position));
-			Debug.Log(string.Format("[Hangar] actual rotation: {0}", launched_vessel.vesselTransform.rotation.eulerAngles));
 		}
 		
 		//called every frame while part collider is touching the trigger
@@ -590,22 +516,6 @@ namespace AtHangar
 			Events["Prepare"].active = false;
 		}
 		
-		//release docked vessel
-//		[KSPEvent (guiActive = true, guiName = "Release vessel", active = false)]
-		public void ReleaseVessel()
-		{
-			if(launched_root != null) 
-			{
-				launched_root.Undock(dock_info);
-				Vessel vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1];
-				FlightGlobals.ForceSetActiveVessel(vsl);
-			}
-			dock_info = null;
-			launched_vessel = null;
-			launched_root = null;
-			Events["ReleaseVessel"].active = false;
-		}
-		
 		
 		//actions
 		[KSPAction("Open hangar")]
@@ -644,14 +554,7 @@ namespace AtHangar
 			foreach(StoredVessel sv in stored_vessels.Values)
 			{
 				ConfigNode stored_vessel_node = vessels_node.AddNode("STORED_VESSEL");
-				ConfigNode vessel_node = stored_vessel_node.AddNode("VESSEL");
-				ConfigNode crew_node = stored_vessel_node.AddNode("CREW");
-				sv.vessel.Save(vessel_node);
-				foreach(ProtoCrewMember c in sv.crew)
-				{
-					ConfigNode n = crew_node.AddNode(c.name);
-					c.Save(n);
-				}
+				sv.Save(stored_vessel_node);
 			}
 		}
 		
@@ -667,12 +570,7 @@ namespace AtHangar
 				ConfigNode vessels_node = node.GetNode("STORED_VESSELS");
 				foreach(ConfigNode vn in vessels_node.nodes)
 				{
-					ConfigNode vessel_node = vn.GetNode("VESSEL");
-					ConfigNode crew_node = vn.GetNode("CREW");
-					StoredVessel sv = new StoredVessel();
-					sv.vessel = new ProtoVessel(vessel_node, FlightDriver.FlightStateCache);
-					sv.crew = new List<ProtoCrewMember>();
-					foreach(ConfigNode cn in crew_node.nodes) sv.crew.Add(new ProtoCrewMember(cn));
+					StoredVessel sv = new StoredVessel(vn);
 					stored_vessels.Add(sv.vessel.vesselID, sv);
 				}
 			}
