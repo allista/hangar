@@ -47,7 +47,6 @@ namespace AtHangar
 				foreach(MeshFilter m in p.FindModelComponents<MeshFilter>())
 				{
 					if(m.renderer == null) continue;
-//					Debug.Log(string.Format("mesh: {0}", m.name));
 					Transform mT = m.transform;
 					Vector3[] edges = bound_edges(m.sharedMesh.bounds);
 					local2local(mT, vT, edges);
@@ -75,6 +74,9 @@ namespace AtHangar
 			volume = m.volume;
 			CrewCapacity = m.CrewCapacity;
 		}
+		
+		//metric from config node
+		public Metric(ConfigNode node) { Load(node); }
 		
 		//mesh metric
 		public Metric(Part part, string mesh_name)
@@ -117,9 +119,9 @@ namespace AtHangar
 		}
 		
 		//public methods
-		public bool empy() { return volume == 0; }
+		public bool Empy() { return volume == 0; }
 		
-		public bool fits(Metric other)
+		public bool Fits(Metric other)
 		{
 			List<float>  D = new List<float>{size.x, size.y, size.z};
 			List<float> _D = new List<float>{other.size.x, other.size.y, other.size.z};
@@ -141,7 +143,7 @@ namespace AtHangar
 			return true;
 		}
 		
-		public void scale(float s)
+		public void Scale(float s)
 		{
 			Bounds b = bounds;
 			b.SetMinMax(b.center-b.extents*s, b.center+b.extents*s);
@@ -149,16 +151,39 @@ namespace AtHangar
 			volume = boundsVolume(bounds);
 		}
 		
+		public void Save(ConfigNode node)
+		{
+			node.AddValue("bounds_center", bounds.center);
+			node.AddValue("bounds_size", bounds.size);
+			node.AddValue("crew_capacity", CrewCapacity);
+		}
+		
+		public void Load(ConfigNode node)
+		{
+			if(!node.HasValue("bounds_center") || 
+			   !node.HasValue("bounds_size") ||
+			   !node.HasValue("crew_capacity"))
+				throw new KeyNotFoundException("Metric.Load: no 'bounds_center' or 'bound_size' values in the config node.");
+			Vector3 center = ConfigNode.ParseVector3(node.GetValue("bounds_center"));
+			Vector3 size   = ConfigNode.ParseVector3(node.GetValue("bounds_size"));
+			bounds = new Bounds(center, size);
+			volume = boundsVolume(bounds);
+			CrewCapacity = int.Parse(node.GetValue("cew_capacity"));
+		}
+		
+		
+		//operators
 		public static Metric operator*(Metric m, float scale)
 		{
 			Metric _new = new Metric(m);
-			_new.scale(scale);
+			_new.Scale(scale);
 			return _new;
 		}
 		
 		public static Metric operator/(Metric m, float scale)
 		{ return m*(1.0f/scale); }
 		
+		//static methods
 		public static float Volume(Part part) { return (new Metric(part)).volume; }
 		public static float Volume(Vessel vessel) { return (new Metric(vessel)).volume; }
 	}
