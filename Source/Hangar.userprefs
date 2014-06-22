@@ -2,12 +2,13 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Hangar.cs">
     <Files>
-      <File FileName="Hangar.cs" Line="35" Column="72" />
+      <File FileName="Hangar.cs" Line="232" Column="69" />
       <File FileName="Metric.cs" Line="12" Column="44" />
       <File FileName="AddonWindowBase.cs" Line="12" Column="22" />
       <File FileName="HangarWindow.cs" Line="332" Column="20" />
-      <File FileName="../Resources/Extraplanetary-Launchpads-master/Source/ExLaunchPad.cs" Line="115" Column="3" />
-      <File FileName="HangarPartResizer.cs" Line="65" Column="78" />
+      <File FileName="../Resources/Extraplanetary-Launchpads-master/Source/ExLaunchPad.cs" Line="251" Column="3" />
+      <File FileName="HangarPartResizer.cs" Line="105" Column="56" />
+      <File FileName="Utils.cs" Line="76" Column="22" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
