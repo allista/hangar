@@ -82,7 +82,7 @@ namespace AtHangar
 		public Metric(Part part, string mesh_name)
 		{
 			MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
-			if(m == null) { Debug.LogWarning(string.Format("{0} does not have '{1}' mesh", part.name, m.name)); return; }
+			if(m == null) { Debug.LogWarning(string.Format("[Metric] {0} does not have '{1}' mesh", part.name, m.name)); return; }
 			Bounds b = new Bounds();
 			Transform pT = part.partTransform;
 			Transform mT = m.transform;
@@ -153,8 +153,8 @@ namespace AtHangar
 		
 		public void Save(ConfigNode node)
 		{
-			node.AddValue("bounds_center", bounds.center);
-			node.AddValue("bounds_size", bounds.size);
+			node.AddValue("bounds_center", ConfigNode.WriteVector(bounds.center));
+			node.AddValue("bounds_size", ConfigNode.WriteVector(bounds.size));
 			node.AddValue("crew_capacity", CrewCapacity);
 		}
 		
@@ -168,7 +168,7 @@ namespace AtHangar
 			Vector3 size   = ConfigNode.ParseVector3(node.GetValue("bounds_size"));
 			bounds = new Bounds(center, size);
 			volume = boundsVolume(bounds);
-			CrewCapacity = int.Parse(node.GetValue("cew_capacity"));
+			CrewCapacity = int.Parse(node.GetValue("crew_capacity"));
 		}
 		
 		
