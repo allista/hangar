@@ -46,8 +46,8 @@ namespace AtHangar
 					c.Save(n);
 				}
 				//values
-				node.AddValue("CoM", CoM);
-				node.AddValue("CoG", CoG);
+				node.AddValue("CoM", ConfigNode.WriteVector(CoM));
+				node.AddValue("CoG", ConfigNode.WriteVector(CoG));
 				node.AddValue("mass", mass);
 			}
 			
@@ -211,26 +211,16 @@ namespace AtHangar
 			pv.splashed = vessel.Landed;
 			pv.landed   = vessel.Splashed;
 			//rotation
+			//it is essential to use BackupVessel() instead of vessel.protoVessel, 
+			//because in general the latter does not store the current flight state of the vessel
 			ProtoVessel hpv = vessel.BackupVessel();
 			Quaternion proto_rot  = hpv.rotation;
 			Quaternion hangar_rot = vessel.vesselTransform.rotation;
+			//rotate launchTransform.rotation to protovessel's reference frame
 			pv.rotation = proto_rot*hangar_rot.Inverse()*launchTransform.rotation;
-			//debug
-			Debug.Log(string.Format("[Hangar] vessel CoM: {0}", vessel.findWorldCenterOfMass()));
-			Debug.Log(string.Format("[Hangar] proto CoM: {0}", vessel.protoVessel.CoM));
-			Debug.Log(string.Format("[Hangar] vessel rotation: {0}", vessel.vesselTransform.rotation.eulerAngles));
-			Debug.Log(string.Format("[Hangar] vessel proto-rotation: {0}", hpv.rotation.eulerAngles));
-			
-			Debug.Log(string.Format("[Hangar] part position: {0}", part.partTransform.position));
-			Debug.Log(string.Format("[Hangar] part rotation: {0}", part.partTransform.rotation.eulerAngles));
-			
-			Debug.Log(string.Format("[Hangar] orb position: {0}", vessel.orbit.pos));
-			
-			Debug.Log(string.Format("[Hangar] new position: {0}", pv.position));
-			Debug.Log(string.Format("[Hangar] new rotation: {0}", pv.rotation.eulerAngles));
-			//calculate launch launch offset from vessel bounds
+			//calculate launch offset from vessel bounds
 			Vector3 bounds_offset = sv.CoM - sv.CoG + launchTransform.up*sv.metric.bounds.extents.y;
-			//surface
+			//position on a surface
 			if(vessel.LandedOrSplashed)
 			{
 				Vector3d v   = Vector3d.zero+launchTransform.position+bounds_offset;
@@ -238,7 +228,7 @@ namespace AtHangar
 				pv.latitude  = vessel.mainBody.GetLatitude(v);
 				pv.altitude  = vessel.mainBody.GetAltitude(v);
 			}
-			else //setup new orbit
+			else //set the new orbit
 			{
 				Orbit horb = vessel.orbit;
 				Orbit vorb = new Orbit();
@@ -489,32 +479,14 @@ namespace AtHangar
 		}
 		
 		
-		//events
 		//open event
-//		[KSPEvent (guiActive = true, guiName = "Open hangar", active = true)]
-		public void Open()
-		{
-			hangar_gates.Open();
-			Events["Open"].active = false;
-			Events["Close"].active = true;
-		}
+		public void Open() { hangar_gates.Open(); }
 	
 		//close event
-//		[KSPEvent (guiActive = true, guiName = "Close hangar", active = false)]
-		public void Close()
-		{
-			hangar_gates.Close();
-			Events["Open"].active = true;
-			Events["Close"].active = false;
-		}
+		public void Close()	{ hangar_gates.Close(); }
 		
 		//prepare event
-//		[KSPEvent (guiActive = true, guiName = "Prepare hangar", active = false)]
-		public void Prepare()
-		{
-			hangar_state = HangarState.Ready;
-			Events["Prepare"].active = false;
-		}
+		public void Prepare() { hangar_state = HangarState.Ready;	}
 		
 		
 		//actions
@@ -525,19 +497,7 @@ namespace AtHangar
         public void CloseHangarAction(KSPActionParam param) { Close(); }
 		
 		[KSPAction("Toggle hangar")]
-        public void ToggleHangarAction(KSPActionParam param) 
-		{ 
-			if(hangar_gates.Toggle())
-			{
-				Events["Open"].active = false;
-				Events["Close"].active = true;
-			}
-			else 
-			{
-				Events["Open"].active = true;
-				Events["Close"].active = false;
-			}
-		}
+        public void ToggleHangarAction(KSPActionParam param) { hangar_gates.Toggle(); }
 		
 		[KSPAction("Prepare hangar")]
         public void PrepareHangarAction(KSPActionParam param) { Prepare(); }
