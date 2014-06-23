@@ -7,5 +7,6 @@
 /GameData/Hangar/Plugins/PluginData/Hangar/config.xml
 *~
 *.swp
+*.meta
 /KSP.log
 /vessel_positioning.txt
