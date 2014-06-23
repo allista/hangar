@@ -173,15 +173,6 @@ namespace AtHangar
 				selected_hangar.TryRestoreVessel(selected_vessel.vid);
 		}
 		
-//		void ReleaseButton()
-//		{
-//			if(selected_hangar.dock_info != null)
-//			{
-//				if(GUILayout.Button("Release Vessel", GUILayout.ExpandWidth(true)))
-//					selected_hangar.ReleaseVessel();
-//			}
-//		}
-		
 		void ToggleGatesButton()
 		{
 			if(selected_hangar.gates_state == HangarGates.Closed ||
@@ -213,6 +204,9 @@ namespace AtHangar
 		void HangarInfo()
 		{
 			GUILayout.BeginVertical();
+			GUILayout.Label("Vessel Volume: "+Utils.formatVolume(vessel_metric.volume), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Vessel Dimensios: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
+			GUILayout.Space(10f);
 			GUILayout.Label("Hangar Dimensios: "+Utils.formatDimensions(selected_hangar.hangar_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Total volume: "+selected_hangar.hangar_v, GUILayout.ExpandWidth(true));
 			GUILayout.Label("Used volume: "+selected_hangar.used_v, GUILayout.ExpandWidth(true));
@@ -329,7 +323,6 @@ namespace AtHangar
 				LaunchButton();
 				
 			}
-//			ReleaseButton();
 			CloseButton();
 			SelectHangar_end();
 			SelectVessel_end();
