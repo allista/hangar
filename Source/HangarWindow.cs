@@ -206,12 +206,12 @@ namespace AtHangar
 			GUILayout.BeginVertical();
 			GUILayout.Label("Vessel Volume: "+Utils.formatVolume(vessel_metric.volume), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Vessel Dimensios: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
-			GUILayout.Space(10f);
 			GUILayout.Label("Hangar Dimensios: "+Utils.formatDimensions(selected_hangar.hangar_metric.size), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Total volume: "+selected_hangar.hangar_v, GUILayout.ExpandWidth(true));
-			GUILayout.Label("Used volume: "+selected_hangar.used_v, GUILayout.ExpandWidth(true));
-			GUILayout.Label("Vessels docked: "+selected_hangar.vessels_docked, GUILayout.ExpandWidth(true));
-			GUILayout.Label(String.Format("Vessel crew: {0}/{1}", selected_hangar.vessel.GetCrewCount(), selected_hangar.vessel.GetCrewCapacity()), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Hangar volume: "+Utils.formatVolume(selected_hangar.hangar_metric.volume), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Used volume: "+Utils.formatVolume(selected_hangar.used_volume), GUILayout.ExpandWidth(true));
+			GUILayout.Label(string.Format("Mass: {0} stored, {1} total", Utils.formatMass(selected_hangar.vessels_mass), Utils.formatMass(selected_hangar.vessel.GetTotalMass())), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Vessels docked: "+selected_hangar.numVessels(), GUILayout.ExpandWidth(true));
+			GUILayout.Label(string.Format("Vessel crew: {0}/{1}", selected_hangar.vessel.GetCrewCount(), selected_hangar.vessel.GetCrewCapacity()), GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
 		}
 		
