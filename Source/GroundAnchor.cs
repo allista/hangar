@@ -19,7 +19,6 @@ namespace AtHangar
 		// State
 		[KSPField (isPersistant = true)] bool isAttached = false;
 		[KSPField (isPersistant = true)] float breakForce = 1e6f; //which is better: overkill or Kraken reaping out the anchor?
-//		private float relaxationTime  = 6f;
 		
 		
 		IEnumerator<YieldInstruction> check_joint()
@@ -53,7 +52,6 @@ namespace AtHangar
         {
 			DestroyAnchor();
 			StopCoroutine("check_joint");
-//			StopCoroutine("relax_joint");
         }
 		
 		void OnPartPack() { DestroyAnchor(); }
@@ -83,57 +81,11 @@ namespace AtHangar
 			return true;
 		}
 		
-//		private void set_break_force(float bf)
-//		{
-//			try	
-//			{
-//				StaticAttach.fixedJoint.breakForce  = bf;
-//				StaticAttach.fixedJoint.breakTorque = bf;
-//			}
-//			catch { return; }
-//		}
-//		
-//		IEnumerator<YieldInstruction> relax_joint()
-//		{
-//			if(!StaticAttach.fixedJoint) yield break;
-//			//wait for vessel loading
-//			while(true)
-//			{
-//				bool parts_inited = true;
-//				foreach(Part p in vessel.parts)
-//				{
-//					if(!p.started)
-//					{
-//						parts_inited = false;
-//						break;
-//					}
-//				}
-//				if(parts_inited) break;
-//				yield return null;
-//			}
-//			//relax joint
-//			double time = 0;
-//			double startTime = Planetarium.GetUniversalTime();
-//			float endBreakForce = vessel.GetTotalMass()*4;
-//			float breakForce = endBreakForce*1000;
-//			float deltaBreakForce = breakForce-endBreakForce;
-//			while((time=Planetarium.GetUniversalTime()-startTime) <= relaxationTime)
-//			{
-//				breakForce = endBreakForce+deltaBreakForce*(float)(1-time/relaxationTime);
-//				Debug.Log("relaxing joint: "+breakForce);
-//				set_break_force(breakForce);
-//				yield return new WaitForSeconds(0.1f);
-//			}
-//			Debug.Log("relaxing joint: "+endBreakForce);
-//			set_break_force(endBreakForce);
-//		}
-		
 		[KSPEvent (guiActive = true, guiName = "Attach anchor", active = true)]
         public void Attach()
         {
 			if(!CanAttach()) { Detach(); return; }
 			
-//			StopCoroutine("relax_joint");
             if(StaticAttach.connectedGameObject) Destroy(StaticAttach.connectedGameObject);
             GameObject obj = new GameObject("AnchorBody");
             obj.AddComponent<Rigidbody>();
@@ -151,13 +103,11 @@ namespace AtHangar
 			
 			isAttached = true;
 			ToggleAttachButton();
-//			StartCoroutine(relax_joint());
         }
 		
 		[KSPEvent (guiActive = true, guiName = "Detach anchor", active = false)]
         public void Detach()
         {
-//			StopCoroutine("relax_joint");
             if(StaticAttach.fixedJoint) Destroy(StaticAttach.fixedJoint);
             if(StaticAttach.connectedGameObject) Destroy(StaticAttach.connectedGameObject);
             StaticAttach.fixedJoint = null;
