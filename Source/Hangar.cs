@@ -140,9 +140,7 @@ namespace AtHangar
 			base.OnStart(state);
 			if (state == StartState.None) return;
 			Setup(); //recalculate volume and mass
-			//if in editor, nothing is left to do
-			if(state == StartState.Editor) return;
-			//if not in editor, initialize Animator
+			//initialize Animator
 			part.force_activate();
             hangar_gates = part.Modules.OfType<BaseHangarAnimator>().SingleOrDefault();
 			if (hangar_gates == null)
@@ -150,6 +148,11 @@ namespace AtHangar
                 hangar_gates = new BaseHangarAnimator();
 				Debug.Log("[Hangar] Using BaseHangarAnimator");
 			}
+			else
+            {
+                Events["Open"].guiActiveEditor = true;
+                Events["Close"].guiActiveEditor = true;
+            }
 		}
 		
 		public void Setup()	{ SetMass (); RecalculateVolume(); }
@@ -182,7 +185,7 @@ namespace AtHangar
 		//if a vessel can be stored in the hangar
 		private bool CanStoreNow(Vessel vsl)
 		{
-			if(vsl == null || vsl == vessel || !vsl.enabled) return false;
+			if(vsl == null || vsl == vessel || !vsl.enabled || vsl.isEVA) return false;
 			//if hangar is not ready, return
 			if(hangar_state == HangarState.Busy) 
 			{
@@ -218,8 +221,6 @@ namespace AtHangar
 		
 		private bool CanStore(Vessel vsl)
 		{
-			//check if the vessel is EVA. Maybe get EVA on board too?
-			if(vsl.isEVA) return false;
 			//check vessel crew
 			if(vsl.GetCrewCount() > vessel.GetCrewCapacity()-vessel.GetCrewCount())
 			{
@@ -325,13 +326,10 @@ namespace AtHangar
 			pv.rotation = proto_rot*hangar_rot.Inverse()*launchTransform.rotation;
 			//calculate launch offset from vessel bounds
 			Vector3 bounds_offset = sv.CoM - sv.CoG + launchTransform.up*sv.metric.bounds.extents.y;
-//			Debug.Log(string.Format("\nCoM: {0}\nCoG: {1}\ndC: {2}", sv.CoM, sv.CoG, Vector3d.zero+sv.CoM-sv.CoG));
 			//position on a surface
 			if(vessel.LandedOrSplashed)
 			{
 				Vector3d vpos = Vector3d.zero+launchTransform.position+bounds_offset;
-//				Debug.Log(string.Format("\nvessel position: {3}\nlaunch position: {0}\noffset: {1}\nsum: {2}", 
-//				                        launchTransform.position, bounds_offset, vpos, vessel.vesselTransform.position));
 				pv.longitude  = vessel.mainBody.GetLongitude(vpos);
 				pv.latitude   = vessel.mainBody.GetLatitude(vpos);
 				pv.altitude   = vessel.mainBody.GetAltitude(vpos);
@@ -512,10 +510,22 @@ namespace AtHangar
 		
 		
 		//open event
-		public void Open() { hangar_gates.Open(); }
+		[KSPEvent (guiActiveEditor = true, guiName = "Open gates", active = true)]
+		public void Open() 
+		{ 
+			hangar_gates.Open();
+			Events["Open"].active = false;
+			Events["Close"].active = true;
+		}
 	
 		//close event
-		public void Close()	{ hangar_gates.Close(); }
+		[KSPEvent (guiActiveEditor = true, guiName = "Close gates", active = false)]
+		public void Close()	
+		{ 
+			hangar_gates.Close(); 
+			Events["Open"].active = true;
+			Events["Close"].active = false;
+		}
 		
 		//prepare event
 		public void Prepare() { hangar_state = HangarState.Ready;	}
@@ -529,7 +539,7 @@ namespace AtHangar
         public void CloseHangarAction(KSPActionParam param) { Close(); }
 		
 		[KSPAction("Toggle hangar")]
-        public void ToggleHangarAction(KSPActionParam param) { hangar_gates.Toggle(); }
+        public void ToggleHangarAction(KSPActionParam param) { hangar_gates.Toggle(); Prepare(); }
 		
 		[KSPAction("Prepare hangar")]
         public void PrepareHangarAction(KSPActionParam param) { Prepare(); }
@@ -573,10 +583,7 @@ namespace AtHangar
 		{
 			doors = hangar_gates.GatesState.ToString();
 			state = hangar_state.ToString();
-//			used_v = Utils.formatVolume(used_volume);
 			hangar_d = Utils.formatDimensions(hangar_metric.size);
-//			vessels_docked = String.Format ("{0}", stored_vessels.Count);
-//			total_m = Utils.formatMass(part.mass);
 			crew_capacity = part.CrewCapacity.ToString();
 		}
 		
