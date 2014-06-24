@@ -119,9 +119,11 @@ namespace AtHangar
 		}
 		
 		//public methods
+		public Bounds GetBounds() { return new Bounds(bounds.center, bounds.size); }
+		
 		public bool Empy() { return volume == 0; }
 		
-		public bool Fits(Metric other)
+		public bool FitsSomehow(Metric other)
 		{
 			List<float>  D = new List<float>{size.x, size.y, size.z};
 			List<float> _D = new List<float>{other.size.x, other.size.y, other.size.z};
@@ -141,6 +143,13 @@ namespace AtHangar
 				_D.Remove(ud);
 			}
 			return true;
+		}
+		
+		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
+		{
+			Bounds other_b = other.GetBounds();
+			return (other_b.Contains(other_T.InverseTransformPoint(this_T.TransformPoint(Vector3.up*bounds.extents.y-bounds.extents))) &&
+				    other_b.Contains(other_T.InverseTransformPoint(this_T.TransformPoint(bounds.extents+Vector3.up*bounds.extents.y))));
 		}
 		
 		public void Scale(float s)
