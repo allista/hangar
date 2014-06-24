@@ -113,6 +113,40 @@ namespace AtHangar
 		
 		public static string formatDimensions(Vector3 size)
 		{ return string.Format("{0:F1}m x {1:F1}m x {2:F1}m", size.x, size.y, size.z); }
+		
+		
+		//debugging
+		public static string formatCrewList(List<ProtoCrewMember> crew)
+		{
+			string crew_str = "";
+			foreach(ProtoCrewMember c in crew)
+			{
+				if(crew_str != "") crew_str += "\n";
+				crew_str += string.Format("{0}, seat {1}, seatIdx {2}, roster {3}, ref {4}", c.name, c.seat, c.seatIdx, c.rosterStatus, c.KerbalRef);
+			}
+			return crew_str;
+		}
+		
+		public static void debugProtovesselCrew(ProtoVessel pv)
+		{
+			for(int i = 0; i < pv.protoPartSnapshots.Count; i++)
+			{
+				ProtoPartSnapshot p = pv.protoPartSnapshots[i];
+				Debug.Log(string.Format("Part{0}: {1}", i, p.partName));
+				if(p.partInfo.partPrefab != null)
+					Debug.Log(string.Format("partInfo.partPrefab.CrewCapacity {0}",p.partInfo.partPrefab.CrewCapacity));
+				Debug.Log(string.Format("partInfo.internalConfig: {0}", p.partInfo.internalConfig));
+				Debug.Log(string.Format("partStateValues.Count: {0}", p.partStateValues.Count));
+				foreach(string k in p.partStateValues.Keys)
+					Debug.Log (string.Format("{0} : {1}", k, p.partStateValues[k]));
+				Debug.Log(string.Format("modules.Count: {0}", p.modules.Count));
+				foreach(ProtoPartModuleSnapshot pm in p.modules)
+					Debug.Log (string.Format("{0} : {1}", pm.moduleName, pm.moduleValues));
+				foreach(string k in p.partStateValues.Keys)
+					Debug.Log (string.Format("{0} : {1}", k, p.partStateValues[k]));
+				Debug.Log(string.Format("customPartData: {0}", p.customPartData));
+			}
+		}
 	}
 	
 	
