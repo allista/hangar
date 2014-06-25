@@ -11,7 +11,7 @@ namespace AtHangar
 	//this module adds the ability to store a vessel in a packed state inside
 	public class Hangar : PartModule
 	{
-		public enum HangarState{Ready,Busy};
+		public enum HangarState{Active,Inactive};
 		
 		public class VesselInfo
 		{
@@ -187,9 +187,9 @@ namespace AtHangar
 		{
 			if(vsl == null || vsl == vessel || !vsl.enabled || vsl.isEVA) return false;
 			//if hangar is not ready, return
-			if(hangar_state == HangarState.Busy) 
+			if(hangar_state == HangarState.Inactive) 
 			{
-				FlightScreenMessager.showMessage("Prepare hangar first", 3);
+				FlightScreenMessager.showMessage("Activate the hangar first", 3);
 				return false;
 			}
 			//check self state first
@@ -391,9 +391,9 @@ namespace AtHangar
 		private bool CanRestore()
 		{
 			//if hangar is not ready, return
-			if(hangar_state == HangarState.Busy) 
+			if(hangar_state == HangarState.Inactive) 
 			{
-				FlightScreenMessager.showMessage("Prepare hangar first", 3);
+				FlightScreenMessager.showMessage("Activate the hangar first", 3);
 				return false;
 			}
 			if(hangar_gates.GatesState != HangarGates.Opened) 
@@ -450,7 +450,7 @@ namespace AtHangar
 			//clean up
 			stored_vessels.Remove(vid);
 			//switch hangar state
-			hangar_state = HangarState.Busy;
+			hangar_state = HangarState.Inactive;
 			//set restored vessel orbit
 			get_launch_transform();
 			PositionVessel(stored_vessel);
@@ -509,7 +509,7 @@ namespace AtHangar
 		}
 		
 		
-		//open event
+		//events
 		[KSPEvent (guiActiveEditor = true, guiName = "Open gates", active = true)]
 		public void Open() 
 		{ 
@@ -518,7 +518,6 @@ namespace AtHangar
 			Events["Close"].active = true;
 		}
 	
-		//close event
 		[KSPEvent (guiActiveEditor = true, guiName = "Close gates", active = false)]
 		public void Close()	
 		{ 
@@ -527,24 +526,37 @@ namespace AtHangar
 			Events["Close"].active = false;
 		}
 		
-		//prepare event
-		public void Prepare() { hangar_state = HangarState.Ready;	}
+		public void Activate() { hangar_state = HangarState.Active;	}
+		
+		public void Deactivate() { hangar_state = HangarState.Inactive;	}
+		
+		public void Toggle()
+		{
+			if(hangar_state == HangarState.Active) hangar_state = HangarState.Inactive;
+			else hangar_state = HangarState.Active;
+		}
 		
 		
 		//actions
-		[KSPAction("Open hangar")]
-        public void OpenHangarAction(KSPActionParam param) { Open(); }
+		[KSPAction("Open gates")]
+        public void OpenGatesAction(KSPActionParam param) { Open(); }
 		
-		[KSPAction("Close hangar")]
-        public void CloseHangarAction(KSPActionParam param) { Close(); }
+		[KSPAction("Close gates")]
+        public void CloseGatesAction(KSPActionParam param) { Close(); }
+		
+		[KSPAction("Toggle gates")]
+        public void ToggleGatesAction(KSPActionParam param) { hangar_gates.Toggle(); }
+		
+		[KSPAction("Activate hangar")]
+        public void ActivateStateAction(KSPActionParam param) { Activate(); }
+		
+		[KSPAction("Deactivate hangar")]
+        public void DeactivateStateAction(KSPActionParam param) { Deactivate(); }
 		
 		[KSPAction("Toggle hangar")]
-        public void ToggleHangarAction(KSPActionParam param) { hangar_gates.Toggle(); Prepare(); }
-		
-		[KSPAction("Prepare hangar")]
-        public void PrepareHangarAction(KSPActionParam param) { Prepare(); }
-		
+        public void ToggleStateAction(KSPActionParam param) { Toggle(); }
 	
+		
 		//save the hangar
 		public override void OnSave(ConfigNode node)
 		{
