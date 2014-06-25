@@ -185,11 +185,18 @@ namespace AtHangar
 					selected_hangar.Close();
 		}
 		
-		void PrepareButton()
+		void ToggleStateButton()
 		{
-			if(selected_hangar.hangar_state != Hangar.HangarState.Busy) return;
-			if(GUILayout.Button("Prepare Hangar", GUILayout.ExpandWidth(true)))
-				selected_hangar.Prepare();
+			if(selected_hangar.hangar_state == Hangar.HangarState.Inactive)
+			{
+				if(GUILayout.Button("Activate Hangar", GUILayout.ExpandWidth(true)))
+					selected_hangar.Activate();
+			}
+			else
+			{
+				if(GUILayout.Button("Deactivate Hangar", GUILayout.ExpandWidth(true)))
+				selected_hangar.Deactivate();
+			}
 		}
 		
 		void CloseButton()
@@ -308,7 +315,7 @@ namespace AtHangar
 			GUILayout.EndVertical();
 			GUILayout.BeginHorizontal();
 			ToggleGatesButton();
-			PrepareButton();
+			ToggleStateButton();
 			GUILayout.EndHorizontal();
 			//vessel list
 			if(vessels == null && selected_hangar.numVessels() > 0 ||
