@@ -40,6 +40,10 @@ namespace AtHangar
 		protected float old_length = -1000;
 		protected bool just_loaded = false;
 		
+		protected int orig_top_size;
+		protected int orig_bottom_size;
+		protected int orig_docking_size;
+		
 		
 		private Vector3 scale_vector(Vector3 v, float s, float l)
 		{ return Vector3.Scale(v, new Vector3(s, s*l, s)); }
@@ -64,7 +68,11 @@ namespace AtHangar
 				((UI_FloatEdit)Fields ["length"].uiControlEditor).incrementLarge = lengthStepLarge;
 				((UI_FloatEdit)Fields ["length"].uiControlEditor).incrementSmall = lengthStepSmall;
 			}
-			updateNodeSize(size);
+			part.force_activate();
+			orig_top_size = part.findAttachNode("top").size;
+			orig_bottom_size = part.findAttachNode("bottom").size;
+			orig_docking_size = part.findAttachNode("docking").size;
+			updateNodeSizes(size);
 		}
 		
 		public override void OnLoad (ConfigNode cfg)
@@ -72,7 +80,7 @@ namespace AtHangar
 			base.OnLoad(cfg);
 			just_loaded = true;
 			if (HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight)
-				updateNodeSize(size);
+				updateNodeSizes(size);
 		}
 		
 		public virtual void FixedUpdate ()
@@ -82,28 +90,46 @@ namespace AtHangar
 			just_loaded = false;
 		}
 		
-		public void scaleNode(AttachNode node, float scale, float len, bool setSize)
+		public void scaleNode(AttachNode node, float scale, float len)
 		{
 			if(node == null) return;
 			node.position = scale_vector(node.originalPosition, scale, len);
 			if (!just_loaded)
-				Utils.updateAttachedPartPos (node, part);
-			if (setSize)
-				node.size = Mathf.RoundToInt (scale / sizeStepLarge);
+				Utils.updateAttachedPartPos(node, part);
 		}
 		
-		public void setNodeSize(AttachNode node, float scale)
+		public void setNodeSize(AttachNode node, float scale, int orig_size)
 		{
 			if (node == null) return;
-			node.size = Mathf.RoundToInt (scale / sizeStepLarge);
+			int new_size = orig_size + Mathf.RoundToInt(scale/sizeStepLarge) - 1;
+			if(new_size < 0) new_size = 0;
+			node.size = new_size;
 		}
 		
-		public virtual void updateNodeSize (float scale)
+		public virtual void updateDockingNode()
 		{
-			setNodeSize(part.findAttachNode ("top"), scale);
-			setNodeSize(part.findAttachNode ("bottom"), scale);
-			setNodeSize(part.findAttachNode ("docking"), scale);
+			ModuleDockingNode dock = part.Modules.OfType<ModuleDockingNode>().SingleOrDefault();
+			if(dock == null) return;
+			AttachNode node = part.findAttachNode(dock.referenceAttachNode);
+			if(node == null) return;
+			dock.nodeType = string.Format("size{0}", node.size);
 		}
+		
+		public virtual void updateNodeSizes(float scale)
+		{
+			setNodeSize(part.findAttachNode("top"), scale, orig_top_size);
+			setNodeSize(part.findAttachNode("bottom"), scale, orig_bottom_size);
+			setNodeSize(part.findAttachNode("docking"), scale, orig_docking_size);
+			updateDockingNode();
+		}
+		
+		public void scaleNodes(float scale, float len)
+		{
+			scaleNode(part.findAttachNode("top"), scale, len);
+			scaleNode(part.findAttachNode("bottom"), scale, len);
+			scaleNode(part.findAttachNode("docking"), scale, len);
+		}
+
 		
 		public virtual void resizePart (float scale, float len)
 		{
@@ -118,8 +144,8 @@ namespace AtHangar
 			part.breakingTorque = specificBreakingTorque * Mathf.Pow (scale, 2);
 			
 			//change scale
-			var model = part.FindModelTransform ("model");
-			if (model != null)
+			Transform model = part.FindModelTransform ("model");
+			if(model != null)
 				model.localScale = scale_vector(Vector3.one, scale, len);
 			else
 				Debug.LogError ("[HangarPartResizer] No 'model' transform in the part", this);
@@ -128,9 +154,8 @@ namespace AtHangar
 			Hangar hangar = part.Modules.OfType<Hangar>().SingleOrDefault();
 			if(hangar != null) hangar.Setup();
 		
-			scaleNode (part.findAttachNode ("top"), scale, len, true);
-			scaleNode (part.findAttachNode ("bottom"), scale, len, true);
-			scaleNode (part.findAttachNode ("docking"), scale, len, true);
+			scaleNodes(scale, len);
+			updateNodeSizes(scale);
 		}
 	}
 }
