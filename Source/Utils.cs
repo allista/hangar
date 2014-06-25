@@ -95,6 +95,7 @@ namespace AtHangar
 				ap.transform.position += dp;
 		}
 		
+		//formatting
 		public static string formatMass (float mass)
 		{
 			if (mass < 0.01f)
@@ -114,6 +115,29 @@ namespace AtHangar
 		public static string formatDimensions(Vector3 size)
 		{ return string.Format("{0:F1}m x {1:F1}m x {2:F1}m", size.x, size.y, size.z); }
 		
+		
+		//sound (from the KAS mod; KAS_Shared class)
+		public static bool createFXSound(Part part, FXGroup group, string sndPath, bool loop, float maxDistance = 30f)
+        {
+            group.audio = part.gameObject.AddComponent<AudioSource>();
+            group.audio.volume = GameSettings.SHIP_VOLUME;
+            group.audio.rolloffMode = AudioRolloffMode.Linear;
+            group.audio.dopplerLevel = 0f;
+            group.audio.panLevel = 1f;
+            group.audio.maxDistance = maxDistance;
+            group.audio.loop = loop;
+            group.audio.playOnAwake = false;
+            if (GameDatabase.Instance.ExistsAudioClip(sndPath))
+            {
+                group.audio.clip = GameDatabase.Instance.GetAudioClip(sndPath);
+                return true;
+            }
+            else
+            {
+                ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " as not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
+                return false;
+            }     
+        }
 		
 		//debugging
 		public static string formatCrewList(List<ProtoCrewMember> crew)

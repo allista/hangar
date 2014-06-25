@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using KSP.IO;
 
 namespace AtHangar
 {
@@ -19,6 +20,11 @@ namespace AtHangar
 		// State
 		[KSPField (isPersistant = true)] bool isAttached = false;
 		[KSPField (isPersistant = true)] float breakForce = 1e6f; //which is better: overkill or Kraken reaping out the anchor?
+		
+		//Sounds
+        [KSPField] public string attachSndPath = "Hangar/Sounds/anchorAttach";
+        [KSPField] public string detachSndPath = "Hangar/Sounds/anchorDetach";
+        public FXGroup fxSndAttach, fxSndDetach;
 		
 		
 		IEnumerator<YieldInstruction> check_joint()
@@ -39,6 +45,13 @@ namespace AtHangar
 		{
 			base.OnAwake ();
 			StartCoroutine(check_joint());
+		}
+		
+		public override void OnStart(PartModule.StartState state)
+		{
+			base.OnStart (state);
+			Utils.createFXSound(this.part, fxSndAttach, attachSndPath, false);
+			Utils.createFXSound(this.part, fxSndDetach, detachSndPath, false);
 		}
 		
 		void DestroyAnchor()
@@ -101,6 +114,7 @@ namespace AtHangar
             CurJoint.connectedBody = this.part.rigidbody;
             StaticAttach.fixedJoint = CurJoint;
 			
+			if(!isAttached) fxSndAttach.audio.Play();
 			isAttached = true;
 			ToggleAttachButton();
         }
@@ -113,6 +127,7 @@ namespace AtHangar
             StaticAttach.fixedJoint = null;
             StaticAttach.connectedGameObject = null;
 			
+			if(isAttached) fxSndDetach.audio.Play();
 			isAttached = false;
 			ToggleAttachButton();
         }
