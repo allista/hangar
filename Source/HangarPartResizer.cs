@@ -11,17 +11,22 @@ namespace AtHangar
 	public class HangarPartResizer : PartModule
 	{
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Scale", guiFormat="S4")]
-		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.1f, maxValue=10, incrementLarge=1.25f, incrementSmall=0.125f, incrementSlide=0.001f)]
+		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.25f, incrementSmall=0.125f, incrementSlide=0.001f)]
 		public float size = 1.0f;
 		
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Length", guiFormat="S4")]
-		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.1f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f)]
+		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f)]
 		public float length = 1.0f;
 		
+		[KSPField] public bool sizeOnly = false;
 		[KSPField] public bool lengthOnly = false;
+		[KSPField] public float offset = 1;
 		
-		[KSPField] public float sizeStepLarge = 1.25f;
-		[KSPField] public float sizeStepSmall = 0.125f;
+		[KSPField] public float minSize = 0.5f;
+		[KSPField] public float maxSize = 10f;
+		
+		[KSPField] public float sizeStepLarge = 1.0f;
+		[KSPField] public float sizeStepSmall = 0.1f;
 		
 		[KSPField] public float lengthStepLarge = 1.0f;
 		[KSPField] public float lengthStepSmall = 0.1f;
@@ -36,13 +41,11 @@ namespace AtHangar
 		[KSPField(isPersistant=false, guiActive=false, guiActiveEditor=true, guiName="Mass")]
 		public string massDisplay;
 		
-		protected float old_size   = -1000;
-		protected float old_length = -1000;
-		protected bool just_loaded = false;
+		private float old_size   = -1000;
+		private float old_length = -1000;
+		private bool just_loaded = false;
 		
-		protected int orig_top_size;
-		protected int orig_bottom_size;
-		protected int orig_docking_size;
+		private Dictionary<string,int> orig_sizes = new Dictionary<string, int>();
 		
 		
 		private Vector3 scale_vector(Vector3 v, float s, float l)
@@ -53,9 +56,15 @@ namespace AtHangar
 			base.OnStart (state);
 			if (HighLogic.LoadedSceneIsEditor) 
 			{
-				float minSize = Utils.getTechMinValue (minSizeName, 0.1f);
-				float maxSize = Utils.getTechMaxValue (maxSizeName, 10);
-				
+				//calculate min and max sizes from tech tree and module fields
+				float min_Size = Utils.getTechMinValue (minSizeName, 0.5f)/offset;
+				float max_Size = Utils.getTechMaxValue (maxSizeName, 10)/offset;
+				if(max_Size < 1) max_Size = 1;
+				//truncate min-max values at hard limits
+				if(minSize < min_Size) minSize = min_Size;
+				if(maxSize > max_Size) maxSize = max_Size;
+				//setup sliders
+				if(sizeOnly && lengthOnly) lengthOnly = false;
 				if(!lengthOnly)
 				{
 					Utils.setFieldRange (Fields ["size"], minSize, maxSize);
@@ -63,15 +72,14 @@ namespace AtHangar
 					((UI_FloatEdit)Fields ["size"].uiControlEditor).incrementSmall = sizeStepSmall;
 				}
 				else Fields["size"].guiActiveEditor=false;
-				
-				Utils.setFieldRange (Fields ["length"], minSize, maxSize);
-				((UI_FloatEdit)Fields ["length"].uiControlEditor).incrementLarge = lengthStepLarge;
-				((UI_FloatEdit)Fields ["length"].uiControlEditor).incrementSmall = lengthStepSmall;
+				if(!sizeOnly)
+				{
+					Utils.setFieldRange (Fields ["length"], minSize, maxSize);
+					((UI_FloatEdit)Fields ["length"].uiControlEditor).incrementLarge = lengthStepLarge;
+					((UI_FloatEdit)Fields ["length"].uiControlEditor).incrementSmall = lengthStepSmall;
+				}
+				else Fields["length"].guiActiveEditor=false;
 			}
-			part.force_activate();
-			orig_top_size = part.findAttachNode("top").size;
-			orig_bottom_size = part.findAttachNode("bottom").size;
-			orig_docking_size = part.findAttachNode("docking").size;
 			updateNodeSizes(size);
 		}
 		
@@ -79,6 +87,11 @@ namespace AtHangar
 		{
 			base.OnLoad(cfg);
 			just_loaded = true;
+			foreach(AttachNode node in part.attachNodes)
+			{
+				orig_sizes[node.id] = node.size;
+				Debug.Log(string.Format("1 node id: {0}", node.id));
+			}
 			if (HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight)
 				updateNodeSizes(size);
 		}
@@ -88,22 +101,6 @@ namespace AtHangar
 			if (size != old_size || length != old_length) 
 				resizePart(size, length);
 			just_loaded = false;
-		}
-		
-		public void scaleNode(AttachNode node, float scale, float len)
-		{
-			if(node == null) return;
-			node.position = scale_vector(node.originalPosition, scale, len);
-			if (!just_loaded)
-				Utils.updateAttachedPartPos(node, part);
-		}
-		
-		public void setNodeSize(AttachNode node, float scale, int orig_size)
-		{
-			if (node == null) return;
-			int new_size = orig_size + Mathf.RoundToInt(scale/sizeStepLarge) - 1;
-			if(new_size < 0) new_size = 0;
-			node.size = new_size;
 		}
 		
 		public virtual void updateDockingNode()
@@ -117,17 +114,24 @@ namespace AtHangar
 		
 		public virtual void updateNodeSizes(float scale)
 		{
-			setNodeSize(part.findAttachNode("top"), scale, orig_top_size);
-			setNodeSize(part.findAttachNode("bottom"), scale, orig_bottom_size);
-			setNodeSize(part.findAttachNode("docking"), scale, orig_docking_size);
+			foreach(AttachNode node in part.attachNodes)
+			{
+				Debug.Log(string.Format("2 node id: {0}", node.id));
+				int new_size = orig_sizes[node.id] + Mathf.RoundToInt(scale/sizeStepLarge) - 1;
+				if(new_size < 0) new_size = 0;
+				node.size = new_size;
+			}
 			updateDockingNode();
 		}
 		
 		public void scaleNodes(float scale, float len)
 		{
-			scaleNode(part.findAttachNode("top"), scale, len);
-			scaleNode(part.findAttachNode("bottom"), scale, len);
-			scaleNode(part.findAttachNode("docking"), scale, len);
+			foreach(AttachNode node in part.attachNodes)
+			{
+				node.position = scale_vector(node.originalPosition, scale, len);
+				if (!just_loaded)
+					Utils.updateAttachedPartPos(node, part);
+			}
 		}
 
 		
@@ -137,8 +141,7 @@ namespace AtHangar
 			old_length = length;
 		
 			//change mass and forces
-			part.mass  = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z) * scale + specificMass.w;
-			part.mass *= len;
+			part.mass  = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z * len) * scale + specificMass.w;
 			massDisplay = Utils.formatMass (part.mass);
 			part.breakingForce = specificBreakingForce * Mathf.Pow (scale, 2);
 			part.breakingTorque = specificBreakingTorque * Mathf.Pow (scale, 2);
