@@ -1,3 +1,35 @@
 Base path: C:/Program Files/Unity/Editor/Data
 Pipe name: \\.\pipe\UnityShaderCompiler-1-9
 Cmd: getPlatforms
+Cmd: compileSnippet
+  api=1 type=0 insize=5162 outsize=1113 kw=DIRECTIONAL SHADOWS_SCREEN LIGHTMAP_OFF DIRLIGHTMAP_OFF ok=1
+Cmd: compileSnippet
+  api=1 type=1 insize=5162 outsize=769 kw=DIRECTIONAL SHADOWS_SCREEN LIGHTMAP_OFF DIRLIGHTMAP_OFF ok=1
+Cmd: compileSnippet
+  api=1 type=0 insize=5378 outsize=1113 kw=DIRECTIONAL SHADOWS_SCREEN LIGHTMAP_OFF DIRLIGHTMAP_OFF ok=1
+Cmd: compileSnippet
+  api=1 type=1 insize=5378 outsize=1018 kw=DIRECTIONAL SHADOWS_SCREEN LIGHTMAP_OFF DIRLIGHTMAP_OFF ok=1
+Cmd: compileSnippet
+  api=1 type=0 insize=5101 outsize=1078 kw=DIRECTIONAL SHADOWS_SCREEN LIGHTMAP_OFF DIRLIGHTMAP_OFF ok=1
+Cmd: compileSnippet
+  api=1 type=1 insize=5101 outsize=920 kw=DIRECTIONAL SHADOWS_SCREEN LIGHTMAP_OFF DIRLIGHTMAP_OFF ok=1
+Cmd: compileSnippet
+  api=1 type=0 insize=5616 outsize=1143 kw=DIRECTIONAL SHADOWS_SCREEN LIGHTMAP_OFF DIRLIGHTMAP_OFF ok=1
+Cmd: compileSnippet
+  api=1 type=1 insize=5616 outsize=1287 kw=DIRECTIONAL SHADOWS_SCREEN LIGHTMAP_OFF DIRLIGHTMAP_OFF ok=1
+Cmd: compileSnippet
+  api=1 type=0 insize=2822 outsize=640 kw=SPOT ok=1
+Cmd: compileSnippet
+  api=1 type=1 insize=2822 outsize=800 kw=SPOT ok=1
+Cmd: compileSnippet
+  api=1 type=0 insize=2798 outsize=799 kw=SPOT ok=1
+Cmd: compileSnippet
+  api=1 type=1 insize=2798 outsize=864 kw=SPOT ok=1
+Cmd: compileSnippet
+  api=1 type=0 insize=3147 outsize=834 kw=SPOT ok=1
+Cmd: compileSnippet
+  api=1 type=1 insize=3147 outsize=1145 kw=SPOT ok=1
+Cmd: compileSnippet
+  api=1 type=0 insize=2965 outsize=799 kw=SPOT ok=1
+Cmd: compileSnippet
+  api=1 type=1 insize=2965 outsize=864 kw=SPOT ok=1
