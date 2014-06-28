@@ -1,14 +1,21 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Hangar.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="HangarPartResizer.cs">
     <Files>
-      <File FileName="Hangar.cs" Line="232" Column="69" />
-      <File FileName="Metric.cs" Line="12" Column="44" />
+      <File FileName="../Resources/Extraplanetary-Launchpads-master/Source/ExLaunchPad.cs" Line="291" Column="4" />
+      <File FileName="Hangar.cs" Line="79" Column="58" />
+      <File FileName="CrewTransfer.cs" Line="62" Column="19" />
+      <File FileName="Metric.cs" Line="40" Column="41" />
+      <File FileName="GroundAnchor.cs" Line="130" Column="20" />
+      <File FileName="Utils.cs" Line="119" Column="47" />
       <File FileName="AddonWindowBase.cs" Line="12" Column="22" />
-      <File FileName="HangarWindow.cs" Line="332" Column="20" />
-      <File FileName="../Resources/Extraplanetary-Launchpads-master/Source/ExLaunchPad.cs" Line="251" Column="3" />
-      <File FileName="HangarPartResizer.cs" Line="105" Column="56" />
-      <File FileName="Utils.cs" Line="76" Column="22" />
+      <File FileName="HangarWindow.cs" Line="310" Column="17" />
+      <File FileName="HangarPartResizer.cs" Line="94" Column="5" />
+      <File FileName="TODO.md" Line="3" Column="34" />
+      <File FileName="../Resources/Extraplanetary-Launchpads-master/Source/ExLaunchPad.cs" Line="16" Column="36" />
+      <File FileName="../Resources/KAS-master/Plugin/KASModuleAttachCore.cs" Line="224" Column="38" />
+      <File FileName="HangarAnimator.cs" Line="12" Column="35" />
+      <File FileName="BaseHangarAnimator.cs" Line="38" Column="29" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

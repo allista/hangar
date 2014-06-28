@@ -59,6 +59,8 @@
     <Compile Include="HangarPartResizer.cs" />
     <Compile Include="BaseHangarAnimator.cs" />
     <Compile Include="Metric.cs" />
+    <Compile Include="CrewTransfer.cs" />
+    <Compile Include="GroundAnchor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
