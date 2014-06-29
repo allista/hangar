@@ -80,6 +80,9 @@ namespace AtHangar
 				}
 				else Fields["length"].guiActiveEditor=false;
 			}
+			//save original sizes of nodes
+			foreach(AttachNode node in part.attachNodes)
+				orig_sizes[node.id] = node.size;
 			updateNodeSizes(size);
 		}
 		
@@ -87,10 +90,6 @@ namespace AtHangar
 		{
 			base.OnLoad(cfg);
 			just_loaded = true;
-			foreach(AttachNode node in part.attachNodes)
-				orig_sizes[node.id] = node.size;
-			if (HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight)
-				updateNodeSizes(size);
 		}
 		
 		public virtual void FixedUpdate ()
