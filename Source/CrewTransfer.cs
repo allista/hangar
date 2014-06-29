@@ -42,12 +42,14 @@ namespace AtHangar
 		{
 			List<ProtoCrewMember> deleted = new List<ProtoCrewMember>();
 			if(p.CrewCapacity == 0 || p.protoModuleCrew.Count == 0) return deleted;
-			foreach(ProtoCrewMember cr in p.protoModuleCrew)
-			{ if(crew.Contains(cr)) deleted.Add(cr); }
-			foreach(ProtoCrewMember cr in deleted) 
-			{
-				p.RemoveCrewmember(cr);
-				cr.seat = null;
+			foreach(ProtoCrewMember kerbal in crew)
+			{ 
+				if(crew.Find(k => k.name == kerbal.name) != null) 
+				{
+					deleted.Add(kerbal);
+					p.RemoveCrewmember(kerbal);
+					kerbal.seat = null;
+				}
 			}
 			return deleted;
 		}
