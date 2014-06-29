@@ -88,10 +88,7 @@ namespace AtHangar
 			base.OnLoad(cfg);
 			just_loaded = true;
 			foreach(AttachNode node in part.attachNodes)
-			{
 				orig_sizes[node.id] = node.size;
-				Debug.Log(string.Format("1 node id: {0}", node.id));
-			}
 			if (HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight)
 				updateNodeSizes(size);
 		}
@@ -116,7 +113,6 @@ namespace AtHangar
 		{
 			foreach(AttachNode node in part.attachNodes)
 			{
-				Debug.Log(string.Format("2 node id: {0}", node.id));
 				int new_size = orig_sizes[node.id] + Mathf.RoundToInt(scale/sizeStepLarge) - 1;
 				if(new_size < 0) new_size = 0;
 				node.size = new_size;
