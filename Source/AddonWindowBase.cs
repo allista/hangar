@@ -7,9 +7,14 @@ using KSP.IO;
 
 namespace AtHangar
 {
-	public class Styles //This is the code from Extraplanetary Launchpad plugin.
+	public static class Styles //This is the code from Extraplanetary Launchpad plugin.
 	{
-		public static GUIStyle normal;
+		public static GUISkin skin;
+		
+		public static GUIStyle normal_button;
+		public static GUIStyle red_button;
+		public static GUIStyle green_button;
+		public static GUIStyle yellow_button;
 		public static GUIStyle red;
 		public static GUIStyle yellow;
 		public static GUIStyle green;
@@ -22,32 +27,57 @@ namespace AtHangar
 		public static GUIStyle listBox;
 
 		private static bool initialized;
-
-		public static void Init ()
+		
+		public static void InitSkin()
+		{
+			if(skin != null) return;
+			GUI.skin = null;
+			skin = (GUISkin)GameObject.Instantiate(GUI.skin);
+		}
+		
+		public static void InitGUI()
 		{
 			if (initialized) return;
 			initialized = true;
-
-			normal = new GUIStyle (GUI.skin.button);
-			normal.normal.textColor = normal.focused.textColor = Color.white;
-			normal.hover.textColor = normal.active.textColor = Color.yellow;
-			normal.onNormal.textColor = normal.onFocused.textColor = normal.onHover.textColor = normal.onActive.textColor = Color.green;
-			normal.padding = new RectOffset (8, 8, 8, 8);
+			
+			normal_button = new GUIStyle (GUI.skin.button);
+			normal_button.normal.textColor = normal_button.focused.textColor = Color.white;
+			normal_button.hover.textColor = normal_button.active.textColor = Color.yellow;
+			normal_button.onNormal.textColor = normal_button.onFocused.textColor = normal_button.onHover.textColor = normal_button.onActive.textColor = Color.yellow;
+			normal_button.padding = new RectOffset (4, 4, 4, 4);
+			
+			red_button = new GUIStyle (GUI.skin.button);
+			red_button.normal.textColor = red_button.focused.textColor = Color.red;
+			red_button.hover.textColor = red_button.active.textColor = Color.yellow;
+			red_button.onNormal.textColor = red_button.onFocused.textColor = red_button.onHover.textColor = red_button.onActive.textColor = Color.yellow;
+			red_button.padding = new RectOffset (4, 4, 4, 4);
+			
+			green_button = new GUIStyle (GUI.skin.button);
+			green_button.normal.textColor = green_button.focused.textColor = Color.green;
+			green_button.hover.textColor = green_button.active.textColor = Color.yellow;
+			green_button.onNormal.textColor = green_button.onFocused.textColor = green_button.onHover.textColor = green_button.onActive.textColor = Color.yellow;
+			green_button.padding = new RectOffset (4, 4, 4, 4);
+			
+			yellow_button = new GUIStyle (GUI.skin.button);
+			yellow_button.normal.textColor = yellow_button.focused.textColor = Color.yellow;
+			yellow_button.hover.textColor = yellow_button.active.textColor = Color.green;
+			yellow_button.onNormal.textColor = yellow_button.onFocused.textColor = yellow_button.onHover.textColor = yellow_button.onActive.textColor = Color.green;
+			yellow_button.padding = new RectOffset (4, 4, 4, 4);
 
 			red = new GUIStyle (GUI.skin.box);
-			red.padding = new RectOffset (8, 8, 8, 8);
+			red.padding = new RectOffset (4, 4, 4, 4);
 			red.normal.textColor = red.focused.textColor = Color.red;
 
 			yellow = new GUIStyle (GUI.skin.box);
-			yellow.padding = new RectOffset (8, 8, 8, 8);
+			yellow.padding = new RectOffset (4, 4, 4, 4);
 			yellow.normal.textColor = yellow.focused.textColor = Color.yellow;
 
 			green = new GUIStyle (GUI.skin.box);
-			green.padding = new RectOffset (8, 8, 8, 8);
+			green.padding = new RectOffset (4, 4, 4, 4);
 			green.normal.textColor = green.focused.textColor = Color.green;
 
 			white = new GUIStyle (GUI.skin.box);
-			white.padding = new RectOffset (8, 8, 8, 8);
+			white.padding = new RectOffset (4, 4, 4, 4);
 			white.normal.textColor = white.focused.textColor = Color.white;
 
 			label = new GUIStyle (GUI.skin.label);
@@ -75,6 +105,7 @@ namespace AtHangar
 			listBox = new GUIStyle(GUI.skin.box);
 		}
 	}
+	
 	
 	abstract public class AddonWindowBase<T> : MonoBehaviour where T : AddonWindowBase<T>
 	{
@@ -141,7 +172,6 @@ namespace AtHangar
 		
 		protected void Awake() 
 		{ 
-			Styles.Init();
 			LoadSettings(); 
 			instance = (T)this; 
 			next_update = Time.time; 
@@ -164,14 +194,19 @@ namespace AtHangar
 		{
 			configfile.load();
 			gui_enabled = configfile.GetValue<bool>(mangleName("gui_enabled"), true);
-			UpdateGUIState();
-			
 		}
 
 		virtual public void SaveSettings()
 		{
 			configfile.SetValue(mangleName("gui_enabled"), gui_enabled);
 			configfile.save();
+		}
+		
+		virtual public void OnGUI()
+		{
+			Styles.InitSkin();
+			GUI.skin = Styles.skin;
+			Styles.InitGUI();
 		}
 	}
 }

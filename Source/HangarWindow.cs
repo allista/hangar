@@ -11,12 +11,11 @@ namespace AtHangar
 	public class HangarWindow : AddonWindowBase<HangarWindow>
 	{
 		//settings
-		static bool highlight_hangar = false;
+		static int highlight_hangar = 0; //1 -- enable highlight; -1 -- disable highlight; 0 -- do not set highlight (for mouseover highlighting).
 		static bool selecting_crew = false;
 		static Rect fWindowPos = new Rect();
 		static Rect eWindowPos = new Rect();
 		static Rect cWindowPos = new Rect();
-		
 		
 		//this vessel
 		Metric vessel_metric;
@@ -35,6 +34,7 @@ namespace AtHangar
 		
 		//vessel crew
 		CrewTransferWindow crew_window = new CrewTransferWindow();
+		
 		
 		//vessel volume 
 		private void updateVesselMetrics()
@@ -125,29 +125,32 @@ namespace AtHangar
 			base.UpdateGUIState();
 			if(selected_hangar != null) 
 			{
-				if(enabled && highlight_hangar) 
+				if(enabled && highlight_hangar == 1) 
 				{
 					selected_hangar.part.SetHighlightColor(XKCDColors.LightSeaGreen);
 					selected_hangar.part.SetHighlight(true);
 				} 
-				else selected_hangar.part.SetHighlightDefault();
+				else if(highlight_hangar == -1)
+				{
+					selected_hangar.part.SetHighlightDefault();
+					highlight_hangar = 0;
+				}
 			}
 			if(hangars != null)
 			{
 				foreach(var p in hangars)
 					p.UpdateMenus(enabled && p == selected_hangar);
 			}
-//			Debug.Log(string.Format("enabled: {2}; hideUI: {0}; gui_enabled: {1}", hide_ui, gui_enabled, enabled));
 		}
 		
 		public override void OnUpdate() { updateVesselMetrics(); }
-
+		
+		
 		new void Awake()
 		{
 			base.Awake();
 			GameEvents.onVesselChange.Add(onVesselChange);
 			GameEvents.onVesselWasModified.Add(onVesselWasModified);
-			enabled = false;
 		}
 
 		new void OnDestroy()
@@ -173,10 +176,11 @@ namespace AtHangar
 			base.SaveSettings();
 		}
 		
+		#region GUI
 		//buttons
 		void LaunchButton()
 		{
-			if(GUILayout.Button("Launch Vessel", GUILayout.ExpandWidth(true)))
+			if(GUILayout.Button("Launch Vessel", Styles.yellow_button, GUILayout.ExpandWidth(true)))
 				selected_hangar.TryRestoreVessel(selected_vessel.vid);
 		}
 		
@@ -185,10 +189,10 @@ namespace AtHangar
 			if(selected_hangar.gates_state == HangarGates.Closed ||
 			   selected_hangar.gates_state == HangarGates.Closing)
 			{
-				if(GUILayout.Button("Open Gates", GUILayout.ExpandWidth(true)))
+				if(GUILayout.Button("Open Gates", Styles.green_button, GUILayout.ExpandWidth(true)))
 					selected_hangar.Open();
 			}
-			else if(GUILayout.Button("Close Gates", GUILayout.ExpandWidth(true)))
+			else if(GUILayout.Button("Close Gates", Styles.red_button, GUILayout.ExpandWidth(true)))
 					selected_hangar.Close();
 		}
 		
@@ -196,12 +200,12 @@ namespace AtHangar
 		{
 			if(selected_hangar.hangar_state == Hangar.HangarState.Inactive)
 			{
-				if(GUILayout.Button("Activate Hangar", GUILayout.ExpandWidth(true)))
+				if(GUILayout.Button("Activate Hangar", Styles.green_button, GUILayout.ExpandWidth(true)))
 					selected_hangar.Activate();
 			}
 			else
 			{
-				if(GUILayout.Button("Deactivate Hangar", GUILayout.ExpandWidth(true)))
+				if(GUILayout.Button("Deactivate Hangar", Styles.red_button, GUILayout.ExpandWidth(true)))
 				selected_hangar.Deactivate();
 			}
 		}
@@ -253,14 +257,14 @@ namespace AtHangar
 				hangar_id = hangar.GetInstanceID();
 				hangar_list.SelectItem(hangars.IndexOf(hangar));
 			}
-			UpdateGUIState();
 		}
 
 		void SelectHangar()
 		{
 			GUILayout.BeginHorizontal();
 			hangar_list.DrawButton();
-			highlight_hangar = GUILayout.Toggle(highlight_hangar, "Highlight hangar");
+			if(GUILayout.Toggle(highlight_hangar == 1, "Highlight hangar")) highlight_hangar = 1;
+			else if(highlight_hangar == 1) highlight_hangar = -1;
 			Select_Hangar(hangars[hangar_list.SelectedIndex]);
 			GUILayout.EndHorizontal();
 		}
@@ -310,17 +314,15 @@ namespace AtHangar
 		{ 
 			GUILayout.BeginVertical();
 			GUILayout.Label("Vessel Volume: "+Utils.formatVolume(vessel_metric.volume), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Vessel Dimensios: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Vessel Dimensions: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label(String.Format("Crew Capacity: {0}", vessel_metric.CrewCapacity), GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 5000, 20));
-			UpdateGUIState();
 		}
 		
 		//hangar controls GUI
 		void HangarCotrols(int windowID)
 		{
-			Styles.Init();
 			//hangar list
 			SelectHangar_start();
 			GUILayout.BeginVertical();
@@ -351,9 +353,12 @@ namespace AtHangar
 			GUI.DragWindow(new Rect(0, 0, 5000, 20));
 		}
 	
-		public void OnGUI()
+		override public void OnGUI()
 		{
-			if (Event.current.type != EventType.Layout) return;
+			if(Event.current.type != EventType.Layout) return;
+			if((FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null) &&
+				EditorLogic.fetch == null) return;
+			base.OnGUI();
 			if(hangars != null)
 			{
 				string hstate = selected_hangar.hangar_state.ToString();
@@ -368,7 +373,7 @@ namespace AtHangar
 				eWindowPos = GUILayout.Window(GetInstanceID(),
 											 eWindowPos, VesselInfo,
 											 "Vessel info",
-											 GUILayout.Width(260));
+											 GUILayout.Width(300));
 			}
 			if(selecting_crew)
 			{
@@ -377,8 +382,9 @@ namespace AtHangar
 					cWindowPos = crew_window.Draw(selected_hangar.vessel.GetVesselCrew(), 
 					                              sv.crew, sv.CrewCapacity, cWindowPos);
 			}
+			UpdateGUIState();
 		}
-
+		#endregion
 	}
 }
 
