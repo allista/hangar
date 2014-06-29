@@ -27,6 +27,7 @@ namespace AtHangar
 			public float mass;
 			public Metric metric;
 			public List<ProtoCrewMember> crew;
+			public int CrewCapacity;
 			
 			public StoredVessel() {}
 			
@@ -49,6 +50,7 @@ namespace AtHangar
 				node.AddValue("CoM", ConfigNode.WriteVector(CoM));
 				node.AddValue("CoG", ConfigNode.WriteVector(CoG));
 				node.AddValue("mass", mass);
+				node.AddValue("CrewCapacity", CrewCapacity);
 			}
 			
 			public void Load(ConfigNode node)
@@ -63,6 +65,7 @@ namespace AtHangar
 				CoM  = ConfigNode.ParseVector3(node.GetValue("CoM"));
 				CoG  = ConfigNode.ParseVector3(node.GetValue("CoG"));
 				mass = float.Parse(node.GetValue("mass"));
+				CrewCapacity = int.Parse(node.GetValue("CrewCapacity"));
 			}
 		}
 		
@@ -110,6 +113,13 @@ namespace AtHangar
 				_vessels.Add(vinfo);
 			}
 			return _vessels;
+		}
+		
+		public StoredVessel GetVessel(Guid vid)
+		{
+			StoredVessel sv;
+			if(!stored_vessels.TryGetValue(vid, out sv)) return null;
+			return sv;
 		}
 		
 		public void UpdateMenus (bool visible)
@@ -276,6 +286,7 @@ namespace AtHangar
 			stored_vessel.CoM    = vsl.findWorldCenterOfMass();
 			stored_vessel.CoG    = vsl.vesselTransform.TransformPoint(stored_vessel.metric.bounds.center);
 			stored_vessel.mass   = vsl.GetTotalMass();
+			stored_vessel.CrewCapacity = vsl.GetCrewCapacity();
 			stored_vessels.Add(vsl.id, stored_vessel);
 			//recalculate volume and mass
 			used_volume  += stored_vessel.metric.volume;

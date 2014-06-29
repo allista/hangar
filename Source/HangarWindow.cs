@@ -12,8 +12,11 @@ namespace AtHangar
 	{
 		//settings
 		static bool highlight_hangar = false;
+		static bool selecting_crew = false;
 		static Rect fWindowPos = new Rect();
 		static Rect eWindowPos = new Rect();
+		static Rect cWindowPos = new Rect();
+		
 		
 		//this vessel
 		Metric vessel_metric;
@@ -30,6 +33,8 @@ namespace AtHangar
 		Hangar.VesselInfo selected_vessel;
 		Guid vessel_id;
 		
+		//vessel crew
+		CrewTransferWindow crew_window = new CrewTransferWindow();
 		
 		//vessel volume 
 		private void updateVesselMetrics()
@@ -135,7 +140,7 @@ namespace AtHangar
 //			Debug.Log(string.Format("enabled: {2}; hideUI: {0}; gui_enabled: {1}", hide_ui, gui_enabled, enabled));
 		}
 		
-		public override void OnUpdate() { updateVesselMetrics();	}
+		public override void OnUpdate() { updateVesselMetrics(); }
 
 		new void Awake()
 		{
@@ -152,18 +157,20 @@ namespace AtHangar
 			base.OnDestroy();
 		}
 		
-		public override void LoadSettings ()
+		public override void LoadSettings()
 		{
 			base.LoadSettings ();
-			fWindowPos = configfile.GetValue<Rect>(mangleName("fWindowPos"));
-			eWindowPos = configfile.GetValue<Rect>(mangleName("eWindowPos"));
+			fWindowPos = configfile.GetValue<Rect>(mangleName("fWindowPos"), fWindowPos);
+			eWindowPos = configfile.GetValue<Rect>(mangleName("eWindowPos"), eWindowPos);
+			cWindowPos = configfile.GetValue<Rect>(mangleName("cWindowPos"), cWindowPos);
 		}
 		
-		public override void SaveSettings ()
+		public override void SaveSettings()
 		{
 			configfile.SetValue(mangleName("fWindowPos"), fWindowPos);
 			configfile.SetValue(mangleName("eWindowPos"), eWindowPos);
-			base.SaveSettings ();
+			configfile.SetValue(mangleName("cWindowPos"), cWindowPos);
+			base.SaveSettings();
 		}
 		
 		//buttons
@@ -197,6 +204,13 @@ namespace AtHangar
 				if(GUILayout.Button("Deactivate Hangar", GUILayout.ExpandWidth(true)))
 				selected_hangar.Deactivate();
 			}
+		}
+		
+		void CrewTransferButton()
+		{
+			if(selected_vessel == null) return;
+			if(GUILayout.Button("Change vessel crew", GUILayout.ExpandWidth(true)))
+				selecting_crew = !selecting_crew;
 		}
 		
 		void CloseButton()
@@ -327,8 +341,8 @@ namespace AtHangar
 				GUILayout.BeginVertical();
 				SelectVessel();
 				GUILayout.EndVertical();
+				CrewTransferButton();
 				LaunchButton();
-				
 			}
 			CloseButton();
 			SelectHangar_end();
@@ -337,7 +351,7 @@ namespace AtHangar
 			GUI.DragWindow(new Rect(0, 0, 5000, 20));
 		}
 	
-		override public void OnGUI()
+		public void OnGUI()
 		{
 			if (Event.current.type != EventType.Layout) return;
 			if(hangars != null)
@@ -355,6 +369,13 @@ namespace AtHangar
 											 eWindowPos, VesselInfo,
 											 "Vessel info",
 											 GUILayout.Width(260));
+			}
+			if(selecting_crew)
+			{
+				Hangar.StoredVessel sv = selected_hangar.GetVessel(selected_vessel.vid);
+				if(sv != null)
+					cWindowPos = crew_window.Draw(selected_hangar.vessel.GetVesselCrew(), 
+					                              sv.crew, sv.CrewCapacity, cWindowPos);
 			}
 		}
 
