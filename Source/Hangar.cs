@@ -74,10 +74,11 @@ namespace AtHangar
 		public HangarGates gates_state { get { return hangar_gates.GatesState; } }
 		public HangarState hangar_state { get; private set;}
 		public Metric hangar_metric;
+		public Metric part_metric;
 		private float usefull_volume_ratio = 0.7f; //only 70% of the volume may be used by docking vessels
 		private float crew_volume_ratio    = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
 		//fields
-		[KSPField (isPersistant = false)] public float VolumePerKerbal = 3f; //m^3
+		[KSPField (isPersistant = false)] public float VolumePerKerbal = 3f; // m^3
 		[KSPField (isPersistant = false)] public bool StaticCrewCapacity = false;
 		[KSPField (isPersistant = true)] public float used_volume  = 0f;
 		[KSPField (isPersistant = true)] public float base_mass    = 0f;
@@ -165,10 +166,10 @@ namespace AtHangar
             }
 		}
 		
-		public void Setup()	{ SetMass (); RecalculateVolume(); }
+		public void Setup()	{ RecalculateVolume(); SetMass(); }
 		
 		public void SetMass() 
-		{ 
+		{
 			if(base_mass == 0) base_mass = part.mass;
 			part.mass = base_mass+vessels_mass; 
 		}
@@ -176,18 +177,17 @@ namespace AtHangar
 		public void RecalculateVolume()
 		{
 			//recalculate total volume
-			Metric part_metric = new Metric(part);
+			part_metric = new Metric(part);
 			if(HangarSpace != "") 
 				hangar_metric = new Metric(part, HangarSpace);
+			//recalculate hangar volume
 			if(hangar_metric == null || hangar_metric.Empy())
 				hangar_metric = part_metric*usefull_volume_ratio;
 			//calculate crew capacity from remaining volume
 			if(!StaticCrewCapacity)
-			{
 				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
-				crew_capacity = part.CrewCapacity.ToString();
-			}
-			//calculate hangar volume
+			//display recalculated values
+			crew_capacity = part.CrewCapacity.ToString();
 			hangar_v = Utils.formatVolume(hangar_metric.volume);
 			hangar_d = Utils.formatDimensions(hangar_metric.size);
 		}
@@ -284,7 +284,7 @@ namespace AtHangar
 			stored_vessel.vessel = vsl.BackupVessel();
 			stored_vessel.metric = new Metric(vsl);
 			stored_vessel.CoM    = vsl.findWorldCenterOfMass();
-			stored_vessel.CoG    = vsl.vesselTransform.TransformPoint(stored_vessel.metric.bounds.center);
+			stored_vessel.CoG    = stored_vessel.metric.world_center;
 			stored_vessel.mass   = vsl.GetTotalMass();
 			stored_vessel.CrewCapacity = vsl.GetCrewCapacity();
 			stored_vessels.Add(vsl.id, stored_vessel);
@@ -340,6 +340,7 @@ namespace AtHangar
 			//position on a surface
 			if(vessel.LandedOrSplashed)
 			{
+				bounds_offset = sv.CoM - sv.CoG + launchTransform.up*sv.metric.bounds.size.y;
 				Vector3d vpos = Vector3d.zero+launchTransform.position+bounds_offset;
 				pv.longitude  = vessel.mainBody.GetLongitude(vpos);
 				pv.latitude   = vessel.mainBody.GetLatitude(vpos);
@@ -494,7 +495,7 @@ namespace AtHangar
 		//called every frame while part collider is touching the trigger
 		public void OnTriggerStay (Collider col) //see Unity docs
 		{
-			if(hangar_gates.GatesState != HangarGates.Opened
+			if(hangar_state != HangarState.Active
 				||  col == null
 				|| !col.CompareTag ("Untagged")
 				||  col.gameObject.name == "MapOverlay collider"// kethane
@@ -606,8 +607,8 @@ namespace AtHangar
 		{
 			doors = hangar_gates.GatesState.ToString();
 			state = hangar_state.ToString();
-			hangar_d = Utils.formatDimensions(hangar_metric.size);
-			crew_capacity = part.CrewCapacity.ToString();
+//			hangar_d = Utils.formatDimensions(hangar_metric.size);
+//			crew_capacity = part.CrewCapacity.ToString();
 		}
 		
 	}
