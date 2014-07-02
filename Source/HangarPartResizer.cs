@@ -38,7 +38,7 @@ namespace AtHangar
 		[KSPField] public string minSizeName = "HANGAR_MINSCALE";
 		[KSPField] public string maxSizeName = "HANGAR_MAXSCALE";
 		
-		[KSPField(isPersistant=false, guiActive=false, guiActiveEditor=true, guiName="Mass")]
+		[KSPField(isPersistant=false, guiActiveEditor=true, guiName="Mass")]
 		public string massDisplay;
 		
 		private float old_size   = -1000;
@@ -54,6 +54,7 @@ namespace AtHangar
 		public override void OnStart (StartState state)
 		{
 			base.OnStart (state);
+			//check if the part has the hangar module
 			if (HighLogic.LoadedSceneIsEditor) 
 			{
 				//calculate min and max sizes from tech tree and module fields
@@ -130,30 +131,30 @@ namespace AtHangar
 		}
 
 		
-		public virtual void resizePart (float scale, float len)
+		public virtual void resizePart(float scale, float len)
 		{
-			old_size   = size;
-			old_length = length;
-		
-			//change mass and forces
-			part.mass  = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z * len) * scale + specificMass.w;
-			massDisplay = Utils.formatMass (part.mass);
-			part.breakingForce = specificBreakingForce * Mathf.Pow (scale, 2);
-			part.breakingTorque = specificBreakingTorque * Mathf.Pow (scale, 2);
-			
 			//change scale
 			Transform model = part.FindModelTransform ("model");
-			if(model != null)
-				model.localScale = scale_vector(Vector3.one, scale, len);
-			else
-				Debug.LogError ("[HangarPartResizer] No 'model' transform in the part", this);
+			if(model != null) model.localScale = scale_vector(Vector3.one, scale, len);
+			else Debug.LogError ("[HangarPartResizer] No 'model' transform in the part", this);
 			
-			//change volume if the part is a hangar
+			//recalculate mass
+			part.mass   = ((specificMass.x * scale + specificMass.y * len) * scale + specificMass.z) * scale + specificMass.w;
+			massDisplay = Utils.formatMass (part.mass);
+			
+			//change breaking forces
+			part.breakingForce  = specificBreakingForce  * Mathf.Pow(scale, 2);
+			part.breakingTorque = specificBreakingTorque * Mathf.Pow(scale, 2);
+			
+			//change volume if the part is a hangar, and let the hangar module handle mass calculations
 			Hangar hangar = part.Modules.OfType<Hangar>().SingleOrDefault();
 			if(hangar != null) hangar.Setup();
 		
 			scaleNodes(scale, len);
 			updateNodeSizes(scale);
+			
+			old_size   = size;
+			old_length = length;
 		}
 	}
 }
