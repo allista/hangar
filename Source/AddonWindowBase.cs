@@ -161,7 +161,7 @@ namespace AtHangar
 		//update-init-destroy
 		abstract public void OnUpdate();
 		
-		void Update() 
+		virtual public void Update() 
 		{ 
 			if(Time.time > next_update)
 			{
