@@ -5,6 +5,7 @@
 /Library/metadata/**
 /Library/*Cache*
 /GameData/Hangar/Plugins/PluginData/Hangar/config.xml
+/Assets/bbox/**
 *~
 *.swp
 *.meta
