@@ -39,15 +39,18 @@ namespace AtHangar
 		//vessel volume 
 		private void updateVesselMetrics()
 		{
-			vessel_metric = new Metric();
+			vessel_metric = null;
 			if(EditorLogic.fetch != null)
 			{
 				List<Part> parts = new List<Part>{};
 				try { parts = EditorLogic.SortedShipList; }
 				catch (NullReferenceException) { return; }
-				vessel_metric = new Metric(parts);
+				if(parts.Count > 0 && parts[0] != null)
+					vessel_metric = new Metric(parts);
 			}
-			else if(FlightGlobals.fetch != null)
+			else if(FlightGlobals.fetch != null && 
+			        FlightGlobals.ActiveVessel != null &&
+			        !FlightGlobals.ActiveVessel.isEVA)
 				vessel_metric = new Metric(FlightGlobals.ActiveVessel);
 		}
 		
@@ -143,7 +146,15 @@ namespace AtHangar
 			}
 		}
 		
-		public override void OnUpdate() { updateVesselMetrics(); }
+		public override void OnUpdate() { if(enabled) updateVesselMetrics(); }
+		
+		#region Debug
+//		public override void Update()
+//		{
+//			base.Update();
+//			DrawBoundingBox();
+//		}
+		#endregion
 		
 		
 		new void Awake()
@@ -253,6 +264,12 @@ namespace AtHangar
 		{
 			if(selected_hangar != hangar)
 			{
+				if(highlight_hangar == 1)
+				{
+					highlight_hangar = -1;
+					UpdateGUIState();
+					highlight_hangar =  1;
+				}
 				selected_hangar = hangar;
 				hangar_id = hangar.GetInstanceID();
 				hangar_list.SelectItem(hangars.IndexOf(hangar));
@@ -352,12 +369,12 @@ namespace AtHangar
 			
 			GUI.DragWindow(new Rect(0, 0, 5000, 20));
 		}
+		#endregion
 	
 		override public void OnGUI()
 		{
+			if(vessel_metric == null) return;
 			if(Event.current.type != EventType.Layout) return;
-			if((FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null) &&
-				EditorLogic.fetch == null) return;
 			base.OnGUI();
 			if(hangars != null)
 			{
@@ -383,6 +400,21 @@ namespace AtHangar
 					                              sv.crew, sv.CrewCapacity, cWindowPos);
 			}
 			UpdateGUIState();
+		}
+		
+		#region Debug
+		void DrawBoundingBox()
+		{
+			if(vessel_metric == null) return;
+			if(EditorLogic.fetch != null)
+			{
+				List<Part> parts;
+				try { parts = EditorLogic.SortedShipList; }
+				catch (NullReferenceException) { return; }
+				if(parts.Count == 0 || parts[0] == null) return;
+				vessel_metric.DrawBox(parts[0].partTransform);
+			}
+			else vessel_metric.DrawBox(FlightGlobals.ActiveVessel.vesselTransform);
 		}
 		#endregion
 	}
