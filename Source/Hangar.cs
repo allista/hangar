@@ -1,4 +1,5 @@
-//This code is partly based on the code from Extraplanetary Launchpad plugin. ExLaunchPad and Recycler classes.
+//This code is partly based on the code from Extraplanetary Launchpads plugin. ExLaunchPad and Recycler classes.
+//Thanks Taniwha, I've learnd many things from your code and from our conversation.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,81 +9,85 @@ using UnityEngine;
 
 namespace AtHangar
 {
+	public class VesselInfo
+	{
+		public Guid vid;
+		public string vesselName;
+	}
+	
+	public class StoredVessel
+	{
+		public ProtoVessel vessel;
+		public Vector3 CoM;
+		public Vector3 CoG; //center of geometry
+		public float mass;
+		public Metric metric;
+		public List<ProtoCrewMember> crew;
+		public int CrewCapacity;
+		
+		public StoredVessel() {}
+		
+		public StoredVessel(ConfigNode node) { Load(node); }
+		
+		public void Save(ConfigNode node)
+		{
+			//nodes
+			ConfigNode vessel_node = node.AddNode("VESSEL");
+			ConfigNode metric_node = node.AddNode("METRIC");
+			ConfigNode crew_node   = node.AddNode("CREW");
+			vessel.Save(vessel_node);
+			metric.Save(metric_node);
+			foreach(ProtoCrewMember c in crew)
+			{
+				ConfigNode n = crew_node.AddNode(c.name);
+				c.Save(n);
+			}
+			//values
+			node.AddValue("CoM", ConfigNode.WriteVector(CoM));
+			node.AddValue("CoG", ConfigNode.WriteVector(CoG));
+			node.AddValue("mass", mass);
+			node.AddValue("CrewCapacity", CrewCapacity);
+		}
+		
+		public void Load(ConfigNode node)
+		{
+			ConfigNode vessel_node = node.GetNode("VESSEL");
+			ConfigNode metric_node = node.GetNode("METRIC");
+			ConfigNode crew_node   = node.GetNode("CREW");
+			vessel = new ProtoVessel(vessel_node, FlightDriver.FlightStateCache);
+			metric = new Metric(metric_node);
+			crew   = new List<ProtoCrewMember>();
+			foreach(ConfigNode cn in crew_node.nodes) crew.Add(new ProtoCrewMember(cn));
+			CoM  = ConfigNode.ParseVector3(node.GetValue("CoM"));
+			CoG  = ConfigNode.ParseVector3(node.GetValue("CoG"));
+			mass = float.Parse(node.GetValue("mass"));
+			CrewCapacity = int.Parse(node.GetValue("CrewCapacity"));
+		}
+	}
+	
 	//this module adds the ability to store a vessel in a packed state inside
 	public class Hangar : PartModule
 	{
 		public enum HangarState{Active,Inactive};
 		
-		public class VesselInfo
-		{
-			public Guid vid;
-			public string vesselName;
-		}
-		
-		public class StoredVessel
-		{
-			public ProtoVessel vessel;
-			public Vector3 CoM;
-			public Vector3 CoG; //center of geometry
-			public float mass;
-			public Metric metric;
-			public List<ProtoCrewMember> crew;
-			public int CrewCapacity;
-			
-			public StoredVessel() {}
-			
-			public StoredVessel(ConfigNode node) { Load(node); }
-			
-			public void Save(ConfigNode node)
-			{
-				//nodes
-				ConfigNode vessel_node = node.AddNode("VESSEL");
-				ConfigNode metric_node = node.AddNode("METRIC");
-				ConfigNode crew_node   = node.AddNode("CREW");
-				vessel.Save(vessel_node);
-				metric.Save(metric_node);
-				foreach(ProtoCrewMember c in crew)
-				{
-					ConfigNode n = crew_node.AddNode(c.name);
-					c.Save(n);
-				}
-				//values
-				node.AddValue("CoM", ConfigNode.WriteVector(CoM));
-				node.AddValue("CoG", ConfigNode.WriteVector(CoG));
-				node.AddValue("mass", mass);
-				node.AddValue("CrewCapacity", CrewCapacity);
-			}
-			
-			public void Load(ConfigNode node)
-			{
-				ConfigNode vessel_node = node.GetNode("VESSEL");
-				ConfigNode metric_node = node.GetNode("METRIC");
-				ConfigNode crew_node   = node.GetNode("CREW");
-				vessel = new ProtoVessel(vessel_node, FlightDriver.FlightStateCache);
-				metric = new Metric(metric_node);
-				crew   = new List<ProtoCrewMember>();
-				foreach(ConfigNode cn in crew_node.nodes) crew.Add(new ProtoCrewMember(cn));
-				CoM  = ConfigNode.ParseVector3(node.GetValue("CoM"));
-				CoG  = ConfigNode.ParseVector3(node.GetValue("CoG"));
-				mass = float.Parse(node.GetValue("mass"));
-				CrewCapacity = int.Parse(node.GetValue("CrewCapacity"));
-			}
-		}
-		
 		//internal properties
 		private BaseHangarAnimator hangar_gates;
-		public HangarGates gates_state { get { return hangar_gates.GatesState; } }
-		public HangarState hangar_state { get; private set;}
-		public Metric hangar_metric;
-		public Metric part_metric;
 		private float usefull_volume_ratio = 0.7f; //only 70% of the volume may be used by docking vessels
 		private float crew_volume_ratio    = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
+		
+		public HangarGates gates_state { get { return hangar_gates.GatesState; } }
+		public HangarState hangar_state { get; private set;}
+		public Metric hangar_metric { get; private set;}
+		public Metric part_metric { get; private set;}
+		public VesselResources<Vessel, Part, PartResource> hangarResources { get; private set;}
+		public List<ResourceManifest> resourceTransferList = new List<ResourceManifest>();
+		
 		//fields
-		[KSPField (isPersistant = false)] public float VolumePerKerbal = 3f; // m^3
+		[KSPField (isPersistant = false)] public float VolumePerKerbal   = 3f; // m^3
 		[KSPField (isPersistant = false)] public bool StaticCrewCapacity = false;
-		[KSPField (isPersistant = true)] public float used_volume  = 0f;
-		[KSPField (isPersistant = true)] public float base_mass    = 0f;
-		[KSPField (isPersistant = true)] public float vessels_mass = 0f;
+		[KSPField (isPersistant = true)]  public float used_volume  = 0f;
+		[KSPField (isPersistant = true)]  public float base_mass    = 0f;
+		[KSPField (isPersistant = true)]  public float vessels_mass = 0f;
 		
 		//vessels storage
 		private Dictionary<Guid, StoredVessel> stored_vessels = new Dictionary<Guid, StoredVessel>();
@@ -103,7 +108,7 @@ namespace AtHangar
 		[KSPField (guiName = "Hangar state", guiActive = true)] public string state;
 		
 		
-		//for GUI
+		#region for-GUI
 		public List<VesselInfo> GetVessels()
 		{
 			List<VesselInfo> _vessels = new List<VesselInfo>();
@@ -136,8 +141,10 @@ namespace AtHangar
 		public void ShowUI () { HangarWindow.ShowGUI (); }
 		
 		public int numVessels() { return stored_vessels.Count; }
+		#endregion
 		
 		
+		#region Setup
 		//all initialization goes here instead of the constructor as documented in Unity API
 		public override void OnAwake()
 		{
@@ -149,8 +156,12 @@ namespace AtHangar
 		{
 			//base OnStart
 			base.OnStart(state);
-			if (state == StartState.None) return;
-			Setup(); //recalculate volume and mass
+			if(state == StartState.None) return;
+			//initialize resources
+			if(state != StartState.Editor)
+				hangarResources = new VesselResources<Vessel, Part, PartResource>(vessel);
+			//recalculate volume and mass
+			Setup(); 
 			//initialize Animator
 			part.force_activate();
             hangar_gates = part.Modules.OfType<BaseHangarAnimator>().SingleOrDefault();
@@ -191,7 +202,10 @@ namespace AtHangar
 			hangar_v = Utils.formatVolume(hangar_metric.volume);
 			hangar_d = Utils.formatDimensions(hangar_metric.size);
 		}
+		#endregion
 		
+		
+		#region Store
 		//if a vessel can be stored in the hangar
 		private bool CanStoreNow(Vessel vsl)
 		{
@@ -298,8 +312,38 @@ namespace AtHangar
 //			Close();
 		}
 		
+		//called every frame while part collider is touching the trigger
+		public void OnTriggerStay (Collider col) //see Unity docs
+		{
+			if(hangar_state != HangarState.Active
+				||  col == null
+				|| !col.CompareTag ("Untagged")
+				||  col.gameObject.name == "MapOverlay collider"// kethane
+				||  col.attachedRigidbody == null)
+				return;
+			//get part and try to store vessel
+			Part p = col.attachedRigidbody.GetComponent<Part>();
+			if(p == null || p.vessel == null) return;
+			TryStoreVessel(p.vessel);
+		}
 		
-		//restore vessel
+		//called when part collider exits the trigger
+		public void OnTriggerExit(Collider col)
+		{
+			if(col == null
+				|| !col.CompareTag("Untagged")
+				||  col.gameObject.name == "MapOverlay collider" // kethane
+				||  col.attachedRigidbody == null)
+				return;
+			Part p = col.attachedRigidbody.GetComponent<Part>();
+			if(p == null || p.vessel == null) return;
+			if(probed_ids.ContainsKey(p.vessel.id)) probed_ids.Remove(p.vessel.id);
+		}
+		#endregion
+		
+		
+		#region Restore
+		#region Positioning
 		//calculate transform of restored vessel
 		private Transform get_launch_transform()
 		{
@@ -399,6 +443,49 @@ namespace AtHangar
 			DontDestroyOnLoad(obj);
 			obj.AddComponent<MonoBehaviour>().StartCoroutine(transfer_crew(obj, vsl, crew));
 		}
+		#endregion
+		
+		#region Resources
+		public void prepareResourceList(StoredVessel sv)
+		{
+			if(resourceTransferList.Count > 0) return;
+			var resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(sv.vessel);
+			foreach(var r in resources.resourcesNames)
+			{
+				if(hangarResources.ResourceCapacity(r) == 0) continue;
+				ResourceManifest rm = new ResourceManifest();
+				rm.name      = r;
+				rm.pool      = hangarResources.ResourceAmount(r);
+				rm.amount    = resources.ResourceAmount(r);
+				rm.offset    = rm.amount;
+				rm.capacity  = resources.ResourceCapacity(r);
+				rm.minAmount = Math.Max(0, rm.amount-(hangarResources.ResourceCapacity(r)-rm.pool));
+				rm.maxAmount = Math.Min(rm.pool, rm.capacity);
+				resourceTransferList.Add(rm);
+			}
+		}
+		
+		public void transferResources(StoredVessel sv)
+		{
+			if(resourceTransferList.Count == 0) return;
+			var resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(sv.vessel);
+			foreach(var r in resourceTransferList)
+			{
+				//transfer resource between hangar and protovessel
+				var a = hangarResources.TransferResource(r.name, r.offset-r.amount);
+				a = r.amount-r.offset + a;
+				var b = resources.TransferResource(r.name, a);
+				hangarResources.TransferResource(r.name, b);
+				//update masses
+				PartResourceDefinition res_def = PartResourceLibrary.Instance.GetDefinition(r.name);
+				if(res_def.density == 0) continue;
+				vessels_mass += (float)a*res_def.density;
+				sv.mass += (float)a*res_def.density;
+				SetMass();
+			}
+			resourceTransferList.Clear();
+		}
+		#endregion
 		
 		private bool CanRestore()
 		{
@@ -459,10 +546,10 @@ namespace AtHangar
 			//get vessel
 			StoredVessel stored_vessel;
 			if(!stored_vessels.TryGetValue(vid, out stored_vessel)) return;
-			//clean up
-			stored_vessels.Remove(vid);
 			//switch hangar state
 			hangar_state = HangarState.Inactive;
+			//transfer resources
+			transferResources(stored_vessel);
 			//set restored vessel orbit
 			get_launch_transform();
 			PositionVessel(stored_vessel);
@@ -485,42 +572,18 @@ namespace AtHangar
 				vessels_mass -= stored_vessel.mass;
 			}
 			SetMass();
+			//clean up
+			stored_vessels.Remove(vid);
 			//switch to restored vessel
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
 			Staging.beginFlight();
 			if(crew_to_transfer.Count > 0)
 				TransferCrew(launched_vessel, crew_to_transfer);
 		}
-		
-		//called every frame while part collider is touching the trigger
-		public void OnTriggerStay (Collider col) //see Unity docs
-		{
-			if(hangar_state != HangarState.Active
-				||  col == null
-				|| !col.CompareTag ("Untagged")
-				||  col.gameObject.name == "MapOverlay collider"// kethane
-				||  col.attachedRigidbody == null)
-				return;
-			//get part and try to store vessel
-			Part p = col.attachedRigidbody.GetComponent<Part>();
-			if(p == null || p.vessel == null) return;
-			TryStoreVessel(p.vessel);
-		}
-		
-		//called when part collider exits the trigger
-		public void OnTriggerExit(Collider col)
-		{
-			if(col == null
-				|| !col.CompareTag("Untagged")
-				||  col.gameObject.name == "MapOverlay collider" // kethane
-				||  col.attachedRigidbody == null)
-				return;
-			Part p = col.attachedRigidbody.GetComponent<Part>();
-			if(p == null || p.vessel == null) return;
-			if(probed_ids.ContainsKey(p.vessel.id)) probed_ids.Remove(p.vessel.id);
-		}
+		#endregion
 		
 		
+		#region Events&Actions
 		//events
 		[KSPEvent (guiActiveEditor = true, guiName = "Open gates", active = true)]
 		public void Open() 
@@ -567,6 +630,7 @@ namespace AtHangar
 		
 		[KSPAction("Toggle hangar")]
         public void ToggleStateAction(KSPActionParam param) { Toggle(); }
+		#endregion
 	
 		
 		//save the hangar
@@ -607,8 +671,6 @@ namespace AtHangar
 		{
 			doors = hangar_gates.GatesState.ToString();
 			state = hangar_state.ToString();
-//			hangar_d = Utils.formatDimensions(hangar_metric.size);
-//			crew_capacity = part.CrewCapacity.ToString();
 		}
 		
 	}
