@@ -1,3 +1,4 @@
+//This code is based on code from Extraplanetary Launchpads plugin. DropDownList class.
 using System;
 using System.Collections.Generic;
 using System.Linq;
