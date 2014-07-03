@@ -47,9 +47,9 @@ namespace AtHangar
 				ProtoCrewMember part_kerbal = p.protoModuleCrew.Find(k => k.name == kerbal.name);
 				if(part_kerbal != null) 
 				{
-					deleted.Add(kerbal);
+					deleted.Add(part_kerbal);
 					p.RemoveCrewmember(part_kerbal);
-					kerbal.seat = null;
+					part_kerbal.seat = null;
 				}
 			}
 			return deleted;
