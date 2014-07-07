@@ -379,12 +379,12 @@ namespace AtHangar
 			Quaternion hangar_rot = vessel.vesselTransform.rotation;
 			//rotate launchTransform.rotation to protovessel's reference frame
 			pv.rotation = proto_rot*hangar_rot.Inverse()*launchTransform.rotation;
-			//calculate launch offset from vessel bounds
-			Vector3 bounds_offset = sv.CoM - sv.CoG + launchTransform.up*sv.metric.bounds.extents.y;
 			//position on a surface
 			if(vessel.LandedOrSplashed)
 			{
-				bounds_offset = sv.CoM - sv.CoG + launchTransform.up*sv.metric.bounds.size.y;
+				//calculate launch offset from vessel bounds
+				Vector3 bounds_offset = sv.CoM - sv.CoG + launchTransform.up*sv.metric.bounds.size.y;
+				//set vessel's position
 				Vector3d vpos = Vector3d.zero+launchTransform.position+bounds_offset;
 				pv.longitude  = vessel.mainBody.GetLongitude(vpos);
 				pv.latitude   = vessel.mainBody.GetLatitude(vpos);
@@ -392,6 +392,9 @@ namespace AtHangar
 			}
 			else //set the new orbit
 			{
+				//calculate launch offset from vessel bounds
+				Vector3 bounds_offset = sv.CoM - sv.CoG + launchTransform.up*sv.metric.bounds.extents.y;
+				//set vessel's orbit
 				Orbit horb = vessel.orbit;
 				Orbit vorb = new Orbit();
 				Vector3 d_pos = launchTransform.position-vessel.findWorldCenterOfMass()+bounds_offset;
