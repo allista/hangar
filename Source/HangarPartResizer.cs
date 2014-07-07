@@ -58,8 +58,8 @@ namespace AtHangar
 			if (HighLogic.LoadedSceneIsEditor) 
 			{
 				//calculate min and max sizes from tech tree and module fields
-				float min_Size = Utils.getTechMinValue (minSizeName, 0.5f)/offset;
-				float max_Size = Utils.getTechMaxValue (maxSizeName, 10)/offset;
+				float min_Size = Utils.getTechMinValue(minSizeName, 0.5f)/offset;
+				float max_Size = Utils.getTechMaxValue(maxSizeName, 10)/offset;
 				if(max_Size < 1) max_Size = 1;
 				//truncate min-max values at hard limits
 				if(minSize < min_Size) minSize = min_Size;
