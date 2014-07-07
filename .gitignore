@@ -6,8 +6,9 @@
 /Library/*Cache*
 /GameData/Hangar/Plugins/PluginData/Hangar/config.xml
 /Assets/bbox/**
+*cache*
 *~
 *.swp
+*.log
 *.meta
-/KSP.log
 /vessel_positioning.txt
