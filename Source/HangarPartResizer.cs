@@ -66,20 +66,20 @@ namespace AtHangar
 				if(maxSize > max_Size) maxSize = max_Size;
 				//setup sliders
 				if(sizeOnly && lengthOnly) lengthOnly = false;
-				if(!lengthOnly)
+				if(lengthOnly) Fields["size"].guiActiveEditor=false;
+				else
 				{
 					Utils.setFieldRange (Fields ["size"], minSize, maxSize);
 					((UI_FloatEdit)Fields ["size"].uiControlEditor).incrementLarge = sizeStepLarge;
 					((UI_FloatEdit)Fields ["size"].uiControlEditor).incrementSmall = sizeStepSmall;
 				}
-				else Fields["size"].guiActiveEditor=false;
-				if(!sizeOnly)
+				if(sizeOnly) Fields["length"].guiActiveEditor=false;
+				else
 				{
 					Utils.setFieldRange (Fields ["length"], minSize, maxSize);
 					((UI_FloatEdit)Fields ["length"].uiControlEditor).incrementLarge = lengthStepLarge;
 					((UI_FloatEdit)Fields ["length"].uiControlEditor).incrementSmall = lengthStepSmall;
 				}
-				else Fields["length"].guiActiveEditor=false;
 			}
 			//save original sizes of nodes
 			foreach(AttachNode node in part.attachNodes)
