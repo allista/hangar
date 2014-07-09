@@ -1,6 +1,6 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Hangar.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="HangarPartResizer.cs">
     <Files>
       <File FileName="CrewTransfer.cs" Line="52" Column="17" />
       <File FileName="Metric.cs" Line="1" Column="1" />
@@ -8,14 +8,14 @@
       <File FileName="Utils.cs" Line="1" Column="1" />
       <File FileName="TODO.md" Line="1" Column="1" />
       <File FileName="Resources.cs" Line="1" Column="1" />
-      <File FileName="AddonWindowBase.cs" Line="110" Column="34" />
+      <File FileName="AddonWindowBase.cs" Line="1" Column="1" />
       <File FileName="ResourceTransferWindow.cs" Line="1" Column="1" />
       <File FileName="CrewTransferWindow.cs" Line="1" Column="1" />
-      <File FileName="HangarPartResizer.cs" Line="1" Column="1" />
+      <File FileName="HangarPartResizer.cs" Line="153" Column="103" />
       <File FileName="HangarAnimator.cs" Line="1" Column="1" />
       <File FileName="BaseHangarAnimator.cs" Line="1" Column="1" />
       <File FileName="HangarWindow.cs" Line="1" Column="1" />
-      <File FileName="Hangar.cs" Line="397" Column="25" />
+      <File FileName="Hangar.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
