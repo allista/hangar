@@ -6,118 +6,106 @@ class ship:
         if len(weights) < 3: raise ValueError('You should provide 3 or 4 weights')
         self.name          = name
         self.weights       = weights
-        self.volume        = volume
+        self.total_volume  = volume
         self.hangar_volume = hangar_volume
         self.density       = density
         self.spec_mass     = self._spec_mass()
-        self.init_mass     = self.mass(1, 1) 
+        self.init_mass     = self.mass() 
     #end def
     
-    def mass(self, scale, length):
+    def mass(self, scale=1, length=1):
         w = self.spec_mass
-        m = ((w[0]*scale + w[1]*length)*scale + w[2])*scale
+        m = ((w[0]*scale + w[1])*scale + w[2])*scale*length
         if len(self.weights) > 3: m += w[4]
         return m
     #end def
     
+    def true_mass(self, scale=1, length=1):
+        return (self.total_volume-self.hangar_volume)*scale**3*length*self.density
+    
+    def volume(self, scale=1, length=1):
+        return (self.total_volume-self.hangar_volume)*scale**3*length;
+    
     def _spec_mass(self):
-        return self.weights*(self.volume-self.hangar_volume)*self.density
+        return self.weights*(self.total_volume-self.hangar_volume)*self.density
 
     def __str__(self):
         s  = '=== %s ===\n' % self.name
-        s += '//Volume: %f - %f = %f\n' % (self.volume, self.hangar_volume, self.volume-self.hangar_volume)
-        s += '//Density = %f\n' % self.density
-        s += 'mass = %f\n' % self.init_mass
+        s += '//Volume: %s - %s = %s\n' % (self.total_volume, self.hangar_volume, self.total_volume-self.hangar_volume)
+        s += '//Density = %s\n' % self.density
+        s += '//true mass = %s\n' % self.init_mass
+        s += 'mass = %s\n' % self.init_mass
         s += 'specificMass = %s, 0 //weights: %s\n' % (', '.join(str(m) for m in self.spec_mass), self.weights)
-        return s
-    #end def
-#end class
-
-
-class _ship:
-    def __init__(self, name, dimensions, hangar_dimensions, density, v_factor = 1):
-        if len(dimensions) != 3 or len(hangar_dimensions) != 3: 
-            raise ValueError('Dimensions shoud have 3 elements')
-        self.name      = name
-        self.D         = dimensions
-        self.hD        = hangar_dimensions
-        self.density   = density
-        self.v_factor  = v_factor
-        self.init_mass = self.mass()
-    #end def
-    
-    def _V(self, D, scale=1, length=1):
-        return D[0]*scale * D[1]*scale*length * D[2]*scale * self.v_factor
-    
-    def mass(self, scale=1, length=1):
-        V  = self._V(self.D, scale, length)
-        hV = self._V(self.hD, scale, length)
-        return self.density*(V-hV)
-    #end def
-    
-    def __str__(self):
-        V  = self._V(self.D)
-        hV = self._V(self.hD)
-        s  = '=== %s ===\n' % self.name
-        s += 'Volume: %f - %f = %f\n' % (V, hV, V-hV)
-        s += 'mass = %f\n' % self.init_mass
-        s += 'Density = %f\n' % self.density
-        s += 'VolumeFactor = %f\n' % self.v_factor
         return s
     #end def
 #end class
          
         
-def format_data(x, y, w=None):
+def format_data(x, ys, w=None):
     s = ''
     if w is None: w = range(len(x))
-    max_wx = max(len(str(x[i])) for i in w)
-    for i in w: s += '%.1f%s : %.2f\n' % (x[i], ' '*(max_wx-len(str(x[i]))), y[i])
+    max_wx  = max(len(str(x[i])) for i in w)
+    max_wys = [max(len(str(y[i])) for i in w) for y in ys]
+    for i in w: 
+        s += '%s%s ' % (x[i], ' '*(max_wx-len(str(x[i]))))
+        for y, myw in zip(ys, max_wys): 
+            s += ': %s%s ' % (y[i], ' '*(myw-len(str(y[i]))))
+        s += '\n'
     return s
 #end def
 
 if __name__ == '__main__':
     scales = np.arange(0.5, 4.1, 0.5)
     
-    inline1   = ship('inline1',   np.array([0.20, 0.60, 0.2]), 31.25, 16.039648, 0.287)
-    inline2   = ship('inline2',   np.array([0.15, 0.60, 0.25]), 279.225, 128.34989, 0.168)
-    spaceport = ship('spaceport', np.array([0.05, 0.65, 0.3]), 1414.8185, 541.4, 0.116)
+    inline1   = ship('InlineHangar',   np.array([0.8, 0.2, 0.0]), 9.4+12.5, 12.5, 0.292)
+    inline2   = ship('InlineHangar2',   np.array([0.9, 0.1, 0.0]), 98.08+99.94, 99.94, 0.258)
+    spaceport = ship('Spaceport', np.array([1.0, 0.0, 0.0]), 366.046+466.941, 466.941, 0.241)
     
-    small     = ship('small',   np.array([0.05, 0.60, 0.35]), 51.882188, 34.035978, 0.52)
-    big       = ship('big', np.array([0.1, 0.5, 0.4]), 1789.8007, 1166.7095, 0.172)
-
-    #V(cube)/V(cylinder) = 0.78539816
-#     inline1   = ship('inline1', np.array([2.5, 5.0, 2.5]), np.array([2.0, 3.4, 2.4]), 0.287, 0.78539816)
-#     inline2   = ship('inline2', np.array([5.2, 11.2, 5.1]), np.array([3.9, 6.8, 4.8]), 0.208, 0.78539816)
-#     spaceport = ship('spaceport', np.array([9.7, 22.2, 8.0]), np.array([5.6, 18.1, 5.3]), 0.186, 0.78539816)
-#     
-#     small     = ship('small', np.array([3.8, 6.1, 2.3]), np.array([3.3, 4.3, 2.0]), 0.325)
-#     big       = ship('big', np.array([11.9, 24.6, 6.3]), np.array([10.3, 18.1, 5.6]), 0.210)
-
-    inline1_d0  = np.fromiter((inline1.mass(s, 1) for s in scales), float)
-    inline2_d0  = np.fromiter((inline2.mass(s/2, 1) for s in scales), float)
+    small     = ship('SmallHangar',   np.array([0.8, 0.2, 0.0]), 13.82+34.036, 34.036, 0.281)
+    big       = ship('BigHangar', np.array([0.9, 0.1, 0.0]), 527.4+1166.7, 1166.7, 0.248)
     
-    inline1_d   = np.fromiter((inline1.mass(s, 1.8) for s in scales), float)
-    inline2_d   = np.fromiter((inline2.mass(s/2, 1.8) for s in scales), float)
-    spaceport_d = np.fromiter((spaceport.mass(s/3, 1) for s in scales), float)
+    l1 = 1.44
+    l2 = 1.1
+    inline1_m   = np.fromiter((inline1.mass(s, l1) for s in scales), float)
+    inline2_m   = np.fromiter((inline2.mass(s/2, l2) for s in scales), float)
+    spaceport_m = np.fromiter((spaceport.mass(s/3, 1) for s in scales), float)
     
-    small_d = np.fromiter((small.mass(s, 1.334) for s in scales), float)
-    big_d   = np.fromiter((big.mass(s/3, 1) for s in scales), float)
+    inline1_tm   = np.fromiter((inline1.true_mass(s, l1) for s in scales), float)
+    inline2_tm   = np.fromiter((inline2.true_mass(s/2, l2) for s in scales), float)
+    spaceport_tm = np.fromiter((spaceport.true_mass(s/3, 1) for s in scales), float)
+    
+    inline1_v   = np.fromiter((inline1.volume(s, l1) for s in scales), float)
+    inline2_v   = np.fromiter((inline2.volume(s/2, l2) for s in scales), float)
+    spaceport_v = np.fromiter((spaceport.volume(s/3, 1) for s in scales), float)
+    
+    lg1 = 1.4134105
+    small_m  = np.fromiter((small.mass(s, lg1) for s in scales), float)
+    big_m    = np.fromiter((big.mass(s/3, 1) for s in scales), float)
+    small_tm = np.fromiter((small.true_mass(s, lg1) for s in scales), float)
+    big_tm   = np.fromiter((big.true_mass(s/3, 1) for s in scales), float)
+    small_v  = np.fromiter((small.volume(s, lg1) for s in scales), float)
+    big_v    = np.fromiter((big.volume(s/3, 1) for s in scales), float)
     
     
-    print(inline1);   print(format_data(scales, inline1_d))
-    print(inline2);   print(format_data(scales, inline2_d, np.where(scales/2 >= 1)[0]))
-    print(spaceport); print(format_data(scales, spaceport_d, np.where(scales/3 >= 1)[0]))
-    print(small); print(format_data(scales, small_d))
-    print(big);   print(format_data(scales, big_d, np.where(scales/3 >= 1)[0]))
+    print(inline1); print('length: %s' % l1)
+    print(format_data(scales, (inline1_m, inline1_tm, inline1_v)))
+    print(inline2); print('length: %s' % l2)   
+    print(format_data(scales, (inline2_m, inline2_tm, inline2_v), np.where(scales/2 >= 1)[0]))
+    print(spaceport);
+    print(format_data(scales, (spaceport_m, spaceport_tm, spaceport_v), np.where(scales/3 >= 1)[0]))
+    print(small); print('length: %s' % lg1)
+    print(format_data(scales, (small_m, small_tm, small_v)))
+    print(big);
+    print(format_data(scales, (big_m, big_tm, big_v), np.where(scales/3 >= 1)[0]))
     
     plt.xlim(0.5, 4)
-    plt.plot(scales, inline1_d0, '.-', label=inline1.name+'_0')
-    plt.plot(scales[np.where(scales/2 >= 1)], inline2_d0[np.where(scales/2 >= 1)], '.-', label=inline2.name+'_0')
-    plt.plot(scales, inline1_d, '.-', label=inline1.name)
-    plt.plot(scales[np.where(scales/2 >= 1)], inline2_d[np.where(scales/2 >= 1)], '.-', label=inline2.name)
-    plt.plot(scales[np.where(scales/3 >= 1)], spaceport_d[np.where(scales/3 >= 1)], '.-', label=spaceport.name)
-    plt.plot(scales, small_d, '.-', label=small.name)
-    plt.plot(scales[np.where(scales/3 >= 1)], big_d[np.where(scales/3 >= 1)], '.-', label=big.name)
+    plt.plot(scales, inline1_m, '.-', label=inline1.name)
+#     plt.plot(scales, inline1_tm, 'o-', label=inline1.name)
+    plt.plot(scales[np.where(scales/2 >= 1)], inline2_m[np.where(scales/2 >= 1)], '.-', label=inline2.name)
+#     plt.plot(scales[np.where(scales/2 >= 1)], inline2_tm[np.where(scales/2 >= 1)], 'o-', label=inline2.name)
+    plt.plot(scales[np.where(scales/3 >= 1)], spaceport_m[np.where(scales/3 >= 1)], '.-', label=spaceport.name)
+#     plt.plot(scales[np.where(scales/3 >= 1)], spaceport_tm[np.where(scales/3 >= 1)], 'o-', label=spaceport.name)
+    plt.plot(scales, small_m, '.-', label=small.name)
+    plt.plot(scales[np.where(scales/3 >= 1)], big_m[np.where(scales/3 >= 1)], '.-', label=big.name)
     plt.legend(loc=2)
     plt.show()    

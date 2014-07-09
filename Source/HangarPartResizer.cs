@@ -150,7 +150,7 @@ namespace AtHangar
 			if(model != null) model.localScale = scale_vector(Vector3.one, scale, aspect);
 			else Debug.LogError ("[HangarPartResizer] No 'model' transform in the part", this);
 			//recalculate mass
-			part.mass   = ((specificMass.x * scale + specificMass.y * aspect) * scale + specificMass.z) * scale + specificMass.w;
+			part.mass   = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z) * scale * aspect + specificMass.w;
 			massDisplay = Utils.formatMass (part.mass);
 			//change breaking forces
 			part.breakingForce  = specificBreakingForce  * Mathf.Pow(scale, 2);
