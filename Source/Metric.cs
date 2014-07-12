@@ -10,8 +10,9 @@ namespace AtHangar
 	{
 		public float volume { get; private set; }
 		public Bounds bounds { get; private set; }
+		public Vector3 center { get { return bounds.center; } }
+		public Vector3 extents { get { return bounds.extents; } }
 		public Vector3 size { get { return bounds.size; } }
-		public Vector3 world_center { get; private set; }
 		public int CrewCapacity { get; private set; }
 		
 		
@@ -80,7 +81,6 @@ namespace AtHangar
 			bounds = new Bounds();
 			volume = 0f;
 			CrewCapacity = 0;
-			world_center = new Vector3(0,0,0);
 		}
 		
 		//metric copy
@@ -89,7 +89,6 @@ namespace AtHangar
 			bounds = new Bounds(m.bounds.center, m.bounds.size);
 			volume = m.volume;
 			CrewCapacity = m.CrewCapacity;
-			world_center = m.world_center;
 		}
 		
 		//metric from config node
@@ -106,7 +105,6 @@ namespace AtHangar
 			local2local(mT, pT, edges);
 			bounds = initBounds(edges);
 			volume = boundsVolume(bounds);
-			world_center = pT.TransformPoint(bounds.center);
 		}
 		
 		//part metric
@@ -115,43 +113,22 @@ namespace AtHangar
 			Transform pT = part.partTransform;
 			bounds = partsBounds(new List<Part>(){part}, pT);
 			volume = boundsVolume(bounds);
-			world_center = pT.TransformPoint(bounds.center);
 		}
 		
 		//vessel metric
-		private static Transform get_controller_transform(List<Part> parts)
-		{
-			Transform t = null;
-			foreach(Part p in parts)
-			{
-				if(p.isControlSource)
-				{
-					t = p.partTransform;
-					break;
-				}
-			}
-			return t;
-		}
-		
 		public Metric(Vessel vessel)
 		{
-//			Transform vT = get_controller_transform(vessel.parts);
-//			if(vT == null) 
 			Transform vT = vessel.vesselTransform;
 			bounds = partsBounds(vessel.parts, vT);
 			volume = boundsVolume(bounds);
-			world_center = vT.TransformPoint(bounds.center);
 		}
 		
 		//in-editor vessel metric
 		public Metric(List<Part> vessel)
 		{
-//			Transform vT = get_controller_transform(vessel);
-//			if(vT == null) 
 			Transform vT = vessel[0].partTransform;
 			bounds = partsBounds(vessel, vT);
 			volume = boundsVolume(bounds);
-			world_center = vT.TransformPoint(bounds.center);
 		}
 		
 		//public methods
@@ -181,11 +158,11 @@ namespace AtHangar
 			return true;
 		}
 		
-		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
+		public bool FitsAligned(Transform this_T, Transform other_T, Metric other, Vector3 center=new Vector3())
 		{
 			Bounds other_b = other.GetBounds();
-			return (other_b.Contains(other_T.InverseTransformPoint(this_T.TransformPoint(Vector3.up*bounds.extents.y-bounds.extents))) &&
-				    other_b.Contains(other_T.InverseTransformPoint(this_T.TransformPoint(bounds.extents+Vector3.up*bounds.extents.y))));
+			return (other_b.Contains(other_T.InverseTransformPoint(this_T.TransformPoint(center+bounds.extents))) &&
+				    other_b.Contains(other_T.InverseTransformPoint(this_T.TransformPoint(center-bounds.extents))));
 		}
 		
 		public void Scale(float s)
@@ -200,7 +177,6 @@ namespace AtHangar
 		{
 			node.AddValue("bounds_center", ConfigNode.WriteVector(bounds.center));
 			node.AddValue("bounds_size", ConfigNode.WriteVector(bounds.size));
-			node.AddValue("world_center", ConfigNode.WriteVector(world_center));
 			node.AddValue("crew_capacity", CrewCapacity);
 		}
 		
@@ -208,12 +184,10 @@ namespace AtHangar
 		{
 			if(!node.HasValue("bounds_center") || 
 			   !node.HasValue("bounds_size") ||
-			   !node.HasValue("world_center") ||
 			   !node.HasValue("crew_capacity"))
 				throw new KeyNotFoundException("Metric.Load: no 'bounds_center' or 'bound_size' values in the config node.");
 			Vector3 center = ConfigNode.ParseVector3(node.GetValue("bounds_center"));
 			Vector3 size   = ConfigNode.ParseVector3(node.GetValue("bounds_size"));
-			world_center   = ConfigNode.ParseVector3(node.GetValue("world_center"));
 			bounds = new Bounds(center, size);
 			volume = boundsVolume(bounds);
 			CrewCapacity = int.Parse(node.GetValue("crew_capacity"));
