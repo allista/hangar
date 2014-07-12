@@ -15,6 +15,7 @@ namespace AtHangar
 		public string vesselName;
 	}
 	
+	
 	public class StoredVessel
 	{
 		public ProtoVessel vessel;
@@ -64,6 +65,49 @@ namespace AtHangar
 			CrewCapacity = int.Parse(node.GetValue("CrewCapacity"));
 		}
 	}
+	
+	
+	public class LaunchedVessel
+	{
+		private List<ProtoCrewMember> crew;
+		private StoredVessel sv;
+		public Vessel vessel;
+		
+		public LaunchedVessel(StoredVessel sv, Vessel vsl, List<ProtoCrewMember> crew)
+		{
+			this.sv = sv;
+			this.vessel = vsl;
+			this.crew = crew;
+		}
+		
+		public bool launched
+		{
+			get 
+			{
+				if(vessel.id != FlightGlobals.ActiveVessel.id) return false;
+				else vessel = FlightGlobals.ActiveVessel;
+				bool parts_inited = true;
+				foreach(Part p in vessel.parts)
+				{
+					if(!p.started)
+					{
+						parts_inited = false;
+						break;
+					}
+				}
+				return parts_inited;
+			}
+		}
+		
+		public void transferCrew() { CrewTransfer.addCrew(vessel, crew); }
+		
+		public void tunePosition()
+		{
+			Vector3 dP = vessel.findLocalCenterOfMass() - sv.CoM;
+			vessel.SetPosition(vessel.vesselTransform.TransformPoint(dP));
+		}
+	}
+	
 	
 	//this module adds the ability to store a vessel in a packed state inside
 	public class Hangar : PartModule
@@ -259,7 +303,8 @@ namespace AtHangar
 				FlightScreenMessager.showMessage("There's no room in the hangar for this vessel", 3);
 				return false;
 			}
-			if(!metric.FitsAligned(launchTransform, part.partTransform, hangar_metric))
+			Vector3 center = vsl.findLocalCenterOfMass() - metric.center + Vector3.up*metric.extents.y;
+			if(!metric.FitsAligned(launchTransform, part.partTransform, hangar_metric, center))
 			{
 				FlightScreenMessager.showMessage("The vessel does not fit into this hangar", 3);
 				return false;
@@ -297,8 +342,8 @@ namespace AtHangar
 			//store vessel
 			stored_vessel.vessel = vsl.BackupVessel();
 			stored_vessel.metric = new Metric(vsl);
-			stored_vessel.CoM    = vsl.findWorldCenterOfMass();
-			stored_vessel.CoG    = stored_vessel.metric.world_center;
+			stored_vessel.CoM    = vsl.findLocalCenterOfMass();
+			stored_vessel.CoG    = stored_vessel.metric.center;
 			stored_vessel.mass   = vsl.GetTotalMass();
 			stored_vessel.CrewCapacity = vsl.GetCrewCapacity();
 			stored_vessels.Add(vsl.id, stored_vessel);
@@ -309,7 +354,6 @@ namespace AtHangar
 			//destroy vessel
 			vsl.Die();
 			FlightScreenMessager.showMessage("Vessel has been docked inside the hangar", 3);
-//			Close();
 		}
 		
 		//called every frame while part collider is touching the trigger
@@ -383,7 +427,7 @@ namespace AtHangar
 			if(vessel.LandedOrSplashed)
 			{
 				//calculate launch offset from vessel bounds
-				Vector3 bounds_offset = sv.CoM - sv.CoG + launchTransform.up*sv.metric.bounds.size.y;
+				Vector3 bounds_offset = launchTransform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.metric.size.y);
 				//set vessel's position
 				Vector3d vpos = Vector3d.zero+launchTransform.position+bounds_offset;
 				pv.longitude  = vessel.mainBody.GetLongitude(vpos);
@@ -393,7 +437,7 @@ namespace AtHangar
 			else //set the new orbit
 			{
 				//calculate launch offset from vessel bounds
-				Vector3 bounds_offset = sv.CoM - sv.CoG + launchTransform.up*sv.metric.bounds.extents.y;
+				Vector3 bounds_offset = launchTransform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.metric.extents.y);
 				//set vessel's orbit
 				Orbit horb = vessel.orbit;
 				Orbit vorb = new Orbit();
@@ -405,46 +449,24 @@ namespace AtHangar
 		}
 		
 		//static coroutine launched from a DontDestroyOnLoad sentinel object allows to execute code while the scene is switching
-		static IEnumerator<YieldInstruction> transfer_crew(GameObject sentinel, Vessel vsl, List<ProtoCrewMember> crew)
+		static IEnumerator<YieldInstruction> setup_vessel(GameObject sentinel, LaunchedVessel lv)
 		{
-			Vessel _vsl = null;
-			while(true)
-			{
-				if(_vsl == null)
-				{
-					if(vsl.id != FlightGlobals.ActiveVessel.id) 
-					{
-						yield return null;
-						continue;
-					}
-					else _vsl = FlightGlobals.ActiveVessel;
-				}
-				bool parts_inited = true;
-				foreach(Part p in _vsl.parts)
-				{
-					if(!p.started)
-					{
-						parts_inited = false;
-						break;
-					}
-				}
-				if(parts_inited) break;
-				yield return null;
-			}
-			CrewTransfer.addCrew(vsl, crew);
+			while(!lv.launched) yield return null;
+			lv.tunePosition();
+			lv.transferCrew();
 			//it seems you must give KSP a moment to sort it all out,
             //so delay the remaining steps of the transfer process. 
 			//(from the CrewManifest: https://github.com/sarbian/CrewManifest/blob/master/CrewManifest/ManifestController.cs)
 			yield return new WaitForSeconds(0.25f);
-			_vsl.SpawnCrew();
+			lv.vessel.SpawnCrew();
 			Destroy(sentinel);
 		}
 		
-		public static void TransferCrew(Vessel vsl, List<ProtoCrewMember> crew)
+		public static void SetupVessel(LaunchedVessel lv)
 		{
 			GameObject obj = new GameObject();
 			DontDestroyOnLoad(obj);
-			obj.AddComponent<MonoBehaviour>().StartCoroutine(transfer_crew(obj, vsl, crew));
+			obj.AddComponent<MonoBehaviour>().StartCoroutine(setup_vessel(obj, lv));
 		}
 		#endregion
 		
@@ -580,8 +602,7 @@ namespace AtHangar
 			//switch to restored vessel
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
 			Staging.beginFlight();
-			if(crew_to_transfer.Count > 0)
-				TransferCrew(launched_vessel, crew_to_transfer);
+			SetupVessel(new LaunchedVessel(stored_vessel, launched_vessel, crew_to_transfer));
 		}
 		#endregion
 		
