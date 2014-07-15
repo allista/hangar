@@ -14,6 +14,7 @@ namespace AtHangar
 		public Vector3 extents { get { return bounds.extents; } }
 		public Vector3 size { get { return bounds.size; } }
 		public int CrewCapacity { get; private set; }
+		public bool Empty { get { return volume == 0; } }
 		
 		
 		private static Vector3[] bound_edges(Bounds b)
@@ -30,6 +31,12 @@ namespace AtHangar
 		    edges[6] = new Vector3(max.x, max.y, min.z); //right-top-back
 		    edges[7] = new Vector3(max.x, max.y, max.z); //right-top-front
 			return edges;
+		}
+		
+		private static Vector3[] bound_edges(Vector3 center, Vector3 size)
+		{
+			Bounds b = new Bounds(center, size);
+			return bound_edges(b);
 		}
 		
 		private static void local2local(Transform _from, Transform _to, Vector3[] points)
@@ -91,6 +98,30 @@ namespace AtHangar
 			CrewCapacity = m.CrewCapacity;
 		}
 		
+		//metric from bounds
+		public Metric(Bounds b, int crew_capacity = 0)
+		{
+			bounds = new Bounds(b.center, b.size);
+			volume = boundsVolume(bounds);
+			CrewCapacity = crew_capacity;
+		}
+		
+		//metric from size
+		public Metric(Vector3 center, Vector3 size, int crew_capacity = 0)
+		{
+			bounds = new Bounds(center, size);
+			volume = boundsVolume(bounds);
+			CrewCapacity = crew_capacity;
+		}
+		
+		//metric form edges
+		public Metric(Vector3[] edges, int crew_capacity = 0)
+		{
+			bounds = initBounds(edges);
+			volume = boundsVolume(bounds);
+			CrewCapacity = crew_capacity;
+		}
+		
 		//metric from config node
 		public Metric(ConfigNode node) { Load(node); }
 		
@@ -134,8 +165,6 @@ namespace AtHangar
 		//public methods
 		public Bounds GetBounds() { return new Bounds(bounds.center, bounds.size); }
 		
-		public bool Empy() { return volume == 0; }
-		
 		public bool FitsSomehow(Metric other)
 		{
 			List<float>  D = new List<float>{size.x, size.y, size.z};
@@ -158,11 +187,12 @@ namespace AtHangar
 			return true;
 		}
 		
-		public bool FitsAligned(Transform this_T, Transform other_T, Metric other, Vector3 center=new Vector3())
+		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
 		{
-			Bounds other_b = other.GetBounds();
-			return (other_b.Contains(other_T.InverseTransformPoint(this_T.TransformPoint(center+bounds.extents))) &&
-				    other_b.Contains(other_T.InverseTransformPoint(this_T.TransformPoint(center-bounds.extents))));
+			Vector3[] edges = bound_edges(Vector3.up*bounds.extents.y, bounds.size);
+			local2local(this_T,other_T, edges);
+			foreach(Vector3 edge in edges) { if(!other.bounds.Contains(edge)) return false; }
+			return true;
 		}
 		
 		public void Scale(float s)
