@@ -99,9 +99,9 @@ namespace AtHangar
 		public static string formatMass (float mass)
 		{
 			if (mass < 0.01f)
-				return (mass * 1e3f).ToString ("n3") + " kg";
+				return (mass * 1e3f).ToString("n3") + "kg";
 			else
-				return mass.ToString ("n3") + " t";
+				return mass.ToString("n3") + "t";
 		}
 		
 		public static string formatVolume (double volume)
@@ -109,7 +109,7 @@ namespace AtHangar
 			if (volume < 0.1f)
 				return (volume * 1e3f).ToString ("n0") + " L";
 			else
-				return volume.ToString ("n1") + " m^3";
+				return volume.ToString ("n1") + "m^3";
 		}
 		
 		public static string formatDimensions(Vector3 size)
@@ -139,8 +139,8 @@ namespace AtHangar
             }     
         }
 		
-		//debugging
-		public static string formatCrewList(List<ProtoCrewMember> crew)
+		#region Debug
+		public static void logCrewList(List<ProtoCrewMember> crew)
 		{
 			string crew_str = "";
 			foreach(ProtoCrewMember c in crew)
@@ -148,10 +148,23 @@ namespace AtHangar
 				if(crew_str != "") crew_str += "\n";
 				crew_str += string.Format("{0}, seat {1}, seatIdx {2}, roster {3}, ref {4}", c.name, c.seat, c.seatIdx, c.rosterStatus, c.KerbalRef);
 			}
-			return crew_str;
+			Debug.Log(crew_str);
 		}
 		
-		public static void debugProtovesselCrew(ProtoVessel pv)
+		public static string formatVector(Vector3 v)
+		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
+		
+		public static void logVectors(IEnumerable<Vector3> vecs)
+		{ foreach(Vector3 v in vecs) Debug.Log(formatVector(v)); }
+		
+		public static void logBounds(Bounds b)
+		{
+			Debug.Log(string.Format("Center:  {0}", formatVector(b.center)));
+			Debug.Log(string.Format("Extents: {0}", formatVector(b.extents)));
+			Debug.Log(string.Format("Bounds:\n{0}\n{1}", formatVector(b.center+b.extents), formatVector(b.center-b.extents)));
+		}
+		
+		public static void logProtovesselCrew(ProtoVessel pv)
 		{
 			for(int i = 0; i < pv.protoPartSnapshots.Count; i++)
 			{
@@ -171,6 +184,7 @@ namespace AtHangar
 				Debug.Log(string.Format("customPartData: {0}", p.customPartData));
 			}
 		}
+		#endregion
 	}
 	
 	
