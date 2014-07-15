@@ -12,14 +12,6 @@ namespace AtHangar
 		private bool link_lfo_sliders = true;
 		public bool transferNow = false;
 		
-		private GUIStyle fracStyle(float frac)
-		{
-			if(frac < 0.1) return Styles.red;
-			if(frac < 0.5) return Styles.yellow;
-			if(frac < 0.8) return Styles.white;
-			return Styles.green;
-		}
-		
 		float ResourceLine(string label, string resourceName, float fraction, 
 		                   double pool, double minAmount, double maxAmount, double capacity)
 		{
@@ -50,7 +42,7 @@ namespace AtHangar
 						   Styles.white, GUILayout.Width (75),
 						   GUILayout.Height(40));
 			GUILayout.Box((Math.Round(fraction*maxAmount, 2)).ToString (),
-						   fracStyle(fraction), GUILayout.Width (75),
+						   Styles.fracStyle(fraction), GUILayout.Width (75),
 						   GUILayout.Height(40));
 			GUILayout.Box((Math.Round(capacity, 2)).ToString (),
 						   Styles.yellow, GUILayout.Width (75),
@@ -69,8 +61,8 @@ namespace AtHangar
 			
 			foreach (var r in transfer_list) 
 			{
-				float frac = (float)(r.amount/r.maxAmount);
-				frac = ResourceLine(r.name, r.name, frac, r.pool+r.offset, r.minAmount, r.maxAmount, r.capacity);
+				float frac = r.maxAmount > 0 ? (float)(r.amount/r.maxAmount) : 0f;
+				frac = ResourceLine(r.name, r.name, frac, r.pool, r.minAmount, r.maxAmount, r.capacity);
 				if (link_lfo_sliders
 					&& (r.name == "LiquidFuel" || r.name == "Oxidizer")) 
 				{

@@ -30,9 +30,9 @@ namespace AtHangar
 		int hangar_id;
 		
 		//vessels
-		List<VesselInfo> vessels;
+		List<StoredVessel> vessels;
 		DropDownList vessel_list;
-		VesselInfo selected_vessel;
+		StoredVessel selected_vessel;
 		Guid vessel_id;
 		
 		//vessel crew and resources
@@ -94,15 +94,15 @@ namespace AtHangar
 			selected_vessel = null;
 			if(hangar == null) return;
 			
-			List<VesselInfo> _vessels = hangar.GetVessels();
+			List<StoredVessel> _vessels = hangar.GetVessels();
 			if(_vessels.Count > 0) 
 			{
 				vessels = _vessels;
-				selected_vessel = vessels.Find(v => v.vid == vessel_id);
+				selected_vessel = vessels.Find(v => v.vessel.vesselID == vessel_id);
 				if(selected_vessel == null) selected_vessel = vessels[0];
 				var vessel_names = new List<string>();
-				foreach(var vsl in vessels) 
-					vessel_names.Add(vsl.vesselName);
+				foreach(var vsl in vessels)
+					vessel_names.Add(vsl.vessel.vesselName);
 				vessel_list = new DropDownList(vessel_names);
 			}
 		}
@@ -150,7 +150,15 @@ namespace AtHangar
 			}
 		}
 		
-		public override void OnUpdate() { if(enabled) updateVesselMetrics(); }
+		public override void OnUpdate() 
+		{ 
+			if(!enabled) return;
+			updateVesselMetrics(); 
+			if(selected_hangar != null && 
+			   selected_vessel != null && 
+			   transfering_resources)
+				selected_hangar.updateResourceList();
+		}
 		
 		new void Awake()
 		{
@@ -189,7 +197,7 @@ namespace AtHangar
 		void LaunchButton()
 		{
 			if(GUILayout.Button("Launch Vessel", Styles.yellow_button, GUILayout.ExpandWidth(true)))
-				selected_hangar.TryRestoreVessel(selected_vessel.vid);
+				selected_hangar.TryRestoreVessel(selected_vessel);
 		}
 		
 		void ToggleGatesButton()
@@ -257,10 +265,13 @@ namespace AtHangar
 			GUILayout.Label("Vessel Dimensios: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Hangar Dimensios: "+Utils.formatDimensions(selected_hangar.hangar_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Hangar volume: "+Utils.formatVolume(selected_hangar.hangar_metric.volume), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Used volume: "+Utils.formatVolume(selected_hangar.used_volume), GUILayout.ExpandWidth(true));
-			GUILayout.Label(string.Format("Mass: {0} stored, {1} total", Utils.formatMass(selected_hangar.vessels_mass), Utils.formatMass(selected_hangar.vessel.GetTotalMass())), GUILayout.ExpandWidth(true));
+			GUILayout.Label(string.Format("Used volume: {0}, {1:F1}%", Utils.formatVolume(selected_hangar.used_volume), selected_hangar.used_volume_frac*100), 
+			                Styles.fracStyle(1-selected_hangar.used_volume_frac), GUILayout.ExpandWidth(true));
+			GUILayout.Label(string.Format("Mass: {0} stored, {1} total", Utils.formatMass(selected_hangar.vessels_mass), 
+			                              Utils.formatMass(selected_hangar.vessel.GetTotalMass())), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Vessels docked: "+selected_hangar.numVessels(), GUILayout.ExpandWidth(true));
-			GUILayout.Label(string.Format("Vessel crew: {0}/{1}", selected_hangar.vessel.GetCrewCount(), selected_hangar.vessel.GetCrewCapacity()), GUILayout.ExpandWidth(true));
+			GUILayout.Label(string.Format("Vessel crew: {0}/{1}", selected_hangar.vessel.GetCrewCount(), 
+			                              selected_hangar.vessel.GetCrewCapacity()), GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
 		}
 		
@@ -316,10 +327,10 @@ namespace AtHangar
 			vessel_list.DrawBlockingSelector(); 
 		}
 
-		void Select_Vessel(VesselInfo vsl)
+		void Select_Vessel(StoredVessel vsl)
 		{
 			selected_vessel = vsl;
-			vessel_id = vsl.vid;
+			vessel_id = vsl.vessel.vesselID;
 			vessel_list.SelectItem(vessels.IndexOf(vsl));
 		}
 
@@ -330,7 +341,7 @@ namespace AtHangar
 			Select_Vessel(vessels[vessel_list.SelectedIndex]);
 			GUILayout.EndHorizontal();
 		}
-		public static void SelectVessel(VesselInfo vsl) { instance.Select_Vessel(vsl); }
+		public static void SelectVessel(StoredVessel vsl) { instance.Select_Vessel(vsl); }
 
 		void SelectVessel_end()
 		{
@@ -400,23 +411,19 @@ namespace AtHangar
 											 String.Format("{0} {1}, Gates {2}", "Hangar", hstate, gstate),
 											 GUILayout.Width(320));
 				//transfers
-				StoredVessel sv = null;
-				if(selected_vessel != null) sv = selected_hangar.GetVessel(selected_vessel.vid);
-				else selecting_crew = transfering_resources = false;
-				if(sv != null)
+				if(selected_vessel == null) selecting_crew = transfering_resources = false;
+				if(selecting_crew)
+					cWindowPos = crew_window.Draw(selected_hangar.vessel.GetVesselCrew(), 
+				    	                          selected_vessel.crew, selected_vessel.CrewCapacity, cWindowPos);
+				if(transfering_resources)
 				{
-					if(selecting_crew)
-						cWindowPos = crew_window.Draw(selected_hangar.vessel.GetVesselCrew(), 
-					    	                          sv.crew, sv.CrewCapacity, cWindowPos);
-					if(transfering_resources)
+					selected_hangar.prepareResourceList(selected_vessel);
+					rWindowPos = resources_window.Draw(selected_hangar.resourceTransferList, rWindowPos);
+					if(resources_window.transferNow)
 					{
-						selected_hangar.prepareResourceList(sv);
-						rWindowPos = resources_window.Draw(selected_hangar.resourceTransferList, rWindowPos);
-						if(resources_window.transferNow)
-						{
-							selected_hangar.transferResources(sv);
-							resources_window.transferNow = false;
-						}
+						selected_hangar.transferResources(selected_vessel);
+						resources_window.transferNow = false;
+						transfering_resources = false;
 					}
 				}
 			}

@@ -104,6 +104,14 @@ namespace AtHangar
 
 			listBox = new GUIStyle(GUI.skin.box);
 		}
+		
+		public static GUIStyle fracStyle(float frac)
+		{
+			if(frac < 0.1) return Styles.red;
+			if(frac < 0.5) return Styles.yellow;
+			if(frac < 0.8) return Styles.white;
+			return Styles.green;
+		}
 	}
 	
 	

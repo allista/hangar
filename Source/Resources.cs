@@ -334,10 +334,16 @@ namespace AtHangar
 	{
 		public string name;
 		public double pool;
+		
 		public double amount;
+		public double capacity;
 		public double offset;
+		
+		public double host_amount;
+		public double host_capacity;
+		
 		public double minAmount;
 		public double maxAmount;
-		public double capacity;
+		
 	}
 }
