@@ -64,6 +64,7 @@
     <Compile Include="CrewTransferWindow.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="ResourceTransferWindow.cs" />
+    <Compile Include="VesselsPack.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
