@@ -8,6 +8,61 @@ using KSPAPIExtensions;
 
 namespace AtHangar
 {
+	public interface ModuleUpdater
+	{
+		bool Compatable(Part part);
+		void SaveDefaults();
+		void OnRescale(float scale, float aspect);
+	}
+	
+	public abstract class ModuleUpdater<T> : ModuleUpdater where T : PartModule
+	{
+		protected Part part;
+		protected T module;
+		public bool Compatable(Part part)
+		{
+			T module = part.Modules.OfType<T>().SingleOrDefault();
+			if(module == null) return false;
+			return true;
+		}
+		
+		public ModuleUpdater() {}
+		public ModuleUpdater(Part part) 
+		{
+			this.part = part;
+			this.module = part.Modules.OfType<T>().SingleOrDefault();
+			if(this.module == null) 
+				throw new MissingComponentException(string.Format("[Hangar] ModuleUpdater: part {0} does not have {1} module", part.name, module));
+		}
+		public abstract void SaveDefaults();
+		public abstract void OnRescale(float scale, float aspect);
+	}
+	
+	public class RCS_Updater : ModuleUpdater<ModuleRCS>
+	{
+		private float thrust = -1;
+		public override void SaveDefaults()	{ thrust = module.thrusterPower; }
+		public override void OnRescale(float scale, float aspect) { module.thrusterPower = thrust*scale; }
+	}
+	
+	public class DockingNodeUpdater : ModuleUpdater<ModuleDockingNode>
+	{
+		public override void SaveDefaults() {}
+		public override void OnRescale(float scale, float aspect)
+		{
+			AttachNode node = part.findAttachNode(module.referenceAttachNode);
+			if(node == null) return;
+			module.nodeType = string.Format("size{0}", node.size);
+		}
+	}
+	
+	public class HangarUpdater : ModuleUpdater<Hangar>
+	{
+		public override void SaveDefaults()	{}
+		public override void OnRescale(float scale, float aspect) { module.Setup(); }
+	}
+	
+	
 	public class HangarPartResizer : PartModule
 	{
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Size", guiFormat="S4")]
@@ -51,16 +106,18 @@ namespace AtHangar
 		private float old_aspect = -1000;
 		private bool just_loaded = false;
 		
+		//maybe use Part prefab here is a better solution?
 		private Dictionary<string,int> orig_sizes = new Dictionary<string, int>();
 		
+		//module updaters
+		private static Dictionary<string, Func<Part, ModuleUpdater>> updater_types = new Dictionary<string, Func<Part, ModuleUpdater>>();
+		public static void RegisterModuleUpdater(
 		
-		private Vector3 scale_vector(Vector3 v, float s, float l)
-		{ return Vector3.Scale(v, new Vector3(s, s*l, s)); }
+		private List<ModuleUpdater> updaterss = new List<ModuleUpdater>();
 		
 		public override void OnStart (StartState state)
 		{
 			base.OnStart (state);
-			//check if the part has the hangar module
 			if (HighLogic.LoadedSceneIsEditor) 
 			{
 				//remember initial values
@@ -92,10 +149,9 @@ namespace AtHangar
 					((UI_FloatEdit)Fields ["aspect"].uiControlEditor).incrementSmall = aspectStepSmall;
 				}
 			}
-			//save original sizes of nodes
-			foreach(AttachNode node in part.attachNodes)
-				orig_sizes[node.id] = node.size;
-			updateNodeSizes();
+			//save original sizes of nodes and other modules' defaults
+			foreach(AttachNode node in part.attachNodes) orig_sizes[node.id] = node.size;
+			
 		}
 		
 		public override void OnLoad (ConfigNode cfg)
@@ -110,7 +166,31 @@ namespace AtHangar
 			just_loaded = false;
 		}
 		
-		private void updateDockingNode()
+		private static Vector3 scale_vector(Vector3 v, float s, float l)
+		{ return Vector3.Scale(v, new Vector3(s, s*l, s)); }
+		
+		private void scaleNodes(float scale, float aspect)
+		{
+			foreach(AttachNode node in part.attachNodes)
+			{
+				node.position = scale_vector(node.originalPosition, scale, aspect);
+				if (!just_loaded) Utils.updateAttachedPartPos(node, part);
+				//update node size
+				int new_size = orig_sizes[node.id] + Mathf.RoundToInt(scale/sizeStepLarge) - 1;
+				if(new_size < 0) new_size = 0;
+				node.size = new_size;
+			}
+		}
+		
+		#region OtherModuleUpdates
+		private void updateRCS(float scale, float aspect)
+		{
+			ModuleRCS rcs = part.Modules.OfType<ModuleRCS>().SingleOrDefault();
+			if(rcs == null) return;
+			rcs.thrusterPower = orig_thrust*scale;
+		}
+		
+		private void updateDockingNode(float scale, float aspect)
 		{
 			ModuleDockingNode dock = part.Modules.OfType<ModuleDockingNode>().SingleOrDefault();
 			if(dock == null) return;
@@ -119,27 +199,30 @@ namespace AtHangar
 			dock.nodeType = string.Format("size{0}", node.size);
 		}
 		
-		private void updateNodeSizes()
+		private void updateHangar(float scale, float aspect)
 		{
-			foreach(AttachNode node in part.attachNodes)
-			{
-				int new_size = orig_sizes[node.id] + Mathf.RoundToInt(size/orig_size/sizeStepLarge) - 1;
-				if(new_size < 0) new_size = 0;
-				node.size = new_size;
-			}
-			updateDockingNode();
+			Hangar hangar = part.Modules.OfType<Hangar>().SingleOrDefault();
+			if(hangar != null) hangar.Setup();
 		}
 		
-		private void scaleNodes(float scale, float len)
+		//list of delegates
+		delegate void moduleUpdater(float scale, float aspect);
+		private static List<moduleUpdater> updaters = new List<moduleUpdater>();
+		public override void OnAwake()
 		{
-			foreach(AttachNode node in part.attachNodes)
-			{
-				node.position = scale_vector(node.originalPosition, scale, len);
-				if (!just_loaded)
-					Utils.updateAttachedPartPos(node, part);
-			}
+			base.OnAwake();
+			updaters.Add(new moduleUpdater(updateRCS));
+			updaters.Add(new moduleUpdater(updateDockingNode));
+			updaters.Add(new moduleUpdater(updateHangar));
 		}
-
+		
+		//bulk update
+		private void updateModules(float scale, float aspect)
+		{
+			foreach(moduleUpdater updater in updaters)
+				updater(scale, aspect);
+		}
+		#endregion
 		
 		public void resizePart()
 		{
@@ -155,12 +238,9 @@ namespace AtHangar
 			//change breaking forces
 			part.breakingForce  = specificBreakingForce  * Mathf.Pow(scale, 2);
 			part.breakingTorque = specificBreakingTorque * Mathf.Pow(scale, 2);
-			//change volume if the part is a hangar, and let the hangar module handle mass calculations
-			Hangar hangar = part.Modules.OfType<Hangar>().SingleOrDefault();
-			if(hangar != null) hangar.Setup();
-			//update nodes
+			//update nodes and modules
 			scaleNodes(scale, aspect);
-			updateNodeSizes();
+			updateModules(scale, aspect);
 			//save size and aspect
 			old_size   = size;
 			old_aspect = aspect;
