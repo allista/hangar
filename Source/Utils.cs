@@ -73,7 +73,7 @@ namespace AtHangar
 			}
 		}
 		
-		public static void updateAttachedPartPos (AttachNode node, Part part)
+		public static void updateAttachedPartPos(AttachNode node, Part part)
 		{
 			if (node == null || part == null) return;
 		
@@ -94,6 +94,9 @@ namespace AtHangar
 			} else
 				ap.transform.position += dp;
 		}
+		
+		public static Vector3 ScaleVector(Vector3 v, float s, float l)
+		{ return Vector3.Scale(v, new Vector3(s, s*l, s)); }
 		
 		//formatting
 		public static string formatMass (float mass)
