@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -59,7 +58,7 @@ namespace AtHangar
 		private Bounds partsBounds(List<Part> parts, Transform vT)
 		{
 			CrewCapacity = 0;
-			Bounds b; bool inited = false;
+			Bounds b = default(Bounds);
 			foreach(Part p in parts)
 			{
 				if(p == null) continue; //EditorLogic.SortedShipList returns List<Part>{null} when all parts are deleted
@@ -73,7 +72,7 @@ namespace AtHangar
 						edges = m.sharedMesh.vertices;
 					else edges = bound_edges(m.sharedMesh.bounds);
 					local2local(mT, vT, edges);
-					if(!inited) { b = initBounds(edges); inited = true; }
+					if(b == default(Bounds)) b = initBounds(edges);
 					else foreach(Vector3 edge in edges) b.Encapsulate(edge);
 				}
 				CrewCapacity += p.CrewCapacity;
