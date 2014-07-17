@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using UnityEngine;
 using KSPAPIExtensions;
 
@@ -75,24 +74,25 @@ namespace AtHangar
 		
 		public static void updateAttachedPartPos(AttachNode node, Part part)
 		{
-			if (node == null || part == null) return;
+			if(node == null || part == null) return;
 		
 			var ap = node.attachedPart;
-			if (!ap) return;
+			if(!ap) return;
 		
-			var an = ap.findAttachNodeByPart (part);
-			if (an == null)	return;
+			var an = ap.findAttachNodeByPart(part);
+			if(an == null) return;
 		
 			var dp =
 				part.transform.TransformPoint (node.position) -
 				ap.transform.TransformPoint (an.position);
 		
-			if (ap == part.parent) {
+			if(ap == part.parent) 
+			{
 				while (ap.parent) ap = ap.parent;
 				ap.transform.position += dp;
 				part.transform.position -= dp;
-			} else
-				ap.transform.position += dp;
+			} 
+			else ap.transform.position += dp;
 		}
 		
 		public static Vector3 ScaleVector(Vector3 v, float s, float l)
