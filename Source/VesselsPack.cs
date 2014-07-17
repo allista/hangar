@@ -1,7 +1,6 @@
 //Packing algorithm based on <http://www.blackpawn.com/texts/lightmaps/default.html>  
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 

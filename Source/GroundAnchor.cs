@@ -1,9 +1,7 @@
 //This code is based on the code from KAS plugin. KASModuleAttachCore class.
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
-using KSP.IO;
 
 namespace AtHangar
 {

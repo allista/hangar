@@ -1,9 +1,7 @@
 //This code is based on code from Extraplanetary Launchpads plugin. Resources.cs module. 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-
 using KSP.IO;
 
 
