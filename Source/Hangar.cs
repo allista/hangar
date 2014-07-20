@@ -32,6 +32,7 @@ namespace AtHangar
 			crew   = vsl.GetVesselCrew();
 			CrewCapacity = vsl.GetCrewCapacity();
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
+//			fixTripLogger(); //FIXME
 		}
 		
 		public StoredVessel(ConfigNode node) { Load(node); }
@@ -70,6 +71,56 @@ namespace AtHangar
 			mass = float.Parse(node.GetValue("mass"));
 			CrewCapacity = int.Parse(node.GetValue("CrewCapacity"));
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
+		}
+
+		private void fixTripLogger() //FIXME
+		{
+			//workaround for the bug that spams savegame with multiple instances of ModuleTripLogger and 'at = ...' ConfigNode.Value-s
+			Utils.logStamp("Cleaning TripLog for "+vessel.vesselName);
+			string trip_logger_name = typeof(ModuleTripLogger).Name;
+			foreach(ProtoPartSnapshot pp in vessel.protoPartSnapshots)
+			{
+				List<ProtoPartModuleSnapshot> trip_loggers = new List<ProtoPartModuleSnapshot>(pp.modules.Where(ppm => ppm.moduleName == trip_logger_name));
+				if(trip_loggers.Count == 0) continue;
+				ConfigNode _new = new ConfigNode();
+				Dictionary<string, HashSet<string>> bodies = new Dictionary<string, HashSet<string>>();
+				foreach(ProtoPartModuleSnapshot logger in trip_loggers)
+				{
+					ConfigNode _old = logger.moduleValues;
+					foreach(ConfigNode.Value v in _old.values) 
+					{ if(!_new.HasValue(v.name)) _new.AddValue(v.name, v.value); }
+					foreach(ConfigNode o in _old.nodes)
+					{
+						if(!_new.HasNode(o.name)) _new.AddNode(o.name);
+						if(!bodies.ContainsKey(o.name)) bodies.Add(o.name, new HashSet<string>());
+						ConfigNode n = _new.GetNode(o.name);
+						foreach(ConfigNode.Value v in o.values)
+						{
+							if(v.name != "at" && !n.HasValue(v.name)) 
+							{ n.AddValue(v.name, v.value); continue; }
+							if(bodies[o.name].Contains(v.value)) continue;
+							bodies[o.name].Add(v.value);
+							n.AddValue(v.name, v.value);
+						}
+						int items_removed = o.values.Count-n.values.Count;
+						if(items_removed > 0)
+							Debug.Log(string.Format("Removed {0} of {1} values from {2} node", 
+							                        items_removed, o.values.Count, o.name)); //DEBUG
+					}
+				}
+				ProtoPartModuleSnapshot first_logger = pp.modules.First(ppm => ppm.moduleName == trip_logger_name);
+				first_logger.moduleValues = _new;
+				pp.modules.RemoveAll(ppm => ppm.moduleName == trip_logger_name);
+				pp.modules.Add(first_logger);
+			}
+			Utils.logStamp();
+		}
+
+		public void Load()
+		{
+//			fixTripLogger(); //FIXME
+			vessel.Load(FlightDriver.FlightStateCache.flightState);
+			vessel.LoadObjects();
 		}
 	}
 	
@@ -161,7 +212,7 @@ namespace AtHangar
 		
 		
 		#region for-GUI
-		public List<StoredVessel> GetVessels() { return new List<StoredVessel>(stored_vessels.Values); }
+		public List<StoredVessel> GetVessels() { return stored_vessels.Values; }
 		
 		public StoredVessel GetVessel(Guid vid)
 		{
@@ -329,7 +380,7 @@ namespace AtHangar
 			}
 			if(!storable) return;
 			//switch to hangar vessel before storing
-			if(FlightGlobals.ActiveVessel != vessel)
+			if(FlightGlobals.ActiveVessel == vsl)
 				FlightGlobals.ForceSetActiveVessel(vessel);
 			//get vessel crew on board
 			List<ProtoCrewMember> _crew = new List<ProtoCrewMember>(stored_vessel.crew);
@@ -419,7 +470,9 @@ namespace AtHangar
 			if(vessel.LandedOrSplashed)
 			{
 				//calculate launch offset from vessel bounds
-				Vector3 bounds_offset = launchTransform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.metric.size.y);
+				Vector3 bounds_offset = launchTransform.TransformDirection(new Vector3(-sv.metric.center.x, 
+				                                                                       sv.metric.size.y,
+				            														   -sv.metric.center.z));
 				//set vessel's position
 				Vector3d vpos = Vector3d.zero+launchTransform.position+bounds_offset;
 				pv.longitude  = vessel.mainBody.GetLongitude(vpos);
@@ -586,8 +639,7 @@ namespace AtHangar
 			get_launch_transform();
 			position_vessel(stored_vessel);
 			//restore vessel
-			stored_vessel.vessel.Load(FlightDriver.FlightStateCache.flightState);
-			stored_vessel.vessel.LoadObjects();
+			stored_vessel.Load();
 			//get restored vessel from the world
 			launched_vessel = stored_vessel.vessel.vesselRef;
 			//transfer crew back to the launched vessel
