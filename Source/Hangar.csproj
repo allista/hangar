@@ -10,6 +10,7 @@
     <RootNamespace>AtHangar</RootNamespace>
     <AssemblyName>Hangar</AssemblyName>
     <newfilesearch>OnLoadAutoInsert</newfilesearch>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,23 +31,27 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System">
-      <HintPath>..\KSP_test\KSP_Data\Managed\System.dll</HintPath>
+    <Reference Include="KSPAPIExtensions">
+      <HintPath>..\..\KSPAPIExtensions\KSPAPIExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="aaa_Toolbar">
+      <HintPath>..\KSP_test\GameData\000_Toolbar\Toolbar.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\KSP_test\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    <Reference Include="System.Core">
+      <HintPath>..\KSP_test\KSP_Data\Managed\System.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>..\KSP_test\KSP_Data\Managed\System.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\KSP_test\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="KSPAPIExtensions">
-      <HintPath>..\GameData\Hangar\Plugins\KSPAPIExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="aaa_Toolbar">
-      <HintPath>..\KSP_test\GameData\000_Toolbar\Toolbar.dll</HintPath>
+    <Reference Include="UnityEngine">
+      <HintPath>..\KSP_test\KSP_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -74,4 +79,11 @@
     <None Include="Hangar.userprefs" />
     <None Include="TODO.md" />
   </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Deployment.LinuxDeployData generatePcFile="False" />
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>
