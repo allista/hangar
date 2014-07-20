@@ -124,7 +124,6 @@ namespace AtHangar
             if(StaticAttach.connectedGameObject) Destroy(StaticAttach.connectedGameObject);
             StaticAttach.fixedJoint = null;
             StaticAttach.connectedGameObject = null;
-			
 			if(isAttached) fxSndDetach.audio.Play();
 			isAttached = false;
 			ToggleAttachButton();
