@@ -22,10 +22,11 @@ namespace AtHangar
         internal GUIStyle styleListItem = new GUIStyle();
         internal GUIStyle styleListBox = new GUIStyle();
         internal GUIStyle styleListBlocker = new GUIStyle();
-        internal Int32 ListItemHeight = 20;
+        internal Int32 ListItemHeight = 25;
 
         //Constructors
-        public DropDownList(List<String> Items) : this() { this.Items = Items; }
+        public DropDownList(List<String> Items, int SelectedIndex = 0) : this() 
+		{ this.Items = Items; this.SelectedIndex =  SelectedIndex; }
         public DropDownList()
         {
             ListVisible = false;
@@ -60,7 +61,7 @@ namespace AtHangar
         {
             Boolean blnReturn = false;
             //this is the dropdown button - toggle list visible if clicked
-            if (GUILayout.Button(SelectedValue))
+			if (GUILayout.Button(SelectedValue, styleListBox))
             {
                 ListVisible = !ListVisible;
                 blnReturn = true;
@@ -90,7 +91,7 @@ namespace AtHangar
                 //now draw each listitem
                 for (int i = 0; i < Items.Count; i++)
                 {
-                    Rect ListButtonRect = new Rect(rectListBox) { y = rectListBox.y + (i * ListItemHeight), height = 20 };
+                    Rect ListButtonRect = new Rect(rectListBox) { y = rectListBox.y + (i * ListItemHeight), height = ListItemHeight };
                     if(GUI.Button(ListButtonRect, Items[i], styleListItem))
                     {
                         ListVisible = false;

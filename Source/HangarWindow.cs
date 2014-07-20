@@ -81,7 +81,7 @@ namespace AtHangar
 					hangar_names.Add("hangar-" + ind);
 					ind++;
 				}
-				hangar_list = new DropDownList(hangar_names);
+				hangar_list = new DropDownList(hangar_names, hangars.IndexOf(selected_hangar));
 			}
 		}
 		
@@ -102,7 +102,7 @@ namespace AtHangar
 				var vessel_names = new List<string>();
 				foreach(var vsl in vessels)
 					vessel_names.Add(vsl.vessel.vesselName);
-				vessel_list = new DropDownList(vessel_names);
+				vessel_list = new DropDownList(vessel_names, vessels.IndexOf(selected_vessel));
 			}
 		}
 		
@@ -261,8 +261,8 @@ namespace AtHangar
 		{
 			GUILayout.BeginVertical();
 			GUILayout.Label("Vessel Volume: "+Utils.formatVolume(vessel_metric.volume), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Vessel Dimensios: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Hangar Dimensios: "+Utils.formatDimensions(selected_hangar.hangar_metric.size), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Vessel Dimensions: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Hangar Dimensions: "+Utils.formatDimensions(selected_hangar.hangar_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Hangar volume: "+Utils.formatVolume(selected_hangar.hangar_metric.volume), GUILayout.ExpandWidth(true));
 			GUILayout.Label(string.Format("Used volume: {0}, {1:F1}%", Utils.formatVolume(selected_hangar.used_volume), selected_hangar.used_volume_frac*100), 
 			                Styles.fracStyle(1-selected_hangar.used_volume_frac), GUILayout.ExpandWidth(true));
@@ -278,8 +278,8 @@ namespace AtHangar
 		//Hangar selection list
 		void SelectHangar_start() 
 		{ 
-			hangar_list.styleListBox = Styles.listBox;
-			hangar_list.styleListItem = Styles.listItem;
+			hangar_list.styleListBox = Styles.list_box;
+			hangar_list.styleListItem = Styles.list_item;
 			hangar_list.DrawBlockingSelector(); 
 		}
 
@@ -321,16 +321,18 @@ namespace AtHangar
 		//Vessel selection list
 		void SelectVessel_start() 
 		{ 
-			vessel_list.styleListBox = Styles.listBox;
-			vessel_list.styleListItem = Styles.listItem;
+			vessel_list.styleListBox = Styles.list_box;
+			vessel_list.styleListItem = Styles.list_item;
 			vessel_list.DrawBlockingSelector(); 
 		}
 
 		void Select_Vessel(StoredVessel vsl)
 		{
-			selected_vessel = vsl;
 			vessel_id = vsl.vessel.vesselID;
 			vessel_list.SelectItem(vessels.IndexOf(vsl));
+			if(vsl != selected_vessel) 
+				selected_hangar.resourceTransferList.Clear();
+			selected_vessel = vsl;
 		}
 
 		void SelectVessel()
