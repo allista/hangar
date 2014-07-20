@@ -108,8 +108,7 @@ namespace AtHangar
 		{
 			vessels.Sort((x,y) => -1*x.metric.volume.CompareTo(y.metric.volume)); //Descending sort order
 			Node root = new Node(space);
-			foreach(StoredVessel vsl in vessels) { if(!add_vessel(root, vsl)) { root.Save(new ConfigNode("VesselsPack")); return false; } }
-			root.Save(new ConfigNode("VesselsPack")); //Debug
+			foreach(StoredVessel vsl in vessels) { if(!add_vessel(root, vsl)) return false; }
 			return true;
 		}
 		
@@ -117,8 +116,6 @@ namespace AtHangar
 		{
 			List<StoredVessel> vessels = this.Values;
 			vessels.Add(vsl);
-			Utils.logBounds(vsl.metric.bounds); //Debug
-			Utils.logBounds(space.bounds); //Debug
 			if(!pack(vessels)) return false;
 			stored_vessels.Add(vsl.vessel.vesselID, vsl);
 			return true;
