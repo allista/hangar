@@ -17,7 +17,7 @@ namespace AtHangar
 			return ResearchAndDevelopment.GetTechnologyState (name) == RDTech.State.Available;
 		}
 		
-		public static float getTechMinValue (string cfgname, float defVal)
+		public static float getTechMinValue(string cfgname, float defVal)
 		{
 			bool hasValue = false;
 			float minVal = 0;
@@ -37,7 +37,7 @@ namespace AtHangar
 			return minVal;
 		}
 		
-		public static float getTechMaxValue (string cfgname, float defVal)
+		public static float getTechMaxValue(string cfgname, float defVal)
 		{
 			bool hasValue = false;
 			float maxVal = 0;
@@ -57,7 +57,7 @@ namespace AtHangar
 			return maxVal;
 		}
 		
-		public static void setFieldRange (BaseField field, float minval, float maxval)
+		public static void setFieldRange(BaseField field, float minval, float maxval)
 		{
 			var fr = field.uiControlEditor as UI_FloatRange;
 			if (fr != null) {
@@ -71,32 +71,6 @@ namespace AtHangar
 				fe.maxValue = maxval;
 			}
 		}
-		
-		public static void updateAttachedPartPos(AttachNode node, Part part)
-		{
-			if(node == null || part == null) return;
-		
-			var ap = node.attachedPart;
-			if(!ap) return;
-		
-			var an = ap.findAttachNodeByPart(part);
-			if(an == null) return;
-		
-			var dp =
-				part.transform.TransformPoint (node.position) -
-				ap.transform.TransformPoint (an.position);
-		
-			if(ap == part.parent) 
-			{
-				while (ap.parent) ap = ap.parent;
-				ap.transform.position += dp;
-				part.transform.position -= dp;
-			} 
-			else ap.transform.position += dp;
-		}
-		
-		public static Vector3 ScaleVector(Vector3 v, float s, float l)
-		{ return Vector3.Scale(v, new Vector3(s, s*l, s)); }
 		
 		//formatting
 		public static string formatMass (float mass)
@@ -156,9 +130,41 @@ namespace AtHangar
 		
 		public static string formatVector(Vector3 v)
 		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
-		
+
+		public static string formatVector(Vector3d v)
+		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
+
+		public static void logStamp(string msg = "") { Debug.Log("[Hangar] === " + msg); }
+
+		public static void logVector(Vector3 v) { Debug.Log(formatVector(v)); }
+		public static void logVector(Vector3d v) { Debug.Log(formatVector(v)); }
+
 		public static void logVectors(IEnumerable<Vector3> vecs)
 		{ foreach(Vector3 v in vecs) Debug.Log(formatVector(v)); }
+
+		public static Vector3d planetaryPosition(Vector3 v, CelestialBody planet) 
+		{ 
+			double lng = planet.GetLongitude(v);
+			double lat = planet.GetLatitude(v);
+			double alt = planet.GetAltitude(v);
+			return planet.GetWorldSurfacePosition(lat, lng, alt);
+		}
+
+		public static void logPlanetaryPosition(Vector3 v, CelestialBody planet) 
+		{ 
+			double lng = planet.GetLongitude(v);
+			double lat = planet.GetLatitude(v);
+			double alt = planet.GetAltitude(v);
+			Debug.Log(formatVector(planet.GetWorldSurfacePosition(lat, lng, alt)));
+		}
+
+		public static void logLongLatAlt(Vector3 v, CelestialBody planet) 
+		{ 
+			double lng = planet.GetLongitude(v);
+			double lat = planet.GetLatitude(v);
+			double alt = planet.GetAltitude(v);
+			Debug.Log(string.Format("Long: {0}, Lat: {1}, Alt: {2}", lng, lat, alt));
+		}
 		
 		public static void logBounds(Bounds b)
 		{
