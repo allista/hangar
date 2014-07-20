@@ -20,10 +20,10 @@ namespace AtHangar
 		public static GUIStyle white;
 		public static GUIStyle label;
 		public static GUIStyle slider;
-		public static GUIStyle sliderText;
+		public static GUIStyle slider_text;
 
-		public static GUIStyle listItem;
-		public static GUIStyle listBox;
+		public static GUIStyle list_item;
+		public static GUIStyle list_box;
 
 		private static bool initialized;
 		
@@ -86,22 +86,25 @@ namespace AtHangar
 			slider = new GUIStyle (GUI.skin.horizontalSlider);
 			slider.margin = new RectOffset (0, 0, 0, 0);
 
-			sliderText = new GUIStyle (GUI.skin.label);
-			sliderText.alignment = TextAnchor.MiddleCenter;
-			sliderText.margin = new RectOffset (0, 0, 0, 0);
+			slider_text = new GUIStyle (GUI.skin.label);
+			slider_text.alignment = TextAnchor.MiddleCenter;
+			slider_text.margin = new RectOffset (0, 0, 0, 0);
 
-			listItem = new GUIStyle ();
-			listItem.normal.textColor = Color.white;
+			list_item = new GUIStyle(GUI.skin.box);
 			Texture2D texInit = new Texture2D(1, 1);
-			texInit.SetPixel(0, 0, Color.white);
+			texInit.SetPixel(0, 0, new Color(0.05f, 0.05f, 0.05f, 1f));
 			texInit.Apply();
-			listItem.hover.background = texInit;
-			listItem.onHover.background = texInit;
-			listItem.hover.textColor = Color.black;
-			listItem.onHover.textColor = Color.black;
-			listItem.padding = new RectOffset(4, 4, 4, 4);
+			list_item.normal.background = list_item.onNormal.background = list_item.hover.background = list_item.onHover.background = texInit;
+			list_item.normal.textColor = list_item.focused.textColor = Color.white;
+			list_item.hover.textColor = list_item.active.textColor = Color.yellow;
+			list_item.onNormal.textColor = list_item.onFocused.textColor = list_item.onHover.textColor = list_item.onActive.textColor = Color.yellow;
+			list_item.padding = new RectOffset(4, 4, 4, 4);
 
-			listBox = new GUIStyle(GUI.skin.box);
+			list_box = new GUIStyle(GUI.skin.button);
+			list_box.normal.textColor = list_box.focused.textColor = Color.yellow;
+			list_box.hover.textColor = list_box.active.textColor = Color.green;
+			list_box.onNormal.textColor = list_box.onFocused.textColor = list_box.onHover.textColor = list_box.onActive.textColor = Color.green;
+			list_box.padding = new RectOffset (4, 4, 4, 4);
 		}
 		
 		public static GUIStyle fracStyle(float frac)

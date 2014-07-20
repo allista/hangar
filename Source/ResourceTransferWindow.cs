@@ -32,7 +32,7 @@ namespace AtHangar
 			fraction = (Mathf.Floor (fraction * 200)) / 200;
 			if(fraction*maxAmount < minAmount) fraction = (float)(minAmount/maxAmount);
 			GUILayout.Box ((fraction * 100).ToString () + "%",
-						   Styles.sliderText, GUILayout.Width (300),
+						   Styles.slider_text, GUILayout.Width (300),
 						   GUILayout.Height (20));
 			GUILayout.EndVertical ();
 
