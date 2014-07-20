@@ -1,5 +1,5 @@
-* Test ground hangars and tune launch_positions
-* PartResizer vs InternalSpace? >_<
+* Balance parts' costs
+* Add crew cabins to the Spaceport
 * Write READMY.md
-* Fix on-land positioning?
+* PartResizer vs InternalSpace? >_<
 * Add ability to store vessels in VAB/SPH
