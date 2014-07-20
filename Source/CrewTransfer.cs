@@ -18,7 +18,7 @@ namespace AtHangar
 			{
 				ProtoCrewMember kerbal = crew[0];
 				p.AddCrewmember(kerbal);
-				kerbal.rosterStatus = ProtoCrewMember.RosterStatus.ASSIGNED;
+				kerbal.rosterStatus = ProtoCrewMember.RosterStatus.Assigned;
 				if (kerbal.seat != null) kerbal.seat.SpawnCrew();
 				crew.RemoveAt(0);
 			}
