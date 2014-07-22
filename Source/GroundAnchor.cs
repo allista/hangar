@@ -32,7 +32,7 @@ namespace AtHangar
 				if(StaticAttach.connectedGameObject &&
 				   !StaticAttach.connectedGameObject.GetComponent<FixedJoint>())
 				{
-					FlightScreenMessager.showMessage("The anchor was ripped of the ground.", 3);
+					ScreenMessager.showMessage("The anchor was ripped of the ground.", 3);
 					Detach();
 				}
 				yield return new WaitForSeconds(0.5f);
@@ -81,12 +81,12 @@ namespace AtHangar
 			//always check relative velocity and acceleration
 			if(!vessel.Landed) 
 			{
-				FlightScreenMessager.showMessage("There's nothing to attach the anchor to", 3);
+				ScreenMessager.showMessage("There's nothing to attach the anchor to", 3);
 				return false;
 			}
 			if(vessel.GetSrfVelocity().magnitude > 1f) 
 			{
-				FlightScreenMessager.showMessage("Cannot attach the anchor while mooving quicker than 1m/s", 3);
+				ScreenMessager.showMessage("Cannot attach the anchor while mooving quicker than 1m/s", 3);
 				return false;
 			}
 			return true;

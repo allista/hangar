@@ -117,6 +117,11 @@ namespace AtHangar
         }
 		
 		#region Debug
+		public static void Log(string msg, params object[] args)
+		{ Debug.Log(string.Format("[Hangar] "+msg, args)); }
+
+		public static void logStamp(string msg = "") { Debug.Log("[Hangar] === " + msg); }
+
 		public static void logCrewList(List<ProtoCrewMember> crew)
 		{
 			string crew_str = "";
@@ -133,8 +138,6 @@ namespace AtHangar
 
 		public static string formatVector(Vector3d v)
 		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
-
-		public static void logStamp(string msg = "") { Debug.Log("[Hangar] === " + msg); }
 
 		public static void logVector(Vector3 v) { Debug.Log(formatVector(v)); }
 		public static void logVector(Vector3d v) { Debug.Log(formatVector(v)); }
@@ -197,8 +200,8 @@ namespace AtHangar
 	}
 	
 	
-	[KSPAddon(KSPAddon.Startup.Flight, false)]
-	public class FlightScreenMessager : MonoBehaviour
+	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
+	public class ScreenMessager : MonoBehaviour
 	{
 		static float osdMessageTime = 0;
 		static string osdMessageText = null;
@@ -211,8 +214,6 @@ namespace AtHangar
 
 		public void OnGUI ()
 		{
-			if (!HighLogic.LoadedSceneIsFlight)	return;
-
 			if (Time.time < osdMessageTime) 
 			{
 				GUI.skin = HighLogic.Skin;

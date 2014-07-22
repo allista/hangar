@@ -158,7 +158,7 @@ namespace AtHangar
 	}
 	
 	public class HangarUpdater : ModuleUpdater<Hangar>
-	{ public override void OnRescale(Scale scale) { module.Setup(); } }
+	{ public override void OnRescale(Scale scale) { module.Setup(true); } }
 	
 	
 	public class HangarPartResizer : PartUpdater
@@ -307,6 +307,9 @@ namespace AtHangar
 				{ Rescale(); just_loaded = false; } 
 		}
 
+		public void UpdateGUI()
+		{ massDisplay = Utils.formatMass(part.mass+part.GetResourceMass()); }
+
 		public override void OnRescale(Scale scale)
 		{
 			//change model scale
@@ -314,9 +317,8 @@ namespace AtHangar
 			if(model != null) model.localScale = ScaleVector(Vector3.one, scale, aspect);
 			else Debug.LogError ("[HangarPartResizer] No 'model' transform in the part", this);
 			//recalculate mass
-			part.mass   = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z) * scale * aspect + specificMass.w;
-			massDisplay = Utils.formatMass(part.mass);
-			//changing cost is not possible =(
+			part.mass = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z) * scale * aspect + specificMass.w;
+			//changing cost is not possible it seems =(
 			//change breaking forces (if not defined in the config, set to a reasonable default)
 			if (base_part.breakingForce == 22f) part.breakingForce = 32.0f * scale.absolute.quad; //taken from TweakScale
 			else part.breakingForce = base_part.breakingForce * scale.absolute.quad;
@@ -332,6 +334,7 @@ namespace AtHangar
 			//save size and aspect
 			old_size   = size;
 			old_aspect = aspect;
+			UpdateGUI();
 		}
 		public void Rescale() { OnRescale(scale); }
 	}

@@ -9,164 +9,6 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public class StoredVessel
-	{
-		public ProtoVessel vessel;
-		public Vector3 CoM;
-		public Vector3 CoG; //center of geometry
-		public float mass;
-		public Metric metric;
-		public List<ProtoCrewMember> crew;
-		public int CrewCapacity;
-		public VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot> resources;
-		
-		public StoredVessel() {}
-		
-		public StoredVessel(Vessel vsl)
-		{
-			vessel = vsl.BackupVessel();
-			metric = new Metric(vsl);
-			CoM    = vsl.findLocalCenterOfMass();
-			CoG    = metric.center;
-			mass   = vsl.GetTotalMass();
-			crew   = vsl.GetVesselCrew();
-			CrewCapacity = vsl.GetCrewCapacity();
-			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
-//			fixTripLogger(); //FIXME
-		}
-		
-		public StoredVessel(ConfigNode node) { Load(node); }
-		
-		public void Save(ConfigNode node)
-		{
-			//nodes
-			ConfigNode vessel_node = node.AddNode("VESSEL");
-			ConfigNode metric_node = node.AddNode("METRIC");
-			ConfigNode crew_node   = node.AddNode("CREW");
-			vessel.Save(vessel_node);
-			metric.Save(metric_node);
-			foreach(ProtoCrewMember c in crew)
-			{
-				ConfigNode n = crew_node.AddNode(c.name);
-				c.Save(n);
-			}
-			//values
-			node.AddValue("CoM", ConfigNode.WriteVector(CoM));
-			node.AddValue("CoG", ConfigNode.WriteVector(CoG));
-			node.AddValue("mass", mass);
-			node.AddValue("CrewCapacity", CrewCapacity);
-		}
-		
-		public void Load(ConfigNode node)
-		{
-			ConfigNode vessel_node = node.GetNode("VESSEL");
-			ConfigNode metric_node = node.GetNode("METRIC");
-			ConfigNode crew_node   = node.GetNode("CREW");
-			vessel = new ProtoVessel(vessel_node, FlightDriver.FlightStateCache);
-			metric = new Metric(metric_node);
-			crew   = new List<ProtoCrewMember>();
-			foreach(ConfigNode cn in crew_node.nodes) crew.Add(new ProtoCrewMember(cn));
-			CoM  = ConfigNode.ParseVector3(node.GetValue("CoM"));
-			CoG  = ConfigNode.ParseVector3(node.GetValue("CoG"));
-			mass = float.Parse(node.GetValue("mass"));
-			CrewCapacity = int.Parse(node.GetValue("CrewCapacity"));
-			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
-		}
-
-		private void fixTripLogger() //FIXME
-		{
-			//workaround for the bug that spams savegame with multiple instances of ModuleTripLogger and 'at = ...' ConfigNode.Value-s
-			Utils.logStamp("Cleaning TripLog for "+vessel.vesselName);
-			string trip_logger_name = typeof(ModuleTripLogger).Name;
-			foreach(ProtoPartSnapshot pp in vessel.protoPartSnapshots)
-			{
-				List<ProtoPartModuleSnapshot> trip_loggers = new List<ProtoPartModuleSnapshot>(pp.modules.Where(ppm => ppm.moduleName == trip_logger_name));
-				if(trip_loggers.Count == 0) continue;
-				ConfigNode _new = new ConfigNode();
-				Dictionary<string, HashSet<string>> bodies = new Dictionary<string, HashSet<string>>();
-				foreach(ProtoPartModuleSnapshot logger in trip_loggers)
-				{
-					ConfigNode _old = logger.moduleValues;
-					foreach(ConfigNode.Value v in _old.values) 
-					{ if(!_new.HasValue(v.name)) _new.AddValue(v.name, v.value); }
-					foreach(ConfigNode o in _old.nodes)
-					{
-						if(!_new.HasNode(o.name)) _new.AddNode(o.name);
-						if(!bodies.ContainsKey(o.name)) bodies.Add(o.name, new HashSet<string>());
-						ConfigNode n = _new.GetNode(o.name);
-						foreach(ConfigNode.Value v in o.values)
-						{
-							if(v.name != "at" && !n.HasValue(v.name)) 
-							{ n.AddValue(v.name, v.value); continue; }
-							if(bodies[o.name].Contains(v.value)) continue;
-							bodies[o.name].Add(v.value);
-							n.AddValue(v.name, v.value);
-						}
-						int items_removed = o.values.Count-n.values.Count;
-						if(items_removed > 0)
-							Debug.Log(string.Format("Removed {0} of {1} values from {2} node", 
-							                        items_removed, o.values.Count, o.name)); //DEBUG
-					}
-				}
-				ProtoPartModuleSnapshot first_logger = pp.modules.First(ppm => ppm.moduleName == trip_logger_name);
-				first_logger.moduleValues = _new;
-				pp.modules.RemoveAll(ppm => ppm.moduleName == trip_logger_name);
-				pp.modules.Add(first_logger);
-			}
-			Utils.logStamp();
-		}
-
-		public void Load()
-		{
-//			fixTripLogger(); //FIXME
-			vessel.Load(FlightDriver.FlightStateCache.flightState);
-			vessel.LoadObjects();
-		}
-	}
-	
-	
-	public class LaunchedVessel
-	{
-		private List<ProtoCrewMember> crew;
-		private StoredVessel sv;
-		public Vessel vessel;
-		
-		public LaunchedVessel(StoredVessel sv, Vessel vsl, List<ProtoCrewMember> crew)
-		{
-			this.sv = sv;
-			this.vessel = vsl;
-			this.crew = crew;
-		}
-		
-		public bool launched
-		{
-			get 
-			{
-				if(vessel.id != FlightGlobals.ActiveVessel.id) return false;
-				else vessel = FlightGlobals.ActiveVessel;
-				bool parts_inited = true;
-				foreach(Part p in vessel.parts)
-				{
-					if(!p.started)
-					{
-						parts_inited = false;
-						break;
-					}
-				}
-				return parts_inited;
-			}
-		}
-		
-		public void transferCrew() { CrewTransfer.addCrew(vessel, crew); }
-		
-		public void tunePosition()
-		{
-			Vector3 dP = vessel.findLocalCenterOfMass() - sv.CoM;
-			vessel.SetPosition(vessel.vesselTransform.TransformPoint(dP));
-		}
-	}
-	
-	
 	//this module adds the ability to store a vessel in a packed state inside
 	public class Hangar : PartModule
 	{
@@ -176,6 +18,8 @@ namespace AtHangar
 		private BaseHangarAnimator hangar_gates;
 		private float usefull_volume_ratio = 0.7f; //only 70% of the volume may be used by docking vessels
 		private float crew_volume_ratio    = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
+		public float vessels_mass = -1f;
+		public float used_volume  = -1f;
 		
 		public HangarGates gates_state { get { return hangar_gates.GatesState; } }
 		public HangarState hangar_state { get; private set;}
@@ -188,12 +32,10 @@ namespace AtHangar
 		//fields
 		[KSPField (isPersistant = false)] public float VolumePerKerbal    = 3f; // m^3
 		[KSPField (isPersistant = false)] public bool  StaticCrewCapacity = false;
-		[KSPField (isPersistant = true)]  public float used_volume  = 0f;
-		[KSPField (isPersistant = true)]  public float base_mass    = 0f;
-		[KSPField (isPersistant = true)]  public float vessels_mass = 0f;
+		[KSPField (isPersistant = true)]  public float base_mass = -1f;
 		
 		//vessels storage
-		private VesselsPack stored_vessels = new VesselsPack();
+		private VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
 		private Dictionary<Guid, bool> probed_ids = new Dictionary<Guid, bool>();
 		
 		//vessel spawn
@@ -202,11 +44,21 @@ namespace AtHangar
 		[KSPField (isPersistant = false)] public string HangarSpace;
 		Transform launchTransform;
 		Vessel launched_vessel;
+
+		//in-editor vessel docking
+		private Rect eWindowPos = new Rect(Screen.width/2-200, 100, 400, 100);
+		private Vector2 scroll_view = Vector2.zero;
+		private static List<string> vessel_dirs = new List<string>{"VAB", "SPH", "../Subassemblies"};
+		private VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>();
+		private CraftBrowser vessel_selector;
+		private VesselType vessel_type;
+		private bool editing_hangar = false;
 		
 		//gui fields
-		[KSPField (guiName = "Volume", guiActiveEditor=true)] public string hangar_v;
-		[KSPField (guiName = "Dimensions", guiActiveEditor=true)] public string hangar_d;
+		[KSPField (guiName = "Volume",        guiActiveEditor=true)] public string hangar_v;
+		[KSPField (guiName = "Dimensions",    guiActiveEditor=true)] public string hangar_d;
 		[KSPField (guiName = "Crew capacity", guiActiveEditor=true)] public string crew_capacity;
+		[KSPField (guiName = "Stored mass",   guiActiveEditor=true)] public string stored_mass;
 		[KSPField (guiName = "Hangar doors", guiActive = true)] public string doors;
 		[KSPField (guiName = "Hangar state", guiActive = true)] public string state;
 		
@@ -255,8 +107,6 @@ namespace AtHangar
 			if(state == StartState.None) return;
 			//initialize resources
 			if(state != StartState.Editor) update_resources();
-			//recalculate volume and mass
-			Setup(); 
 			//initialize Animator
 			part.force_activate();
             hangar_gates = part.Modules.OfType<BaseHangarAnimator>().SingleOrDefault();
@@ -270,14 +120,39 @@ namespace AtHangar
                 Events["Open"].guiActiveEditor = true;
                 Events["Close"].guiActiveEditor = true;
             }
+			//recalculate volume and mass
+			Setup(); 
 		}
 		
-		public void Setup()	{ RecalculateVolume(); SetMass(); }
-		
-		public void SetMass() 
+		public void Setup(bool reset_mass = false)	
+		{ RecalculateVolume(); SetPartMass(reset_mass); }
+
+		public void SetPartMass(bool reset = false) 
 		{
-			if(base_mass == 0) base_mass = part.mass;
-			part.mass = base_mass+vessels_mass; 
+			//reset values if needed
+			if(base_mass < 0 || reset) base_mass = part.mass;
+			if(vessels_mass < 0 || reset)
+			{
+				vessels_mass = 0;
+				foreach(StoredVessel sv in stored_vessels.Values) vessels_mass += sv.mass;
+				foreach(PackedConstruct pc in packed_constructs.Values) vessels_mass += pc.metric.mass;
+				stored_mass = Utils.formatMass(vessels_mass);
+			}
+			//set part.mass
+			part.mass = base_mass+vessels_mass;
+			//update PartResizer display
+			var resizer = part.Modules.OfType<HangarPartResizer>().SingleOrDefault();
+			if(resizer != null) resizer.UpdateGUI();
+		}
+
+		private void change_mass(float mass, float volume)
+		{
+			vessels_mass += mass;
+			used_volume  += volume;
+			if(used_volume < 0) used_volume = 0;
+			if(vessels_mass < 0) vessels_mass = 0;
+			stored_mass = Utils.formatMass(vessels_mass);
+			SetPartMass();
 		}
 		
 		public void RecalculateVolume()
@@ -291,9 +166,14 @@ namespace AtHangar
 				hangar_metric = part_metric*usefull_volume_ratio;
 			//setup vessels pack
 			stored_vessels.space = hangar_metric;
+			packed_constructs.space = hangar_metric;
 			//calculate crew capacity from remaining volume
 			if(!StaticCrewCapacity)
 				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
+			//calculate used_volume
+			used_volume = 0;
+			foreach(StoredVessel sv in stored_vessels.Values) used_volume += sv.volume;
+			foreach(PackedConstruct pc in packed_constructs.Values) used_volume += pc.metric.volume;
 			//display recalculated values
 			crew_capacity = part.CrewCapacity.ToString();
 			hangar_v = Utils.formatVolume(hangar_metric.volume);
@@ -310,7 +190,7 @@ namespace AtHangar
 			//if hangar is not ready, return
 			if(hangar_state == HangarState.Inactive) 
 			{
-				FlightScreenMessager.showMessage("Activate the hangar first", 3);
+				ScreenMessager.showMessage("Activate the hangar first", 3);
 				return false;
 			}
 			//check self state first
@@ -318,7 +198,7 @@ namespace AtHangar
 			{
 			case ClearToSaveStatus.NOT_WHILE_ABOUT_TO_CRASH:
 			{
-				FlightScreenMessager.showMessage("Cannot accept the vessel while about to crush", 3);
+				ScreenMessager.showMessage("Cannot accept the vessel while about to crush", 3);
 				return false;
 			}
 			default:
@@ -328,13 +208,13 @@ namespace AtHangar
 			Vector3 rv = vessel.GetObtVelocity()-vsl.GetObtVelocity();
 			if(rv.magnitude > 1f) 
 			{
-				FlightScreenMessager.showMessage("Cannot accept a vessel with a relative speed higher than 1m/s", 3);
+				ScreenMessager.showMessage("Cannot accept a vessel with a relative speed higher than 1m/s", 3);
 				return false;
 			}
 			Vector3 ra = vessel.acceleration - vsl.acceleration;
 			if(ra.magnitude > 0.1)
 			{
-				FlightScreenMessager.showMessage("Cannot accept an accelerating vessel", 3);
+				ScreenMessager.showMessage("Cannot accept an accelerating vessel", 3);
 				return false;
 			}
 			return true;
@@ -345,7 +225,7 @@ namespace AtHangar
 			//check vessel crew
 			if(vsl.GetCrewCount() > vessel.GetCrewCapacity()-vessel.GetCrewCount())
 			{
-				FlightScreenMessager.showMessage("Not enough space for the crew of a docking vessel", 3);
+				ScreenMessager.showMessage("Not enough space for the crew of a docking vessel", 3);
 				return null;
 			}
 			//check vessel metrics
@@ -353,12 +233,12 @@ namespace AtHangar
 			StoredVessel sv = new StoredVessel(vsl);
 			if(!sv.metric.FitsAligned(launchTransform, part.partTransform, hangar_metric))
 			{
-				FlightScreenMessager.showMessage("The vessel does not fit into this hangar", 3);
+				ScreenMessager.showMessage("The vessel does not fit into this hangar", 3);
 				return null;
 			}
 			if(!stored_vessels.Add(sv))
 			{
-				FlightScreenMessager.showMessage("There's no room in the hangar for this vessel", 3);
+				ScreenMessager.showMessage("There's no room in the hangar for this vessel", 3);
 				return null;
 			}
 			return sv;
@@ -391,12 +271,10 @@ namespace AtHangar
 			//then add to other vessel parts if needed
 			CrewTransfer.addCrew(vessel, _crew);
 			//recalculate volume and mass
-			used_volume  += stored_vessel.metric.volume;
-			vessels_mass += stored_vessel.mass;
-			SetMass();
+			change_mass(stored_vessel.mass, stored_vessel.volume);
 			//destroy vessel
 			vsl.Die();
-			FlightScreenMessager.showMessage("Vessel has been docked inside the hangar", 3);
+			ScreenMessager.showMessage("Vessel has been docked inside the hangar", 3);
 		}
 		
 		//called every frame while part collider is touching the trigger
@@ -446,7 +324,7 @@ namespace AtHangar
 				restorePos.transform.position += t.TransformDirection (offset);
 				restorePos.transform.rotation = t.rotation;
 				launchTransform = restorePos.transform;
-				Debug.Log(string.Format("LaunchTransform not found. Using offset."));
+				Utils.Log("LaunchTransform not found. Using offset.");
 			}
 			return launchTransform;
 		}
@@ -563,7 +441,7 @@ namespace AtHangar
 				if(res_def.density == 0) continue;
 				vessels_mass += (float)a*res_def.density;
 				sv.mass += (float)a*res_def.density;
-				SetMass();
+				SetPartMass();
 			}
 			resourceTransferList.Clear();
 		}
@@ -574,19 +452,19 @@ namespace AtHangar
 			//if hangar is not ready, return
 			if(hangar_state == HangarState.Inactive) 
 			{
-				FlightScreenMessager.showMessage("Activate the hangar first", 3);
+				ScreenMessager.showMessage("Activate the hangar first", 3);
 				return false;
 			}
 			if(hangar_gates.GatesState != HangarGates.Opened) 
 			{
-				FlightScreenMessager.showMessage("Open hangar gates first", 3);
+				ScreenMessager.showMessage("Open hangar gates first", 3);
 				return false;
 			}
 			//if something is docked to the hangar docking port (if its present)
 			ModuleDockingNode dport = part.Modules.OfType<ModuleDockingNode>().SingleOrDefault();
 			if(dport != null && dport.vesselInfo != null)
 			{
-				FlightScreenMessager.showMessage("Cannot launch a vessel while another is docked", 3);
+				ScreenMessager.showMessage("Cannot launch a vessel while another is docked", 3);
 				return false;
 			}
 			//if in orbit or on the ground and not moving
@@ -594,34 +472,34 @@ namespace AtHangar
 			{
 				case ClearToSaveStatus.NOT_IN_ATMOSPHERE:
 				{
-					FlightScreenMessager.showMessage("Cannot launch a vessel while flying in atmosphere", 3);
+					ScreenMessager.showMessage("Cannot launch a vessel while flying in atmosphere", 3);
 					return false;
 				}
 				case ClearToSaveStatus.NOT_UNDER_ACCELERATION:
 				{
-					FlightScreenMessager.showMessage("Cannot launch a vessel hangar is under accelleration", 3);
+					ScreenMessager.showMessage("Cannot launch a vessel hangar is under accelleration", 3);
 					return false;
 				}
 				case ClearToSaveStatus.NOT_WHILE_ABOUT_TO_CRASH:
 				{
-					FlightScreenMessager.showMessage("Cannot launch a vessel while about to crush", 3);
+					ScreenMessager.showMessage("Cannot launch a vessel while about to crush", 3);
 					return false;
 				}
 				case ClearToSaveStatus.NOT_WHILE_MOVING_OVER_SURFACE:
 				{
-					FlightScreenMessager.showMessage("Cannot launch a vessel while moving on the surface", 3);
+					ScreenMessager.showMessage("Cannot launch a vessel while moving on the surface", 3);
 					return false;
 				}
 				case ClearToSaveStatus.NOT_WHILE_THROTTLED_UP:
 				{
-					FlightScreenMessager.showMessage("Cannot launch a vessel while thottled up", 3);
+					ScreenMessager.showMessage("Cannot launch a vessel while thottled up", 3);
 					return false;
 				}
 				default: break;
 			}
 			if(vessel.angularVelocity.magnitude > 0.003)
 			{
-				FlightScreenMessager.showMessage("Cannot launch a vessel while rotating", 3);
+				ScreenMessager.showMessage("Cannot launch a vessel while rotating", 3);
 				return false;
 			}
 			return true;
@@ -630,7 +508,7 @@ namespace AtHangar
 		public void TryRestoreVessel(StoredVessel stored_vessel)
 		{
 			if(!can_restore()) return;
-			FlightScreenMessager.showMessage(string.Format("Launching {0}...", stored_vessel.vessel.vesselName), 3);
+			ScreenMessager.showMessage(string.Format("Launching {0}...", stored_vessel.vessel.vesselName), 3);
 			//switch hangar state
 			hangar_state = HangarState.Inactive;
 			//transfer resources
@@ -645,17 +523,7 @@ namespace AtHangar
 			//transfer crew back to the launched vessel
 			List<ProtoCrewMember> crew_to_transfer = CrewTransfer.delCrew(vessel, stored_vessel.crew);
 			//change volume and mass
-			if(stored_vessels.Count < 1) 
-			{
-				used_volume  = 0;
-				vessels_mass = 0;
-			}
-			else
-			{
-				used_volume  -= stored_vessel.metric.volume;
-				vessels_mass -= stored_vessel.mass;
-			}
-			SetMass();
+			change_mass(-stored_vessel.mass, -stored_vessel.volume);
 			//clean up
 			stored_vessels.Remove(stored_vessel.vessel.vesselID);
 			//switch to restored vessel
@@ -664,8 +532,72 @@ namespace AtHangar
 			SetupVessel(new LaunchedVessel(stored_vessel, launched_vessel, crew_to_transfer));
 		}
 		#endregion
-		
-		
+
+
+		#region EditHangarContents
+		private void vessel_selected(string filename, string flagname)
+		{
+			EditorLogic EL = EditorLogic.fetch;
+			if(EL == null) return;
+			//load vessel config
+			vessel_selector = null;
+			Utils.Log("[0] ship.name: {0}", EL.ship.shipName);//debug
+			PackedConstruct pc = new PackedConstruct(filename, flagname);
+			//check if it's possible to launch such vessel
+			bool cant_launch = false;
+			PreFlightCheck preFlightCheck = new PreFlightCheck(new Callback(() => cant_launch = false), new Callback(() => cant_launch = true));
+			preFlightCheck.AddTest(new PreFlightTests.ExperimentalPartsAvailable(pc.construct));
+			preFlightCheck.AddTest(new PreFlightTests.CanAffordLaunchTest(pc.construct, Funding.Instance));
+			preFlightCheck.RunTests(); if(cant_launch) return;
+			//cleanup loaded parts
+			pc.UnloadConstruct();
+			Utils.Log("[1] ship.name: {0}", EL.ship.shipName); //debug
+			//check if it can be stored in this hangar
+			get_launch_transform();
+			if(!pc.metric.FitsAligned(launchTransform, part.partTransform, hangar_metric))
+			{
+				ScreenMessager.showMessage("The vessel does not fit into this hangar", 3);
+				return;
+			}
+			if(!packed_constructs.Add(pc))
+			{
+				ScreenMessager.showMessage("There's no room in the hangar for this vessel", 3);
+				return;
+			}
+			//change hangar mass
+			change_mass(pc.metric.mass, pc.metric.volume);
+		}
+
+		private void remove_construct(PackedConstruct pc)
+		{
+			change_mass(-pc.metric.mass, -pc.metric.volume);
+			packed_constructs.Remove(pc.id);
+		}
+
+		private void selection_canceled() { vessel_selector = null; }
+
+		private void store_constructs()
+		{
+			if(FlightGlobals.fetch == null) return;
+			//launch the vessel and store it
+			foreach(PackedConstruct pc in packed_constructs.Values)
+			{
+				remove_construct(pc);
+				get_launch_transform();
+				pc.LoadConstruct();
+				ShipConstruction.PutShipToGround(pc.construct, launchTransform);
+				ShipConstruction.AssembleForLaunch(pc.construct, "Hangar", pc.flag, 
+				                                   FlightDriver.FlightStateCache,
+				                                   new VesselCrewManifest());
+
+				Vessel vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1];
+				store_vessel(vsl);
+			}
+			stored_mass = Utils.formatMass(vessels_mass);
+		}
+		#endregion
+
+
 		#region Events&Actions
 		//events
 		[KSPEvent (guiActiveEditor = true, guiName = "Open gates", active = true)]
@@ -693,8 +625,10 @@ namespace AtHangar
 			if(hangar_state == HangarState.Active) Deactivate();
 			else Activate();
 		}
-		
-		
+
+		[KSPEvent (guiActiveEditor = true, guiName = "Edit contents", active = true)]
+		public void EditHangar() { editing_hangar = true; }
+
 		//actions
 		[KSPAction("Open gates")]
         public void OpenGatesAction(KSPActionParam param) { Open(); }
@@ -715,37 +649,31 @@ namespace AtHangar
         public void ToggleStateAction(KSPActionParam param) { Toggle(); }
 		#endregion
 	
-		
+
+		#region Callbacks
 		//save the hangar
 		public override void OnSave(ConfigNode node)
 		{
 			//hangar state
 			node.AddValue("hangarState", hangar_state.ToString());
 			//save stored vessels
-			if(stored_vessels.Count == 0) return;
-			ConfigNode vessels_node = node.AddNode("STORED_VESSELS");
-			foreach(StoredVessel sv in stored_vessels.Values)
-			{
-				ConfigNode stored_vessel_node = vessels_node.AddNode("STORED_VESSEL");
-				sv.Save(stored_vessel_node);
-			}
+			if(stored_vessels.Count > 0)
+				stored_vessels.Save(node.AddNode("STORED_VESSELS"));
+			if(packed_constructs.Count > 0)
+				packed_constructs.Save(node.AddNode("PACKED_CONSTRUCTS"));
 		}
 		
 		//load the hangar
 		public override void OnLoad(ConfigNode node)
 		{ 
 			//hangar state
-			if(node.HasValue ("hangarState"))
+			if(node.HasValue("hangarState"))
 				hangar_state = (HangarState)Enum.Parse(typeof(HangarState), node.GetValue("hangarState"));
 			//restore stored vessels
 			if(node.HasNode("STORED_VESSELS"))
-			{
-				ConfigNode vessels_node = node.GetNode("STORED_VESSELS");
-				List<StoredVessel> vessels = new List<StoredVessel>();
-				foreach(ConfigNode vn in vessels_node.nodes)
-					vessels.Add(new StoredVessel(vn));
-				stored_vessels.Set(vessels);
-			}
+				stored_vessels.Load(node.GetNode("STORED_VESSELS"));
+			if(node.HasNode("PACKED_CONSTRUCTS"))
+				packed_constructs.Load(node.GetNode("PACKED_CONSTRUCTS"));
 		}
 		
 		//update labels
@@ -754,6 +682,71 @@ namespace AtHangar
 			doors = hangar_gates.GatesState.ToString();
 			state = hangar_state.ToString();
 		}
-		
+
+		public override void OnFixedUpdate()
+		{ if(packed_constructs.Count > 0) store_constructs(); }
+
+		#region OnGUI
+		private void hangar_content_editor(int windowID)
+		{
+			GUILayout.BeginVertical();
+			GUILayout.BeginHorizontal();
+			//VAB / SPH / SubAss selection
+			GUILayout.FlexibleSpace ();
+			for(var T = VesselType.VAB; T <= VesselType.SubAssembly; T++)
+			{ if(GUILayout.Toggle(vessel_type == T, T.ToString (), GUILayout.Width (80))) vessel_type = T; }
+			GUILayout.FlexibleSpace ();
+			//Vessel selector
+			if(GUILayout.Button("Select Vessel", Styles.normal_button, GUILayout.ExpandWidth(true))) 
+			{
+				Rect sWindowPos = new Rect(eWindowPos) { height = 500 };
+				vessel_selector = 
+					new CraftBrowser(sWindowPos, 
+					                 vessel_dirs[(int)vessel_type],
+					                 HighLogic.SaveFolder, "Select a ship to store",
+					                 vessel_selected,
+					                 selection_canceled,
+					                 HighLogic.Skin,
+					                 EditorLogic.ShipFileImage, true);
+			}
+			GUILayout.EndHorizontal();
+			List<PackedConstruct> constructs = packed_constructs.Values;
+			constructs.Sort((a, b) => a.name.CompareTo(b.name));
+			scroll_view = GUILayout.BeginScrollView(scroll_view, GUILayout.Height(200), GUILayout.Width(400));
+			GUILayout.BeginVertical();
+			foreach(PackedConstruct pc in constructs)
+			{
+				GUILayout.BeginHorizontal();
+				GUILayout.Label(string.Format("{0}: {1}", pc.name, Utils.formatMass(pc.metric.mass)), 
+				                Styles.label, GUILayout.ExpandWidth(true));
+				if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) remove_construct(pc);
+				GUILayout.EndHorizontal();
+			}
+			GUILayout.EndVertical();
+			GUILayout.EndScrollView();
+			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) editing_hangar = false;
+			GUILayout.EndVertical();
+			GUI.DragWindow(new Rect(0, 0, 500, 20));
+		}
+
+		public void OnGUI() 
+		{ 
+			if(!editing_hangar) return;
+			if(Event.current.type != EventType.Layout) return;
+			if(EditorLogic.fetch == null) return;
+			Styles.InitSkin();
+			GUI.skin = Styles.skin;
+			Styles.InitGUI();
+			if(vessel_selector == null) 
+			{
+				eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
+							                  hangar_content_editor,
+							                  "Choose vessel type",
+							                  GUILayout.Width(400));
+			}
+			else vessel_selector.OnGUI();
+		}
+		#endregion
+		#endregion
 	}
 }
