@@ -46,16 +46,25 @@ namespace AtHangar
 			if(debug) Debug.Log(node);
 		}
 	}
-	
-	public class VesselsPack
+
+	public abstract class PackedVessel 
+	{ 
+		public Metric metric; 
+		public Guid id; 
+
+		public abstract void Save(ConfigNode node);
+		public abstract void Load(ConfigNode node);
+	}
+
+	public class VesselsPack<V> where V : PackedVessel, new()
 	{
-		private Dictionary<Guid, StoredVessel> stored_vessels = new Dictionary<Guid, StoredVessel>();
+		private Dictionary<Guid, V> stored_vessels = new Dictionary<Guid, V>();
 		public Metric space = new Metric();
 		
 		public VesselsPack() {}
 		public VesselsPack(Metric space) { this.space = space; }
 		
-		private bool add_vessel(Node n, StoredVessel vsl)
+		private bool add_vessel(Node n, V vsl)
 		{
 			if(n.first != null)
 			{
@@ -70,7 +79,7 @@ namespace AtHangar
 				//if the vessel fits perfectly, store it
 				if(n.size == s)
 				{
-					n.vid = vsl.vessel.vesselID;
+					n.vid = vsl.id;
 					return true;
 				}
 				//clone the node
@@ -104,30 +113,30 @@ namespace AtHangar
 			}
 		}
 		
-		private bool pack(List<StoredVessel> vessels)
+		private bool pack(List<V> vessels)
 		{
 			vessels.Sort((x,y) => -1*x.metric.volume.CompareTo(y.metric.volume)); //Descending sort order
 			Node root = new Node(space);
-			foreach(StoredVessel vsl in vessels) { if(!add_vessel(root, vsl)) return false; }
+			foreach(V vsl in vessels) { if(!add_vessel(root, vsl)) return false; }
 			return true;
 		}
 		
-		public bool Add(StoredVessel vsl)
+		public bool Add(V vsl)
 		{
-			List<StoredVessel> vessels = this.Values;
+			List<V> vessels = this.Values;
 			vessels.Add(vsl);
 			if(!pack(vessels)) return false;
-			stored_vessels.Add(vsl.vessel.vesselID, vsl);
+			stored_vessels.Add(vsl.id, vsl);
 			return true;
 		}
-		
-		public void Set(List<StoredVessel> vessels)
+
+		public void Set(List<V> vessels)
 		{
 			stored_vessels.Clear();
-			foreach(StoredVessel sv in vessels) 
-				stored_vessels.Add(sv.vessel.vesselID, sv);
+			foreach(V sv in vessels) 
+				stored_vessels.Add(sv.id, sv);
 		}
-		
+
 		public bool Repack() { return pack(this.Values); }
 		
 		//mimic Dictionary
@@ -139,13 +148,34 @@ namespace AtHangar
 		
 		public bool ContainsKey(Guid vid) { return stored_vessels.ContainsKey(vid); }
 		
-		public bool TryGetValue(Guid vid, out StoredVessel vessel)
+		public bool TryGetValue(Guid vid, out V vessel)
 		{ return stored_vessels.TryGetValue(vid, out vessel); }
 		
 		public int Count { get { return stored_vessels.Count; } }
 		public List<Guid> Keys { get { return new List<Guid>(stored_vessels.Keys); } }
-		public List<StoredVessel> Values { get { return new List<StoredVessel>(stored_vessels.Values); } }
-		public StoredVessel this[Guid vid] { get { return stored_vessels[vid]; } }
+		public List<V> Values { get { return new List<V>(stored_vessels.Values); } }
+		public V this[Guid vid] { get { return stored_vessels[vid]; } }
+
+		public void Save(ConfigNode node)
+		{
+			foreach(V vsl in stored_vessels.Values)
+			{
+				ConfigNode stored_vessel_node = node.AddNode("STORED_VESSEL");
+				vsl.Save(stored_vessel_node);
+			}
+		}
+
+		public void Load(ConfigNode node)
+		{
+			List<V> vessels = new List<V>();
+			foreach(ConfigNode vn in node.nodes)
+			{
+				V vsl = new V();
+				vsl.Load(vn);
+				vessels.Add(vsl);
+			}
+			Set(vessels);
+		}
 	}
 }
 
