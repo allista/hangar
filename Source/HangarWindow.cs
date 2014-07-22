@@ -355,8 +355,10 @@ namespace AtHangar
 		void VesselInfo(int windowID)
 		{ 
 			GUILayout.BeginVertical();
-			GUILayout.Label("Vessel Volume: "+Utils.formatVolume(vessel_metric.volume), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Vessel Dimensions: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
+			GUILayout.Label(string.Format("Mass: {0}   Volume: {1}", 
+			                              Utils.formatMass(vessel_metric.mass), 
+			                              Utils.formatVolume(vessel_metric.volume)), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Dimensions: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label(String.Format("Crew Capacity: {0}", vessel_metric.CrewCapacity), GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 5000, 20));
@@ -431,9 +433,9 @@ namespace AtHangar
 			else
 			{
 				eWindowPos = GUILayout.Window(GetInstanceID(),
-											 eWindowPos, VesselInfo,
-											 "Vessel info",
-											 GUILayout.Width(300));
+											  eWindowPos, VesselInfo,
+											  "Vessel info",
+											  GUILayout.Width(300));
 			}
 			UpdateGUIState();
 		}
