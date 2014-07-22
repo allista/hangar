@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -8,6 +9,7 @@ namespace AtHangar
 	public class Metric
 	{
 		public float volume { get; private set; }
+		public float mass { get; set; }
 		public Bounds bounds { get; private set; }
 		public Vector3 center { get { return bounds.center; } }
 		public Vector3 extents { get { return bounds.extents; } }
@@ -15,7 +17,25 @@ namespace AtHangar
 		public int CrewCapacity { get; private set; }
 		public bool Empty { get { return volume == 0; } }
 		
-		
+
+		#region from MechJeb2 PartExtensions
+		public static bool has_module<T>(Part p) where T : PartModule
+		{ return p.Modules.OfType<T>().Count() > 0; }
+
+		private static bool is_physically_significant(Part p)
+		{
+			bool physicallySignificant = (p.physicalSignificance != Part.PhysicalSignificance.NONE);
+			// part.PhysicsSignificance is not initialized in the Editor for all part. but physicallySignificant is useful there.
+			if (HighLogic.LoadedSceneIsEditor)
+				physicallySignificant = physicallySignificant && p.PhysicsSignificance != 1;
+			//Landing gear set physicalSignificance = NONE when they enter the flight scene
+			//Launch clamp mass should be ignored.
+			if (has_module<ModuleLandingGear>(p) || has_module<LaunchClamp>(p))
+				physicallySignificant = false;
+			return physicallySignificant;
+		}
+		#endregion
+
 		private static Vector3[] bound_edges(Bounds b)
 		{
 			Vector3[] edges = new Vector3[8];
@@ -57,6 +77,7 @@ namespace AtHangar
 		
 		private Bounds partsBounds(List<Part> parts, Transform vT)
 		{
+			mass = 0;
 			CrewCapacity = 0;
 			Bounds b = default(Bounds);
 			foreach(Part p in parts)
@@ -76,6 +97,8 @@ namespace AtHangar
 					else foreach(Vector3 edge in edges) b.Encapsulate(edge);
 				}
 				CrewCapacity += p.CrewCapacity;
+				if(is_physically_significant(p))
+					mass += p.mass+p.GetResourceMass();
 			}
 			return b;
 		}
@@ -86,6 +109,7 @@ namespace AtHangar
 		{
 			bounds = new Bounds();
 			volume = 0f;
+			mass   = 0f;
 			CrewCapacity = 0;
 		}
 		
@@ -94,30 +118,34 @@ namespace AtHangar
 		{
 			bounds = new Bounds(m.bounds.center, m.bounds.size);
 			volume = m.volume;
+			mass   = m.mass;
 			CrewCapacity = m.CrewCapacity;
 		}
 		
 		//metric from bounds
-		public Metric(Bounds b, int crew_capacity = 0)
+		public Metric(Bounds b, float m = 0f, int crew_capacity = 0)
 		{
 			bounds = new Bounds(b.center, b.size);
 			volume = boundsVolume(bounds);
+			mass   = m;
 			CrewCapacity = crew_capacity;
 		}
 		
 		//metric from size
-		public Metric(Vector3 center, Vector3 size, int crew_capacity = 0)
+		public Metric(Vector3 center, Vector3 size, float m = 0f, int crew_capacity = 0)
 		{
 			bounds = new Bounds(center, size);
 			volume = boundsVolume(bounds);
+			mass   = m;
 			CrewCapacity = crew_capacity;
 		}
 		
 		//metric form edges
-		public Metric(Vector3[] edges, int crew_capacity = 0)
+		public Metric(Vector3[] edges, float m = 0f, int crew_capacity = 0)
 		{
 			bounds = initBounds(edges);
 			volume = boundsVolume(bounds);
+			mass   = m;
 			CrewCapacity = crew_capacity;
 		}
 		
@@ -128,13 +156,14 @@ namespace AtHangar
 		public Metric(Part part, string mesh_name)
 		{
 			MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
-			if(m == null) { Debug.LogWarning(string.Format("[Metric] {0} does not have '{1}' mesh", part.name, mesh_name)); return; }
+			if(m == null) { Utils.Log("[Metric] {0} does not have '{1}' mesh", part.name, mesh_name); return; }
 			Transform pT = part.partTransform;
 			Transform mT = m.transform;
 			Vector3[] edges = bound_edges(m.sharedMesh.bounds);
 			local2local(mT, pT, edges);
 			bounds = initBounds(edges);
 			volume = boundsVolume(bounds);
+			mass   = 0f;
 		}
 		
 		//part metric
@@ -207,19 +236,22 @@ namespace AtHangar
 			node.AddValue("bounds_center", ConfigNode.WriteVector(bounds.center));
 			node.AddValue("bounds_size", ConfigNode.WriteVector(bounds.size));
 			node.AddValue("crew_capacity", CrewCapacity);
+			node.AddValue("mass", mass);
 		}
 		
 		public void Load(ConfigNode node)
 		{
 			if(!node.HasValue("bounds_center") || 
-			   !node.HasValue("bounds_size") ||
-			   !node.HasValue("crew_capacity"))
-				throw new KeyNotFoundException("Metric.Load: no 'bounds_center' or 'bound_size' values in the config node.");
+			   !node.HasValue("bounds_size")   ||
+			   !node.HasValue("crew_capacity") ||
+			   !node.HasValue("mass"))
+				throw new KeyNotFoundException("Metric.Load: not all needed values are present in the config node.");
 			Vector3 center = ConfigNode.ParseVector3(node.GetValue("bounds_center"));
 			Vector3 size   = ConfigNode.ParseVector3(node.GetValue("bounds_size"));
 			bounds = new Bounds(center, size);
 			volume = boundsVolume(bounds);
 			CrewCapacity = int.Parse(node.GetValue("crew_capacity"));
+			mass = float.Parse(node.GetValue("mass"));
 		}
 		
 		
