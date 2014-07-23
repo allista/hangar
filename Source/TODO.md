@@ -1,5 +1,4 @@
-* Balance parts' costs
+* Resize, store vessels in-editor and... COST
 * Add crew cabins to the Spaceport
 * Write READMY.md
 * PartResizer vs InternalSpace? >_<
-* Add ability to store vessels in VAB/SPH
