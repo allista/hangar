@@ -121,7 +121,9 @@ namespace AtHangar
                 Events["Close"].guiActiveEditor = true;
             }
 			//recalculate volume and mass
-			Setup(); 
+			Setup();
+			//store packed constructs if any
+			if(packed_constructs.Count > 0) StartCoroutine(store_constructs());
 		}
 		
 		public void Setup(bool reset_mass = false)	
@@ -509,6 +511,8 @@ namespace AtHangar
 		{
 			if(!can_restore()) return;
 			ScreenMessager.showMessage(string.Format("Launching {0}...", stored_vessel.vessel.vesselName), 3);
+			//clean up
+			stored_vessels.Remove(stored_vessel.vessel.vesselID);
 			//switch hangar state
 			hangar_state = HangarState.Inactive;
 			//transfer resources
@@ -524,8 +528,6 @@ namespace AtHangar
 			List<ProtoCrewMember> crew_to_transfer = CrewTransfer.delCrew(vessel, stored_vessel.crew);
 			//change volume and mass
 			change_mass(-stored_vessel.mass, -stored_vessel.volume);
-			//clean up
-			stored_vessels.Remove(stored_vessel.vessel.vesselID);
 			//switch to restored vessel
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
 			Staging.beginFlight();
@@ -541,7 +543,6 @@ namespace AtHangar
 			if(EL == null) return;
 			//load vessel config
 			vessel_selector = null;
-			Utils.Log("[0] ship.name: {0}", EL.ship.shipName);//debug
 			PackedConstruct pc = new PackedConstruct(filename, flagname);
 			//check if it's possible to launch such vessel
 			bool cant_launch = false;
@@ -551,7 +552,6 @@ namespace AtHangar
 			preFlightCheck.RunTests(); if(cant_launch) return;
 			//cleanup loaded parts
 			pc.UnloadConstruct();
-			Utils.Log("[1] ship.name: {0}", EL.ship.shipName); //debug
 			//check if it can be stored in this hangar
 			get_launch_transform();
 			if(!pc.metric.FitsAligned(launchTransform, part.partTransform, hangar_metric))
@@ -576,10 +576,17 @@ namespace AtHangar
 
 		private void selection_canceled() { vessel_selector = null; }
 
-		private void store_constructs()
+		private IEnumerator<YieldInstruction> store_constructs()
 		{
-			if(FlightGlobals.fetch == null) return;
-			//launch the vessel and store it
+			if(FlightGlobals.fetch == null || 
+			   FlightGlobals.ActiveVessel == null) 
+				yield break;
+			//wait for hangar.vessel to be loaded
+			VesselWaiter self = new VesselWaiter(vessel);
+			while(!self.launched) yield return null;
+			//create vessels from constructs and store them
+			HangarState cur_state = hangar_state;
+			Deactivate();
 			foreach(PackedConstruct pc in packed_constructs.Values)
 			{
 				remove_construct(pc);
@@ -589,11 +596,14 @@ namespace AtHangar
 				ShipConstruction.AssembleForLaunch(pc.construct, "Hangar", pc.flag, 
 				                                   FlightDriver.FlightStateCache,
 				                                   new VesselCrewManifest());
-
-				Vessel vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1];
-				store_vessel(vsl);
+				VesselWaiter vsl = new VesselWaiter(FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1]);
+				FlightGlobals.ForceSetActiveVessel(vsl.vessel);
+				//wait for vsl to be launched
+				while(!vsl.launched) yield return null;
+				store_vessel(vsl.vessel);
 			}
 			stored_mass = Utils.formatMass(vessels_mass);
+			if(cur_state == HangarState.Active) Activate();
 		}
 		#endregion
 
@@ -683,8 +693,8 @@ namespace AtHangar
 			state = hangar_state.ToString();
 		}
 
-		public override void OnFixedUpdate()
-		{ if(packed_constructs.Count > 0) store_constructs(); }
+//		public override void OnFixedUpdate()
+//		{ if(packed_constructs.Count > 0) store_constructs(); }
 
 		#region OnGUI
 		private void hangar_content_editor(int windowID)
