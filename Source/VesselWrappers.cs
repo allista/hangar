@@ -19,7 +19,7 @@ namespace AtHangar
 			UnloadConstruct();
 			construct = new ShipConstruct();
 			construct.LoadShip(vessel_node);
-//			ShipConstruction.CreateBackup(construct);
+//			ShipConstruction.CreateBackup(construct); //what does it do anyway?
 		}
 
 		public void UnloadConstruct() 
@@ -130,6 +130,7 @@ namespace AtHangar
 			metric = new Metric(metric_node);
 			crew   = new List<ProtoCrewMember>();
 			foreach(ConfigNode cn in crew_node.nodes) crew.Add(new ProtoCrewMember(cn));
+			id   = vessel.vesselID;
 			CoM  = ConfigNode.ParseVector3(node.GetValue("CoM"));
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
 		}
@@ -186,18 +187,10 @@ namespace AtHangar
 	}
 
 
-	public class LaunchedVessel
+	public class VesselWaiter
 	{
-		private List<ProtoCrewMember> crew;
-		private StoredVessel sv;
 		public Vessel vessel;
-
-		public LaunchedVessel(StoredVessel sv, Vessel vsl, List<ProtoCrewMember> crew)
-		{
-			this.sv = sv;
-			this.vessel = vsl;
-			this.crew = crew;
-		}
+		public VesselWaiter(Vessel vsl) { vessel = vsl; }
 
 		public bool launched
 		{
@@ -216,6 +209,19 @@ namespace AtHangar
 				}
 				return parts_inited;
 			}
+		}
+	}
+
+	public class LaunchedVessel : VesselWaiter
+	{
+		private List<ProtoCrewMember> crew;
+		private StoredVessel sv;
+
+		public LaunchedVessel(StoredVessel sv, Vessel vsl, List<ProtoCrewMember> crew)
+			: base(vsl)
+		{
+			this.sv = sv;
+			this.crew = crew;
 		}
 
 		public void transferCrew() { CrewTransfer.addCrew(vessel, crew); }
