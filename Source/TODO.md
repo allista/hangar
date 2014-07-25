@@ -1,4 +1,4 @@
-* Resize, store vessels in-editor and... COST
 * Add crew cabins to the Spaceport
 * Write READMY.md
+* Add KSP AVC support
 * PartResizer vs InternalSpace? >_<
