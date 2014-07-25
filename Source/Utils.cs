@@ -1,6 +1,7 @@
 // This code is based on Procedural Fairings plug-in by Alexey Volynskov, PMUtils class
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSPAPIExtensions;
@@ -198,7 +199,50 @@ namespace AtHangar
 		}
 		#endregion
 	}
-	
+
+	public static class PartExtension
+	{
+		#region from MechJeb2 PartExtensions
+		public static bool hasModule<T>(this Part p) where T : PartModule
+		{ return p.Modules.OfType<T>().Count() > 0; }
+
+		public static bool isPhysicallySignificant(this Part p)
+		{
+			bool physicallySignificant = (p.physicalSignificance != Part.PhysicalSignificance.NONE);
+			// part.PhysicsSignificance is not initialized in the Editor for all part. but physicallySignificant is useful there.
+			if (HighLogic.LoadedSceneIsEditor)
+				physicallySignificant = physicallySignificant && p.PhysicsSignificance != 1;
+			//Landing gear set physicalSignificance = NONE when they enter the flight scene
+			//Launch clamp mass should be ignored.
+			if (p.hasModule<ModuleLandingGear>() || p.hasModule<LaunchClamp>())
+				physicallySignificant = false;
+			return physicallySignificant;
+		}
+
+		public static float TotalMass(this Part p) { return p.mass+p.GetResourceMass(); }
+		#endregion
+
+		public static float TotalCost(this Part p) { return p.partInfo.cost; }
+//		{
+//			float dry, fuel = 0;
+//			if(p.protoPartSnapshot != null)
+//				ShipConstruction.GetPartCosts(p.protoPartSnapshot, p.partInfo, out dry, out fuel);
+//			else dry = p.partInfo.cost;
+//			return dry+fuel;
+//		}
+	}
+
+	public static class AvailablePartExtension
+	{
+		public static AvailablePart CloneIfDefault(this AvailablePart ap)
+		{ 
+			AvailablePart new_ap = PartLoader.getPartInfoByName(ap.name);
+			if(new_ap.GetHashCode() != ap.GetHashCode()) return ap;
+			Part tmp = (Part)UnityEngine.Object.Instantiate(ap.partPrefab);
+			new_ap = tmp.partInfo; UnityEngine.Object.Destroy(tmp.gameObject);
+			return new_ap;
+		}
+	}
 	
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 	public class ScreenMessager : MonoBehaviour
