@@ -19,6 +19,7 @@ namespace AtHangar
 		private float usefull_volume_ratio = 0.7f; //only 70% of the volume may be used by docking vessels
 		private float crew_volume_ratio    = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
 		public float vessels_mass = -1f;
+		public float vessels_cost = -1f;
 		public float used_volume  = -1f;
 		
 		public HangarGates gates_state { get { return hangar_gates.GatesState; } }
@@ -33,6 +34,7 @@ namespace AtHangar
 		[KSPField (isPersistant = false)] public float VolumePerKerbal    = 3f; // m^3
 		[KSPField (isPersistant = false)] public bool  StaticCrewCapacity = false;
 		[KSPField (isPersistant = true)]  public float base_mass = -1f;
+		[KSPField (isPersistant = true)]  public float base_cost = -1f;
 		
 		//vessels storage
 		private VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
@@ -57,10 +59,11 @@ namespace AtHangar
 		//gui fields
 		[KSPField (guiName = "Volume",        guiActiveEditor=true)] public string hangar_v;
 		[KSPField (guiName = "Dimensions",    guiActiveEditor=true)] public string hangar_d;
-		[KSPField (guiName = "Crew capacity", guiActiveEditor=true)] public string crew_capacity;
-		[KSPField (guiName = "Stored mass",   guiActiveEditor=true)] public string stored_mass;
-		[KSPField (guiName = "Hangar doors", guiActive = true)] public string doors;
-		[KSPField (guiName = "Hangar state", guiActive = true)] public string state;
+		[KSPField (guiName = "Crew Capacity", guiActiveEditor=true)] public string crew_capacity;
+		[KSPField (guiName = "Stored Mass",   guiActiveEditor=true)] public string stored_mass;
+		[KSPField (guiName = "Stored Cost",   guiActiveEditor=true)] public string stored_cost;
+		[KSPField (guiName = "Hangar Doors",  guiActive = true)] public string doors;
+		[KSPField (guiName = "Hangar State",  guiActive = true)] public string state;
 		
 		
 		#region for-GUI
@@ -105,6 +108,8 @@ namespace AtHangar
 			//base OnStart
 			base.OnStart(state);
 			if(state == StartState.None) return;
+			//create a clone of partInfo if needed to change part cost
+			part.partInfo = part.partInfo.CloneIfDefault();
 			//initialize resources
 			if(state != StartState.Editor) update_resources();
 			//initialize Animator
@@ -126,13 +131,14 @@ namespace AtHangar
 			if(packed_constructs.Count > 0) StartCoroutine(store_constructs());
 		}
 		
-		public void Setup(bool reset_mass = false)	
-		{ RecalculateVolume(); SetPartMass(reset_mass); }
+		public void Setup(bool reset_base_values = false)	
+		{ RecalculateVolume(); SetPartParams(reset_base_values); }
 
-		public void SetPartMass(bool reset = false) 
+		public void SetPartParams(bool reset = false) 
 		{
 			//reset values if needed
 			if(base_mass < 0 || reset) base_mass = part.mass;
+			if(base_cost < 0 || reset) base_cost = part.partInfo.cost;
 			if(vessels_mass < 0 || reset)
 			{
 				vessels_mass = 0;
@@ -140,21 +146,32 @@ namespace AtHangar
 				foreach(PackedConstruct pc in packed_constructs.Values) vessels_mass += pc.metric.mass;
 				stored_mass = Utils.formatMass(vessels_mass);
 			}
-			//set part.mass
+			if(vessels_cost < 0 || reset)
+			{
+				vessels_cost = 0;
+				foreach(StoredVessel sv in stored_vessels.Values) vessels_cost += sv.cost;
+				foreach(PackedConstruct pc in packed_constructs.Values) vessels_cost += pc.metric.cost;
+				stored_cost = vessels_cost.ToString();
+			}
+			//set part mass and cost
 			part.mass = base_mass+vessels_mass;
+			part.partInfo.cost = base_cost+vessels_cost;
 			//update PartResizer display
 			var resizer = part.Modules.OfType<HangarPartResizer>().SingleOrDefault();
 			if(resizer != null) resizer.UpdateGUI();
 		}
 
-		private void change_mass(float mass, float volume)
+		private void change_part_params(Metric delta, float k = 1f)
 		{
-			vessels_mass += mass;
-			used_volume  += volume;
+			vessels_mass += k*delta.mass;
+			vessels_cost += k*delta.cost;
+			used_volume  += k*delta.volume;
 			if(used_volume < 0) used_volume = 0;
 			if(vessels_mass < 0) vessels_mass = 0;
+			if(vessels_cost < 0) vessels_cost = 0;
 			stored_mass = Utils.formatMass(vessels_mass);
-			SetPartMass();
+			stored_cost = vessels_cost.ToString();
+			SetPartParams();
 		}
 		
 		public void RecalculateVolume()
@@ -169,17 +186,27 @@ namespace AtHangar
 			//setup vessels pack
 			stored_vessels.space = hangar_metric;
 			packed_constructs.space = hangar_metric;
-			//calculate crew capacity from remaining volume
-			if(!StaticCrewCapacity)
-				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
+			//if in editor, try to repack vessels on resize
+			if(EditorLogic.fetch != null)
+			{
+				List<PackedConstruct> rem = packed_constructs.Repack();
+				if(rem.Count > 0) 
+				{
+					ScreenMessager.showMessage(string.Format("Resized hangar is too small. {0} smalles vessels were removed.", rem.Count), 3);
+					foreach(PackedConstruct pc in rem) remove_construct(pc);
+				}
+			}
 			//calculate used_volume
 			used_volume = 0;
 			foreach(StoredVessel sv in stored_vessels.Values) used_volume += sv.volume;
 			foreach(PackedConstruct pc in packed_constructs.Values) used_volume += pc.metric.volume;
+			//calculate crew capacity from remaining volume
+			if(!StaticCrewCapacity)
+				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
 			//display recalculated values
 			crew_capacity = part.CrewCapacity.ToString();
-			hangar_v = Utils.formatVolume(hangar_metric.volume);
-			hangar_d = Utils.formatDimensions(hangar_metric.size);
+			hangar_v  = Utils.formatVolume(hangar_metric.volume);
+			hangar_d  = Utils.formatDimensions(hangar_metric.size);
 		}
 		#endregion
 		
@@ -273,7 +300,7 @@ namespace AtHangar
 			//then add to other vessel parts if needed
 			CrewTransfer.addCrew(vessel, _crew);
 			//recalculate volume and mass
-			change_mass(stored_vessel.mass, stored_vessel.volume);
+			change_part_params(stored_vessel.metric);
 			//destroy vessel
 			vsl.Die();
 			ScreenMessager.showMessage("Vessel has been docked inside the hangar", 3);
@@ -441,9 +468,13 @@ namespace AtHangar
 				//update masses
 				PartResourceDefinition res_def = PartResourceLibrary.Instance.GetDefinition(r.name);
 				if(res_def.density == 0) continue;
-				vessels_mass += (float)a*res_def.density;
-				sv.mass += (float)a*res_def.density;
-				SetPartMass();
+				float dM = (float)a*res_def.density;
+				float dC = (float)a*res_def.unitCost;
+				vessels_mass += dM;
+				vessels_cost += dC;
+				sv.mass += dM;
+				sv.cost += dC;
+				SetPartParams();
 			}
 			resourceTransferList.Clear();
 		}
@@ -527,7 +558,7 @@ namespace AtHangar
 			//transfer crew back to the launched vessel
 			List<ProtoCrewMember> crew_to_transfer = CrewTransfer.delCrew(vessel, stored_vessel.crew);
 			//change volume and mass
-			change_mass(-stored_vessel.mass, -stored_vessel.volume);
+			change_part_params(stored_vessel.metric, -1f);
 			//switch to restored vessel
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
 			Staging.beginFlight();
@@ -565,16 +596,18 @@ namespace AtHangar
 				return;
 			}
 			//change hangar mass
-			change_mass(pc.metric.mass, pc.metric.volume);
+			change_part_params(pc.metric);
 		}
+		private void selection_canceled() { vessel_selector = null; }
 
 		private void remove_construct(PackedConstruct pc)
 		{
-			change_mass(-pc.metric.mass, -pc.metric.volume);
+			change_part_params(pc.metric, -1f);
 			packed_constructs.Remove(pc.id);
 		}
 
-		private void selection_canceled() { vessel_selector = null; }
+		private void clear_constructs() 
+		{ foreach(PackedConstruct pc in packed_constructs.Values) remove_construct(pc); }
 
 		private IEnumerator<YieldInstruction> store_constructs()
 		{
@@ -604,6 +637,11 @@ namespace AtHangar
 			}
 			stored_mass = Utils.formatMass(vessels_mass);
 			if(cur_state == HangarState.Active) Activate();
+			//save game afterwards
+			FlightGlobals.ForceSetActiveVessel(vessel);
+			while(!self.launched) yield return null;
+			yield return new WaitForSeconds(0.5f);
+			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
 		}
 		#endregion
 
@@ -693,9 +731,6 @@ namespace AtHangar
 			state = hangar_state.ToString();
 		}
 
-//		public override void OnFixedUpdate()
-//		{ if(packed_constructs.Count > 0) store_constructs(); }
-
 		#region OnGUI
 		private void hangar_content_editor(int windowID)
 		{
@@ -720,6 +755,12 @@ namespace AtHangar
 					                 EditorLogic.ShipFileImage, true);
 			}
 			GUILayout.EndHorizontal();
+			//hangar info
+			float used_frac = used_volume/hangar_metric.volume;
+			GUILayout.Label(string.Format("Used Volume: {0}   {1:F1}%", 
+			                              Utils.formatVolume(used_volume), used_frac*100f), 
+			                Styles.fracStyle(1-used_frac), GUILayout.ExpandWidth(true));
+			//hangar contents
 			List<PackedConstruct> constructs = packed_constructs.Values;
 			constructs.Sort((a, b) => a.name.CompareTo(b.name));
 			scroll_view = GUILayout.BeginScrollView(scroll_view, GUILayout.Height(200), GUILayout.Width(400));
@@ -727,13 +768,15 @@ namespace AtHangar
 			foreach(PackedConstruct pc in constructs)
 			{
 				GUILayout.BeginHorizontal();
-				GUILayout.Label(string.Format("{0}: {1}", pc.name, Utils.formatMass(pc.metric.mass)), 
+				GUILayout.Label(string.Format("{0}: {1}   Cost: {2:F1}", 
+				                              pc.name, Utils.formatMass(pc.metric.mass), pc.metric.cost), 
 				                Styles.label, GUILayout.ExpandWidth(true));
 				if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) remove_construct(pc);
 				GUILayout.EndHorizontal();
 			}
 			GUILayout.EndVertical();
 			GUILayout.EndScrollView();
+			if(GUILayout.Button("Clear", Styles.red_button, GUILayout.ExpandWidth(true))) clear_constructs();
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) editing_hangar = false;
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 500, 20));
