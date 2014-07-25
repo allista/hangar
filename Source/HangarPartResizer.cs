@@ -160,7 +160,7 @@ namespace AtHangar
 	public class HangarUpdater : ModuleUpdater<Hangar>
 	{ public override void OnRescale(Scale scale) { module.Setup(true); } }
 	
-	
+
 	public class HangarPartResizer : PartUpdater
 	{
 		public static string minSizeName   = "HANGAR_MINSCALE";
@@ -177,7 +177,7 @@ namespace AtHangar
 		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f)]
 		public float aspect = 1.0f;
 
-		[KSPField(isPersistant=false, guiActiveEditor=true, guiName="Mass")]
+		[KSPField(isPersistant=false, guiActiveEditor=true, guiName="Mass")] 
 		public string massDisplay;
 
 		//module config
@@ -257,6 +257,7 @@ namespace AtHangar
 
 		protected override void SaveDefaults()
 		{
+			part.partInfo = part.partInfo.CloneIfDefault();
 			HangarPartResizer resizer = base_part.Modules.OfType<HangarPartResizer>().SingleOrDefault();
 			if(resizer != null) orig_size  = resizer.size;
 			old_size   = size;
@@ -308,7 +309,11 @@ namespace AtHangar
 		}
 
 		public void UpdateGUI()
-		{ massDisplay = Utils.formatMass(part.mass+part.GetResourceMass()); }
+		{ 
+			massDisplay = Utils.formatMass(part.TotalMass());
+			if(EditorLogic.fetch != null)
+				GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
+		}
 
 		public override void OnRescale(Scale scale)
 		{
@@ -318,7 +323,8 @@ namespace AtHangar
 			else Debug.LogError ("[HangarPartResizer] No 'model' transform in the part", this);
 			//recalculate mass
 			part.mass = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z) * scale * aspect + specificMass.w;
-			//changing cost is not possible it seems =(
+			//changing cost
+			part.partInfo.cost = ((specificCost.x * scale + specificCost.y) * scale + specificCost.z) * scale * aspect + specificCost.w;
 			//change breaking forces (if not defined in the config, set to a reasonable default)
 			if (base_part.breakingForce == 22f) part.breakingForce = 32.0f * scale.absolute.quad; //taken from TweakScale
 			else part.breakingForce = base_part.breakingForce * scale.absolute.quad;
