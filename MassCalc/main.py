@@ -189,9 +189,26 @@ if __name__ == '__main__':
                               volume(218.99-27.75, 0.183, 'cabins', 150),
                               volume(27.75, 0.246, 'machinery', 80)],
                      add_mass=1+0.72+0.5, #batt, generator, lifesupport
-                     add_cost=280 + 2040 + 300 + 22500 + 29700) #DockPort + LS +  Light + Batt + Gen 
-#     
-#     rcs       = ship('RCS', np.array([0.1, 0.9, 0.0]), 0.0055625, 0, 2.0445)
+                     add_cost=280 + 2040 + 300 + 22500 + 29700) #DockPort + LS +  Light + Batt + Gen
+    
+    adapter1  = ship('Adapter1', 
+                     surfaces=[surface(62.48, 0.005, composits, 'hull'), 
+                               surface(50.61, 0.003, composits, 'innerside')],
+                     volumes=[volume(29.68-21.64, 0.01, 'hull', 50)], 
+                     add_mass=0,
+                     add_cost=0)
+    adapter2  = ship('Adapter2', 
+                     surfaces=[surface(55.38, 0.005, composits, 'hull'), 
+                               surface(44.86, 0.003, composits, 'innerside')],
+                     volumes=[volume(22.67-16.53, 0.01, 'hull', 50)], 
+                     add_mass=0,
+                     add_cost=0)
+    
+    rcs       = ship('SpaceportRCS', 
+                     surfaces=[surface(4.77, 0.007, composits, 'hull'),],
+                     volumes=[volume(0.36, 0.48, 'machinery', 4760)], 
+                     add_mass=0,
+                     add_cost=0)
     
     l1 = 1#.27624
     l2 = 1#.03
@@ -223,11 +240,21 @@ if __name__ == '__main__':
     
     small_c  = np.fromiter((small.cost(s, lg1) for s in scales), float)
     big_c    = np.fromiter((big.cost(s/3, 1) for s in scales), float)
-     
-#     rcs_m    = np.fromiter((rcs.mass(s, 1) for s in scales), float)
-#     rcs_tm   = np.fromiter((rcs.true_mass(s, 1) for s in scales), float)
-#     rcs_v    = np.fromiter((rcs.volume(s, 1) for s in scales), float)
     
+    adapter1_m  = np.fromiter((adapter1.mass(s/3, lg1) for s in scales), float)
+    adapter1_sm = np.fromiter((adapter1.S_mass(s/3, lg1) for s in scales), float)
+    adapter1_v  = np.fromiter((adapter1.volume(s/3, lg1) for s in scales), float)
+    adapter1_c  = np.fromiter((adapter1.cost(s/3, lg1) for s in scales), float)
+    
+    adapter2_m  = np.fromiter((adapter2.mass(s/3, lg1) for s in scales), float)
+    adapter2_sm = np.fromiter((adapter2.S_mass(s/3, lg1) for s in scales), float)
+    adapter2_v  = np.fromiter((adapter2.volume(s/3, lg1) for s in scales), float)
+    adapter2_c  = np.fromiter((adapter2.cost(s/3, lg1) for s in scales), float)
+    
+    rcs_m  = np.fromiter((rcs.mass(s/3, lg1) for s in scales), float)
+    rcs_sm = np.fromiter((rcs.S_mass(s/3, lg1) for s in scales), float)
+    rcs_v  = np.fromiter((rcs.volume(s/3, lg1) for s in scales), float)
+    rcs_c  = np.fromiter((rcs.cost(s/3, lg1) for s in scales), float)
     
     print(inline1); print('length: %s' % l1)
     print(format_data(scales, (inline1_m, inline1_sm, inline1_v, inline1_c)))
@@ -240,9 +267,17 @@ if __name__ == '__main__':
     print(format_data(scales, (small_m, small_sm, small_v, small_c)))
     print(big);
     print(format_data(scales, (big_m, big_sm, big_v, big_c), np.where(scales/3 >= 1)[0]))
-#     
-#     print(rcs);
-#     print(format_data(scales, (rcs_m, rcs_tm, rcs_v)))
+    
+    print(adapter1);
+    print(format_data(scales, (adapter1_m, adapter1_sm, adapter1_v, adapter1_c)))
+    print(adapter2);
+    print(format_data(scales, (adapter2_m, adapter2_sm, adapter2_v, adapter2_c)))
+
+    print(rcs);
+    print(format_data(scales, (rcs_m, rcs_sm, rcs_v, rcs_c)))#, np.where(scales/3 >= 1)[0]))
+
+    import sys
+    sys.exit(0)
     
     plt.xlim(0.5, 4)
     plt.plot(scales, inline1_m, '.-', label=inline1.name)
