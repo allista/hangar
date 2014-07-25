@@ -112,13 +112,25 @@ namespace AtHangar
 				return add_vessel(n.first, vsl);
 			}
 		}
-		
+
+		private void sort_vessels(List<V> vessels)
+		{ vessels.Sort((x,y) => -1*x.metric.volume.CompareTo(y.metric.volume)); } //Descending sort order
+
 		private bool pack(List<V> vessels)
 		{
-			vessels.Sort((x,y) => -1*x.metric.volume.CompareTo(y.metric.volume)); //Descending sort order
+			sort_vessels(vessels);
 			Node root = new Node(space);
 			foreach(V vsl in vessels) { if(!add_vessel(root, vsl)) return false; }
 			return true;
+		}
+
+		private List<V> pack_some(List<V> vessels)
+		{
+			sort_vessels(vessels);
+			Node root = new Node(space);
+			List<V> rem = new List<V>();
+			foreach(V vsl in vessels) { if(!add_vessel(root, vsl)) rem.Add(vsl); }
+			return rem;
 		}
 		
 		public bool Add(V vsl)
@@ -137,7 +149,7 @@ namespace AtHangar
 				stored_vessels.Add(sv.id, sv);
 		}
 
-		public bool Repack() { return pack(this.Values); }
+		public List<V> Repack() { return pack_some(this.Values); }
 		
 		//mimic Dictionary
 		public void Remove(Guid vid)
