@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-using KSP.IO;
-
 namespace AtHangar
 {
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
@@ -40,12 +38,12 @@ namespace AtHangar
 		
 		
 		//vessel volume 
-		private void updateVesselMetrics()
+		void updateVesselMetrics()
 		{
 			vessel_metric = null;
 			if(EditorLogic.fetch != null)
 			{
-				List<Part> parts = new List<Part>{};
+				List<Part> parts = new List<Part>();
 				try { parts = EditorLogic.SortedShipList; }
 				catch (NullReferenceException) { return; }
 				if(parts.Count > 0 && parts[0] != null)
@@ -75,12 +73,8 @@ namespace AtHangar
 				selected_hangar = hangars.Find(h => h.part.GetInstanceID() == hangar_id);
 				if(selected_hangar == null) selected_hangar = hangars[0];
 				var hangar_names = new List<string>();
-				int ind = 0;
-				foreach(var p in hangars) 
-				{
-					hangar_names.Add("hangar-" + ind);
-					ind++;
-				}
+				for(int i = 0; i < hangars.Count; i++)
+					hangar_names.Add("hangar-" + i);
 				hangar_list = new DropDownList(hangar_names, hangars.IndexOf(selected_hangar));
 			}
 		}
@@ -248,7 +242,7 @@ namespace AtHangar
 		}
 			
 		
-		void CloseButton()
+		static void CloseButton()
 		{
 			GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();

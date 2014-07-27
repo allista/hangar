@@ -1,8 +1,6 @@
 //This code is based on code from Extraplanetary Launchpads plugin. Resources.cs module. 
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using KSP.IO;
 
 
 namespace AtHangar 
@@ -22,10 +20,10 @@ namespace AtHangar
 	#region Interfaces
 	public class Resource<T>
 	{
-		private PartResource res;
-		private ProtoPartResourceSnapshot pres;
-		private bool is_resource = typeof(T).FullName == typeof(PartResource).FullName; //KSP mono microlib does not support Type.Equal
-		private bool is_proto    = typeof(T).FullName == typeof(ProtoPartResourceSnapshot).FullName;
+		readonly PartResource res;
+		readonly ProtoPartResourceSnapshot pres;
+		readonly bool is_resource = typeof(T).FullName == typeof(PartResource).FullName; //KSP mono microlib does not support Type.Equal
+		readonly bool is_proto = typeof(T).FullName == typeof(ProtoPartResourceSnapshot).FullName;
 		
 		public Resource(T res)
 		{
@@ -34,25 +32,15 @@ namespace AtHangar
 				throw new NotSupportedException("Resource<T>: T should be either " +
 												"PartResource or ProtoPartResourceSnapshot");
 			if(is_resource)	this.res = (PartResource)(object)res;
-			else this.pres = (ProtoPartResourceSnapshot)(object)res;
+			else pres = (ProtoPartResourceSnapshot)(object)res;
 		}
 		
 		public string resourceName 
-		{ 
-			get 
-			{ 
-				if(is_resource) return res.resourceName; 
-				else return pres.resourceName;
-			} 
-		}
+		{ get { return is_resource ? res.resourceName : pres.resourceName; } }
 		
 		public double amount
 		{
-			get
-			{
-				if(is_resource) return res.amount;
-				else return double.Parse(pres.resourceValues.GetValue("amount"));
-			}
+			get	{ return is_resource ? res.amount : double.Parse(pres.resourceValues.GetValue("amount")); }
 			set
 			{
 				if(is_resource) res.amount = value;
@@ -61,48 +49,24 @@ namespace AtHangar
 		}
 		
 		public double maxAmount
-		{
-			get
-			{
-				if(is_resource) return res.maxAmount;
-				else return double.Parse(pres.resourceValues.GetValue("maxAmount"));
-			}
-		}
+		{ get {	return is_resource ? res.maxAmount : double.Parse(pres.resourceValues.GetValue("maxAmount")); } }
 		
 		public bool flowState
-		{
-			get
-			{
-				if(is_resource) return res.flowState;
-				else return bool.Parse(pres.resourceValues.GetValue("flowState"));
-			}
-		}
+		{ get {	return is_resource ? res.flowState : bool.Parse(pres.resourceValues.GetValue("flowState"));	} }
 		
 		public bool isTweakable
-		{
-			get
-			{
-				if(is_resource) return res.isTweakable;
-				else return bool.Parse(pres.resourceValues.GetValue("isTweakable"));
-			}
-		}
+		{ get { return is_resource ? res.isTweakable : bool.Parse(pres.resourceValues.GetValue("isTweakable"));	} }
 		
 		public bool hideFlow
-		{
-			get
-			{
-				if(is_resource) return res.hideFlow;
-				else return bool.Parse(pres.resourceValues.GetValue("hideFlow"));
-			}
-		}
+		{ get {	return is_resource ? res.hideFlow : bool.Parse(pres.resourceValues.GetValue("hideFlow")); }	}
 		
 		public PartResource.FlowMode flowMode
 		{
 			get
 			{
 				if(is_resource) return res.flowMode;
-				else return (PartResource.FlowMode)Enum.Parse(typeof(PartResource.FlowMode), 
-				                                              pres.resourceValues.GetValue("flowMode"));
+				return (PartResource.FlowMode)Enum.Parse(typeof(PartResource.FlowMode), 
+			                                             pres.resourceValues.GetValue("flowMode"));
 			}
 		}
 	}
@@ -110,10 +74,10 @@ namespace AtHangar
 	
 	public class Part<T>
 	{
-		private Part part;
-		private ProtoPartSnapshot ppart;
-		private bool is_part  = typeof(T).FullName == typeof(Part).FullName;
-		private bool is_proto = typeof(T).FullName == typeof(ProtoPartSnapshot).FullName;
+		readonly Part part;
+		readonly ProtoPartSnapshot ppart;
+		readonly bool is_part  = typeof(T).FullName == typeof(Part).FullName;
+		bool is_proto = typeof(T).FullName == typeof(ProtoPartSnapshot).FullName;
 		
 		public Part(T part)
 		{
@@ -122,7 +86,7 @@ namespace AtHangar
 				throw new NotSupportedException("Part<T>: T should be either " +
 												"Part or ProtoPartSnapshot");
 			if(is_part)	this.part = (Part)(object)part;
-			else this.ppart = (ProtoPartSnapshot)(object)part;
+			else ppart = (ProtoPartSnapshot)(object)part;
 		}
 		
 		public List<Resource<R>> Resources<R>() 
@@ -147,10 +111,10 @@ namespace AtHangar
 	
 	public class Vessel<T>
 	{
-		private Vessel vessel;
-		private ProtoVessel pvessel;
-		private bool is_vessel = typeof(T).FullName == typeof(Vessel).FullName;
-		private bool is_proto  = typeof(T).FullName == typeof(ProtoVessel).FullName;
+		readonly Vessel vessel;
+		readonly ProtoVessel pvessel;
+		readonly bool is_vessel = typeof(T).FullName == typeof(Vessel).FullName;
+		bool is_proto  = typeof(T).FullName == typeof(ProtoVessel).FullName;
 		
 		public Vessel(T vessel)
 		{
@@ -160,7 +124,7 @@ namespace AtHangar
 												"Vessel or ProtoVessel");
 			if(is_vessel)
 				this.vessel = (Vessel)(object)vessel;
-			else this.pvessel = (ProtoVessel)(object)vessel;
+			else pvessel = (ProtoVessel)(object)vessel;
 		}
 		
 		public List<Part<P>> parts<P>() 
@@ -208,7 +172,7 @@ namespace AtHangar
 		public List<string> resourcesNames { get { return new List<string>(resources.Keys); } }
 		
 		
-		private void AddPart(Part<P> part)
+		void AddPart(Part<P> part)
 		{
 			foreach (Resource<R> resource in part.Resources<R>()) 
 			{
@@ -223,7 +187,7 @@ namespace AtHangar
 			}
 		}
 
-		private void RemovePart(Part<P> part)
+		void RemovePart(Part<P> part)
 		{
 			var remove_list = new List<string>();
 			foreach(var resinfo in resources) 

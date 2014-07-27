@@ -2,7 +2,6 @@
 //And there it was taken from TriggerAu's plugin framework
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace AtHangar 
@@ -16,8 +15,8 @@ namespace AtHangar
 
         internal Boolean ListVisible;
 
-        private Rect rectButton = new Rect();
-        private Rect rectListBox = new Rect();
+        Rect rectButton = new Rect();
+        Rect rectListBox = new Rect();
 
         internal GUIStyle styleListItem = new GUIStyle();
         internal GUIStyle styleListBox = new GUIStyle();
@@ -111,7 +110,7 @@ namespace AtHangar
                 ListVisible = false;
                 return true;
             }
-            else return false;
+            return false;
         }
     }
 }

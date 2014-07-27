@@ -7,12 +7,14 @@ namespace AtHangar
 {
 	public class ResourceTransferWindow : MonoBehaviour
 	{
-		private List<ResourceManifest> transfer_list;
-		private bool link_lfo_sliders = true;
+		List<ResourceManifest> transfer_list;
+		bool link_lfo_sliders = true;
 		public bool transferNow = false;
 		
-		float ResourceLine(string label, string resourceName, float fraction, 
-		                   double pool, double minAmount, double maxAmount, double capacity)
+		static float ResourceLine(string label, float fraction, 
+		               		      double pool, 
+		               		      double minAmount, double maxAmount, 
+		               		      double capacity)
 		{
 			GUILayout.BeginHorizontal ();
 
@@ -31,7 +33,7 @@ namespace AtHangar
 			fraction = (float)Math.Round (fraction, 3);
 			fraction = (Mathf.Floor (fraction * 200)) / 200;
 			if(fraction*maxAmount < minAmount) fraction = (float)(minAmount/maxAmount);
-			GUILayout.Box ((fraction * 100).ToString () + "%",
+			GUILayout.Box ((fraction * 100) + "%",
 						   Styles.slider_text, GUILayout.Width (300),
 						   GUILayout.Height (20));
 			GUILayout.EndVertical ();
@@ -52,7 +54,7 @@ namespace AtHangar
 			return fraction;
 		}
 		
-		private void TransferWindow(int windowId)
+		void TransferWindow(int windowId)
 		{
 			
 			GUILayout.BeginVertical();
@@ -61,19 +63,17 @@ namespace AtHangar
 			foreach (var r in transfer_list) 
 			{
 				float frac = r.maxAmount > 0 ? (float)(r.amount/r.maxAmount) : 0f;
-				frac = ResourceLine(r.name, r.name, frac, r.pool, r.minAmount, r.maxAmount, r.capacity);
+				frac = ResourceLine(r.name, frac, r.pool, r.minAmount, r.maxAmount, r.capacity);
 				if (link_lfo_sliders
 					&& (r.name == "LiquidFuel" || r.name == "Oxidizer")) 
 				{
-					string other;
-					if(r.name == "LiquidFuel") other = "Oxidizer";
-					else other = "LiquidFuel";
+					string other = r.name == "LiquidFuel" ? "Oxidizer" : "LiquidFuel";
 					var or = transfer_list.Find(res => res.name == other);
 					if (or != null) or.amount = or.maxAmount * frac;
 				}
 				r.amount = frac * r.maxAmount;
 			} 
-			if(GUILayout.Button("Transfer now", GUILayout.ExpandWidth(true))) transferNow = true;
+			transferNow = GUILayout.Button("Transfer now", GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, Screen.width, 30));
 		}

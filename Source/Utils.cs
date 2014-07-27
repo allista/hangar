@@ -1,15 +1,13 @@
 // This code is based on Procedural Fairings plug-in by Alexey Volynskov, PMUtils class
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using KSPAPIExtensions;
 
 
 namespace AtHangar
 {
-	public class Utils
+	public static class Utils
 	{
 		static bool haveTech (string name)
 		{
@@ -20,42 +18,38 @@ namespace AtHangar
 		
 		public static float getTechMinValue(string cfgname, float defVal)
 		{
+			float minVal  = 0;
 			bool hasValue = false;
-			float minVal = 0;
-		
-			foreach (var tech in GameDatabase.Instance.GetConfigNodes(cfgname))
-				for (int i=0; i<tech.values.Count; ++i) {
-					var value = tech.values [i];
-					if (!haveTech (value.name))	continue;
-					float v = float.Parse (value.value);
-					if (!hasValue || v < minVal) {
+			foreach(var tech in GameDatabase.Instance.GetConfigNodes(cfgname))
+				foreach(ConfigNode.Value value in tech.values) 
+				{
+					if(!haveTech(value.name)) continue;
+					float v = float.Parse(value.value);
+					if (!hasValue || v < minVal) 
+					{
 						minVal = v;
 						hasValue = true;
 					}
 				}
-		
-			if (!hasValue) return defVal;
-			return minVal;
+			return hasValue ? minVal : defVal;
 		}
 		
 		public static float getTechMaxValue(string cfgname, float defVal)
 		{
-			bool hasValue = false;
 			float maxVal = 0;
-		
-			foreach (var tech in GameDatabase.Instance.GetConfigNodes(cfgname))
-				for (int i=0; i<tech.values.Count; ++i) {
-					var value = tech.values [i];
-					if (!haveTech (value.name))	continue;
-					float v = float.Parse (value.value);
-					if (!hasValue || v > maxVal) {
+			bool hasValue = false;
+			foreach(var tech in GameDatabase.Instance.GetConfigNodes(cfgname))
+				foreach(ConfigNode.Value value in tech.values)
+				{
+					if(!haveTech(value.name)) continue;
+					float v = float.Parse(value.value);
+					if(!hasValue || v > maxVal)
+					{
 						maxVal = v;
 						hasValue = true;
 					}
 				}
-		
-			if (!hasValue) return defVal;
-			return maxVal;
+			return hasValue? maxVal : defVal;
 		}
 		
 		public static void setFieldRange(BaseField field, float minval, float maxval)
@@ -76,18 +70,16 @@ namespace AtHangar
 		//formatting
 		public static string formatMass (float mass)
 		{
-			if (mass < 0.01f)
+			if(mass < 0.01f)
 				return (mass * 1e3f).ToString("n3") + "kg";
-			else
-				return mass.ToString("n3") + "t";
+			return mass.ToString("n3") + "t";
 		}
 		
 		public static string formatVolume (double volume)
 		{
-			if (volume < 0.1f)
+			if(volume < 0.1f)
 				return (volume * 1e3f).ToString ("n0") + " L";
-			else
-				return volume.ToString ("n1") + "m^3";
+			return volume.ToString ("n1") + "m^3";
 		}
 		
 		public static string formatDimensions(Vector3 size)
@@ -110,11 +102,8 @@ namespace AtHangar
                 group.audio.clip = GameDatabase.Instance.GetAudioClip(sndPath);
                 return true;
             }
-            else
-            {
-                ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " as not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
-                return false;
-            }     
+            ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " as not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
+            return false;
         }
 		
 		#region Debug
@@ -204,7 +193,7 @@ namespace AtHangar
 	{
 		#region from MechJeb2 PartExtensions
 		public static bool hasModule<T>(this Part p) where T : PartModule
-		{ return p.Modules.OfType<T>().Count() > 0; }
+		{ return p.Modules.OfType<T>().Any(); }
 
 		public static bool isPhysicallySignificant(this Part p)
 		{
@@ -214,8 +203,7 @@ namespace AtHangar
 				physicallySignificant = physicallySignificant && p.PhysicsSignificance != 1;
 			//Landing gear set physicalSignificance = NONE when they enter the flight scene
 			//Launch clamp mass should be ignored.
-			if (p.hasModule<ModuleLandingGear>() || p.hasModule<LaunchClamp>())
-				physicallySignificant = false;
+			physicallySignificant &= !p.hasModule<ModuleLandingGear>() && !p.hasModule<LaunchClamp>();
 			return physicallySignificant;
 		}
 
@@ -238,8 +226,8 @@ namespace AtHangar
 		{ 
 			AvailablePart new_ap = PartLoader.getPartInfoByName(ap.name);
 			if(new_ap.GetHashCode() != ap.GetHashCode()) return ap;
-			Part tmp = (Part)UnityEngine.Object.Instantiate(ap.partPrefab);
-			new_ap = tmp.partInfo; UnityEngine.Object.Destroy(tmp.gameObject);
+			Part tmp = (Part)Object.Instantiate(ap.partPrefab);
+			new_ap = tmp.partInfo; Object.Destroy(tmp.gameObject);
 			return new_ap;
 		}
 	}
@@ -247,7 +235,7 @@ namespace AtHangar
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 	public class ScreenMessager : MonoBehaviour
 	{
-		static float osdMessageTime = 0;
+		static float osdMessageTime  = 0;
 		static string osdMessageText = null;
 
 		public static void showMessage (string msg, float delay)

@@ -1,5 +1,4 @@
 //This code is based on the code from KAS plugin. KASModuleAttachCore class.
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +16,7 @@ namespace AtHangar
 		
 		// State
 		[KSPField (isPersistant = true)] bool isAttached = false;
-		[KSPField (isPersistant = true)] float breakForce = 1e6f; //which is better: overkill or Kraken reaping out the anchor?
+		[KSPField (isPersistant = true)] const float breakForce = 1e6f; //which is better: overkill or Kraken reaping out the anchor?
 		
 		//Sounds
         [KSPField] public string attachSndPath = "Hangar/Sounds/anchorAttach";
@@ -47,9 +46,9 @@ namespace AtHangar
 		
 		public override void OnStart(PartModule.StartState state)
 		{
-			base.OnStart (state);
-			Utils.createFXSound(this.part, fxSndAttach, attachSndPath, false);
-			Utils.createFXSound(this.part, fxSndDetach, detachSndPath, false);
+			base.OnStart(state);
+			Utils.createFXSound(part, fxSndAttach, attachSndPath, false);
+			Utils.createFXSound(part, fxSndDetach, detachSndPath, false);
 		}
 		
 		void DestroyAnchor()
@@ -70,13 +69,13 @@ namespace AtHangar
         void OnPartUnpack() { if(isAttached) Attach(); }
 		
 		
-		private void ToggleAttachButton()
+		void ToggleAttachButton()
 		{
 			Events["Attach"].active = !isAttached;
 			Events["Detach"].active = isAttached;
 		}
 		
-		private bool CanAttach()
+		bool CanAttach()
 		{
 			//always check relative velocity and acceleration
 			if(!vessel.Landed) 
@@ -101,15 +100,15 @@ namespace AtHangar
             GameObject obj = new GameObject("AnchorBody");
             obj.AddComponent<Rigidbody>();
             obj.rigidbody.isKinematic = true;
-            obj.transform.position = this.part.transform.position;
-            obj.transform.rotation = this.part.transform.rotation;
+            obj.transform.position = part.transform.position;
+            obj.transform.rotation = part.transform.rotation;
             StaticAttach.connectedGameObject = obj;
 
             if(StaticAttach.fixedJoint) Destroy(StaticAttach.fixedJoint);
             FixedJoint CurJoint = obj.AddComponent<FixedJoint>();
             CurJoint.breakForce = breakForce;
             CurJoint.breakTorque = breakForce;
-            CurJoint.connectedBody = this.part.rigidbody;
+            CurJoint.connectedBody = part.rigidbody;
             StaticAttach.fixedJoint = CurJoint;
 			
 			if(!isAttached) fxSndAttach.audio.Play();

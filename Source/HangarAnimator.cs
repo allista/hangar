@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace AtHangar
 {
 	public class HangarAnimator : BaseHangarAnimator
@@ -12,19 +11,19 @@ namespace AtHangar
         public string OpenAnimation;
 		
 		//animation
-		private List<AnimationState> openStates;
+		List<AnimationState> openStates;
 		
 		//from Kethane / Plugin / Misc.cs
 		public List<AnimationState> SetUpAnimation(string animationName)
         {
             List<AnimationState> states = new List<AnimationState>();
-            foreach (Animation animation in part.FindModelAnimators(animationName))
+            foreach (Animation anim in part.FindModelAnimators(animationName))
             {
-                AnimationState animationState = animation[animationName];
+                AnimationState animationState = anim[animationName];
                 animationState.speed = 0;
                 animationState.enabled = true;
                 animationState.wrapMode = WrapMode.ClampForever;
-                animation.Blend(animationName);
+                anim.Blend(animationName);
                 states.Add(animationState);
             }
             return states;

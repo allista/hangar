@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,12 +5,12 @@ namespace AtHangar
 {
 	public class CrewTransferWindow : MonoBehaviour
 	{
-		private int CrewCapacity;
-		private List<ProtoCrewMember> crew;
-		private List<ProtoCrewMember> selected;
+		int CrewCapacity;
+		List<ProtoCrewMember> crew;
+		List<ProtoCrewMember> selected;
 		
-        private Vector2 crew_scroll_view = Vector2.zero;
-        private void TransferWindow(int windowId)
+        Vector2 crew_scroll_view = Vector2.zero;
+        void TransferWindow(int windowId)
         {
             crew_scroll_view = GUILayout.BeginScrollView(crew_scroll_view, GUILayout.Height(200), GUILayout.Width(300));
             GUILayout.BeginVertical();

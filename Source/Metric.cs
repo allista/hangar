@@ -1,7 +1,5 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace AtHangar
@@ -18,7 +16,7 @@ namespace AtHangar
 		public int CrewCapacity { get; private set; }
 		public bool Empty { get { return volume == 0; } }
 		
-		private static Vector3[] bound_edges(Bounds b)
+		static Vector3[] bound_edges(Bounds b)
 		{
 			Vector3[] edges = new Vector3[8];
 			Vector3 min = b.min;
@@ -34,22 +32,22 @@ namespace AtHangar
 			return edges;
 		}
 		
-		private static Vector3[] bound_edges(Vector3 center, Vector3 size)
+		static Vector3[] bound_edges(Vector3 center, Vector3 size)
 		{
 			Bounds b = new Bounds(center, size);
 			return bound_edges(b);
 		}
 		
-		private static void local2local(Transform _from, Transform _to, Vector3[] points)
+		static void local2local(Transform _from, Transform _to, Vector3[] points)
 		{
 			for(int p=0; p < points.Length; p++)
 				points[p] = _to.InverseTransformPoint(_from.TransformPoint(points[p]));
 		}
 		
-		private static float boundsVolume(Bounds b)
+		static float boundsVolume(Bounds b)
 		{ return b.size.x*b.size.y*b.size.z; }
 		
-		private static Bounds initBounds(Vector3[] edges)
+		static Bounds initBounds(Vector3[] edges)
 		{
 			Bounds b = new Bounds(edges[0], new Vector3());
 			for(int i = 1; i < edges.Length; i++)
@@ -57,7 +55,7 @@ namespace AtHangar
 			return b;
 		}
 		
-		private Bounds partsBounds(List<Part> parts, Transform vT)
+		Bounds partsBounds(List<Part> parts, Transform vT)
 		{
 			mass = 0;
 			cost = 0;
@@ -153,7 +151,7 @@ namespace AtHangar
 		public Metric(Part part)
 		{
 			Transform pT = part.partTransform;
-			bounds = partsBounds(new List<Part>(){part}, pT);
+			bounds = partsBounds(new List<Part>{part}, pT);
 			volume = boundsVolume(bounds);
 		}
 		
@@ -231,9 +229,9 @@ namespace AtHangar
 			   !node.HasValue("mass")||
 			   !node.HasValue("cost"))
 				throw new KeyNotFoundException("Metric.Load: not all needed values are present in the config node.");
-			Vector3 center = ConfigNode.ParseVector3(node.GetValue("bounds_center"));
-			Vector3 size   = ConfigNode.ParseVector3(node.GetValue("bounds_size"));
-			bounds = new Bounds(center, size);
+			Vector3 _center = ConfigNode.ParseVector3(node.GetValue("bounds_center"));
+			Vector3 _size   = ConfigNode.ParseVector3(node.GetValue("bounds_size"));
+			bounds = new Bounds(_center, _size);
 			volume = boundsVolume(bounds);
 			CrewCapacity = int.Parse(node.GetValue("crew_capacity"));
 			mass = float.Parse(node.GetValue("mass"));
@@ -276,7 +274,7 @@ namespace AtHangar
 //	    edges[5] = new Vector3(max.x, min.y, max.z); //right-bottom-front
 //	    edges[6] = new Vector3(max.x, max.y, min.z); //right-top-back
 //	    edges[7] = new Vector3(max.x, max.y, max.z); //right-top-front
-		private static void draw_box(Bounds b, Transform t)
+		static void draw_box(Bounds b, Transform t)
 		{
 			Vector3[] edges = bound_edges(b);
 			int[] tri = new int[18];

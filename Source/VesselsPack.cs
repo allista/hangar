@@ -1,7 +1,6 @@
 //Packing algorithm based on <http://www.blackpawn.com/texts/lightmaps/default.html>  
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace AtHangar
@@ -58,13 +57,13 @@ namespace AtHangar
 
 	public class VesselsPack<V> where V : PackedVessel, new()
 	{
-		private Dictionary<Guid, V> stored_vessels = new Dictionary<Guid, V>();
+		Dictionary<Guid, V> stored_vessels = new Dictionary<Guid, V>();
 		public Metric space = new Metric();
 		
 		public VesselsPack() {}
 		public VesselsPack(Metric space) { this.space = space; }
 		
-		private bool add_vessel(Node n, V vsl)
+		bool add_vessel(Node n, V vsl)
 		{
 			if(n.first != null)
 			{
@@ -113,10 +112,10 @@ namespace AtHangar
 			}
 		}
 
-		private void sort_vessels(List<V> vessels)
+		static void sort_vessels(List<V> vessels)
 		{ vessels.Sort((x,y) => -1*x.metric.volume.CompareTo(y.metric.volume)); } //Descending sort order
 
-		private bool pack(List<V> vessels)
+		bool pack(List<V> vessels)
 		{
 			sort_vessels(vessels);
 			Node root = new Node(space);
@@ -124,7 +123,7 @@ namespace AtHangar
 			return true;
 		}
 
-		private List<V> pack_some(List<V> vessels)
+		List<V> pack_some(List<V> vessels)
 		{
 			sort_vessels(vessels);
 			Node root = new Node(space);
@@ -135,7 +134,7 @@ namespace AtHangar
 		
 		public bool Add(V vsl)
 		{
-			List<V> vessels = this.Values;
+			List<V> vessels = Values;
 			vessels.Add(vsl);
 			if(!pack(vessels)) return false;
 			stored_vessels.Add(vsl.id, vsl);
@@ -149,7 +148,7 @@ namespace AtHangar
 				stored_vessels.Add(sv.id, sv);
 		}
 
-		public List<V> Repack() { return pack_some(this.Values); }
+		public List<V> Repack() { return pack_some(Values); }
 		
 		//mimic Dictionary
 		public void Remove(Guid vid)

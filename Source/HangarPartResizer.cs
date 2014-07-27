@@ -11,7 +11,7 @@ namespace AtHangar
 	{
 		public class SimpleScale
 		{
-			public float scale { get; private set; }
+			public float scale  { get; private set; }
 			public float aspect { get; private set; }
 			public float sqrt { get; private set; }
 			public float quad { get; private set; }
@@ -64,13 +64,13 @@ namespace AtHangar
 	
 	public class NodesUpdater : PartUpdater
 	{
-		private Dictionary<string,int> orig_sizes = new Dictionary<string, int>();
+		readonly Dictionary<string,int> orig_sizes = new Dictionary<string, int>();
 
 		public override void Init() { base.Init(); SaveDefaults(); }
 		protected override void SaveDefaults()
 		{ foreach(AttachNode node in base_part.attachNodes) orig_sizes[node.id] = node.size; }
 
-		private void updateAttachedPartPos(AttachNode node)
+		void updateAttachedPartPos(AttachNode node)
 		{
 			if(node == null) return;
 			var ap = node.attachedPart; 
@@ -142,7 +142,7 @@ namespace AtHangar
 	{
 		[KSPField(isPersistant=false, guiActiveEditor=true, guiActive=true, guiName="Thrust")]
 		public string thrustDisplay;
-		private float thrust;
+		float thrust;
 		protected override void SaveDefaults()	{ thrust = base_module.thrusterPower; thrustDisplay = thrust.ToString(); }
 		public override void OnRescale(Scale scale) { module.thrusterPower = thrust*scale.absolute.quad; thrustDisplay =  module.thrusterPower.ToString(); }
 	}
@@ -200,16 +200,16 @@ namespace AtHangar
 		[KSPField] public Vector4 specificCost = new Vector4(1.0f, 1.0f, 1.0f, 0f);
 
 		//state
-		private float orig_size   = -1;
-		private float old_size    = -1;
-		private float old_aspect  = -1;
-		private bool  just_loaded = true;
-		private Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect); } }
+		float orig_size   = -1;
+		float old_size    = -1;
+		float old_aspect  = -1;
+		bool  just_loaded = true;
+		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect); } }
 		
 		#region ModuleUpdaters
-		private static Dictionary<string, Func<Part, PartUpdater>> updater_types = new Dictionary<string, Func<Part, PartUpdater>>();
+		static Dictionary<string, Func<Part, PartUpdater>> updater_types = new Dictionary<string, Func<Part, PartUpdater>>();
 		
-		private static Func<Part, PartUpdater> updaterConstructor<UpdaterType>() where UpdaterType : PartUpdater
+		static Func<Part, PartUpdater> updaterConstructor<UpdaterType>() where UpdaterType : PartUpdater
 		{ 
 			return (Part part) => part.Modules.Contains(typeof(UpdaterType).Name) ? 
 				part.Modules.OfType<UpdaterType>().FirstOrDefault() : 
@@ -225,9 +225,9 @@ namespace AtHangar
 			updater_types[updater_name] = updaterConstructor<UpdaterType>();
 		}
 		
-		private List<PartUpdater> updaters = new List<PartUpdater>();
+		List<PartUpdater> updaters = new List<PartUpdater>();
 		
-		private void create_updaters()
+		void create_updaters()
 		{
 			foreach(var updater_type in updater_types.Values) 
 			{
@@ -326,12 +326,12 @@ namespace AtHangar
 			//changing cost
 			part.partInfo.cost = ((specificCost.x * scale + specificCost.y) * scale + specificCost.z) * scale * aspect + specificCost.w;
 			//change breaking forces (if not defined in the config, set to a reasonable default)
-			if (base_part.breakingForce == 22f) part.breakingForce = 32.0f * scale.absolute.quad; //taken from TweakScale
+			if(base_part.breakingForce == 22f) part.breakingForce = 32.0f * scale.absolute.quad; //taken from TweakScale
 			else part.breakingForce = base_part.breakingForce * scale.absolute.quad;
 			if (part.breakingForce < 22f) part.breakingForce = 22f;
-			if (base_part.breakingTorque == 22f) part.breakingTorque = 32.0f * scale.absolute.quad;
+			if(base_part.breakingTorque == 22f) part.breakingTorque = 32.0f * scale.absolute.quad;
 			else part.breakingTorque = base_part.breakingTorque * scale.absolute.quad;
-			if (part.breakingTorque < 22f) part.breakingTorque = 22f;
+			if(part.breakingTorque < 22f) part.breakingTorque = 22f;
 			//change other properties
 			part.buoyancy = base_part.buoyancy * scale.absolute.cube;
 			part.explosionPotential = base_part.explosionPotential * scale.absolute.cube;

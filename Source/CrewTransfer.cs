@@ -1,12 +1,8 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-
 
 namespace AtHangar
 {
-	public class CrewTransfer
+	public static class CrewTransfer
 	{
 		//real vessel
 		//add some crew to a part

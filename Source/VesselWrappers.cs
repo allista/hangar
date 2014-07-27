@@ -12,7 +12,7 @@ namespace AtHangar
 		public string name { get; private set; }
 		public string flag { get; private set; }
 		public ShipConstruct construct { get; private set; }
-		private ConfigNode vessel_node;
+		ConfigNode vessel_node;
 
 		public void LoadConstruct()
 		{
@@ -53,8 +53,6 @@ namespace AtHangar
 			name = construct.shipName;
 			id = Guid.NewGuid();
 		}
-
-		public PackedConstruct(ConfigNode node) { Load(node); }
 
 		public override void Save(ConfigNode node)
 		{
@@ -102,8 +100,6 @@ namespace AtHangar
 //			fixTripLogger(); //FIXME
 		}
 
-		public StoredVessel(ConfigNode node) { Load(node); }
-
 		public override void Save(ConfigNode node)
 		{
 			//nodes
@@ -135,7 +131,7 @@ namespace AtHangar
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
 		}
 
-		private void fixTripLogger() //FIXME
+		void fixTripLogger() //FIXME
 		{
 			//workaround for the bug that spams savegame with multiple instances of ModuleTripLogger and 'at = ...' ConfigNode.Value-s
 			Utils.logStamp("Cleaning TripLog for "+vessel.vesselName);
@@ -197,7 +193,7 @@ namespace AtHangar
 			get 
 			{
 				if(vessel.id != FlightGlobals.ActiveVessel.id) return false;
-				else vessel = FlightGlobals.ActiveVessel;
+				vessel = FlightGlobals.ActiveVessel;
 				bool parts_inited = true;
 				foreach(Part p in vessel.parts)
 				{
@@ -214,8 +210,8 @@ namespace AtHangar
 
 	public class LaunchedVessel : VesselWaiter
 	{
-		private List<ProtoCrewMember> crew;
-		private StoredVessel sv;
+		readonly List<ProtoCrewMember> crew;
+		readonly StoredVessel sv;
 
 		public LaunchedVessel(StoredVessel sv, Vessel vsl, List<ProtoCrewMember> crew)
 			: base(vsl)

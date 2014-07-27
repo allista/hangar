@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-
-using KSP.IO;
 
 namespace AtHangar
 {
@@ -25,13 +21,13 @@ namespace AtHangar
 		public static GUIStyle list_item;
 		public static GUIStyle list_box;
 
-		private static bool initialized;
+		static bool initialized;
 		
 		public static void InitSkin()
 		{
 			if(skin != null) return;
 			GUI.skin = null;
-			skin = (GUISkin)GameObject.Instantiate(GUI.skin);
+			skin = (GUISkin)Object.Instantiate(GUI.skin);
 		}
 		
 		public static void InitGUI()
@@ -126,7 +122,7 @@ namespace AtHangar
 		
 		//update parameters
 		float next_update = 0;
-		static float update_interval = 0.2f;
+		const float update_interval = 0.2f;
 		
 		
 		//GUI toggles
@@ -154,13 +150,13 @@ namespace AtHangar
 			}
 		}
 		
-		public void onHideUI()
+		public static void onHideUI()
 		{
 			hide_ui = true;
 			instance.UpdateGUIState();
 		}
 
-		public void onShowUI()
+		public static void onShowUI()
 		{
 			hide_ui = false;
 			instance.UpdateGUIState();

@@ -46,11 +46,8 @@ namespace AtHangar
 				Open ();
 				return true;
 			}
-			else 
-			{
-				Close ();
-				return false;
-			}
+			Close ();
+			return false;
 		}
 	}
 }
