@@ -150,13 +150,13 @@ namespace AtHangar
 			}
 		}
 		
-		public static void onHideUI()
+		public void onHideUI()
 		{
 			hide_ui = true;
 			instance.UpdateGUIState();
 		}
 
-		public static void onShowUI()
+		public void onShowUI()
 		{
 			hide_ui = false;
 			instance.UpdateGUIState();
