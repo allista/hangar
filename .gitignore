@@ -8,6 +8,7 @@
 /Assets/bbox/**
 /Source/obj/**
 *cache*
+*bin*
 *~
 *.swp
 *.log
