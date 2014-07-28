@@ -161,12 +161,12 @@ namespace AtHangar
 	{ public override void OnRescale(Scale scale) { module.Setup(true); } }
 	
 
-	public class HangarPartResizer : PartUpdater
+	public class HangarPartResizer : PartUpdater, IPartCostModifier
 	{
-		public static string minSizeName   = "HANGAR_MINSCALE";
-		public static string maxSizeName   = "HANGAR_MAXSCALE";
-		public static string minAspectName = "HANGAR_MINASPECT";
-		public static string maxAspectName = "HANGAR_MAXASPECT";
+		public static readonly string minSizeName   = "HANGAR_MINSCALE";
+		public static readonly string maxSizeName   = "HANGAR_MAXSCALE";
+		public static readonly string minAspectName = "HANGAR_MINASPECT";
+		public static readonly string maxAspectName = "HANGAR_MAXASPECT";
 
 		//GUI
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Size", guiFormat="S4")]
@@ -198,6 +198,8 @@ namespace AtHangar
 		
 		[KSPField] public Vector4 specificMass = new Vector4(1.0f, 1.0f, 1.0f, 0f);
 		[KSPField] public Vector4 specificCost = new Vector4(1.0f, 1.0f, 1.0f, 0f);
+
+		[KSPField] public float delta_cost = 0f;
 
 		//state
 		float orig_size   = -1;
@@ -257,7 +259,6 @@ namespace AtHangar
 
 		protected override void SaveDefaults()
 		{
-			part.partInfo = part.partInfo.CloneIfDefault();
 			HangarPartResizer resizer = base_part.Modules.OfType<HangarPartResizer>().SingleOrDefault();
 			if(resizer != null) orig_size  = resizer.size;
 			old_size   = size;
@@ -319,12 +320,17 @@ namespace AtHangar
 		{
 			//change model scale
 			Transform model = part.FindModelTransform("model");
-			if(model != null) model.localScale = ScaleVector(Vector3.one, scale, aspect);
-			else Debug.LogError ("[HangarPartResizer] No 'model' transform in the part", this);
+			if(model != null)
+				model.localScale = ScaleVector(Vector3.one, scale, aspect);
+			else
+			{
+				Utils.Log("HangarPartResizer: no 'model' transform in the part", this);
+				return;
+			}
 			//recalculate mass
 			part.mass = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z) * scale * aspect + specificMass.w;
 			//changing cost
-			part.partInfo.cost = ((specificCost.x * scale + specificCost.y) * scale + specificCost.z) * scale * aspect + specificCost.w;
+			delta_cost = ((specificCost.x * scale + specificCost.y) * scale + specificCost.z) * scale * aspect + specificCost.w - part.partInfo.cost;
 			//change breaking forces (if not defined in the config, set to a reasonable default)
 			if(base_part.breakingForce == 22f) part.breakingForce = 32.0f * scale.absolute.quad; //taken from TweakScale
 			else part.breakingForce = base_part.breakingForce * scale.absolute.quad;
@@ -343,5 +349,7 @@ namespace AtHangar
 			UpdateGUI();
 		}
 		public void Rescale() { OnRescale(scale); }
+
+		public float GetModuleCost() { return delta_cost; }
 	}
 }
