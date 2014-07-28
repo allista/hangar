@@ -200,6 +200,7 @@ namespace AtHangar
 					if(!p.started)
 					{
 						parts_inited = false;
+						OrbitPhysicsManager.HoldVesselUnpack(2);
 						break;
 					}
 				}
