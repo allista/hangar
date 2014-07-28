@@ -1,13 +1,25 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="HangarPartResizer.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="AssemblyInfo.cs">
     <Files>
-      <File FileName="HangarPartResizer.cs" Line="320" Column="1" />
-      <File FileName="Utils.cs" Line="1" Column="1" />
-      <File FileName="Hangar.cs" Line="521" Column="43" />
-      <File FileName="CrewTransfer.cs" Line="1" Column="1" />
-      <File FileName="TODO.md" Line="1" Column="1" />
-      <File FileName="HangarWindow.cs" Line="421" Column="59" />
+      <File FileName="HangarPartResizer.cs" Line="309" Column="4" />
+      <File FileName="Utils.cs" Line="247" Column="10" />
+      <File FileName="Hangar.cs" Line="379" Column="47" />
+      <File FileName="HangarWindow.cs" Line="453" Column="29" />
+      <File FileName="VesselWrappers.cs" Line="213" Column="12" />
+      <File FileName="AddonWindowBase.cs" Line="153" Column="3" />
+      <File FileName="Metric.cs" Line="267" Column="1" />
+      <File FileName="VesselsPack.cs" Line="151" Column="46" />
+      <File FileName="Resources.cs" Line="190" Column="28" />
+      <File FileName="CrewTransferWindow.cs" Line="20" Column="52" />
+      <File FileName="Toolbar.cs" Line="15" Column="28" />
+      <File FileName="BaseHangarAnimator.cs" Line="48" Column="5" />
+      <File FileName="DropDownList.cs" Line="113" Column="13" />
+      <File FileName="GroundAnchor.cs" Line="27" Column="33" />
+      <File FileName="ResourceTransferWindow.cs" Line="76" Column="80" />
+      <File FileName="CrewTransfer.cs" Line="42" Column="73" />
+      <File FileName="HangarAnimator.cs" Line="20" Column="36" />
+      <File FileName="AssemblyInfo.cs" Line="7" Column="28" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

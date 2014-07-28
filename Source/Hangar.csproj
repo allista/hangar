@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{382B8257-AD02-4655-B7C7-B54F56C2957B}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -11,6 +11,7 @@
     <AssemblyName>Hangar</AssemblyName>
     <newfilesearch>OnLoadAutoInsert</newfilesearch>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <ReleaseVersion>1.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,10 +22,11 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>..\GameData\Hangar\Plugins</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,9 +35,6 @@
   <ItemGroup>
     <Reference Include="KSPAPIExtensions">
       <HintPath>..\..\KSPAPIExtensions\KSPAPIExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="aaa_Toolbar">
-      <HintPath>..\KSP_test\GameData\000_Toolbar\Toolbar.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Core">
@@ -52,6 +51,10 @@
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\KSP_test\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="aaa_Toolbar">
+      <HintPath>..\KSP_test\GameData\000_Toolbar\Toolbar.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
