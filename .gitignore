@@ -13,4 +13,5 @@
 *.swp
 *.log
 *.meta
+*.mdb
 /vessel_positioning.txt
