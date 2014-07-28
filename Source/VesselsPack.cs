@@ -141,6 +141,8 @@ namespace AtHangar
 			return true;
 		}
 
+		public void ForceAdd(V vsl)	{ stored_vessels.Add(vsl.id, vsl); }
+
 		public void Set(List<V> vessels)
 		{
 			stored_vessels.Clear();
