@@ -1,11 +1,10 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 // Information about this assembly is defined by the following attributes. 
 // Change them to the values specific to your project.
 
 [assembly: AssemblyTitle("Hangar")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Plugin for the Kerbal Space Program")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("")]
@@ -24,3 +23,16 @@ using System.Runtime.CompilerServices;
 
 //[assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile("")]
+
+namespace AtHangar
+{
+	public static class KSP_AVC_Info
+	{
+		public static readonly System.Version HangarVersion = Assembly.GetCallingAssembly().GetName().Version;
+		public static readonly Version MinKSPVersion = new Version(0,24,0);
+		public static readonly Version MaxKSPVersion = new Version(0,24,2);
+		public static readonly string  VersionURL    = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
+		public static readonly string  UpgradeURL    = "https://github.com/allista/hangar/releases";
+		public static readonly string  VersionFile   = "Hangar.version";
+	}
+}
