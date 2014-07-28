@@ -433,13 +433,13 @@ namespace AtHangar
 			}
 			UpdateGUIState();
 		}
-		
-		#region Debug
-//		public override void Update()
-//		{
-//			base.Update();
-//			DrawBoundingBox();
-//		}
+
+		#if DEBUG
+		public override void Update()
+		{
+			base.Update();
+			DrawBoundingBox();
+		}
 		
 		void DrawBoundingBox()
 		{
@@ -450,11 +450,18 @@ namespace AtHangar
 				try { parts = EditorLogic.SortedShipList; }
 				catch (NullReferenceException) { return; }
 				if(parts.Count == 0 || parts[0] == null) return;
-				vessel_metric.DrawBox(parts[0].partTransform);
+				vessel_metric.DrawCenter(parts[0].partTransform);
 			}
-			else vessel_metric.DrawBox(FlightGlobals.ActiveVessel.vesselTransform);
+			else 
+			{
+				vessel_metric.DrawCenter(FlightGlobals.ActiveVessel.vesselTransform);
+				vessel_metric.DrawPoint(FlightGlobals.ActiveVessel.findLocalCenterOfMass(), 
+										FlightGlobals.ActiveVessel.vesselTransform, Color.green);
+				vessel_metric.DrawPoint(Vector3.zero, 
+										FlightGlobals.ActiveVessel.vesselTransform, Color.green);
+			}
 		}
-		#endregion
+		#endif
 	}
 }
 

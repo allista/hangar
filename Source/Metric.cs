@@ -255,14 +255,14 @@ namespace AtHangar
 		public static float Volume(Vessel vessel) { return (new Metric(vessel)).volume; }
 		
 		
-		#region Debug
+		#if DEBUG
 		static Material _material;
         static Material material
         {
             get
             {
                 if (_material == null)
-					_material = new Material(Shader.Find("Particles/Additive"));
+					_material = new Material(Shader.Find("GUI/Text Shader"));
                 return _material;
             }
         }
@@ -274,7 +274,7 @@ namespace AtHangar
 //	    edges[5] = new Vector3(max.x, min.y, max.z); //right-bottom-front
 //	    edges[6] = new Vector3(max.x, max.y, min.z); //right-top-back
 //	    edges[7] = new Vector3(max.x, max.y, max.z); //right-top-front
-		static void draw_box(Bounds b, Transform t)
+		static void draw_mesh_box(Bounds b, Transform t, Color c)
 		{
 			Vector3[] edges = bound_edges(b);
 			int[] tri = new int[18];
@@ -294,16 +294,30 @@ namespace AtHangar
 			
 			m.RecalculateBounds();
     		m.RecalculateNormals();
-			
+
+			material.color = (c == default(Color))? Color.white : c;
 			Graphics.DrawMesh(m, t.localToWorldMatrix, material, 0);
 		}
-		public void DrawBox(Transform vT) 
-		{ 
-//			Transform vT = get_controller_transform(vessel);
-//			if(vT == null) vT = vessel[0].partTransform;
-			draw_box(bounds, vT); 
+
+		static void draw_GL_box(Bounds b, Transform t, Color c)
+		{
+			material.SetPass(0);
+			GL.LoadIdentity();
+			GL.LoadProjectionMatrix(t.localToWorldMatrix);
+			GL.Color(c);
+			GL.Begin(GL.LINES);
+			foreach(Vector3 v in bound_edges(b)) GL.Vertex(v);
+			GL.End();
 		}
-		#endregion
+
+		public void DrawBox(Transform vT) 
+		{ draw_mesh_box(bounds, vT, Color.white); }
+
+		public void DrawPoint(Vector3 point, Transform vT, Color c = default(Color))
+		{ draw_mesh_box(new Bounds(point, size*0.01f), vT, c); }
+
+		public void DrawCenter(Transform vT) { DrawPoint(center, vT); }
+		#endif
 	}
 }
 

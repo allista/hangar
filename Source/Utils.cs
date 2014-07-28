@@ -112,6 +112,7 @@ namespace AtHangar
 
 		public static void logStamp(string msg = "") { Debug.Log("[Hangar] === " + msg); }
 
+		#if DEBUG
 		public static void logCrewList(List<ProtoCrewMember> crew)
 		{
 			string crew_str = "";
@@ -186,6 +187,7 @@ namespace AtHangar
 				Debug.Log(string.Format("customPartData: {0}", p.customPartData));
 			}
 		}
+		#endif
 		#endregion
 	}
 
@@ -211,25 +213,6 @@ namespace AtHangar
 		#endregion
 
 		public static float TotalCost(this Part p) { return p.partInfo.cost; }
-//		{
-//			float dry, fuel = 0;
-//			if(p.protoPartSnapshot != null)
-//				ShipConstruction.GetPartCosts(p.protoPartSnapshot, p.partInfo, out dry, out fuel);
-//			else dry = p.partInfo.cost;
-//			return dry+fuel;
-//		}
-	}
-
-	public static class AvailablePartExtension
-	{
-		public static AvailablePart CloneIfDefault(this AvailablePart ap)
-		{ 
-			AvailablePart new_ap = PartLoader.getPartInfoByName(ap.name);
-			if(new_ap.GetHashCode() != ap.GetHashCode()) return ap;
-			Part tmp = (Part)Object.Instantiate(ap.partPrefab);
-			new_ap = tmp.partInfo; Object.Destroy(tmp.gameObject);
-			return new_ap;
-		}
 	}
 	
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
@@ -240,6 +223,9 @@ namespace AtHangar
 
 		public static void showMessage (string msg, float delay)
 		{
+			#if DEBUG
+			Utils.Log(msg);
+			#endif
 			osdMessageText = msg;
 			osdMessageTime = Time.time + delay;
 		}
