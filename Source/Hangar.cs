@@ -188,7 +188,7 @@ namespace AtHangar
 				List<PackedConstruct> rem = packed_constructs.Repack();
 				if(rem.Count > 0) 
 				{
-					ScreenMessager.showMessage(string.Format("Resized hangar is too small. {0} smalles vessels were removed.", rem.Count), 3);
+					ScreenMessager.showMessage(string.Format("Resized hangar is too small. {0} some vessels were removed.", rem.Count), 3);
 					foreach(PackedConstruct pc in rem) remove_construct(pc);
 				}
 			}
@@ -523,12 +523,7 @@ namespace AtHangar
 				}
 				case ClearToSaveStatus.NOT_WHILE_MOVING_OVER_SURFACE:
 				{
-					ScreenMessager.showMessage("Cannot launch a vessel while moving on the surface", 3);
-					return false;
-				}
-				case ClearToSaveStatus.NOT_WHILE_THROTTLED_UP:
-				{
-					ScreenMessager.showMessage("Cannot launch a vessel while thottled up", 3);
+					ScreenMessager.showMessage("Cannot launch a vessel while moving over the surface", 3);
 					return false;
 				}
 			}
