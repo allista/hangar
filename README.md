@@ -36,8 +36,11 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
     * Hangars are controlled with a dedicated GUI
     * For the vessels that do not have any hangars the GUI shows their volume and dimensions
     * A vessel can have multiple hangars. Provided GUI allows easy switching between them by highlighting the hangar that is currently selected
-    * The [Toolbar](http://forum.kerbalspaceprogram.com/threads/60863) plugin is required for now
-* 
+
+##Requirements##
+* Hangar uses [KSPAPIExtensions](http://forum.kerbalspaceprogram.com/threads/81496) by [swamp_ig](http://forum.kerbalspaceprogram.com/members/100707-swamp_ig). This plugin is bundled with the Hangar as it should be.
+* The [ModuleManager](http://forum.kerbalspaceprogram.com/threads/55219), of course.
+* The [Toolbar](http://forum.kerbalspaceprogram.com/threads/60863) is required for now.
 
 ##Recommended mods##
 
@@ -96,18 +99,45 @@ The Spaceport is meant to be used as a command module of a big ship. It has 10 c
 
 ###Launch a satellite network###
 
+Launching a network of small satellites was never easier: just pack them into an in-line hangar, build a ship around it and launch. In orbit launch a satellite, change its orbit as desired; repeat. The benefit of this solution is that your satellites may be as small and simple as possible, carrying just enough fuel for orbit correction. No struts, no complex carrier designs. Just one hangar.
+
 ###Orbital station###
 
-####Docks for maintenance ships###
+If you're planning to build a station that acts as a hub for many small operations, a big hangar (or even the Spaceport) is a good choice to include in this plan.
+
+####Docks for smaller ships###
+
+With a hangar you can spare the station a dozen of docking ports, not to mention the headache of frequent docking maneuvers. It also enables you to store rarely used ships clearing the orbit.
 
 ####Fast crew transfer with orbit-to-orbit shuttles###
 
+One station is not enough? Then include a hangar into each of your stations and crew transfers between them become fast and easy. Just use the simplest shuttles with enough fuel to go from one to another and refill them after the trip.
+
 ###Exploration ship###
+
+What is better for science: a series of unmanned probes, or a full-scale mission carrying light scouts and landers packed with scientific equipment, that is able to process all the data on site? If you prefer the latter, use a hangar. It will automatically balance the payload and provide the ease of refilling of scientific vessels.
 
 ###Rover storage for colony###
 
+When establishing a colony rovers are often needed. They help to find a good spot, move colony modules around, tug a not-so-perfectly landed supply ship... But as colony grows and matures they become less and less used. Some of them may be disassembled for spare parts, but some are better to have around that one time when something suddenly goes wrong. To preserve them better while clearing the area use ground hangar, so when the need arise they were filled, fixed and fully operational.
+
+###And so on...###
+
 #Acknowledgements#
 
+First of, I want to thank [Taniwha](https://github.com/taniwha-qf) for inspiration and advice.
 
+And here're the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
+
+* [Extraplanetary Launchpads](http://forum.kerbalspaceprogram.com/threads/59545)
+* [Kerbal Attach System](http://forum.kerbalspaceprogram.com/threads/53134-Kerbal-Attachment-System-%28KAS%29-0-4-7-Pipes-as-fuel-lines-and-even-fewer-explosions!)
+* [Procedural Fairings](http://forum.kerbalspaceprogram.com/threads/39512)
+* [MechJeb2](http://forum.kerbalspaceprogram.com/threads/12384)
+* [Kethane](http://forum.kerbalspaceprogram.com/threads/23979)
+* [Fusebox](http://forum.kerbalspaceprogram.com/threads/50077-0-23-5-Fusebox-electric-charge-tracker-and-build-helper-1-0-released-12-07-14)
+* [CrewManifest](http://forum.kerbalspaceprogram.com/threads/60936)
+* [TweakScale](http://forum.kerbalspaceprogram.com/threads/80234)
+
+***
 
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
