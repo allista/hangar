@@ -1,3 +1,4 @@
+//This code is partly based on the code from Extraplanetary Launchpads plugin. BuildWindow.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;

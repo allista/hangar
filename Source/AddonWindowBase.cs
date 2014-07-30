@@ -2,8 +2,9 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public static class Styles //This is the code from Extraplanetary Launchpad plugin.
+	public static class Styles 
 	{
+		//This code is based on Styles class from Extraplanetary Launchpad plugin.
 		public static GUISkin skin;
 		
 		public static GUIStyle normal_button;
