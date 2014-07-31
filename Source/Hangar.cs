@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-
 namespace AtHangar
 {
 	//this module adds the ability to store a vessel in a packed state inside
@@ -382,7 +381,7 @@ namespace AtHangar
 			if(vessel.LandedOrSplashed)
 			{
 				//calculate launch offset from vessel bounds
-				Vector3 bounds_offset = launchTransform.TransformDirection(Vector3.up*sv.metric.extents.y - sv.CoG);
+				Vector3 bounds_offset = launchTransform.TransformDirection(-sv.CoG);
 				//set vessel's position
 				Vector3d vpos = Vector3d.zero+launchTransform.position+bounds_offset;
 				pv.longitude  = vessel.mainBody.GetLongitude(vpos);
@@ -392,7 +391,7 @@ namespace AtHangar
 			else //set the new orbit
 			{
 				//calculate launch offset from vessel bounds
-				Vector3 bounds_offset = launchTransform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.metric.extents.y);
+				Vector3 bounds_offset = launchTransform.TransformDirection(sv.CoM - sv.CoG);
 				//set vessel's orbit
 				Orbit horb = vessel.orbit;
 				Orbit vorb = new Orbit();

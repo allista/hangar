@@ -198,7 +198,7 @@ namespace AtHangar
 		
 		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
 		{
-			Vector3[] edges = bound_edges(Vector3.up*bounds.extents.y, bounds.size);
+			Vector3[] edges = bound_edges(bounds);
 			local2local(this_T,other_T, edges);
 			foreach(Vector3 edge in edges) { if(!other.bounds.Contains(edge)) return false; }
 			return true;
