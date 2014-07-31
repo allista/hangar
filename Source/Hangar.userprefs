@@ -1,13 +1,13 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="TODO.md">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="HangarAnimator.cs">
     <Files>
-      <File FileName="HangarPartResizer.cs" Line="333" Column="141" />
+      <File FileName="HangarPartResizer.cs" Line="2" Column="49" />
       <File FileName="Utils.cs" Line="1" Column="1" />
-      <File FileName="Hangar.cs" Line="84" Column="3" />
-      <File FileName="HangarWindow.cs" Line="438" Column="1" />
+      <File FileName="Hangar.cs" Line="1" Column="1" />
+      <File FileName="HangarWindow.cs" Line="1" Column="94" />
       <File FileName="VesselWrappers.cs" Line="1" Column="1" />
-      <File FileName="AddonWindowBase.cs" Line="1" Column="1" />
+      <File FileName="AddonWindowBase.cs" Line="7" Column="77" />
       <File FileName="Metric.cs" Line="1" Column="1" />
       <File FileName="VesselsPack.cs" Line="143" Column="3" />
       <File FileName="Resources.cs" Line="1" Column="1" />
@@ -19,7 +19,7 @@
       <File FileName="ResourceTransferWindow.cs" Line="1" Column="1" />
       <File FileName="CrewTransfer.cs" Line="1" Column="1" />
       <File FileName="HangarAnimator.cs" Line="1" Column="1" />
-      <File FileName="TODO.md" Line="2" Column="20" />
+      <File FileName="TODO.md" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
