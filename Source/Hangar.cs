@@ -187,7 +187,7 @@ namespace AtHangar
 				List<PackedConstruct> rem = packed_constructs.Repack();
 				if(rem.Count > 0) 
 				{
-					ScreenMessager.showMessage(string.Format("Resized hangar is too small. {0} some vessels were removed.", rem.Count), 3);
+					ScreenMessager.showMessage(string.Format("Resized hangar is too small. {0} vessels were removed.", rem.Count), 3);
 					foreach(PackedConstruct pc in rem) remove_construct(pc);
 				}
 			}
