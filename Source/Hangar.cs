@@ -11,7 +11,7 @@ namespace AtHangar
 	public class Hangar : PartModule, IPartCostModifier
 	{
 		public enum HangarState { Active, Inactive }
-		
+
 		//internal properties
 		const float crew_volume_ratio = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
 		float usefull_volume_ratio = 0.7f;    //only 70% of the volume may be used by docking vessels
@@ -29,6 +29,7 @@ namespace AtHangar
 		public List<ResourceManifest> resourceTransferList = new List<ResourceManifest>();
 		
 		//fields
+		[KSPField (isPersistant = false)] public string addFrictionTo;
 		[KSPField (isPersistant = false)] public float VolumePerKerbal    = 3f; // m^3
 		[KSPField (isPersistant = false)] public bool  StaticCrewCapacity = false;
 		[KSPField (isPersistant = true)]  public float base_mass  = -1f;
@@ -119,6 +120,8 @@ namespace AtHangar
                 Events["Open"].guiActiveEditor = true;
                 Events["Close"].guiActiveEditor = true;
             }
+			//add friction to colliders listed
+			set_friction();
 			//recalculate volume and mass
 			Setup();
 			//store packed constructs if any
@@ -202,6 +205,54 @@ namespace AtHangar
 			crew_capacity = part.CrewCapacity.ToString();
 			hangar_v  = Utils.formatVolume(hangar_metric.volume);
 			hangar_d  = Utils.formatDimensions(hangar_metric.size);
+		}
+
+		void set_friction() //doesn't work =\
+		{
+			if(addFrictionTo == "") return;
+			foreach(string mesh_name in addFrictionTo.Split(' '))
+			{
+				MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
+				if(m == null)
+				{
+					Utils.Log("set_friction: {0} does not have '{1}' mesh", part.name, mesh_name);
+					continue;
+				}
+				if(m.collider == null)
+				{
+					Utils.Log("set_friction: mesh {0} does not have a collider", mesh_name);
+					continue;
+				}
+				PhysicMaterial mat = m.collider.material;
+				mat.staticFriction = 1;
+				mat.dynamicFriction = 1;
+				mat.frictionCombine = PhysicMaterialCombine.Maximum;
+				mat.bounciness = 0;
+			}
+			#if DEBUG
+			foreach(Collider c in part.FindModelComponents<Collider>())//debug
+			{
+				PhysicMaterial mat = c.material;
+				Utils.Log("{0} physicMaterial: \n" +
+					"sf {1}, df {2}, \n" +
+					"sf2 {3}, df2 {4}, \n" +
+					"fd {5}, \n" +
+					"fc {6}, \n" +
+					"b {7}, \n" +
+					"bc {8}, \n", 
+					c.name, 
+					mat.staticFriction, 
+					mat.dynamicFriction,
+					mat.staticFriction2, 
+					mat.dynamicFriction2,
+					mat.frictionDirection2,
+					mat.frictionCombine,
+
+					mat.bounciness,
+					mat.bounceCombine
+				);//debug
+			}
+			#endif
 		}
 
 		public float GetModuleCost() { return vessels_cost; }
