@@ -12,6 +12,7 @@
     <newfilesearch>OnLoadAutoInsert</newfilesearch>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <ReleaseVersion>1.0</ReleaseVersion>
+    <UseMSBuildEngine>False</UseMSBuildEngine>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,7 +36,6 @@
   <ItemGroup>
     <Reference Include="KSPAPIExtensions">
       <HintPath>..\..\KSPAPIExtensions\KSPAPIExtensions.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System.Core">
       <HintPath>..\KSP_test\KSP_Data\Managed\System.Core.dll</HintPath>
@@ -77,6 +77,7 @@
     <Compile Include="ResourceTransferWindow.cs" />
     <Compile Include="VesselsPack.cs" />
     <Compile Include="VesselWrappers.cs" />
+    <Compile Include="PartUpdaters.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
