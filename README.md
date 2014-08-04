@@ -5,6 +5,10 @@
 ***
 ###WARNING: this is still BETA. There should be bugs. 
 While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, _but I can't guarantee it_. So if you plan to use it in your main game, **backup your saves**.
+
+###Known Issues###
+* Rovers moving on hangar's floor are like cows on ice. That's because all hangars (and other parts, I presume) have the **default** PhysicMaterial with friction coefficient set to 0.4.  Don't know why, but changing that coefficient on the colliders in runtime does not change the friction. So I can't fix that. If anyone has an idea on this, PM me, please, on forum.
+* If a rover is built in VAB with its wheels "down", it will be launched from a hangar rotated by 90 degrees, because in VAB the "up" axis is actually the forward one. Build rovers in SPH to workaround; its more convenient anyway.
 ***
 
 ##Introduction##
@@ -38,6 +42,7 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
     * A vessel can have multiple hangars. Provided GUI allows easy switching between them by highlighting the hangar that is currently selected
 
 ##Requirements##
+
 * Hangar uses [KSPAPIExtensions](http://forum.kerbalspaceprogram.com/threads/81496) by [swamp_ig](http://forum.kerbalspaceprogram.com/members/100707-swamp_ig). This plugin is bundled with the Hangar as it should be.
 * The [ModuleManager](http://forum.kerbalspaceprogram.com/threads/55219), of course.
 * The [Toolbar](http://forum.kerbalspaceprogram.com/threads/60863) is required for now.
@@ -46,7 +51,15 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
 
 There are many great mods out there that I love and use myself. But the one mode that I strongly recommend to use with the Hangar to improve game experience is the [**Extraplanetary Launchpads**](http://forum.kerbalspaceprogram.com/threads/59545) by [Taniwha](https://github.com/taniwha-qf). For one thing: big ground hangars are not suitable as parts for vessel construction and are too heavy to launch anyway. So the only meaningful way to use them is to build them on site.
 
-Also the [KSP Addon Version Checker](http://forum.kerbalspaceprogram.com/threads/79745-0-24-2-KSP-AVC-Add-on-Version-Checker-Plugin-1-0-4-KSP-AVC-Online) is supported, so you'll benefit from having it installed.
+##Supported mods##
+
+Hangar supports [KSP Addon Version Checker](http://forum.kerbalspaceprogram.com/threads/79745-0-24-2-KSP-AVC-Add-on-Version-Checker-Plugin-1-0-4-KSP-AVC-Online). 
+
+And some functionality is added to hangars if the following mods are installed:
+
+* [TAC Life Support **beta**](http://forum.kerbalspaceprogram.com/threads/40667?p=1281444&viewfull=1#post1281444) adds life support resources to inhabitable hangars
+* [RemoteTech2](http://forum.kerbalspaceprogram.com/threads/83305) adds RT antennas and SPUs to controllable hangars
+<!-- * [ModularFuelTanks](http://forum.kerbalspaceprogram.com/threads/64117) adds modular tanks to hangars with fuels -->
 
 ##Usage details##
 
