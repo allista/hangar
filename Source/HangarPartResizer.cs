@@ -48,119 +48,6 @@ namespace AtHangar
 		public static implicit operator float(Scale s) { return s.absolute; }
 	}
 	
-	public class PartUpdater : PartModule
-	{
-		public uint priority = 0; // 0 is highest
-		protected Part base_part;
-
-		public static Vector3 ScaleVector(Vector3 v, float s, float l)
-		{ return Vector3.Scale(v, new Vector3(s, s*l, s)); }
-
-		public virtual void Init() 
-		{ base_part = PartLoader.getPartInfoByName(part.partInfo.name).partPrefab; }
-
-		protected virtual void SaveDefaults() {}
-		public virtual void OnRescale(Scale scale) {}
-	}
-	
-	public class NodesUpdater : PartUpdater
-	{
-		readonly Dictionary<string,int> orig_sizes = new Dictionary<string, int>();
-
-		public override void Init() { base.Init(); SaveDefaults(); }
-		protected override void SaveDefaults()
-		{ foreach(AttachNode node in base_part.attachNodes) orig_sizes[node.id] = node.size; }
-
-		void updateAttachedPartPos(AttachNode node)
-		{
-			if(node == null) return;
-			var ap = node.attachedPart; 
-			if(!ap) return;
-			var an = ap.findAttachNodeByPart(part);	
-			if(an == null) return;
-			var dp =
-				part.transform.TransformPoint(node.position) -
-				ap.transform.TransformPoint(an.position);
-			if(ap == part.parent) 
-			{
-				while (ap.parent) ap = ap.parent;
-				ap.transform.position += dp;
-				part.transform.position -= dp;
-			} 
-			else ap.transform.position += dp;
-		}
-
-		public override void OnRescale(Scale scale)
-		{
-			//update attach nodes and their parts
-			foreach(AttachNode node in part.attachNodes)
-			{
-				//update node position
-				node.position = ScaleVector(node.originalPosition, scale, scale.aspect);
-				updateAttachedPartPos(node);
-				//update node size
-				int new_size = orig_sizes[node.id] + Mathf.RoundToInt(scale.size-scale.orig_size);
-				if(new_size < 0) new_size = 0;
-				node.size = new_size;
-			}
-			//update this surface attach node
-			if(part.srfAttachNode != null) 
-				part.srfAttachNode.position = ScaleVector(part.srfAttachNode.originalPosition, scale, scale.aspect);
-			//update parts that are surface attached to this
-			foreach(Part child in part.children)
-			{
-				if (child.srfAttachNode != null && child.srfAttachNode.attachedPart == part) // part is attached to us, but not on a node
-				{
-					Vector3 attachedPosition = child.transform.localPosition + child.transform.localRotation * child.srfAttachNode.position;
-					Vector3 targetPosition = ScaleVector(attachedPosition, scale.relative, scale.relative.aspect);
-					child.transform.Translate(targetPosition - attachedPosition, part.transform);
-				}
-			}
-		}
-	}
-	
-	public class ModuleUpdater<T> : PartUpdater where T : PartModule
-	{
-		protected T module;
-		protected T base_module;
-		
-		public override void Init() 
-		{
-			base.Init();
-			priority = 100; 
-			module = part.Modules.OfType<T>().SingleOrDefault();
-			base_module = base_part.Modules.OfType<T>().SingleOrDefault();
-			if(module == null) 
-				throw new MissingComponentException(string.Format("[Hangar] ModuleUpdater: part {0} does not have {1} module", part.name, module));
-			SaveDefaults();
-		}
-
-		protected override void SaveDefaults() {}
-		public override void OnRescale(Scale scale) {}
-	}
-	
-	public class RCS_Updater : ModuleUpdater<ModuleRCS>
-	{
-		[KSPField(isPersistant=false, guiActiveEditor=true, guiActive=true, guiName="Thrust")]
-		public string thrustDisplay;
-		float thrust;
-		protected override void SaveDefaults()	{ thrust = base_module.thrusterPower; thrustDisplay = thrust.ToString(); }
-		public override void OnRescale(Scale scale) { module.thrusterPower = thrust*scale.absolute.quad; thrustDisplay =  module.thrusterPower.ToString(); }
-	}
-	
-	public class DockingNodeUpdater : ModuleUpdater<ModuleDockingNode>
-	{
-		public override void OnRescale(Scale scale)
-		{
-			AttachNode node = part.findAttachNode(module.referenceAttachNode);
-			if(node == null) return;
-			module.nodeType = string.Format("size{0}", node.size);
-		}
-	}
-	
-	public class HangarUpdater : ModuleUpdater<Hangar>
-	{ public override void OnRescale(Scale scale) { module.Setup(true); } }
-	
 
 	public class HangarPartResizer : PartUpdater, IPartCostModifier
 	{
@@ -200,34 +87,16 @@ namespace AtHangar
 		[KSPField] public Vector4 specificMass = new Vector4(1.0f, 1.0f, 1.0f, 0f);
 		[KSPField] public Vector4 specificCost = new Vector4(1.0f, 1.0f, 1.0f, 0f);
 
-		[KSPField] public float delta_cost = 0f;
-
 		//state
 		float orig_size   = -1;
 		float old_size    = -1;
 		float old_aspect  = -1;
+		public float dry_cost   = -1f; 
+		public float delta_cost = 0f;
 		bool  just_loaded = true;
 		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect); } }
 		
-		#region ModuleUpdaters
-		static Dictionary<string, Func<Part, PartUpdater>> updater_types = new Dictionary<string, Func<Part, PartUpdater>>();
-		
-		static Func<Part, PartUpdater> updaterConstructor<UpdaterType>() where UpdaterType : PartUpdater
-		{ 
-			return (Part part) => part.Modules.Contains(typeof(UpdaterType).Name) ? 
-				part.Modules.OfType<UpdaterType>().FirstOrDefault() : 
-				(UpdaterType)part.AddModule(typeof(UpdaterType).Name); 
-		}
-
-		public static void RegisterUpdater<UpdaterType>() 
-			where UpdaterType : PartUpdater
-		{ 
-			string updater_name = typeof(UpdaterType).FullName;
-			if(updater_types.ContainsKey(updater_name)) return;
-			Debug.Log(string.Format("[Hangar] HangarPartResizer: registering {0}", updater_name));
-			updater_types[updater_name] = updaterConstructor<UpdaterType>();
-		}
-		
+		#region PartUpdaters
 		List<PartUpdater> updaters = new List<PartUpdater>();
 		
 		void create_updaters()
@@ -235,7 +104,7 @@ namespace AtHangar
 			foreach(var updater_type in updater_types.Values) 
 			{
 				PartUpdater updater = updater_type(part);
-				if(updater == null) continue;
+				if(updater == null || updater == this) continue;
 				try { updater.Init(); }
 				catch 
 				{ 
@@ -252,11 +121,9 @@ namespace AtHangar
 		public override void OnAwake()
 		{
 			base.OnAwake();
-			RegisterUpdater<NodesUpdater>();
-			RegisterUpdater<RCS_Updater>();
-			RegisterUpdater<DockingNodeUpdater>();
-			RegisterUpdater<HangarUpdater>();
+			GameEvents.onEditorShipModified.Add(UpdateGUI);
 		}
+		void OnDestroy() { GameEvents.onEditorShipModified.Remove(UpdateGUI); }
 
 		protected override void SaveDefaults()
 		{
@@ -264,6 +131,7 @@ namespace AtHangar
 			if(resizer != null) orig_size  = resizer.size;
 			old_size   = size;
 			old_aspect = aspect;
+			if(dry_cost < 0) dry_cost = base_part.DryCost();
 		}
 
 		public override void OnStart(StartState state)
@@ -310,12 +178,11 @@ namespace AtHangar
 				{ Rescale(); just_loaded = false; } 
 		}
 
+		public void UpdateGUI(ShipConstruct ship)
+		{ massDisplay = Utils.formatMass(part.TotalMass()); }
+
 		public void UpdateGUI()
-		{ 
-			massDisplay = Utils.formatMass(part.TotalMass());
-			if(EditorLogic.fetch != null)
-				GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
-		}
+		{ if(EditorLogic.fetch != null)	GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship); }
 
 		public override void OnRescale(Scale scale)
 		{
@@ -328,20 +195,9 @@ namespace AtHangar
 				Utils.Log("HangarPartResizer: no 'model' transform in the part", this);
 				return;
 			}
-			//recalculate mass
-			part.mass = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z) * scale * aspect + specificMass.w;
-			//changing cost
-			delta_cost = ((specificCost.x * scale + specificCost.y) * scale + specificCost.z) * scale * aspect + specificCost.w - part.partInfo.cost;
-			//change breaking forces (if not defined in the config, set to a reasonable default)
-			if(base_part.breakingForce == 22f) part.breakingForce = 32.0f * scale.absolute.quad; //taken from TweakScale
-			else part.breakingForce = base_part.breakingForce * scale.absolute.quad;
-			if (part.breakingForce < 22f) part.breakingForce = 22f;
-			if(base_part.breakingTorque == 22f) part.breakingTorque = 32.0f * scale.absolute.quad;
-			else part.breakingTorque = base_part.breakingTorque * scale.absolute.quad;
-			if(part.breakingTorque < 22f) part.breakingTorque = 22f;
-			//change other properties
-			part.buoyancy = base_part.buoyancy * scale.absolute.cube;
-			part.explosionPotential = base_part.explosionPotential * scale.absolute.cube;
+			//recalculate mass and cost
+			part.mass  = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z) * scale * aspect + specificMass.w;
+			delta_cost = ((specificCost.x * scale + specificCost.y) * scale + specificCost.z) * scale * aspect + specificCost.w - dry_cost;
 			//update nodes and modules
 			foreach(PartUpdater updater in updaters) updater.OnRescale(scale);
 			//save size and aspect

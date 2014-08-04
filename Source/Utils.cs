@@ -194,10 +194,10 @@ namespace AtHangar
 	public static class PartExtension
 	{
 		#region from MechJeb2 PartExtensions
-		public static bool hasModule<T>(this Part p) where T : PartModule
+		public static bool HasModule<T>(this Part p) where T : PartModule
 		{ return p.Modules.OfType<T>().Any(); }
 
-		public static bool isPhysicallySignificant(this Part p)
+		public static bool IsPhysicallySignificant(this Part p)
 		{
 			bool physicallySignificant = (p.physicalSignificance != Part.PhysicalSignificance.NONE);
 			// part.PhysicsSignificance is not initialized in the Editor for all part. but physicallySignificant is useful there.
@@ -205,7 +205,7 @@ namespace AtHangar
 				physicallySignificant = physicallySignificant && p.PhysicsSignificance != 1;
 			//Landing gear set physicalSignificance = NONE when they enter the flight scene
 			//Launch clamp mass should be ignored.
-			physicallySignificant &= !p.hasModule<ModuleLandingGear>() && !p.hasModule<LaunchClamp>();
+			physicallySignificant &= !p.HasModule<ModuleLandingGear>() && !p.HasModule<LaunchClamp>();
 			return physicallySignificant;
 		}
 
@@ -213,6 +213,14 @@ namespace AtHangar
 		#endregion
 
 		public static float TotalCost(this Part p) { return p.partInfo.cost; }
+
+		public static float ResourcesCost(this Part p) 
+		{ 
+			return (float)p.Resources.Cast<PartResource>()
+				.Aggregate(0.0, (a, b) => a + b.amount * b.info.unitCost); 
+		}
+
+		public static float DryCost(this Part p) { return p.TotalCost() - p.ResourcesCost(); }
 	}
 	
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
