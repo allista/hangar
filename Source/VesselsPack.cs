@@ -202,6 +202,8 @@ namespace AtHangar
 			if(!stored_vessels.ContainsKey(vid)) return;
 			stored_vessels.Remove(vid);
 		}
+
+		public void Clear() { stored_vessels.Clear(); }
 		
 		public bool ContainsKey(Guid vid) { return stored_vessels.ContainsKey(vid); }
 		

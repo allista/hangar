@@ -17,6 +17,9 @@ namespace AtHangar
 		static Rect eWindowPos = new Rect();
 		static Rect cWindowPos = new Rect();
 		static Rect rWindowPos = new Rect();
+
+		//lock names
+		static readonly string eLock = "HangarWindow.editorUI";
 		
 		//this vessel
 		Metric vessel_metric;
@@ -124,6 +127,7 @@ namespace AtHangar
 		override public void UpdateGUIState()
 		{
 			base.UpdateGUIState();
+			if(!enabled) Utils.LockIfMouseOver(eLock, eWindowPos, false);
 			if(selected_hangar != null) 
 			{
 				if(enabled && highlight_hangar == 1) 
@@ -163,6 +167,7 @@ namespace AtHangar
 
 		new void OnDestroy()
 		{
+			Utils.LockIfMouseOver(eLock, eWindowPos, false);
 			GameEvents.onVesselChange.Remove(onVesselChange);
 			GameEvents.onVesselWasModified.Remove(onVesselWasModified);
 			base.OnDestroy();
@@ -427,6 +432,7 @@ namespace AtHangar
 			}
 			else
 			{
+				Utils.LockIfMouseOver(eLock, eWindowPos, enabled);
 				eWindowPos = GUILayout.Window(GetInstanceID(),
 											  eWindowPos, VesselInfo,
 											  "Vessel info",

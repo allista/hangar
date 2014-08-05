@@ -9,6 +9,7 @@ namespace AtHangar
 {
 	public static class Utils
 	{
+		#region Techtree
 		static bool haveTech (string name)
 		{
 			if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
@@ -66,8 +67,36 @@ namespace AtHangar
 				fe.maxValue = maxval;
 			}
 		}
+		#endregion
+
+		#region ControlLock
+		public static void LockIfMouseOver(string LockName, Rect WindowRect, bool Lock)
+		//taken from Kerbal Alarm Clock mod
+		{
+			if(Lock && WindowRect.Contains(Event.current.mousePosition))
+			{
+				if(InputLockManager.GetControlLock(LockName) != ControlTypes.EDITOR_LOCK)
+				{
+					#if DEBUG
+					Log("AddingLock: {0}", LockName);
+					#endif
+					InputLockManager.SetControlLock(ControlTypes.EDITOR_LOCK, LockName);
+				}
+			}
+			else
+			{
+				if (InputLockManager.GetControlLock(LockName) == ControlTypes.EDITOR_LOCK) 
+				{
+					#if DEBUG
+					Log("RemovingLock: {0}", LockName);
+					#endif
+					InputLockManager.RemoveControlLock(LockName);
+				}
+			}
+		}
+		#endregion
 		
-		//formatting
+		#region Formatting
 		public static string formatMass (float mass)
 		{
 			if(mass < 0.01f)
@@ -188,6 +217,7 @@ namespace AtHangar
 			}
 		}
 		#endif
+		#endregion
 		#endregion
 	}
 
