@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.IO;
+﻿using System.IO;
 using AtHangar;
 
 namespace KSPAVCupdater
@@ -20,7 +19,7 @@ namespace KSPAVCupdater
 			file.WriteLine("         \"MAJOR\":{0}", KSP_AVC_Info.HangarVersion.Major);
 			file.WriteLine("         \"MINOR\":{0}", KSP_AVC_Info.HangarVersion.Minor);
 			file.WriteLine("         \"PATCH\":{0}", KSP_AVC_Info.HangarVersion.Build);
-			file.WriteLine("         \"BUILD\":{0}", KSP_AVC_Info.HangarVersion.Revision);
+//			file.WriteLine("         \"BUILD\":{0}", KSP_AVC_Info.HangarVersion.Revision);
 			file.WriteLine(
 @"     }
     ""KSP_VERSION_MIN"":
