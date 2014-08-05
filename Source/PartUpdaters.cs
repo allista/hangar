@@ -232,5 +232,17 @@ namespace AtHangar
 
 	public class HangarUpdater : ModuleUpdater<Hangar>
 	{ public override void OnRescale(Scale scale) { module.Setup(true); } }
+
+	public class ReactionWheelUpdater : ModuleUpdater<ModuleReactionWheel>
+	{
+		public override void OnRescale(Scale scale)
+		{
+			module.PitchTorque = base_module.PitchTorque * scale.absolute.cube;
+			module.YawTorque   = base_module.YawTorque   * scale.absolute.cube;
+			module.RollTorque  = base_module.RollTorque  * scale.absolute.cube;
+			foreach(ModuleResource r in	module.inputResources)
+				r.rate *= scale.relative.cube;
+		}
+	}
 }
 
