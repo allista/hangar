@@ -59,6 +59,7 @@ And some functionality is added to hangars if the following mods are installed:
 
 * [TAC Life Support **beta**](http://forum.kerbalspaceprogram.com/threads/40667?p=1281444&viewfull=1#post1281444) adds life support resources to inhabitable hangars
 * [RemoteTech2](http://forum.kerbalspaceprogram.com/threads/83305) adds RT antennas and SPUs to controllable hangars
+* [Deadly Reentry](http://forum.kerbalspaceprogram.com/threads/54954) adds integrated heatshield  to lander hangars
 <!-- * [ModularFuelTanks](http://forum.kerbalspaceprogram.com/threads/64117) adds modular tanks to hangars with fuels -->
 
 ##Usage details##
@@ -152,6 +153,7 @@ And here're the mods which sources provided me with an understanding of how KSP 
 * [Fusebox](http://forum.kerbalspaceprogram.com/threads/50077-0-23-5-Fusebox-electric-charge-tracker-and-build-helper-1-0-released-12-07-14)
 * [CrewManifest](http://forum.kerbalspaceprogram.com/threads/60936)
 * [TweakScale](http://forum.kerbalspaceprogram.com/threads/80234)
+* [Kerbal Alarm Clock](http://forum.kerbalspaceprogram.com/threads/24786)
 
 ***
 
