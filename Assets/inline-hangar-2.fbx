@@ -10,10 +10,10 @@ FBXHeaderExtension:  {
 		Version: 1000
 		Year: 2014
 		Month: 08
-		Day: 01
-		Hour: 23
-		Minute: 42
-		Second: 09
+		Day: 05
+		Hour: 00
+		Minute: 45
+		Second: 39
 		Millisecond: 0
 	}
 	Creator: "FBX SDK/FBX Plugins build 20070228"
@@ -21,7 +21,7 @@ FBXHeaderExtension:  {
 		FlagPLE: 0
 	}
 }
-CreationTime: "2014-08-01 23:42:09:000"
+CreationTime: "2014-08-05 00:45:39:000"
 Creator: "Blender version 2.71 (sub 0)"
 
 ; Object definitions
@@ -29,9 +29,9 @@ Creator: "Blender version 2.71 (sub 0)"
 
 Definitions:  {
 	Version: 100
-	Count: 69
+	Count: 70
 	ObjectType: "Model" {
-		Count: 49
+		Count: 50
 	}
 	ObjectType: "Geometry" {
 		Count: 35
@@ -141,6 +141,87 @@ Objects:  {
 		CameraId: 0
 		CameraName: 100
 		CameraIndexName:
+	}
+	Model: "Model::hangar_lamp", "Null" {
+		Version: 232
+		Properties60:  {
+			Property: "QuaternionInterpolate", "bool", "",0
+			Property: "Visibility", "Visibility", "A+",1
+			Property: "Lcl Translation", "Lcl Translation", "A+",-0.124386742711067,-0.317477822303772,-7.152240276336670
+			Property: "Lcl Rotation", "Lcl Rotation", "A+",0.000000000000000,-0.000000000000000,0.000000000000000
+			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
+			Property: "RotationOffset", "Vector3D", "",0,0,0
+			Property: "RotationPivot", "Vector3D", "",0,0,0
+			Property: "ScalingOffset", "Vector3D", "",0,0,0
+			Property: "ScalingPivot", "Vector3D", "",0,0,0
+			Property: "TranslationActive", "bool", "",0
+			Property: "TranslationMin", "Vector3D", "",0,0,0
+			Property: "TranslationMax", "Vector3D", "",0,0,0
+			Property: "TranslationMinX", "bool", "",0
+			Property: "TranslationMinY", "bool", "",0
+			Property: "TranslationMinZ", "bool", "",0
+			Property: "TranslationMaxX", "bool", "",0
+			Property: "TranslationMaxY", "bool", "",0
+			Property: "TranslationMaxZ", "bool", "",0
+			Property: "RotationOrder", "enum", "",0
+			Property: "RotationSpaceForLimitOnly", "bool", "",0
+			Property: "AxisLen", "double", "",10
+			Property: "PreRotation", "Vector3D", "",0,0,0
+			Property: "PostRotation", "Vector3D", "",0,0,0
+			Property: "RotationActive", "bool", "",0
+			Property: "RotationMin", "Vector3D", "",0,0,0
+			Property: "RotationMax", "Vector3D", "",0,0,0
+			Property: "RotationMinX", "bool", "",0
+			Property: "RotationMinY", "bool", "",0
+			Property: "RotationMinZ", "bool", "",0
+			Property: "RotationMaxX", "bool", "",0
+			Property: "RotationMaxY", "bool", "",0
+			Property: "RotationMaxZ", "bool", "",0
+			Property: "RotationStiffnessX", "double", "",0
+			Property: "RotationStiffnessY", "double", "",0
+			Property: "RotationStiffnessZ", "double", "",0
+			Property: "MinDampRangeX", "double", "",0
+			Property: "MinDampRangeY", "double", "",0
+			Property: "MinDampRangeZ", "double", "",0
+			Property: "MaxDampRangeX", "double", "",0
+			Property: "MaxDampRangeY", "double", "",0
+			Property: "MaxDampRangeZ", "double", "",0
+			Property: "MinDampStrengthX", "double", "",0
+			Property: "MinDampStrengthY", "double", "",0
+			Property: "MinDampStrengthZ", "double", "",0
+			Property: "MaxDampStrengthX", "double", "",0
+			Property: "MaxDampStrengthY", "double", "",0
+			Property: "MaxDampStrengthZ", "double", "",0
+			Property: "PreferedAngleX", "double", "",0
+			Property: "PreferedAngleY", "double", "",0
+			Property: "PreferedAngleZ", "double", "",0
+			Property: "InheritType", "enum", "",0
+			Property: "ScalingActive", "bool", "",0
+			Property: "ScalingMin", "Vector3D", "",1,1,1
+			Property: "ScalingMax", "Vector3D", "",1,1,1
+			Property: "ScalingMinX", "bool", "",0
+			Property: "ScalingMinY", "bool", "",0
+			Property: "ScalingMinZ", "bool", "",0
+			Property: "ScalingMaxX", "bool", "",0
+			Property: "ScalingMaxY", "bool", "",0
+			Property: "ScalingMaxZ", "bool", "",0
+			Property: "GeometricTranslation", "Vector3D", "",0,0,0
+			Property: "GeometricRotation", "Vector3D", "",0,0,0
+			Property: "GeometricScaling", "Vector3D", "",1,1,1
+			Property: "LookAtProperty", "object", ""
+			Property: "UpVectorProperty", "object", ""
+			Property: "Show", "bool", "",1
+			Property: "NegativePercentShapeSupport", "bool", "",1
+			Property: "DefaultAttributeIndex", "int", "",0
+			Property: "Color", "Color", "A",0.8,0.8,0.8
+			Property: "Size", "double", "",100
+			Property: "Look", "enum", "",1
+		}
+		MultiLayer: 0
+		MultiTake: 1
+		Shading: Y
+		Culling: "CullingOff"
+		TypeFlags: "Null"
 	}
 	Model: "Model::windows", "Null" {
 		Version: 232
@@ -13059,7 +13140,7 @@ Objects:  {
 		}
 		UseMipMap: 0
 		Filename: "inline-hangar-gate.png"
-		RelativeFilename: "inline-hangar-gate.png"
+		RelativeFilename: "Textures/inline-hangar-gate.png"
 	}
 	Video: "Video::inline-hangar_png", "Clip" {
 		Type: "Clip"
@@ -13080,7 +13161,7 @@ Objects:  {
 		}
 		UseMipMap: 0
 		Filename: "inline-hangar.png"
-		RelativeFilename: "inline-hangar.png"
+		RelativeFilename: "Textures/inline-hangar.png"
 	}
 	Video: "Video::space-door_png", "Clip" {
 		Type: "Clip"
@@ -13176,7 +13257,7 @@ Objects:  {
 		}
 		Media: "Video::inline-hangar-gate_png"
 		FileName: "inline-hangar-gate.png"
-		RelativeFilename: "inline-hangar-gate.png"
+		RelativeFilename: "Textures/inline-hangar-gate.png"
 		ModelUVTranslation: 0,0
 		ModelUVScaling: 1,1
 		Texture_Alpha_Source: "None"
@@ -13205,7 +13286,7 @@ Objects:  {
 		}
 		Media: "Video::inline-hangar_png"
 		FileName: "inline-hangar.png"
-		RelativeFilename: "inline-hangar.png"
+		RelativeFilename: "Textures/inline-hangar.png"
 		ModelUVTranslation: 0,0
 		ModelUVScaling: 1,1
 		Texture_Alpha_Source: "None"
@@ -13274,7 +13355,11 @@ Objects:  {
 		Version: 100
 		Properties60:  {
 		}
-		NbPoseNodes: 41
+		NbPoseNodes: 42
+		PoseNode:  {
+			Node: "Model::hangar_lamp"
+			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,-0.124386742711067,-0.317477822303772,-7.152240276336670,1.000000000000000
+		}
 		PoseNode:  {
 			Node: "Model::windows"
 			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,-0.000000000000000,0.000000000000001,-1.450383424758911,1.000000000000000
@@ -13458,6 +13543,8 @@ Objects:  {
 ;------------------------------------------------------------------
 
 Relations:  {
+	Model: "Model::hangar_lamp", "Null" {
+	}
 	Model: "Model::windows", "Null" {
 	}
 	Model: "Model::launch_position", "Null" {
@@ -13635,6 +13722,7 @@ Connections:  {
 	Connect: "OO", "Model::hinge-t-l-i", "Model::left-gate"
 	Connect: "OO", "Model::docking_port", "Model::inline-hangar-2"
 	Connect: "OO", "Model::docking_port_collider", "Model::docking_port"
+	Connect: "OO", "Model::hangar_lamp", "Model::inline-hangar-2"
 	Connect: "OO", "Model::windows", "Model::inline-hangar-2"
 	Connect: "OO", "Model::launch_position", "Model::inline-hangar-2"
 	Connect: "OO", "Model::right-gate-axis", "Model::inline-hangar-2"
@@ -17051,6 +17139,92 @@ Takes:  {
 						KeyCount: 1
 						Key: 
 							1924423250,89.999954693024662,L
+						Color: 0,0,1
+					}
+					LayerType: 2
+				}
+				Channel: "S" {
+					Channel: "X" {
+						Default: 1.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,1.000000000000000,L
+						Color: 1,0,0
+					}
+					Channel: "Y" {
+						Default: 1.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,1.000000000000000,L
+						Color: 0,1,0
+					}
+					Channel: "Z" {
+						Default: 1.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,1.000000000000000,L
+						Color: 0,0,1
+					}
+					LayerType: 3
+				}
+			}
+		}
+		Model: "Model::hangar_lamp" {
+			Version: 1.1
+			Channel: "Transform" {
+				Channel: "T" {
+					Channel: "X" {
+						Default: -0.124386742711067
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,-0.124386742711067,L
+						Color: 1,0,0
+					}
+					Channel: "Y" {
+						Default: -0.317477822303772
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,-0.317477822303772,L
+						Color: 0,1,0
+					}
+					Channel: "Z" {
+						Default: -7.152240276336670
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,-7.152240276336670,L
+						Color: 0,0,1
+					}
+					LayerType: 1
+				}
+				Channel: "R" {
+					Channel: "X" {
+						Default: 0.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,0.000000000000000,L
+						Color: 1,0,0
+					}
+					Channel: "Y" {
+						Default: -0.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,-0.000000000000000,L
+						Color: 0,1,0
+					}
+					Channel: "Z" {
+						Default: 0.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,0.000000000000000,L
 						Color: 0,0,1
 					}
 					LayerType: 2
