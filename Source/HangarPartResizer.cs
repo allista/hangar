@@ -195,11 +195,12 @@ namespace AtHangar
 				Utils.Log("HangarPartResizer: no 'model' transform in the part", this);
 				return;
 			}
-			//recalculate mass and cost
+			//recalculate mass
 			part.mass  = ((specificMass.x * scale + specificMass.y) * scale + specificMass.z) * scale * aspect + specificMass.w;
-			delta_cost = ((specificCost.x * scale + specificCost.y) * scale + specificCost.z) * scale * aspect + specificCost.w - dry_cost;
 			//update nodes and modules
 			foreach(PartUpdater updater in updaters) updater.OnRescale(scale);
+			//recalculate cost after all updaters
+			delta_cost = ((specificCost.x * scale + specificCost.y) * scale + specificCost.z) * scale * aspect + specificCost.w - dry_cost;
 			//save size and aspect
 			old_size   = size;
 			old_aspect = aspect;
