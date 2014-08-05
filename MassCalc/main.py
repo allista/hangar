@@ -144,9 +144,10 @@ def format_data(x, ys, w=None):
 if __name__ == '__main__':
     scales = np.arange(0.5, 4.1, 0.5)
     
-    aluminium = material(2.8, 8)
-    composits = material(1.9, 20)
+    aluminium = material(2.8, 8.0)
+    composits = material(1.9, 20.0)
     
+    #inline
     inline1   = ship('InlineHangar', 
                      surfaces=[surface(62.44, 0.005, aluminium, 'hull'), 
                                surface(9.32*2, 0.005, aluminium, 'doors')],
@@ -154,7 +155,7 @@ if __name__ == '__main__':
                               volume(3.93, 0.317, 'machinery', 100),
                               volume(0.659*2, 0.02, 'doors', 1)], 
                      add_mass=0,
-                     add_cost=200)
+                     add_cost=200) #docking port
     
     inline2   = ship('InlineHangar2', 
                      surfaces=[surface(268.11, 0.006, aluminium, 'hull'), 
@@ -163,20 +164,27 @@ if __name__ == '__main__':
                               volume(53.66-40.45, 0.343, 'machinery', 80), 
                               volume(40.45, 0.153, 'cabins', 220), #like Hitchhikers container
                               volume(4.05*2, 0.02,'doors', 1)],
-                     add_mass=0.2, #life support
-                     add_cost=1020 + 280) #life support + docking port
+                     add_mass=0,
+                     add_cost=280) #docking port
     
+    #spaceport
     spaceport = ship('Spaceport', 
                      surfaces=[surface(960.55, 0.007, composits, 'hull'), 
-                               surface(28.94*2, 0.007, composits,'doors')],
+                               surface(28.94*2, 0.007, composits,'doors'),
+                               surface(11.04, 0.006, aluminium, 'monoprop tank')],
                      volumes=[volume(366.046-46.92-112.64*2-1.5*2-8.7, 0.01, 'hull', 2), 
                               volume(46.92, 0.01, 'machinery room', 15),
                               volume(112.64*2, 0.168, 'cabins', 200), #density of the SpaceX Dragon vessel
                               volume(1.5*2+8.7, 0.001, 'coridors', 1),
-                              volume(1.64*2, 0.01,'doors', 2)],
-                     add_mass=1+1.5+2+0.72+0.5+6+0.08,  #batt, react.wheel, cockpit, generator, lifesupport, machinery, probe core
-                     add_cost=980 + 300 + 3400 + 22500 + 29700 + 7000 + 6120 + 4000 + 600) #DockPort + Light + Monoprop + Batt + Gen + ReactWheel + LS + Cockpit + probe core
+                              volume(1.64*2, 0.01,'doors', 2),
+                              volume(1.5, 0.75, 'battery', 22500/1.5),
+                              volume(0.95, 0.2/0.21, 'reaction wheel', 2100/0.21),
+                              ],
+                     add_mass=2+0.72+6+0.08,  #cockpit, generator, machinery, probe core
+                     add_cost=980 + 300 + 29700 + 4000 + 600,  #DockPort + Light + Gen + Cockpit + probe core
+                     res_cost=2400) #Monoprop
     
+    #landers
     lander     = ship('RoverLander', 
                      surfaces=[surface(91.43, 0.004, aluminium, 'hull'), 
                                surface(14.19*2+13.45*2, 0.003, aluminium, 'doors'),
@@ -185,22 +193,25 @@ if __name__ == '__main__':
                               volume(6.36, 0.200, 'machinery', 80),
                               volume(0.045, 0.98,'clamp', 600),
                               volume(0.62*2+0.47*2, 0.02, 'doors', 1),
-                              volume(0.3835, 0, 'LF', 226.8/0.3835),
-                              volume(0.3835, 0, 'Ox', 226.8/0.3835),
+                              volume(0.444*2, 0.05/0.444, 'batteries', 880/0.444),
+                              volume(0.17, 0.2/0.21, 'reaction wheel', 2100/0.21),
                               ], 
-                     add_mass=0.05*2 + 0.04,
-                     add_cost=200 + 880*2 + 480 + 226.8 + 324 + 62.37) #Light + Batt + probe core + LF+Ox+MP
+                     add_mass=0.04, #probe core
+                     add_cost=200 + 480, #Light + probe core
+                     res_cost=226.8 + 324 + 62.37) #LF+Ox+MP
 
-
+    #ground hangars
     small     = ship('SmallHangar', 
                      surfaces=[surface(145.7, 0.006, aluminium, 'hull'), 
                                surface(14.43, 0.006, aluminium, 'doors')],
                      volumes=[volume(13.82-4.7, 0.02, 'hull', 1),
                               volume(4.7, 0.213, 'machinery', 80),
                               volume(0.18, 0.78,'clamp', 300),
-                              volume(0.74, 0.02, 'doors', 1)], 
-                     add_mass=0.2 + 0.04, #Batt + probe core
-                     add_cost=100 + 200 + 4500 + 480) #Light + DockPort + Batt + probe core
+                              volume(0.74, 0.02, 'doors', 1),
+                              volume(2, 0.2/2, 'battery', 4500/2),
+                              ], 
+                     add_mass=0.04, #probe core
+                     add_cost=100 + 200 + 480) #Light + DockPort + probe core
     
     big       = ship('BigHangar', 
                      surfaces=[surface(1667.79, 0.01, composits, 'hull'), 
@@ -209,16 +220,20 @@ if __name__ == '__main__':
                               volume(17.89, 0.01,'doors', 2),
                               volume(4.34, 0.78,'clamp', 300),
                               volume(218.99-27.75, 0.183, 'cabins', 150),
-                              volume(27.75, 0.246, 'machinery', 80)],
-                     add_mass=1+0.72+0.5+0.04, #batt, generator, lifesupport, probe core
-                     add_cost=280 + 2040 + 300 + 22500 + 29700 + 480) #DockPort + LS +  Light + Batt + Gen + probe core
+                              volume(27.75, 0.246, 'machinery', 80),
+                              volume(1.5, 0.75, 'battery', 22500/1.5),
+                              ],
+                     add_mass=0.72+0.04, #generator, probe core
+                     add_cost=280 + 300 + 29700 + 480) #DockPort +  Light + generator + probe core
     
+    #utilities
     adapter1  = ship('Adapter1', 
                      surfaces=[surface(62.48, 0.005, composits, 'hull'), 
                                surface(50.61, 0.003, composits, 'innerside')],
                      volumes=[volume(29.68-21.64, 0.01, 'hull', 50)], 
                      add_mass=0,
                      add_cost=0)
+    
     adapter2  = ship('Adapter2', 
                      surfaces=[surface(55.38, 0.005, composits, 'hull'), 
                                surface(44.86, 0.003, composits, 'innerside')],
