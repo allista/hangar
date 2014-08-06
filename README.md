@@ -7,8 +7,21 @@
 While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, _but I can't guarantee it_. So if you plan to use it in your main game, **backup your saves**.
 
 ###Known Issues###
-* Rovers moving on hangar's floor are like cows on ice. That's because all hangars (and other parts, I presume) have the **default** PhysicMaterial with friction coefficient set to 0.4.  Don't know why, but changing that coefficient on the colliders in runtime does not change the friction. So I can't fix that. If anyone has an idea on this, PM me, please, on forum.
-* If a rover is built in VAB with its wheels "down", it will be launched from a hangar rotated by 90 degrees, because in VAB the "up" axis is actually the forward one. Build rovers in SPH to workaround; its more convenient anyway.
+* Rovers:
+    * Rovers moving on hangar's floor are sliding. Like cows on ice. That's because all hangars (and other parts, I presume) have the **default** PhysicMaterial with friction coefficient set to 0.4.  Don't know why, but changing that coefficient on the colliders in runtime does not change the friction. So I can't fix that. If anyone has an idea on this, PM me, please, on forum.
+    * If a rover is built in VAB with its wheels "down", it will be launched from a hangar rotated by 90 degrees, because in VAB the "up" axis is actually the forward one. Build rovers in SPH to workaround; its more convenient anyway.
+    * Rovers stored in KSC have somewhat smaller dimensions due to inactive suspension of the wheels. So if you pack several rovers **tightly** into a hangar, and than launch one of them, the launched rover sometimes cannot be stored again into that same hangar with the "No room ..." message. Again: it's no bug, calculations are performed correctly, the rover's just got bigger.
+
+###ChangeLog###
+* v1.1.0
+    * Added Rover Lander Hangar to easily land rovers on planetary bodies
+    * Added (proper) support for TAC Life Support, RemoteTech2 and DeadlyReentry (a heatshield for Rover Lander is included)
+    * Added recalculation of the amounts of resources on part resize, as well as several other properties of some modules. Unfortunately, I have to replicate some of TweakScale's functionality here; my part resizer is more specialized and TweakScale can't replace it, as much as want it to.
+    * [Fixed issues](https://github.com/allista/hangar/issues?q=is%3Aissue+is%3Aclosed)
+* v1.0.5324 -- Initial release
+
+###NOTE:###
+**Before using a hangar, study the list of modules that are integrated into it _(RMB on part's icon)_.** Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating.
 ***
 
 ##Introduction##
@@ -24,13 +37,13 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
 
 * Hangars are fit for any application: 
     * small light and cheap as well as huge, packed with all needed modules
-    * most may be rescaled to the needed size and proportions via tweakables (mass, volume and cost are changed accordingly)
+    * **most may be rescaled** to the needed size and proportions **via tweakables** (mass, volume and cost are changed accordingly)
 * There are several types of hangars:
-    * in-line hangars for spaceships 
-    * ground hangars for colonies
-    * each type has inhabitable variant with integrated crew cabins
-    * there's also the Spaceport part that combines a huge hangar with a cockpit; as such, the Spaceport has only a single stack node at its bottom
-* All hangars are equipped with internal docking port for easy targeting. If the hangar is inactive, this port may be used for normal docking
+    * **In-line hangars** (simple and habitable) for spaceships 
+    * **Ground hangars** (simple and habitable) for colonies
+    * **Rover Lander** hangar that has all needed modules and fuel to autonomously land on a planet or moon, bringing some rovers along the way
+    * there's also the **Spaceport** part that combines a huge hangar with a cockpit; as such, the Spaceport has only a single stack node at its bottom
+* In-line hangars are equipped with internal docking port for easy targeting. If the hangar is inactive, this port may be used for normal docking
 * Ground hangars have anchoring modules for comfort use on low-gravity worlds and integrated probe cores with antennas for autonomous operation
 * Crew and resources can be transferred between a vessel with a hangar and stored vessels
 * Smart internal machinery ensures optimal filling of a hangar and mass distribution, while preventing attempts to store objects that do not fit in
@@ -40,6 +53,10 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
     * Hangars are controlled with a dedicated GUI
     * For the vessels that do not have any hangars the GUI shows their volume and dimensions
     * A vessel can have multiple hangars. Provided GUI allows easy switching between them by highlighting the hangar that is currently selected
+* In addition, several other parts are provided:
+    * Powerfull 5-way RCS thrusters for Spaceport
+    * Heatshild with space for engines for Rover Lander. Especially helpful if you're playing with DeadlyReentry
+    * Two adapters for Size4 stack nodes
 
 ##Requirements##
 
@@ -59,7 +76,7 @@ And some functionality is added to hangars if the following mods are installed:
 
 * [TAC Life Support **beta**](http://forum.kerbalspaceprogram.com/threads/40667?p=1281444&viewfull=1#post1281444) adds life support resources to inhabitable hangars
 * [RemoteTech2](http://forum.kerbalspaceprogram.com/threads/83305) adds RT antennas and SPUs to controllable hangars
-* [Deadly Reentry](http://forum.kerbalspaceprogram.com/threads/54954) adds integrated heatshield  to lander hangars
+* [Deadly Reentry](http://forum.kerbalspaceprogram.com/threads/54954) adds integrated heatshield to lander hangars
 <!-- * [ModularFuelTanks](http://forum.kerbalspaceprogram.com/threads/64117) adds modular tanks to hangars with fuels -->
 
 ##Usage details##
@@ -111,6 +128,21 @@ The Spaceport is meant to be used as a command module of a big ship. It has 10 c
 * monopropellent tank
 * electric batteries
 
+###Rover Lander###
+
+This hangar is a small lander on its own. It has:
+
+* liquid fuel / oxydizer fuel tanks
+* monopropellent tanks
+* reaction wheel
+* integrated probe core
+* electric batteries
+* 4 sides to mount radial engines or RCS thrusters, and
+* 4 bottom nodes for stack engines
+* 4 panels acting like hangar doors and landing legs at the same time! No suspension though.
+
+Add four radial or stack engines to the mix, RCS thrusters if you need them, solar panels or a generator, a docking port or a decoupler to couple with the rest of a mission ship, a rover inside... and off you go!
+
 ##Possible use cases##
 
 ###Launch a satellite network###
@@ -133,6 +165,10 @@ One station is not enough? Then include a hangar into each of your stations and 
 
 What is better for science: a series of unmanned probes, or a full-scale mission carrying light scouts and landers packed with scientific equipment, that is able to process all the data on site? If you prefer the latter, use a hangar. It will automatically balance the payload and provide the ease of refilling of scientific vessels.
 
+###Bringing a rover to the moon or other planet###
+
+If you want to get your rovers to other planet or moon easily, without complex vessel designs for its transportation, use Rover Lander. Bring it with you, as a part of a ship with a rover in its belly. Undock it, and... land! Just like that.
+
 ###Rover storage for colony###
 
 When establishing a colony rovers are often needed. They help to find a good spot, move colony modules around, tug a not-so-perfectly landed supply ship... But as colony grows and matures they become less and less used. Some of them may be disassembled for spare parts, but some are better to have around that one time when something suddenly goes wrong. To preserve them better while clearing the area use ground hangar, so when the need arise they were filled, fixed and fully operational.
@@ -141,7 +177,9 @@ When establishing a colony rovers are often needed. They help to find a good spo
 
 #Acknowledgements#
 
-First of, I want to thank [Taniwha](https://github.com/taniwha-qf) for inspiration and advice.
+First of, I want to thank my beloved wife for her support and understanding. This work takes much time...
+
+I also want to thank [Taniwha](https://github.com/taniwha-qf) for inspiration and advice.
 
 And here're the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
 
