@@ -78,7 +78,7 @@ namespace AtHangar
 					else foreach(Vector3 edge in edges) b.Encapsulate(edge);
 				}
 				CrewCapacity += p.CrewCapacity;
-				if(p.isPhysicallySignificant())	mass += p.TotalMass();
+				if(p.IsPhysicallySignificant())	mass += p.TotalMass();
 				cost += p.TotalCost();
 			}
 			return b;

@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 
 
 class volume:
@@ -53,12 +54,13 @@ class surface:
 
 
 class ship:
-    def __init__(self, name, surfaces, volumes, add_mass, add_cost):
+    def __init__(self, name, surfaces, volumes, add_mass = 0, add_cost = 0, res_cost = 0):
         self.name       = name
         self._surfaces  = surfaces
         self._volumes   = volumes
         self._add_mass  = add_mass
         self._add_cost  = add_cost
+        self._res_cost  = res_cost
         self._spec_mass = np.array([self.V_mass(), self.S_mass(), 0, self._add_mass])
         self._init_mass = sum(self._spec_mass)
         self._weights   = self._spec_mass/self._init_mass
@@ -67,6 +69,7 @@ class ship:
                                     0, self._add_cost])
         self._cost      = sum(self._spec_cost)
         self._cost_weights = self._spec_cost/self._cost
+        self._cost     += res_cost
     #end def
     
     def mass(self, scale=1, length=1):
@@ -80,6 +83,7 @@ class ship:
         w = self._spec_cost
         c = ((w[0]*scale + w[1])*scale + w[2])*scale*length
         if len(w) > 3: c += w[3]
+        c += self._res_cost
         return c
     #end def
     
@@ -110,6 +114,7 @@ class ship:
         s += '//S mass: %s t\n' % self.S_mass()
         s += '//Additional mass: %s t\n' % self._add_mass
         s += '//Additional cost: %s Cr\n' % self._add_cost
+        s += '//Resources cost: %s Cr\n' % self._res_cost
         s += 'entryCost = %s\n' % (self._cost*2)
         s += 'cost = %s\n' % self._cost
         s += 'mass = %s\n' % self._init_mass
@@ -139,9 +144,10 @@ def format_data(x, ys, w=None):
 if __name__ == '__main__':
     scales = np.arange(0.5, 4.1, 0.5)
     
-    aluminium = material(2.8, 8)
-    composits = material(1.9, 20)
+    aluminium = material(2.8, 8.0)
+    composits = material(1.9, 20.0)
     
+    #inline
     inline1   = ship('InlineHangar', 
                      surfaces=[surface(62.44, 0.005, aluminium, 'hull'), 
                                surface(9.32*2, 0.005, aluminium, 'doors')],
@@ -149,7 +155,8 @@ if __name__ == '__main__':
                               volume(3.93, 0.317, 'machinery', 100),
                               volume(0.659*2, 0.02, 'doors', 1)], 
                      add_mass=0,
-                     add_cost=200)
+                     add_cost=200) #docking port
+    
     inline2   = ship('InlineHangar2', 
                      surfaces=[surface(268.11, 0.006, aluminium, 'hull'), 
                                surface(35.94*2, 0.006, aluminium,'doors')],
@@ -157,29 +164,55 @@ if __name__ == '__main__':
                               volume(53.66-40.45, 0.343, 'machinery', 80), 
                               volume(40.45, 0.153, 'cabins', 220), #like Hitchhikers container
                               volume(4.05*2, 0.02,'doors', 1)],
-                     add_mass=0.2, #life support
-                     add_cost=1020 + 280) #life support + docking port
+                     add_mass=0,
+                     add_cost=280) #docking port
+    
+    #spaceport
     spaceport = ship('Spaceport', 
                      surfaces=[surface(960.55, 0.007, composits, 'hull'), 
-                               surface(28.94*2, 0.007, composits,'doors')],
+                               surface(28.94*2, 0.007, composits,'doors'),
+                               surface(11.04, 0.006, aluminium, 'monoprop tank')],
                      volumes=[volume(366.046-46.92-112.64*2-1.5*2-8.7, 0.01, 'hull', 2), 
                               volume(46.92, 0.01, 'machinery room', 15),
                               volume(112.64*2, 0.168, 'cabins', 200), #density of the SpaceX Dragon vessel
                               volume(1.5*2+8.7, 0.001, 'coridors', 1),
-                              volume(1.64*2, 0.01,'doors', 2)],
-                     add_mass=1+1.5+2+0.72+0.5+6,  #batt, react.wheel, cockpit, generator, lifesupport, machinery
-                     add_cost=980 + 300 + 3400 + 22500 + 29700 + 7000 + 6120 + 4000) #DockPort + Light + Monoprop + Batt + Gen + ReactWheel + LS + Cockpit
+                              volume(1.64*2, 0.01,'doors', 2),
+                              volume(1.5, 0.75, 'battery', 22500/1.5),
+                              volume(0.95, 0.2/0.21, 'reaction wheel', 2100/0.21),
+                              ],
+                     add_mass=2+0.72+6+0.08,  #cockpit, generator, machinery, probe core
+                     add_cost=980 + 300 + 29700 + 4000 + 600,  #DockPort + Light + Gen + Cockpit + probe core
+                     res_cost=2400) #Monoprop
+    
+    #landers
+    lander     = ship('RoverLander', 
+                     surfaces=[surface(92.1, 0.004, aluminium, 'hull'), 
+                               surface(14.19*2+13.45*2, 0.003, aluminium, 'doors'),
+                               surface(2.39*6, 0.006, aluminium, 'fuel tanks')],
+                     volumes=[volume(7, 0.20, 'base', 40),
+                              volume(6.36, 0.110, 'machinery', 80),
+                              volume(0.045, 0.98,'clamp', 600),
+                              volume(0.62*2+0.47*2, 0.02, 'doors', 1),
+                              volume(0.444*2, 0.05/0.444, 'batteries', 880/0.444),
+                              volume(0.17, 0.2/0.21, 'reaction wheel', 2100/0.21),
+                              ], 
+                     add_mass=0.04, #probe core
+                     add_cost=200 + 480, #Light + probe core
+                     res_cost=324 + 89.1 + 240) #LF+Ox+MP
 
-
+    #ground hangars
     small     = ship('SmallHangar', 
                      surfaces=[surface(145.7, 0.006, aluminium, 'hull'), 
                                surface(14.43, 0.006, aluminium, 'doors')],
                      volumes=[volume(13.82-4.7, 0.02, 'hull', 1),
                               volume(4.7, 0.213, 'machinery', 80),
                               volume(0.18, 0.78,'clamp', 300),
-                              volume(0.74, 0.02, 'doors', 1)], 
-                     add_mass=0,
-                     add_cost=100 + 200 + 4500 + 3300) #Light + DockPort + Batt + Gen
+                              volume(0.74, 0.02, 'doors', 1),
+                              volume(2, 0.2/2, 'battery', 4500/2),
+                              ], 
+                     add_mass=0.04, #probe core
+                     add_cost=100 + 200 + 480) #Light + DockPort + probe core
+    
     big       = ship('BigHangar', 
                      surfaces=[surface(1667.79, 0.01, composits, 'hull'), 
                                surface(124.08, 0.01, composits,'doors')],
@@ -187,16 +220,20 @@ if __name__ == '__main__':
                               volume(17.89, 0.01,'doors', 2),
                               volume(4.34, 0.78,'clamp', 300),
                               volume(218.99-27.75, 0.183, 'cabins', 150),
-                              volume(27.75, 0.246, 'machinery', 80)],
-                     add_mass=1+0.72+0.5, #batt, generator, lifesupport
-                     add_cost=280 + 2040 + 300 + 22500 + 29700) #DockPort + LS +  Light + Batt + Gen
+                              volume(27.75, 0.246, 'machinery', 80),
+                              volume(1.5, 0.75, 'battery', 22500/1.5),
+                              ],
+                     add_mass=0.72+0.04, #generator, probe core
+                     add_cost=280 + 300 + 29700 + 480) #DockPort +  Light + generator + probe core
     
+    #utilities
     adapter1  = ship('Adapter1', 
                      surfaces=[surface(62.48, 0.005, composits, 'hull'), 
                                surface(50.61, 0.003, composits, 'innerside')],
                      volumes=[volume(29.68-21.64, 0.01, 'hull', 50)], 
                      add_mass=0,
                      add_cost=0)
+    
     adapter2  = ship('Adapter2', 
                      surfaces=[surface(55.38, 0.005, composits, 'hull'), 
                                surface(44.86, 0.003, composits, 'innerside')],
@@ -207,6 +244,12 @@ if __name__ == '__main__':
     rcs       = ship('SpaceportRCS', 
                      surfaces=[surface(4.77, 0.007, composits, 'hull'),],
                      volumes=[volume(0.36, 0.48, 'machinery', 4760)], 
+                     add_mass=0,
+                     add_cost=0)
+    
+    heatshield = ship('Square Heatshield', 
+                     surfaces=[surface(40.7, 0.005, aluminium, 'hull'),],
+                     volumes=[volume(3.8, 0.01, 'hull', 20)], 
                      add_mass=0,
                      add_cost=0)
     
@@ -227,6 +270,11 @@ if __name__ == '__main__':
     inline1_c   = np.fromiter((inline1.cost(s, l1) for s in scales), float)
     inline2_c   = np.fromiter((inline2.cost(s/2, l2) for s in scales), float)
     spaceport_c = np.fromiter((spaceport.cost(s/3, 1) for s in scales), float)
+    
+    lander_m    = np.fromiter((lander.mass(s/2, 1) for s in scales), float)
+    lander_sm   = np.fromiter((lander.S_mass(s/2, 1) for s in scales), float)
+    lander_v    = np.fromiter((lander.volume(s/2, 1) for s in scales), float)
+    lander_c    = np.fromiter((lander.cost(s/2, 1) for s in scales), float)
      
     lg1 = 1#.3981227
     small_m  = np.fromiter((small.mass(s, lg1) for s in scales), float)
@@ -261,10 +309,13 @@ if __name__ == '__main__':
     print(inline2); print('length: %s' % l2)   
     print(format_data(scales, (inline2_m, inline2_sm, inline2_v, inline2_c), np.where(scales/2 >= 1)[0]))
     print(spaceport);
-#     print(format_data(scales, (spaceport_m, spaceport_sm, spaceport_v, spaceport_c), np.where(scales/3 >= 1)[0]))
- 
+
+    print(lander);
+    print(format_data(scales, (lander_m, lander_sm, lander_v, lander_c), np.where(scales/2 >= 1)[0]))
+    
     print(small); print('length: %s' % lg1)
     print(format_data(scales, (small_m, small_sm, small_v, small_c)))
+
     print(big);
     print(format_data(scales, (big_m, big_sm, big_v, big_c), np.where(scales/3 >= 1)[0]))
     
@@ -275,8 +326,9 @@ if __name__ == '__main__':
 
     print(rcs);
     print(format_data(scales, (rcs_m, rcs_sm, rcs_v, rcs_c)))#, np.where(scales/3 >= 1)[0]))
+    
+    print(heatshield)
 
-    import sys
     sys.exit(0)
     
     plt.xlim(0.5, 4)

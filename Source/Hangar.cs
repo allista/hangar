@@ -11,7 +11,7 @@ namespace AtHangar
 	public class Hangar : PartModule, IPartCostModifier
 	{
 		public enum HangarState { Active, Inactive }
-		
+
 		//internal properties
 		const float crew_volume_ratio = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
 		float usefull_volume_ratio = 0.7f;    //only 70% of the volume may be used by docking vessels
@@ -29,6 +29,7 @@ namespace AtHangar
 		public List<ResourceManifest> resourceTransferList = new List<ResourceManifest>();
 		
 		//fields
+		[KSPField (isPersistant = false)] public string addFrictionTo;
 		[KSPField (isPersistant = false)] public float VolumePerKerbal    = 3f; // m^3
 		[KSPField (isPersistant = false)] public bool  StaticCrewCapacity = false;
 		[KSPField (isPersistant = true)]  public float base_mass  = -1f;
@@ -45,9 +46,10 @@ namespace AtHangar
 		Vessel launched_vessel;
 
 		//in-editor vessel docking
+		static readonly string eLock = "Hangar.EditHangarContents";
+		static readonly List<string> vessel_dirs = new List<string>{"VAB", "SPH", "../Subassemblies"};
 		Rect eWindowPos = new Rect(Screen.width/2-200, 100, 400, 100);
 		Vector2 scroll_view = Vector2.zero;
-		static List<string> vessel_dirs = new List<string>{"VAB", "SPH", "../Subassemblies"};
 		VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>();
 		CraftBrowser vessel_selector;
 		VesselType vessel_type;
@@ -119,6 +121,8 @@ namespace AtHangar
                 Events["Open"].guiActiveEditor = true;
                 Events["Close"].guiActiveEditor = true;
             }
+			//add friction to colliders listed
+			set_friction();
 			//recalculate volume and mass
 			Setup();
 			//store packed constructs if any
@@ -128,10 +132,39 @@ namespace AtHangar
 				vessel_type = EditorLogic.fetch.editorType == EditorLogic.EditorMode.SPH ? VesselType.SPH : VesselType.VAB;
 		}
 		
-		public void Setup(bool reset_base_values = false)	
-		{ RecalculateVolume(); SetPartParams(reset_base_values); }
+		public void Setup(bool reset = false)	
+		{
+			//recalculate part and hangar metrics
+			part_metric = new Metric(part);
+			if(HangarSpace != "") 
+				hangar_metric = new Metric(part, HangarSpace);
+			//if hangar metric is not provided, derive it from part metric
+			if(hangar_metric == null || hangar_metric.Empty)
+				hangar_metric = part_metric*usefull_volume_ratio;
+			//setup vessels pack
+			stored_vessels.space = hangar_metric;
+			packed_constructs.space = hangar_metric;
+			//display recalculated values
+			hangar_v  = Utils.formatVolume(hangar_metric.volume);
+			hangar_d  = Utils.formatDimensions(hangar_metric.size);
+			//now recalculate used volume
+			if(reset)
+			{   //if resetting, try to repack vessels on resize
+				List<PackedConstruct> constructs = packed_constructs.Values;
+				packed_constructs.Clear();
+				foreach(PackedConstruct pc in constructs)
+					try_store_construct(pc);
+				//no need to change_part_params as set_params is called later
+			}
+			//calculate used_volume
+			used_volume = 0;
+			foreach(StoredVessel sv in stored_vessels.Values) used_volume += sv.volume;
+			foreach(PackedConstruct pc in packed_constructs.Values) used_volume += pc.metric.volume;
+			//then set other part parameters
+			set_part_params(reset);
+		}
 
-		public void SetPartParams(bool reset = false) 
+		void set_part_params(bool reset = false) 
 		{
 			//reset values if needed
 			if(base_mass < 0 || reset) base_mass = part.mass;
@@ -151,9 +184,12 @@ namespace AtHangar
 			}
 			//set part mass
 			part.mass = base_mass+vessels_mass;
-			//update PartResizer display
-			var resizer = part.Modules.OfType<HangarPartResizer>().SingleOrDefault();
-			if(resizer != null) resizer.UpdateGUI();
+			//calculate crew capacity from remaining volume
+			if(!StaticCrewCapacity)
+				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
+			crew_capacity = part.CrewCapacity.ToString();
+			//update Editor counters and all other that listen
+			if(EditorLogic.fetch != null) GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
 		}
 
 		void change_part_params(Metric delta, float k = 1f)
@@ -166,42 +202,55 @@ namespace AtHangar
 			if(vessels_cost < 0) vessels_cost = 0;
 			stored_mass = Utils.formatMass(vessels_mass);
 			stored_cost = vessels_cost.ToString();
-			SetPartParams();
+			set_part_params();
 		}
 		
-		public void RecalculateVolume()
+		void set_friction() //doesn't work =\
 		{
-			//recalculate part and hangar metrics
-			part_metric = new Metric(part);
-			if(HangarSpace != "") 
-				hangar_metric = new Metric(part, HangarSpace);
-			//if hangar metric is not provided, derive it from part metric
-			if(hangar_metric == null || hangar_metric.Empty)
-				hangar_metric = part_metric*usefull_volume_ratio;
-			//setup vessels pack
-			stored_vessels.space = hangar_metric;
-			packed_constructs.space = hangar_metric;
-			//if in editor, try to repack vessels on resize
-			if(EditorLogic.fetch != null)
+			if(addFrictionTo == "") return;
+			foreach(string mesh_name in addFrictionTo.Split(' '))
 			{
-				List<PackedConstruct> rem = packed_constructs.Repack();
-				if(rem.Count > 0) 
+				MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
+				if(m == null)
 				{
-					ScreenMessager.showMessage(string.Format("Resized hangar is too small. {0} vessels were removed.", rem.Count), 3);
-					foreach(PackedConstruct pc in rem) remove_construct(pc);
+					Utils.Log("set_friction: {0} does not have '{1}' mesh", part.name, mesh_name);
+					continue;
 				}
+				if(m.collider == null)
+				{
+					Utils.Log("set_friction: mesh {0} does not have a collider", mesh_name);
+					continue;
+				}
+				PhysicMaterial mat = m.collider.material;
+				mat.staticFriction = 1;
+				mat.dynamicFriction = 1;
+				mat.frictionCombine = PhysicMaterialCombine.Maximum;
+				mat.bounciness = 0;
 			}
-			//calculate used_volume
-			used_volume = 0;
-			foreach(StoredVessel sv in stored_vessels.Values) used_volume += sv.volume;
-			foreach(PackedConstruct pc in packed_constructs.Values) used_volume += pc.metric.volume;
-			//calculate crew capacity from remaining volume
-			if(!StaticCrewCapacity)
-				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
-			//display recalculated values
-			crew_capacity = part.CrewCapacity.ToString();
-			hangar_v  = Utils.formatVolume(hangar_metric.volume);
-			hangar_d  = Utils.formatDimensions(hangar_metric.size);
+			#if DEBUG
+			foreach(Collider c in part.FindModelComponents<Collider>())//debug
+			{
+				PhysicMaterial mat = c.material;
+				Utils.Log("{0} physicMaterial: \n" +
+					"sf {1}, df {2}, \n" +
+					"sf2 {3}, df2 {4}, \n" +
+					"fd {5}, \n" +
+					"fc {6}, \n" +
+					"b {7}, \n" +
+					"bc {8}, \n", 
+					c.name, 
+					mat.staticFriction, 
+					mat.dynamicFriction,
+					mat.staticFriction2, 
+					mat.dynamicFriction2,
+					mat.frictionDirection2,
+					mat.frictionCombine,
+
+					mat.bounciness,
+					mat.bounceCombine
+				);
+			}
+			#endif
 		}
 
 		public float GetModuleCost() { return vessels_cost; }
@@ -476,7 +525,7 @@ namespace AtHangar
 				vessels_cost += dC;
 				sv.mass += dM;
 				sv.cost += dC;
-				SetPartParams();
+				set_part_params();
 			}
 			resourceTransferList.Clear();
 		}
@@ -563,6 +612,22 @@ namespace AtHangar
 
 
 		#region EditHangarContents
+		bool try_store_construct(PackedConstruct pc)
+		{
+			get_launch_transform();
+			if(!pc.metric.FitsAligned(launchTransform, part.partTransform, hangar_metric))
+			{
+				ScreenMessager.showMessage(string.Format("{0} does not fit into this hangar", pc.name), 3);
+				return false;
+			}
+			if(!packed_constructs.Add(pc))
+			{
+				ScreenMessager.showMessage(string.Format("There's no room in the hangar for {0}", pc.name), 3);
+				return false;
+			}
+			return true;
+		}
+
 		void vessel_selected(string filename, string flagname)
 		{
 			EditorLogic EL = EditorLogic.fetch;
@@ -574,24 +639,11 @@ namespace AtHangar
 			bool cant_launch = false;
 			PreFlightCheck preFlightCheck = new PreFlightCheck(new Callback(() => cant_launch = false), new Callback(() => cant_launch = true));
 			preFlightCheck.AddTest(new PreFlightTests.ExperimentalPartsAvailable(pc.construct));
-			preFlightCheck.AddTest(new PreFlightTests.CanAffordLaunchTest(pc.construct, Funding.Instance));
 			preFlightCheck.RunTests(); if(cant_launch) return;
-			//cleanup loaded parts
+			//cleanup loaded parts and try to store construct
 			pc.UnloadConstruct();
-			//check if it can be stored in this hangar
-			get_launch_transform();
-			if(!pc.metric.FitsAligned(launchTransform, part.partTransform, hangar_metric))
-			{
-				ScreenMessager.showMessage("The vessel does not fit into this hangar", 3);
-				return;
-			}
-			if(!packed_constructs.Add(pc))
-			{
-				ScreenMessager.showMessage("There's no room in the hangar for this vessel", 3);
-				return;
-			}
-			//change hangar mass
-			change_part_params(pc.metric);
+			if(try_store_construct(pc)) 
+				change_part_params(pc.metric);
 		}
 		void selection_canceled() { vessel_selector = null; }
 
@@ -779,7 +831,11 @@ namespace AtHangar
 			GUILayout.EndVertical();
 			GUILayout.EndScrollView();
 			if(GUILayout.Button("Clear", Styles.red_button, GUILayout.ExpandWidth(true))) clear_constructs();
-			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) editing_hangar = false;
+			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
+			{
+				Utils.LockIfMouseOver(eLock, eWindowPos, false);
+				editing_hangar = false;
+			}
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 500, 20));
 		}
@@ -794,12 +850,17 @@ namespace AtHangar
 			Styles.InitGUI();
 			if(vessel_selector == null) 
 			{
+				Utils.LockIfMouseOver(eLock, eWindowPos, true);
 				eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
 							                  hangar_content_editor,
 							                  "Choose vessel type",
 							                  GUILayout.Width(400));
 			}
-			else vessel_selector.OnGUI();
+			else 
+			{
+				Utils.LockIfMouseOver(eLock, vessel_selector.windowRect, true);
+				vessel_selector.OnGUI();
+			}
 		}
 		#endregion
 		#endregion
