@@ -186,11 +186,11 @@ if __name__ == '__main__':
     
     #landers
     lander     = ship('RoverLander', 
-                     surfaces=[surface(91.43, 0.004, aluminium, 'hull'), 
+                     surfaces=[surface(92.1, 0.004, aluminium, 'hull'), 
                                surface(14.19*2+13.45*2, 0.003, aluminium, 'doors'),
                                surface(2.39*6, 0.006, aluminium, 'fuel tanks')],
-                     volumes=[volume(8.2, 0.15, 'heat shield', 40),
-                              volume(6.36, 0.200, 'machinery', 80),
+                     volumes=[volume(7, 0.20, 'base', 40),
+                              volume(6.36, 0.110, 'machinery', 80),
                               volume(0.045, 0.98,'clamp', 600),
                               volume(0.62*2+0.47*2, 0.02, 'doors', 1),
                               volume(0.444*2, 0.05/0.444, 'batteries', 880/0.444),
@@ -198,7 +198,7 @@ if __name__ == '__main__':
                               ], 
                      add_mass=0.04, #probe core
                      add_cost=200 + 480, #Light + probe core
-                     res_cost=226.8 + 324 + 62.37) #LF+Ox+MP
+                     res_cost=324 + 89.1 + 240) #LF+Ox+MP
 
     #ground hangars
     small     = ship('SmallHangar', 
@@ -244,6 +244,12 @@ if __name__ == '__main__':
     rcs       = ship('SpaceportRCS', 
                      surfaces=[surface(4.77, 0.007, composits, 'hull'),],
                      volumes=[volume(0.36, 0.48, 'machinery', 4760)], 
+                     add_mass=0,
+                     add_cost=0)
+    
+    heatshield = ship('Square Heatshield', 
+                     surfaces=[surface(40.7, 0.005, aluminium, 'hull'),],
+                     volumes=[volume(3.8, 0.01, 'hull', 20)], 
                      add_mass=0,
                      add_cost=0)
     
@@ -320,6 +326,8 @@ if __name__ == '__main__':
 
     print(rcs);
     print(format_data(scales, (rcs_m, rcs_sm, rcs_v, rcs_c)))#, np.where(scales/3 >= 1)[0]))
+    
+    print(heatshield)
 
     sys.exit(0)
     
