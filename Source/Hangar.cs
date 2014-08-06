@@ -133,9 +133,38 @@ namespace AtHangar
 		}
 		
 		public void Setup(bool reset = false)	
-		{ RecalculateVolume(reset); SetPartParams(reset); }
+		{
+			//recalculate part and hangar metrics
+			part_metric = new Metric(part);
+			if(HangarSpace != "") 
+				hangar_metric = new Metric(part, HangarSpace);
+			//if hangar metric is not provided, derive it from part metric
+			if(hangar_metric == null || hangar_metric.Empty)
+				hangar_metric = part_metric*usefull_volume_ratio;
+			//setup vessels pack
+			stored_vessels.space = hangar_metric;
+			packed_constructs.space = hangar_metric;
+			//display recalculated values
+			hangar_v  = Utils.formatVolume(hangar_metric.volume);
+			hangar_d  = Utils.formatDimensions(hangar_metric.size);
+			//now recalculate used volume
+			if(reset)
+			{   //if resetting, try to repack vessels on resize
+				List<PackedConstruct> constructs = packed_constructs.Values;
+				packed_constructs.Clear();
+				foreach(PackedConstruct pc in constructs)
+					try_store_construct(pc);
+				//no need to change_part_params as set_params is called later
+			}
+			//calculate used_volume
+			used_volume = 0;
+			foreach(StoredVessel sv in stored_vessels.Values) used_volume += sv.volume;
+			foreach(PackedConstruct pc in packed_constructs.Values) used_volume += pc.metric.volume;
+			//then set other part parameters
+			set_part_params(reset);
+		}
 
-		public void SetPartParams(bool reset = false) 
+		void set_part_params(bool reset = false) 
 		{
 			//reset values if needed
 			if(base_mass < 0 || reset) base_mass = part.mass;
@@ -155,9 +184,12 @@ namespace AtHangar
 			}
 			//set part mass
 			part.mass = base_mass+vessels_mass;
-			//update PartResizer display
-			var resizer = part.Modules.OfType<HangarPartResizer>().SingleOrDefault();
-			if(resizer != null) resizer.UpdateGUI();
+			//calculate crew capacity from remaining volume
+			if(!StaticCrewCapacity)
+				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
+			crew_capacity = part.CrewCapacity.ToString();
+			//update Editor counters and all other that listen
+			if(EditorLogic.fetch != null) GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
 		}
 
 		void change_part_params(Metric delta, float k = 1f)
@@ -170,45 +202,9 @@ namespace AtHangar
 			if(vessels_cost < 0) vessels_cost = 0;
 			stored_mass = Utils.formatMass(vessels_mass);
 			stored_cost = vessels_cost.ToString();
-			SetPartParams();
+			set_part_params();
 		}
 		
-		public void RecalculateVolume(bool reset = false)
-		{
-			//recalculate part and hangar metrics
-			part_metric = new Metric(part);
-			if(HangarSpace != "") 
-				hangar_metric = new Metric(part, HangarSpace);
-			//if hangar metric is not provided, derive it from part metric
-			if(hangar_metric == null || hangar_metric.Empty)
-				hangar_metric = part_metric*usefull_volume_ratio;
-			//setup vessels pack
-			stored_vessels.space = hangar_metric;
-			packed_constructs.space = hangar_metric;
-			//if resetting, try to repack vessels on resize
-			if(reset)
-			{
-				List<PackedConstruct> constructs = packed_constructs.Values;
-				packed_constructs.Clear();
-				foreach(PackedConstruct pc in constructs)
-				{
-					change_part_params(pc.metric, -1);
-					try_store_construct(pc);
-				}
-			}
-			//calculate used_volume
-			used_volume = 0;
-			foreach(StoredVessel sv in stored_vessels.Values) used_volume += sv.volume;
-			foreach(PackedConstruct pc in packed_constructs.Values) used_volume += pc.metric.volume;
-			//calculate crew capacity from remaining volume
-			if(!StaticCrewCapacity)
-				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
-			//display recalculated values
-			crew_capacity = part.CrewCapacity.ToString();
-			hangar_v  = Utils.formatVolume(hangar_metric.volume);
-			hangar_d  = Utils.formatDimensions(hangar_metric.size);
-		}
-
 		void set_friction() //doesn't work =\
 		{
 			if(addFrictionTo == "") return;
@@ -252,7 +248,7 @@ namespace AtHangar
 
 					mat.bounciness,
 					mat.bounceCombine
-				);//debug
+				);
 			}
 			#endif
 		}
@@ -529,7 +525,7 @@ namespace AtHangar
 				vessels_cost += dC;
 				sv.mass += dM;
 				sv.cost += dC;
-				SetPartParams();
+				set_part_params();
 			}
 			resourceTransferList.Clear();
 		}
@@ -629,7 +625,6 @@ namespace AtHangar
 				ScreenMessager.showMessage(string.Format("There's no room in the hangar for {0}", pc.name), 3);
 				return false;
 			}
-			change_part_params(pc.metric);
 			return true;
 		}
 
@@ -647,7 +642,8 @@ namespace AtHangar
 			preFlightCheck.RunTests(); if(cant_launch) return;
 			//cleanup loaded parts and try to store construct
 			pc.UnloadConstruct();
-			try_store_construct(pc);
+			if(try_store_construct(pc)) 
+				change_part_params(pc.metric);
 		}
 		void selection_canceled() { vessel_selector = null; }
 
