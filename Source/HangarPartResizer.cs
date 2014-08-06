@@ -91,7 +91,7 @@ namespace AtHangar
 		float orig_size   = -1;
 		float old_size    = -1;
 		float old_aspect  = -1;
-		public float dry_cost   = -1f; 
+		public float dry_cost   = 0f; 
 		public float delta_cost = 0f;
 		bool  just_loaded = true;
 		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect); } }
@@ -131,7 +131,7 @@ namespace AtHangar
 			if(resizer != null) orig_size  = resizer.size;
 			old_size   = size;
 			old_aspect = aspect;
-			if(dry_cost < 0) dry_cost = base_part.DryCost();
+			dry_cost   = base_part.DryCost();
 		}
 
 		public override void OnStart(StartState state)
