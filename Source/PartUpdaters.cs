@@ -31,6 +31,7 @@ namespace AtHangar
 		{
 			loadedInScene = false;
 			Destroy(gameObject);
+			
 		}
 	}
 
@@ -90,7 +91,8 @@ namespace AtHangar
 
 		static Func<Part, PartUpdater> updaterConstructor<UpdaterType>() where UpdaterType : PartUpdater
 		{ 
-			return (Part part) => part.Modules.Contains(typeof(UpdaterType).Name) ? 
+			return part => 
+				part.Modules.Contains(typeof(UpdaterType).Name) ? 
 				part.Modules.OfType<UpdaterType>().FirstOrDefault() : 
 				(UpdaterType)part.AddModule(typeof(UpdaterType).Name); 
 		}
@@ -185,8 +187,8 @@ namespace AtHangar
 		{
 			foreach(PartResource r in part.Resources)
 			{
-				r.amount *= scale.relative.cube;
-				r.maxAmount *= scale.relative.cube;
+				r.amount *= scale.relative.cube * scale.relative.aspect;
+				r.maxAmount *= scale.relative.cube * scale.relative.aspect;
 			}
 		}
 	}
@@ -237,9 +239,9 @@ namespace AtHangar
 	{
 		public override void OnRescale(Scale scale)
 		{
-			module.PitchTorque = base_module.PitchTorque * scale.absolute.cube;
-			module.YawTorque   = base_module.YawTorque   * scale.absolute.cube;
-			module.RollTorque  = base_module.RollTorque  * scale.absolute.cube;
+			module.PitchTorque = base_module.PitchTorque * scale.absolute.cube * scale.absolute.aspect;
+			module.YawTorque   = base_module.YawTorque   * scale.absolute.cube * scale.absolute.aspect;
+			module.RollTorque  = base_module.RollTorque  * scale.absolute.cube * scale.absolute.aspect;
 			foreach(ModuleResource r in	module.inputResources)
 				r.rate *= scale.relative.cube;
 		}
