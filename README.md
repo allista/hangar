@@ -42,7 +42,7 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
     * **In-line hangars** (simple and habitable) for spaceships 
     * **Ground hangars** (simple and habitable) for colonies
     * **Rover Lander** hangar that has all needed modules and fuel to autonomously land on a planet or moon, bringing some rovers along the way
-    * there's also the **Spaceport** part that combines a huge hangar with a cockpit; as such, the Spaceport has only a single stack node at its bottom
+    * **Spaceport** that combines a huge hangar with a cockpit; the Spaceport has only a single stack node at its bottom and meant to be used instead of a cockpit
 * In-line hangars are equipped with internal docking port for easy targeting. If the hangar is inactive, this port may be used for normal docking
 * Ground hangars have anchoring modules for comfort use on low-gravity worlds and integrated probe cores with antennas for autonomous operation
 * Crew and resources can be transferred between a vessel with a hangar and stored vessels
