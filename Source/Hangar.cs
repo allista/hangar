@@ -635,13 +635,21 @@ namespace AtHangar
 			//load vessel config
 			vessel_selector = null;
 			PackedConstruct pc = new PackedConstruct(filename, flagname);
+			//check if the construct contains launch clamps
+			if(Utils.HasLaunchClamp(pc.construct))
+			{
+				ScreenMessager.showMessage(string.Format("{0} has launch clamps. Remove them before storing.", pc.name), 3);
+				pc.UnloadConstruct();
+				return;
+			}
 			//check if it's possible to launch such vessel
 			bool cant_launch = false;
 			PreFlightCheck preFlightCheck = new PreFlightCheck(new Callback(() => cant_launch = false), new Callback(() => cant_launch = true));
 			preFlightCheck.AddTest(new PreFlightTests.ExperimentalPartsAvailable(pc.construct));
-			preFlightCheck.RunTests(); if(cant_launch) return;
-			//cleanup loaded parts and try to store construct
+			preFlightCheck.RunTests(); 
 			pc.UnloadConstruct();
+			//cleanup loaded parts and try to store construct
+			if(cant_launch) return;
 			if(try_store_construct(pc)) 
 				change_part_params(pc.metric);
 		}

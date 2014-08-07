@@ -134,6 +134,13 @@ namespace AtHangar
             ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " as not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
             return false;
         }
+
+		public static bool HasLaunchClamp(IEnumerable<Part> parts)
+		{
+			foreach(Part p in parts)
+			{ if(p.HasModule<LaunchClamp>()) return true; }
+			return false;
+		}
 		
 		#region Debug
 		public static void Log(string msg, params object[] args)
@@ -252,7 +259,7 @@ namespace AtHangar
 
 		public static float DryCost(this Part p) { return p.TotalCost() - p.ResourcesCost(); }
 	}
-	
+
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 	public class ScreenMessager : MonoBehaviour
 	{
