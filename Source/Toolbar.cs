@@ -1,5 +1,4 @@
 using UnityEngine;
-using Toolbar;
 
 namespace AtHangar {
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
