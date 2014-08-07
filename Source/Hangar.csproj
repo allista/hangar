@@ -53,10 +53,6 @@
       <HintPath>..\KSP_test\KSP_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="aaa_Toolbar">
-      <HintPath>..\KSP_test\GameData\000_Toolbar\Toolbar.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -78,6 +74,7 @@
     <Compile Include="VesselsPack.cs" />
     <Compile Include="VesselWrappers.cs" />
     <Compile Include="PartUpdaters.cs" />
+    <Compile Include="ToolbarWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
