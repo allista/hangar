@@ -266,7 +266,7 @@ namespace AtHangar
 		static float osdMessageTime  = 0;
 		static string osdMessageText = null;
 
-		public static void showMessage (string msg, float delay)
+		public static void showMessage(string msg, float delay)
 		{
 			#if DEBUG
 			Utils.Log(msg);
