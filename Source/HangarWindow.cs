@@ -404,7 +404,7 @@ namespace AtHangar
 			if(vessel_metric == null) return;
 			if(Event.current.type != EventType.Layout) return;
 			base.OnGUI();
-			if(hangars != null)
+			if(hangars != null && selected_hangar.enabled)
 			{
 				//controls
 				string hstate = selected_hangar.hangar_state.ToString();
