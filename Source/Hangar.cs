@@ -8,7 +8,7 @@ using UnityEngine;
 namespace AtHangar
 {
 	//this module adds the ability to store a vessel in a packed state inside
-	public class Hangar : PartModule, IPartCostModifier
+	public class Hangar : PartModule, IPartCostModifier, IControllableModule
 	{
 		public enum HangarState { Active, Inactive }
 
@@ -20,7 +20,7 @@ namespace AtHangar
 		public float used_volume  = -1f;
 		BaseHangarAnimator hangar_gates;
 		
-		public HangarGates gates_state { get { return hangar_gates.GatesState; } }
+		public AnimatorState gates_state { get { return hangar_gates.State; } }
 		public HangarState hangar_state { get; private set;}
 		public Metric part_metric { get; private set;}
 		public Metric hangar_metric { get; private set;}
@@ -29,10 +29,10 @@ namespace AtHangar
 		public List<ResourceManifest> resourceTransferList = new List<ResourceManifest>();
 		
 		//fields
-		[KSPField (isPersistant = false)] public string addFrictionTo;
-		[KSPField (isPersistant = false)] public float VolumePerKerbal    = 3f; // m^3
+		[KSPField (isPersistant = false)] public string AnimatorID;
+		[KSPField (isPersistant = false)] public float VolumePerKerbal = 3f; // m^3
 		[KSPField (isPersistant = false)] public bool  StaticCrewCapacity = false;
-		[KSPField (isPersistant = true)]  public float base_mass  = -1f;
+		[KSPField (isPersistant = true)]  public float base_mass = -1f;
 		
 		//vessels storage
 		VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
@@ -110,19 +110,18 @@ namespace AtHangar
 			if(state != StartState.Editor) update_resources();
 			//initialize Animator
 			part.force_activate();
-            hangar_gates = part.Modules.OfType<BaseHangarAnimator>().SingleOrDefault();
+			hangar_gates = part.Modules.OfType<BaseHangarAnimator>()
+				.Where(m => m.AnimatorID == AnimatorID).FirstOrDefault();
 			if (hangar_gates == null)
 			{
                 hangar_gates = new BaseHangarAnimator();
-				Debug.Log("[Hangar] Using BaseHangarAnimator");
+				Utils.Log("Using BaseHangarAnimator");
 			}
 			else
             {
                 Events["Open"].guiActiveEditor = true;
                 Events["Close"].guiActiveEditor = true;
             }
-			//add friction to colliders listed
-			set_friction();
 			//recalculate volume and mass
 			Setup();
 			//store packed constructs if any
@@ -203,54 +202,6 @@ namespace AtHangar
 			stored_mass = Utils.formatMass(vessels_mass);
 			stored_cost = vessels_cost.ToString();
 			set_part_params();
-		}
-		
-		void set_friction() //doesn't work =\
-		{
-			if(addFrictionTo == "") return;
-			foreach(string mesh_name in addFrictionTo.Split(' '))
-			{
-				MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
-				if(m == null)
-				{
-					Utils.Log("set_friction: {0} does not have '{1}' mesh", part.name, mesh_name);
-					continue;
-				}
-				if(m.collider == null)
-				{
-					Utils.Log("set_friction: mesh {0} does not have a collider", mesh_name);
-					continue;
-				}
-				PhysicMaterial mat = m.collider.material;
-				mat.staticFriction = 1;
-				mat.dynamicFriction = 1;
-				mat.frictionCombine = PhysicMaterialCombine.Maximum;
-				mat.bounciness = 0;
-			}
-			#if DEBUG
-			foreach(Collider c in part.FindModelComponents<Collider>())//debug
-			{
-				PhysicMaterial mat = c.material;
-				Utils.Log("{0} physicMaterial: \n" +
-					"sf {1}, df {2}, \n" +
-					"sf2 {3}, df2 {4}, \n" +
-					"fd {5}, \n" +
-					"fc {6}, \n" +
-					"b {7}, \n" +
-					"bc {8}, \n", 
-					c.name, 
-					mat.staticFriction, 
-					mat.dynamicFriction,
-					mat.staticFriction2, 
-					mat.dynamicFriction2,
-					mat.frictionDirection2,
-					mat.frictionCombine,
-
-					mat.bounciness,
-					mat.bounceCombine
-				);
-			}
-			#endif
 		}
 
 		public float GetModuleCost() { return vessels_cost; }
@@ -539,7 +490,7 @@ namespace AtHangar
 				ScreenMessager.showMessage("Activate the hangar first", 3);
 				return false;
 			}
-			if(hangar_gates.GatesState != HangarGates.Opened) 
+			if(hangar_gates.State != AnimatorState.Opened) 
 			{
 				ScreenMessager.showMessage("Open hangar gates first", 3);
 				return false;
@@ -785,7 +736,7 @@ namespace AtHangar
 		//update labels
 		public override void OnUpdate ()
 		{
-			doors = hangar_gates.GatesState.ToString();
+			doors = hangar_gates.State.ToString();
 			state = hangar_state.ToString();
 		}
 
@@ -871,6 +822,42 @@ namespace AtHangar
 			}
 		}
 		#endregion
+		#endregion
+
+		#region ControllableModule
+		public bool CanEnable() { return true; }
+		public bool CanDisable() 
+		{ 
+			if(stored_vessels.Count > 0 || packed_constructs.Count > 0)
+			{
+				ScreenMessager.showMessage("Empty the hangar before deflating it", 3);
+				return false;
+			}
+			if(EditorLogic.fetch == null && hangar_state == HangarState.Active)
+			{
+				ScreenMessager.showMessage("Deactivate the hangar before deflating it", 3);
+				return false;
+			}
+			if(hangar_gates.State != AnimatorState.Closed)
+			{
+				ScreenMessager.showMessage("Close hangar doors before deflating it", 3);
+				return false;
+			}
+			return true;
+		}
+
+		public void Enable(bool enable) 
+		{ 
+			if(enable) 
+			{
+				enabled = true;
+				Setup();
+			}
+			else
+			{
+
+			}
+		}
 		#endregion
 	}
 }

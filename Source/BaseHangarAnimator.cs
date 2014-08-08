@@ -2,7 +2,7 @@ using System;
 
 namespace AtHangar
 {
-	public enum HangarGates
+	public enum AnimatorState
     {
         Opened,
         Opening,
@@ -13,35 +13,38 @@ namespace AtHangar
 	public class BaseHangarAnimator : PartModule
 	{
 		[KSPField(isPersistant = true)]
-        public string State;
+        public string SavedState;
+
+		[KSPField(isPersistant = false)]
+		public string AnimatorID = "_none_";
 		
-        public HangarGates GatesState 
+        public AnimatorState State 
 		{
 			get
             {
-                try { return (HangarGates)Enum.Parse(typeof(HangarGates), State); }
+                try { return (AnimatorState)Enum.Parse(typeof(AnimatorState), SavedState); }
                 catch
                 {
-                    GatesState = HangarGates.Closed;
-                    return GatesState;
+                    State = AnimatorState.Closed;
+                    return State;
                 }
             }
-            protected set { State = Enum.GetName(typeof(HangarGates), value); }
+            protected set { SavedState = Enum.GetName(typeof(AnimatorState), value); }
 		}
 		
 		public override void OnStart(StartState state)
         {
-            if (GatesState == HangarGates.Opening) { GatesState = HangarGates.Closed; }
-            else if (GatesState == HangarGates.Closing) { GatesState = HangarGates.Opened; }
+            if (State == AnimatorState.Opening) { State = AnimatorState.Closed; }
+            else if(State == AnimatorState.Closing) { State = AnimatorState.Opened; }
         }
 		
-        virtual public void Open() { GatesState = HangarGates.Opened; }
-        virtual public void Close() { GatesState = HangarGates.Closed; }
+        virtual public void Open() { State = AnimatorState.Opened; }
+        virtual public void Close() { State = AnimatorState.Closed; }
 		
 		public bool Toggle()
 		{
-			if(GatesState == HangarGates.Closed 
-			   || GatesState == HangarGates.Closing)
+			if(State == AnimatorState.Closed 
+			   || State == AnimatorState.Closing)
 			{
 				Open ();
 				return true;

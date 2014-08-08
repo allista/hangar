@@ -201,8 +201,8 @@ namespace AtHangar
 		
 		void ToggleGatesButton()
 		{
-			if(selected_hangar.gates_state == HangarGates.Closed ||
-			   selected_hangar.gates_state == HangarGates.Closing)
+			if(selected_hangar.gates_state == AnimatorState.Closed ||
+			   selected_hangar.gates_state == AnimatorState.Closing)
 			{
 				if(GUILayout.Button("Open Gates", Styles.green_button, GUILayout.ExpandWidth(true)))
 					selected_hangar.Open();
