@@ -10,8 +10,74 @@ namespace AtHangar
 	{
 		bool CanEnable();
 		bool CanDisable();
-
 		void Enable(bool enable);
+	}
+
+	public class ModuleGUIState
+	{
+		readonly public List<string> EditorFields    = new List<string>();
+		readonly public List<string> GUIFields       = new List<string>();
+		readonly public List<string> InactiveEvents  = new List<string>();
+		readonly public List<string> InactiveActions = new List<string>();
+	}
+
+	public static class PartModuleExtension
+	{
+		public static ModuleGUIState SaveGUIState(this PartModule pm)
+		{
+			ModuleGUIState state = new ModuleGUIState();
+			foreach(BaseField f in pm.Fields)
+			{
+				if(f.guiActive) state.GUIFields.Add(f.name);
+				if(f.guiActiveEditor) state.EditorFields.Add(f.name);
+			}
+			foreach(BaseEvent e in pm.Events)
+				if(!e.active) state.InactiveEvents.Add(e.name);
+			foreach(BaseAction a in pm.Actions)
+				if(!a.active) state.InactiveActions.Add(a.name);
+			return state;
+		}
+
+		public static ModuleGUIState DeactivateGUI(this PartModule pm)
+		{
+			ModuleGUIState state = new ModuleGUIState();
+			foreach(BaseField f in pm.Fields)
+			{
+				if(f.guiActive) state.GUIFields.Add(f.name);
+				if(f.guiActiveEditor) state.EditorFields.Add(f.name);
+				f.guiActive = f.guiActiveEditor = false;
+			}
+			foreach(BaseEvent e in pm.Events)
+			{
+				if(!e.active) state.InactiveEvents.Add(e.name);
+				e.active = false;
+			}
+			foreach(BaseAction a in pm.Actions)
+			{
+				if(!a.active) state.InactiveActions.Add(a.name);
+				a.active = false;
+			}
+			return state;
+		}
+
+		public static void ActivateGUI(this PartModule pm, ModuleGUIState state = null)
+		{
+			foreach(BaseField f in pm.Fields)
+			{
+				if(state.GUIFields.Contains(f.name)) f.guiActive = true;
+				if(state.EditorFields.Contains(f.name)) f.guiActiveEditor = true;
+			}
+			foreach(BaseEvent e in pm.Events)
+			{
+				if(state.InactiveEvents.Contains(e.name)) continue;
+				e.active = true;
+			}
+			foreach(BaseAction a in pm.Actions)
+			{
+				if(state.InactiveActions.Contains(a.name)) continue;
+				a.active = true;
+			}
+		}
 	}
 
 	public class HangarGenericInflatable : HangarAnimator
@@ -28,6 +94,7 @@ namespace AtHangar
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
+			//get controlled modules
 			foreach(string module_name in ControlledModules.Split(' '))
 			{
 				if(!part.Modules.Contains(module_name))
@@ -52,6 +119,9 @@ namespace AtHangar
 				}
 				controlled_modules.AddRange(modules);
 			}
+			//force attach roules for inflatable part. No surface attach!
+			part.attachRules.allowSrfAttach = false;
+			part.attachRules.srfAttach = false;
 		}
 
 		public override void OnLoad(ConfigNode node)
@@ -71,6 +141,7 @@ namespace AtHangar
 		{
 			AnimatorState target_state = enable ? AnimatorState.Opened : AnimatorState.Closed;
 			while(State != target_state) yield return new WaitForFixedUpdate();
+			yield return new WaitForSeconds(0.5f);
 			EnableModules(enable);
 		}
 		#endregion

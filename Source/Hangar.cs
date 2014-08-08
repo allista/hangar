@@ -74,7 +74,7 @@ namespace AtHangar
 			return stored_vessels.TryGetValue(vid, out sv)? sv : null;
 		}
 		
-		public void UpdateMenus (bool visible)
+		public void UpdateMenus(bool visible)
 		{
 			Events["HideUI"].active = visible;
 			Events["ShowUI"].active = !visible;
@@ -137,6 +137,7 @@ namespace AtHangar
 			part_metric = new Metric(part);
 			if(HangarSpace != "") 
 				hangar_metric = new Metric(part, HangarSpace);
+			else hangar_metric = null;
 			//if hangar metric is not provided, derive it from part metric
 			if(hangar_metric == null || hangar_metric.Empty)
 				hangar_metric = part_metric*usefull_volume_ratio;
@@ -825,6 +826,7 @@ namespace AtHangar
 		#endregion
 
 		#region ControllableModule
+		ModuleGUIState gui_state;
 		public bool CanEnable() { return true; }
 		public bool CanDisable() 
 		{ 
@@ -850,12 +852,20 @@ namespace AtHangar
 		{ 
 			if(enable) 
 			{
-				enabled = true;
+				if(gui_state == null) gui_state = this.SaveGUIState();
+				this.ActivateGUI(gui_state);
+				Utils.logStamp("Enable");//debug
 				Setup();
+				Utils.logVector(part.partTransform.localScale);//debug
+				Utils.logBounds(part_metric.bounds);//debug
+				Utils.logBounds(hangar_metric.bounds);//debug
+				Utils.logStamp();//debug
+				enabled = true;
 			}
 			else
 			{
-
+				gui_state = this.DeactivateGUI();
+				enabled = false;
 			}
 		}
 		#endregion
