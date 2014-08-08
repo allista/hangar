@@ -209,9 +209,7 @@ namespace AtHangar
 		
 		public void Scale(float s)
 		{
-			Bounds b = bounds;
-			b.SetMinMax(b.center-b.extents*s, b.center+b.extents*s);
-			bounds = b;
+			bounds = new Bounds(center, size*s);
 			volume = boundsVolume(bounds);
 		}
 		
