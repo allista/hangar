@@ -110,8 +110,7 @@ namespace AtHangar
 			if(state != StartState.Editor) update_resources();
 			//initialize Animator
 			part.force_activate();
-			hangar_gates = part.Modules.OfType<BaseHangarAnimator>()
-				.Where(m => m.AnimatorID == AnimatorID).FirstOrDefault();
+			hangar_gates = part.Modules.OfType<BaseHangarAnimator>().FirstOrDefault(m => m.AnimatorID == AnimatorID);
 			if (hangar_gates == null)
 			{
                 hangar_gates = new BaseHangarAnimator();
@@ -854,12 +853,7 @@ namespace AtHangar
 			{
 				if(gui_state == null) gui_state = this.SaveGUIState();
 				this.ActivateGUI(gui_state);
-				Utils.logStamp("Enable");//debug
 				Setup();
-				Utils.logVector(part.partTransform.localScale);//debug
-				Utils.logBounds(part_metric.bounds);//debug
-				Utils.logBounds(hangar_metric.bounds);//debug
-				Utils.logStamp();//debug
 				enabled = true;
 			}
 			else
