@@ -50,17 +50,17 @@ namespace AtHangar
 
         override public void Open()
         {
-            if(State != AnimatorState.Closed) { return; }
+            if(State != AnimatorState.Closed) return;
             State = AnimatorState.Opening;
         }
 
         override public void Close()
         {
-            if (State != AnimatorState.Opened) { return; }
+            if(State != AnimatorState.Opened) return;
             State = AnimatorState.Closing;
         }
 
-        public void Update()
+		public virtual void Update()
         {
             if (State == AnimatorState.Opening && animation_states.TrueForAll(s => s.normalizedTime >= 1))
                 State = AnimatorState.Opened;
