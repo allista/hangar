@@ -141,6 +141,9 @@ namespace AtHangar
 			{ if(p.HasModule<LaunchClamp>()) return true; }
 			return false;
 		}
+
+		public static void UpdateEditorGUI()
+		{ if(EditorLogic.fetch != null)	GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship); }
 		
 		#region Debug
 		public static void Log(string msg, params object[] args)
@@ -228,6 +231,38 @@ namespace AtHangar
 		#endregion
 	}
 
+
+	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
+	public class ScreenMessager : MonoBehaviour
+	{
+		static float osdMessageTime  = 0;
+		static string osdMessageText = null;
+
+		public static void showMessage(string msg, float delay)
+		{
+			#if DEBUG
+			Utils.Log(msg);
+			#endif
+			osdMessageText = msg;
+			osdMessageTime = Time.time + delay;
+		}
+
+		public void OnGUI ()
+		{
+			if (Time.time < osdMessageTime) 
+			{
+				GUI.skin = HighLogic.Skin;
+				GUIStyle style = new GUIStyle ("Label");
+				style.alignment = TextAnchor.MiddleCenter;
+				style.fontSize = 20;
+				style.normal.textColor = Color.black;
+				GUI.Label (new Rect (2, 2 + (Screen.height / 9), Screen.width, 50), osdMessageText, style);
+				style.normal.textColor = Color.yellow;
+				GUI.Label (new Rect (0, Screen.height / 9, Screen.width, 50), osdMessageText, style);
+			}
+		}
+	}
+
 	public static class PartExtension
 	{
 		#region from MechJeb2 PartExtensions
@@ -258,35 +293,81 @@ namespace AtHangar
 		}
 
 		public static float DryCost(this Part p) { return p.TotalCost() - p.ResourcesCost(); }
-	}
 
-	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
-	public class ScreenMessager : MonoBehaviour
-	{
-		static float osdMessageTime  = 0;
-		static string osdMessageText = null;
-
-		public static void showMessage(string msg, float delay)
+		public static float MassWithChildren(this Part p)
 		{
-			#if DEBUG
-			Utils.Log(msg);
-			#endif
-			osdMessageText = msg;
-			osdMessageTime = Time.time + delay;
+			float mass = p.TotalMass();
+			p.children.ForEach(ch => mass += ch.MassWithChildren());
+			return mass;
 		}
 
-		public void OnGUI ()
+		public static Part RootPart(this Part p) 
+		{ return p.parent == null ? p : p.parent.RootPart(); }
+	}
+
+	public class ModuleGUIState
+	{
+		readonly public List<string> EditorFields    = new List<string>();
+		readonly public List<string> GUIFields       = new List<string>();
+		readonly public List<string> InactiveEvents  = new List<string>();
+		readonly public List<string> InactiveActions = new List<string>();
+	}
+
+	public static class PartModuleExtension
+	{
+		public static ModuleGUIState SaveGUIState(this PartModule pm)
 		{
-			if (Time.time < osdMessageTime) 
+			ModuleGUIState state = new ModuleGUIState();
+			foreach(BaseField f in pm.Fields)
 			{
-				GUI.skin = HighLogic.Skin;
-				GUIStyle style = new GUIStyle ("Label");
-				style.alignment = TextAnchor.MiddleCenter;
-				style.fontSize = 20;
-				style.normal.textColor = Color.black;
-				GUI.Label (new Rect (2, 2 + (Screen.height / 9), Screen.width, 50), osdMessageText, style);
-				style.normal.textColor = Color.yellow;
-				GUI.Label (new Rect (0, Screen.height / 9, Screen.width, 50), osdMessageText, style);
+				if(f.guiActive) state.GUIFields.Add(f.name);
+				if(f.guiActiveEditor) state.EditorFields.Add(f.name);
+			}
+			foreach(BaseEvent e in pm.Events)
+				if(!e.active) state.InactiveEvents.Add(e.name);
+			foreach(BaseAction a in pm.Actions)
+				if(!a.active) state.InactiveActions.Add(a.name);
+			return state;
+		}
+
+		public static ModuleGUIState DeactivateGUI(this PartModule pm)
+		{
+			ModuleGUIState state = new ModuleGUIState();
+			foreach(BaseField f in pm.Fields)
+			{
+				if(f.guiActive) state.GUIFields.Add(f.name);
+				if(f.guiActiveEditor) state.EditorFields.Add(f.name);
+				f.guiActive = f.guiActiveEditor = false;
+			}
+			foreach(BaseEvent e in pm.Events)
+			{
+				if(!e.active) state.InactiveEvents.Add(e.name);
+				e.active = false;
+			}
+			foreach(BaseAction a in pm.Actions)
+			{
+				if(!a.active) state.InactiveActions.Add(a.name);
+				a.active = false;
+			}
+			return state;
+		}
+
+		public static void ActivateGUI(this PartModule pm, ModuleGUIState state = null)
+		{
+			foreach(BaseField f in pm.Fields)
+			{
+				if(state.GUIFields.Contains(f.name)) f.guiActive = true;
+				if(state.EditorFields.Contains(f.name)) f.guiActiveEditor = true;
+			}
+			foreach(BaseEvent e in pm.Events)
+			{
+				if(state.InactiveEvents.Contains(e.name)) continue;
+				e.active = true;
+			}
+			foreach(BaseAction a in pm.Actions)
+			{
+				if(state.InactiveActions.Contains(a.name)) continue;
+				a.active = true;
 			}
 		}
 	}
