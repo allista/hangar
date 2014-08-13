@@ -90,7 +90,7 @@ namespace AtHangar
 				var hangar_names = new List<string>();
 				for(int i = 0; i < hangars.Count; i++)
 				{
-					string h_name = hangars[i].HangarName == default(string) ? "Hangar" : hangars[i].HangarName;
+					string h_name = hangars[i].HangarName == default(string) ? "Unnamed Hangar" : hangars[i].HangarName;
 					hangar_names.Add(string.Format("{0} {1}", i, h_name));
 				}
 				hangar_list = new DropDownList(hangar_names, hangars.IndexOf(selected_hangar));
