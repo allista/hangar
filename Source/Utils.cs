@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KSPAPIExtensions;
-using System.Runtime.InteropServices;
 
 
 namespace AtHangar
@@ -346,6 +345,16 @@ namespace AtHangar
 					s.direction = Vector3.zero;
 				}
 			}
+		}
+
+		public static WheelUpdater AddWheelUpdater(this Part p, uint trigger_id = default(uint))
+		{
+			WheelUpdater updater = (p.Modules.OfType<WheelUpdater>().FirstOrDefault() ?? 
+									p.AddModule("WheelUpdater") as WheelUpdater);
+			if(updater == null) return null;
+			if(trigger_id != default(uint))
+				updater.RegisterTrigger(trigger_id);
+			return updater;
 		}
 	}
 
