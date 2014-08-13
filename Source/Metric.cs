@@ -7,6 +7,7 @@ namespace AtHangar
 	public class Metric
 	{
 		public float volume { get; private set; }
+		public float area { get; private set; }
 		public float mass { get; set; }
 		public float cost { get; set; }
 		public Bounds bounds { get; private set; }
@@ -14,7 +15,7 @@ namespace AtHangar
 		public Vector3 extents { get { return bounds.extents; } }
 		public Vector3 size { get { return bounds.size; } }
 		public int CrewCapacity { get; private set; }
-		public bool Empty { get { return volume == 0; } }
+		public bool Empty { get { return volume == 0 && area == 0; } }
 		
 		static Vector3[] bound_edges(Bounds b)
 		{
@@ -46,6 +47,9 @@ namespace AtHangar
 		
 		static float boundsVolume(Bounds b)
 		{ return b.size.x*b.size.y*b.size.z; }
+
+		static float boundsArea(Bounds b)
+		{ return b.size.x*b.size.y*2+b.size.x*b.size.z*2+b.size.y*b.size.z*2; }
 		
 		static Bounds initBounds(Vector3[] edges)
 		{
@@ -90,6 +94,7 @@ namespace AtHangar
 		{
 			bounds = new Bounds();
 			volume = 0f;
+			area   = 0f;
 			mass   = 0f;
 			CrewCapacity = 0;
 		}
@@ -99,6 +104,7 @@ namespace AtHangar
 		{
 			bounds = new Bounds(m.bounds.center, m.bounds.size);
 			volume = m.volume;
+			area   = m.area;
 			mass   = m.mass;
 			CrewCapacity = m.CrewCapacity;
 		}
@@ -108,6 +114,7 @@ namespace AtHangar
 		{
 			bounds = new Bounds(b.center, b.size);
 			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
 			mass   = m;
 			CrewCapacity = crew_capacity;
 		}
@@ -117,6 +124,7 @@ namespace AtHangar
 		{
 			bounds = new Bounds(center, size);
 			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
 			mass   = m;
 			CrewCapacity = crew_capacity;
 		}
@@ -126,6 +134,7 @@ namespace AtHangar
 		{
 			bounds = initBounds(edges);
 			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
 			mass   = m;
 			CrewCapacity = crew_capacity;
 		}
@@ -144,6 +153,7 @@ namespace AtHangar
 			local2local(mT, pT, edges);
 			bounds = initBounds(edges);
 			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
 			mass   = 0f;
 		}
 		
@@ -153,6 +163,7 @@ namespace AtHangar
 			Transform pT = part.partTransform;
 			bounds = partsBounds(new List<Part>{part}, pT);
 			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
 		}
 		
 		//vessel metric
@@ -161,6 +172,7 @@ namespace AtHangar
 			Transform vT = vessel.vesselTransform;
 			bounds = partsBounds(vessel.parts, vT);
 			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
 		}
 		
 		//in-editor vessel metric
@@ -169,6 +181,7 @@ namespace AtHangar
 			Transform vT = vessel[0].partTransform;
 			bounds = partsBounds(vessel, vT);
 			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
 		}
 		
 		//public methods
@@ -211,6 +224,7 @@ namespace AtHangar
 		{
 			bounds = new Bounds(center, size*s);
 			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
 		}
 		
 		public void Save(ConfigNode node)
@@ -234,6 +248,7 @@ namespace AtHangar
 			Vector3 _size   = ConfigNode.ParseVector3(node.GetValue("bounds_size"));
 			bounds = new Bounds(_center, _size);
 			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
 			CrewCapacity = int.Parse(node.GetValue("crew_capacity"));
 			mass = float.Parse(node.GetValue("mass"));
 			cost = float.Parse(node.GetValue("cost"));
@@ -314,8 +329,8 @@ namespace AtHangar
 		public void DrawBox(Transform vT) 
 		{ draw_mesh_box(bounds, vT, Color.white); }
 
-		public void DrawPoint(Vector3 point, Transform vT, Color c = default(Color))
-		{ draw_mesh_box(new Bounds(point, size*0.01f), vT, c); }
+		public static void DrawPoint(Vector3 point, Transform vT, Color c = default(Color))
+		{ draw_mesh_box(new Bounds(point, Vector3.one*0.1f), vT, c); }
 
 		public void DrawCenter(Transform vT) { DrawPoint(center, vT); }
 		#endif
