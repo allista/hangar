@@ -14,10 +14,10 @@ namespace AtHangar
 
 		//internal properties
 		const float crew_volume_ratio = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
-		float usefull_volume_ratio = 0.7f;    //only 70% of the volume may be used by docking vessels
-		public float vessels_mass = -1f;
-		public float vessels_cost = -1f;
-		public float used_volume  = -1f;
+		float usefull_volume_ratio    = 0.7f;    //only 70% of the volume may be used by docking vessels
+		public float vessels_mass     = -1f;
+		public float vessels_cost     = -1f;
+		public float used_volume      = -1f;
 		BaseHangarAnimator hangar_gates;
 		
 		public AnimatorState gates_state { get { return hangar_gates.State; } }
@@ -46,14 +46,14 @@ namespace AtHangar
 		Vessel launched_vessel;
 
 		//in-editor vessel docking
-		static readonly string eLock = "Hangar.EditHangarContents";
+		static readonly string eLock = "Hangar.EditHangar";
 		static readonly List<string> vessel_dirs = new List<string>{"VAB", "SPH", "../Subassemblies"};
-		Rect eWindowPos = new Rect(Screen.width/2-200, 100, 400, 100);
+		Rect eWindowPos     = new Rect(Screen.width/2-200, 100, 400, 100);
+		Rect neWindowPos    = new Rect(Screen.width/2-200, 100, 400, 50);
 		Vector2 scroll_view = Vector2.zero;
 		VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>();
 		CraftBrowser vessel_selector;
-		VesselType vessel_type;
-		bool editing_hangar = false;
+		VesselType   vessel_type;
 		
 		//gui fields
 		[KSPField (guiName = "Volume",        guiActiveEditor=true)] public string hangar_v;
@@ -63,9 +63,22 @@ namespace AtHangar
 		[KSPField (guiName = "Stored Cost",   guiActiveEditor=true)] public string stored_cost;
 		[KSPField (guiName = "Hangar Doors",  guiActive = true)] public string doors;
 		[KSPField (guiName = "Hangar State",  guiActive = true)] public string state;
+		[KSPField (guiName = "Hangar Name",   guiActive = true, guiActiveEditor=true, isPersistant = true)]
+		public string HangarName = "_none_";
+
+		//update labels
+		IEnumerator<YieldInstruction> UpdateStatus()
+		{
+			while(true)
+			{
+				doors = hangar_gates.State.ToString();
+				state = hangar_state.ToString();
+				yield return new WaitForSeconds(0.5f);
+			}
+		}
 		
 		
-		#region for-GUI
+		#region For HangarWindow
 		public List<StoredVessel> GetVessels() { return stored_vessels.Values; }
 		
 		public StoredVessel GetVessel(Guid vid)
@@ -106,6 +119,8 @@ namespace AtHangar
 			//base OnStart
 			base.OnStart(state);
 			if(state == StartState.None) return;
+			//setup hangar name
+			if(HangarName == "_none_") HangarName = part.partInfo.title;
 			//initialize resources
 			if(state != StartState.Editor) update_resources();
 			//initialize Animator
@@ -121,13 +136,14 @@ namespace AtHangar
                 Events["Open"].guiActiveEditor = true;
                 Events["Close"].guiActiveEditor = true;
             }
-			//recalculate volume and mass
+			//recalculate volume and mass, start updating labels
 			Setup();
+			StartCoroutine(UpdateStatus());
 			//store packed constructs if any
 			if(packed_constructs.Count > 0) StartCoroutine(store_constructs());
 			//set vessel type
-			if(EditorLogic.fetch != null)
-				vessel_type = EditorLogic.fetch.editorType == EditorLogic.EditorMode.SPH ? VesselType.SPH : VesselType.VAB;
+			EditorLogic el = EditorLogic.fetch;
+			if(el != null) vessel_type = el.editorType == EditorLogic.EditorMode.SPH ? VesselType.SPH : VesselType.VAB;
 		}
 		
 		public void Setup(bool reset = false)	
@@ -206,7 +222,48 @@ namespace AtHangar
 
 		public float GetModuleCost() { return vessels_cost; }
 		#endregion
-		
+
+		#region Save-Load
+		//save the hangar
+		public override void OnSave(ConfigNode node)
+		{
+			//hangar state
+			node.AddValue("hangarState", hangar_state.ToString());
+			//save stored vessels
+			if(stored_vessels.Count > 0)
+				stored_vessels.Save(node.AddNode("STORED_VESSELS"));
+			if(packed_constructs.Count > 0)
+				packed_constructs.Save(node.AddNode("PACKED_CONSTRUCTS"));
+		}
+
+		//load the hangar
+		public override void OnLoad(ConfigNode node)
+		{ 
+			//hangar state
+			if(node.HasValue("hangarState"))
+				hangar_state = (HangarState)Enum.Parse(typeof(HangarState), node.GetValue("hangarState"));
+			//restore stored vessels
+			if(node.HasNode("STORED_VESSELS"))
+				stored_vessels.Load(node.GetNode("STORED_VESSELS"));
+			if(node.HasNode("PACKED_CONSTRUCTS"))
+				packed_constructs.Load(node.GetNode("PACKED_CONSTRUCTS"));
+		}
+		#endregion
+
+		#region Wheel stiffness changes
+		//inject WheelUpdater to a wheel part and register in it
+		void OnCollisionEnter(Collision collision) 
+		{
+			foreach(ContactPoint c in collision.contacts)
+			{
+				if(!(c.otherCollider is WheelCollider)) continue;
+				Part other_part = collision.gameObject.GetComponents<Part>().FirstOrDefault();
+				if(other_part == null) continue;
+				other_part.AddWheelUpdater(part.flightID);
+				return;
+			}
+		}
+		#endregion
 		
 		#region Store
 		//if a vessel can be stored in the hangar
@@ -311,7 +368,7 @@ namespace AtHangar
 		}
 		
 		//called every frame while part collider is touching the trigger
-		public void OnTriggerStay (Collider col) //see Unity docs
+		void OnTriggerStay (Collider col) //see Unity docs
 		{
 			if(hangar_state != HangarState.Active
 				||  col == null
@@ -326,7 +383,7 @@ namespace AtHangar
 		}
 		
 		//called when part collider exits the trigger
-		public void OnTriggerExit(Collider col)
+		void OnTriggerExit(Collider col)
 		{
 			if(col == null
 				|| !col.CompareTag("Untagged")
@@ -407,6 +464,7 @@ namespace AtHangar
 		{
 			while(!lv.launched) yield return new WaitForFixedUpdate();
 			lv.tunePosition();
+			lv.stiffenWheels();
 			lv.transferCrew();
 			//it seems you must give KSP a moment to sort it all out,
             //so delay the remaining steps of the transfer process. 
@@ -557,7 +615,7 @@ namespace AtHangar
 			change_part_params(stored_vessel.metric, -1f);
 			//switch to restored vessel
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
-			SetupVessel(new LaunchedVessel(stored_vessel, launched_vessel, crew_to_transfer));
+			SetupVessel(new LaunchedVessel(stored_vessel, launched_vessel, crew_to_transfer, part.flightID));
 		}
 		#endregion
 
@@ -618,11 +676,13 @@ namespace AtHangar
 		IEnumerator<YieldInstruction> store_constructs()
 		{
 			if(FlightGlobals.fetch == null || 
-			   FlightGlobals.ActiveVessel == null) 
+				FlightGlobals.ActiveVessel == null ||
+				packed_constructs.Count == 0) 
 				yield break;
 			//wait for hangar.vessel to be loaded
 			VesselWaiter self = new VesselWaiter(vessel);
 			while(!self.launched) yield return new WaitForFixedUpdate();
+			while(!enabled) yield return new WaitForFixedUpdate();
 			//create vessels from constructs and store them
 			HangarState cur_state = hangar_state; Deactivate();
 			foreach(PackedConstruct pc in packed_constructs.Values)
@@ -672,6 +732,14 @@ namespace AtHangar
 			Events["Open"].active = true;
 			Events["Close"].active = false;
 		}
+
+		[KSPEvent (guiActive = true, guiActiveEditor = true, guiName = "Rename Hangar", active = true)]
+		public void EditName() 
+		{ 
+			editing_hangar_name = !editing_hangar_name; 
+			Utils.LockIfMouseOver(eLock, neWindowPos, editing_hangar_name);
+		}
+		bool editing_hangar_name = false;
 		
 		public void Activate() { hangar_state = HangarState.Active;	}
 		
@@ -684,7 +752,12 @@ namespace AtHangar
 		}
 
 		[KSPEvent (guiActiveEditor = true, guiName = "Edit contents", active = true)]
-		public void EditHangar() { editing_hangar = true; }
+		public void EditHangar() 
+		{ 
+			editing_hangar = !editing_hangar; 
+			Utils.LockIfMouseOver(eLock, eWindowPos, editing_hangar);
+		}
+		bool editing_hangar = false;
 
 		//actions
 		[KSPAction("Open gates")]
@@ -706,40 +779,6 @@ namespace AtHangar
         public void ToggleStateAction(KSPActionParam param) { Toggle(); }
 		#endregion
 	
-
-		#region Callbacks
-		//save the hangar
-		public override void OnSave(ConfigNode node)
-		{
-			//hangar state
-			node.AddValue("hangarState", hangar_state.ToString());
-			//save stored vessels
-			if(stored_vessels.Count > 0)
-				stored_vessels.Save(node.AddNode("STORED_VESSELS"));
-			if(packed_constructs.Count > 0)
-				packed_constructs.Save(node.AddNode("PACKED_CONSTRUCTS"));
-		}
-		
-		//load the hangar
-		public override void OnLoad(ConfigNode node)
-		{ 
-			//hangar state
-			if(node.HasValue("hangarState"))
-				hangar_state = (HangarState)Enum.Parse(typeof(HangarState), node.GetValue("hangarState"));
-			//restore stored vessels
-			if(node.HasNode("STORED_VESSELS"))
-				stored_vessels.Load(node.GetNode("STORED_VESSELS"));
-			if(node.HasNode("PACKED_CONSTRUCTS"))
-				packed_constructs.Load(node.GetNode("PACKED_CONSTRUCTS"));
-		}
-		
-		//update labels
-		public override void OnUpdate ()
-		{
-			doors = hangar_gates.State.ToString();
-			state = hangar_state.ToString();
-		}
-
 		#region OnGUI
 		void hangar_content_editor(int windowID)
 		{
@@ -799,29 +838,55 @@ namespace AtHangar
 			GUI.DragWindow(new Rect(0, 0, 500, 20));
 		}
 
+		void hangar_name_editor(int windowID)
+		{
+			GUILayout.BeginVertical();
+			HangarName = GUILayout.TextField(HangarName, 50);
+			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
+			{
+				Utils.LockIfMouseOver(eLock, neWindowPos, false);
+				editing_hangar_name = false;
+			}
+			GUILayout.EndVertical();
+			GUI.DragWindow(new Rect(0, 0, 500, 20));
+		}
+
 		public void OnGUI() 
 		{ 
-			if(!editing_hangar) return;
 			if(Event.current.type != EventType.Layout) return;
-			if(EditorLogic.fetch == null) return;
+			if(!editing_hangar && !editing_hangar_name) return;
+			if(editing_hangar && HighLogic.LoadedScene != GameScenes.EDITOR) return;
+			//init skin
 			Styles.InitSkin();
 			GUI.skin = Styles.skin;
 			Styles.InitGUI();
-			if(vessel_selector == null) 
+			//edit hangar
+			if(editing_hangar)
 			{
-				Utils.LockIfMouseOver(eLock, eWindowPos, true);
-				eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
-							                  hangar_content_editor,
-							                  "Choose vessel type",
-							                  GUILayout.Width(400));
+				if(vessel_selector == null) 
+				{
+					Utils.LockIfMouseOver(eLock, eWindowPos, true);
+					eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
+								                  hangar_content_editor,
+								                  "Choose vessel type",
+								                  GUILayout.Width(400));
+				}
+				else 
+				{
+					Utils.LockIfMouseOver(eLock, vessel_selector.windowRect, true);
+					vessel_selector.OnGUI();
+				}
 			}
-			else 
+			//edit name
+			else if(editing_hangar_name)
 			{
-				Utils.LockIfMouseOver(eLock, vessel_selector.windowRect, true);
-				vessel_selector.OnGUI();
+				Utils.LockIfMouseOver(eLock, neWindowPos, true);
+				neWindowPos = GUILayout.Window(GetInstanceID(), neWindowPos,
+											   hangar_name_editor,
+											   "Rename Hangar",
+											   GUILayout.Width(400));
 			}
 		}
-		#endregion
 		#endregion
 
 		#region ControllableModule
