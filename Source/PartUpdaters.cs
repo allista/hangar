@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using AtHangar;
 
 namespace AtHangar
 {
@@ -161,6 +162,7 @@ namespace AtHangar
 					child.transform.Translate(targetPosition - attachedPosition, part.transform);
 				}
 			}
+			part.BreakConnectedStruts();
 		}
 	}
 
@@ -244,6 +246,15 @@ namespace AtHangar
 			module.RollTorque  = base_module.RollTorque  * scale.absolute.cube * scale.absolute.aspect;
 			foreach(ModuleResource r in	module.inputResources)
 				r.rate *= scale.relative.cube;
+		}
+	}
+
+	public class GenericInflatableUpdater : ModuleUpdater<HangarGenericInflatable>
+	{
+		public override void OnRescale(Scale scale)
+		{
+			module.InflatableVolume = base_module.InflatableVolume * scale.absolute.cube;
+			module.CompressedGas *= scale.relative.cube;
 		}
 	}
 }
