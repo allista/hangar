@@ -462,10 +462,10 @@ namespace AtHangar
 			else 
 			{
 				vessel_metric.DrawCenter(FlightGlobals.ActiveVessel.vesselTransform);
-				vessel_metric.DrawPoint(FlightGlobals.ActiveVessel.findLocalCenterOfMass(), 
-										FlightGlobals.ActiveVessel.vesselTransform, Color.green);
-				vessel_metric.DrawPoint(Vector3.zero, 
-										FlightGlobals.ActiveVessel.vesselTransform, Color.green);
+				Metric.DrawPoint(FlightGlobals.ActiveVessel.findLocalCenterOfMass(), 
+									FlightGlobals.ActiveVessel.vesselTransform, Color.green);
+				Metric.DrawPoint(Vector3.zero, 
+									FlightGlobals.ActiveVessel.vesselTransform, Color.green);
 			}
 		}
 		#endif
