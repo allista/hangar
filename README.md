@@ -191,6 +191,8 @@ And here're the mods which sources provided me with an understanding of how KSP 
 * [CrewManifest](http://forum.kerbalspaceprogram.com/threads/60936)
 * [TweakScale](http://forum.kerbalspaceprogram.com/threads/80234)
 * [Kerbal Alarm Clock](http://forum.kerbalspaceprogram.com/threads/24786)
+* [RealChutes](http://forum.kerbalspaceprogram.com/threads/57988)
+* [RemoteTech2](http://forum.kerbalspaceprogram.com/threads/83305)
 
 ***
 
