@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KSPAPIExtensions;
+using System.Runtime.InteropServices;
 
 
 namespace AtHangar
@@ -147,7 +148,14 @@ namespace AtHangar
 		
 		#region Debug
 		public static void Log(string msg, params object[] args)
-		{ Debug.Log(string.Format("[Hangar] "+msg, args)); }
+		{ 
+			for(int i = 0; i < args.Length; i++) 
+			{
+				if(args[i] is Vector3) args[i] = formatVector((Vector3)args[i]);
+				else if(args[i] is Vector3d) args[i] = formatVector((Vector3d)args[i]);
+			}
+			Debug.Log(string.Format("[Hangar] "+msg, args)); 
+		}
 
 		public static void logStamp(string msg = "") { Debug.Log("[Hangar] === " + msg); }
 
@@ -263,6 +271,7 @@ namespace AtHangar
 		}
 	}
 
+
 	public static class PartExtension
 	{
 		#region from MechJeb2 PartExtensions
@@ -303,7 +312,43 @@ namespace AtHangar
 
 		public static Part RootPart(this Part p) 
 		{ return p.parent == null ? p : p.parent.RootPart(); }
+
+		public static List<Part> AllChildren(this Part p)
+		{
+			List<Part> all_children = new List<Part>{};
+			foreach(Part ch in p.children) 
+			{
+				all_children.Add(ch);
+				all_children.AddRange(ch.AllChildren());
+			}
+			return all_children;
+		}
+
+		public static List<Part> AllConnectedParts(this Part p)
+		{
+			if(p.parent != null) return p.parent.AllConnectedParts();
+			List<Part> all_parts = new List<Part>{p};
+			all_parts.AddRange(p.AllChildren());
+			return all_parts;
+		}
+
+		public static void BreakConnectedStruts(this Part p)
+		{
+			//break strut connectors
+			foreach(Part part in p.AllConnectedParts())
+			{
+				StrutConnector s = part as StrutConnector;
+				if(s == null || s.target == null) continue;
+				if(s.parent == p || s.target == p)
+				{
+					s.BreakJoint();
+					s.targetAnchor.gameObject.SetActive(false);
+					s.direction = Vector3.zero;
+				}
+			}
+		}
 	}
+
 
 	public class ModuleGUIState
 	{
