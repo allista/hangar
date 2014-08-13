@@ -9,6 +9,12 @@ namespace AtHangar
 		//fields
 		[KSPField(isPersistant = false)]
         public string AnimationName;
+
+		[KSPField(isPersistant = false)]
+		public float ForwardSpeed = 1f;
+
+		[KSPField(isPersistant = false)]
+		public float ReverseSpeed = 1f;
 		
 		//animation
 		List<AnimationState> animation_states = new List<AnimationState>();
@@ -71,8 +77,9 @@ namespace AtHangar
             {
                 var time = Mathf.Clamp01(state.normalizedTime);
                 state.normalizedTime = time;
-                var speed = HighLogic.LoadedSceneIsEditor ? 1 - 10 * (time - 1) * time : 1;
-                state.speed = (State == AnimatorState.Opening || State == AnimatorState.Opened) ? speed : -speed;
+				var speed = (State == AnimatorState.Opening || State == AnimatorState.Opened) ? ForwardSpeed : -ReverseSpeed;
+				if(HighLogic.LoadedSceneIsEditor) speed *= 1 - 10 * (time - 1) * time;
+				state.speed = speed;
             }
         }
 	}
