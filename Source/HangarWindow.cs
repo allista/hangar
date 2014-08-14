@@ -385,13 +385,16 @@ namespace AtHangar
 			                              Utils.formatVolume(vessel_metric.volume)), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Dimensions: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label(String.Format("Crew Capacity: {0}", vessel_metric.CrewCapacity), GUILayout.ExpandWidth(true));
-			if(GUILayout.Toggle(draw_directions, "Show Directions")) 
+			if(HighLogic.LoadedScene == GameScenes.EDITOR)
 			{
-				draw_directions = true;
-				GUILayout.Label("Green - vessel's forward", GUILayout.ExpandWidth(true));
-				GUILayout.Label("Blue - vessel's bottom", GUILayout.ExpandWidth(true));
+				if(GUILayout.Toggle(draw_directions, "Show Directions")) 
+				{
+					draw_directions = true;
+					GUILayout.Label("Green - vessel's forward", GUILayout.ExpandWidth(true));
+					GUILayout.Label("Blue - vessel's bottom", GUILayout.ExpandWidth(true));
+				}
+				else draw_directions = false;
 			}
-			else draw_directions = false;
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 5000, 20));
 		}
@@ -480,7 +483,7 @@ namespace AtHangar
 		public override void Update()
 		{
 			base.Update();
-			if(draw_directions && vessel_metric != null && EditorLogic.fetch != null)
+			if(draw_directions && vessel_metric != null && HighLogic.LoadedScene == GameScenes.EDITOR)
 			{
 				List<Part> parts;
 				try { parts = EditorLogic.SortedShipList; }
