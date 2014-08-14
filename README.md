@@ -20,6 +20,8 @@ While fixing them and implementing new features I'll try as hard as I can to mai
     * [Fixed issues](https://github.com/allista/hangar/issues?q=is%3Aissue+is%3Aclosed)
 * v1.0.5324 -- Initial release
 
+###[See what's comming](https://github.com/allista/hangar/milestones)
+
 ###NOTE:###
 **Before using a hangar, study the list of modules that are integrated into it _(RMB on part's icon)_.** Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating.
 ***
