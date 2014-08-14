@@ -442,15 +442,20 @@ namespace AtHangar
 											 String.Format("{0} {1}, Gates {2}", "Hangar", hstate, gstate),
 										 	 GUILayout.Width(320),
 											 GUILayout.Height(100));
+				CheckRect(ref fWindowPos);
 				//transfers
 				if(selected_vessel == null) selecting_crew = transfering_resources = false;
 				if(selecting_crew)
+				{
 					cWindowPos = crew_window.Draw(selected_hangar.vessel.GetVesselCrew(), 
 				    	                          selected_vessel.crew, selected_vessel.CrewCapacity, cWindowPos);
+					CheckRect(ref cWindowPos);
+				}
 				if(transfering_resources)
 				{
 					selected_hangar.prepareResourceList(selected_vessel);
 					rWindowPos = resources_window.Draw(selected_hangar.resourceTransferList, rWindowPos);
+					CheckRect(ref rWindowPos);
 					if(resources_window.transferNow)
 					{
 						selected_hangar.transferResources(selected_vessel);
@@ -467,6 +472,7 @@ namespace AtHangar
 											  "Vessel info",
 											  GUILayout.Width(300),
 											  GUILayout.Height(100));
+				CheckRect(ref eWindowPos);
 			}
 			UpdateGUIState();
 		}
@@ -480,8 +486,8 @@ namespace AtHangar
 				try { parts = EditorLogic.SortedShipList; }
 				catch (NullReferenceException) { return; }
 				if(parts.Count == 0 || parts[0] == null) return;
-				Utils.DrawArrow(Vector3.zero, Vector3.up*vessel_metric.extents.y*2, parts[0].partTransform, Color.green);
-				Utils.DrawArrow(Vector3.zero, Vector3.forward*vessel_metric.extents.z*2, parts[0].partTransform, Color.blue);
+				Utils.DrawArrow(Vector3.zero, Vector3.up*vessel_metric.size.y, parts[0].partTransform, Color.green);
+				Utils.DrawArrow(Vector3.zero, Vector3.forward*vessel_metric.size.z, parts[0].partTransform, Color.blue);
 			}
 			#if DEBUG
 			DrawPoints();

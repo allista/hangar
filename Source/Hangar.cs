@@ -870,6 +870,7 @@ namespace AtHangar
 								                  hangar_content_editor,
 								                  "Choose vessel type",
 								                  GUILayout.Width(400));
+					AddonWindowBase<HangarWindow>.CheckRect(ref eWindowPos);
 				}
 				else 
 				{
@@ -885,6 +886,7 @@ namespace AtHangar
 											   hangar_name_editor,
 											   "Rename Hangar",
 											   GUILayout.Width(400));
+				AddonWindowBase<HangarWindow>.CheckRect(ref neWindowPos);
 			}
 		}
 		#endregion
