@@ -855,7 +855,9 @@ namespace AtHangar
 		{ 
 			if(Event.current.type != EventType.Layout) return;
 			if(!editing_hangar && !editing_hangar_name) return;
-			if(editing_hangar && HighLogic.LoadedScene != GameScenes.EDITOR) return;
+			if(editing_hangar && 
+				(HighLogic.LoadedScene != GameScenes.EDITOR &&
+				 HighLogic.LoadedScene != GameScenes.SPH)) return;
 			//init skin
 			Styles.InitSkin();
 			GUI.skin = Styles.skin;

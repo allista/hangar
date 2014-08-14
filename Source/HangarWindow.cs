@@ -385,7 +385,8 @@ namespace AtHangar
 			                              Utils.formatVolume(vessel_metric.volume)), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Dimensions: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label(String.Format("Crew Capacity: {0}", vessel_metric.CrewCapacity), GUILayout.ExpandWidth(true));
-			if(HighLogic.LoadedScene == GameScenes.EDITOR)
+			if(HighLogic.LoadedScene == GameScenes.EDITOR ||
+			   HighLogic.LoadedScene == GameScenes.SPH)
 			{
 				if(GUILayout.Toggle(draw_directions, "Show Directions")) 
 				{
@@ -483,7 +484,9 @@ namespace AtHangar
 		public override void Update()
 		{
 			base.Update();
-			if(draw_directions && vessel_metric != null && HighLogic.LoadedScene == GameScenes.EDITOR)
+			if(draw_directions && vessel_metric != null && 
+				(HighLogic.LoadedScene == GameScenes.EDITOR ||
+				 HighLogic.LoadedScene == GameScenes.SPH))
 			{
 				List<Part> parts;
 				try { parts = EditorLogic.SortedShipList; }
