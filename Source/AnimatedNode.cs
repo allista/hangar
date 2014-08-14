@@ -104,13 +104,13 @@ namespace AtHangar
 			if(joint == null) return;
 			if(update_anchor)
 			{
-				Metric.DrawPoint(joint.anchor, pT, Color.red);
-				Metric.DrawPoint(joint.connectedAnchor, a_part.transform, Color.green);
+				Utils.DrawPoint(joint.anchor, pT, Color.red);
+				Utils.DrawPoint(joint.connectedAnchor, a_part.transform, Color.green);
 			}
 			else
 			{
-				Metric.DrawPoint(joint.connectedAnchor, pT, Color.red);
-				Metric.DrawPoint(joint.anchor, a_part.transform, Color.green);
+				Utils.DrawPoint(joint.connectedAnchor, pT, Color.red);
+				Utils.DrawPoint(joint.anchor, a_part.transform, Color.green);
 			}
 		}
 		#endif

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KSPAPIExtensions;
+using System;
 
 
 namespace AtHangar
@@ -235,6 +236,90 @@ namespace AtHangar
 		}
 		#endif
 		#endregion
+		#endregion
+
+		#region Graphics
+		static Material _material;
+		public static Material  material
+		{
+			get
+			{
+				if (_material == null)
+					_material = new Material(Shader.Find("GUI/Text Shader"));
+				return new Material(_material);
+			}
+		}
+
+		public static int[] Quad2Tris(int i1, int i2, int i3, int i4)
+		{
+			int[] tris = new int[6];
+			int i = 0;
+			tris[i++] = i1; tris[i++] = i2; tris[i++] = i3;
+			tris[i++] = i3; tris[i++] = i4; tris[i++] = i1;
+			return tris;
+		}
+
+		public static void DrawMesh(Vector3[] edges, IEnumerable<int> tris, Transform t, Color c = default(Color))
+		{
+			//make a mesh
+			Mesh m = new Mesh();
+			m.vertices  = edges;
+			m.triangles = tris.ToArray();
+			//recalculate normals and bounds
+			m.RecalculateBounds();
+			m.RecalculateNormals();
+			//make own material
+			Material mat = Utils.material;
+			mat.color = (c == default(Color))? Color.white : c;
+			//draw mesh in the world space
+			Graphics.DrawMesh(m, t.localToWorldMatrix, mat, 0);
+		}
+
+		//		edges[0] = new Vector3(min.x, min.y, min.z); //left-bottom-back
+		//	    edges[1] = new Vector3(min.x, min.y, max.z); //left-bottom-front
+		//	    edges[2] = new Vector3(min.x, max.y, min.z); //left-top-back
+		//	    edges[3] = new Vector3(min.x, max.y, max.z); //left-top-front
+		//	    edges[4] = new Vector3(max.x, min.y, min.z); //right-bottom-back
+		//	    edges[5] = new Vector3(max.x, min.y, max.z); //right-bottom-front
+		//	    edges[6] = new Vector3(max.x, max.y, min.z); //right-top-back
+		//	    edges[7] = new Vector3(max.x, max.y, max.z); //right-top-front
+		public static void DrawBounds(Bounds b, Transform T, Color c)
+		{
+			Vector3[] edges = Metric.BoundsEdges(b);
+			List<int> tris = new List<int>();
+			tris.AddRange(Utils.Quad2Tris(0, 1, 3, 2));
+			tris.AddRange(Utils.Quad2Tris(0, 2, 6, 4));
+			tris.AddRange(Utils.Quad2Tris(0, 1, 5, 4));
+			tris.AddRange(Utils.Quad2Tris(1, 3, 7, 5));
+			tris.AddRange(Utils.Quad2Tris(2, 3, 7, 6));
+			tris.AddRange(Utils.Quad2Tris(6, 7, 5, 4));
+			Utils.DrawMesh(edges, tris, T, c);
+		}
+
+		public static void DrawPoint(Vector3 point, Transform T, Color c = default(Color))
+		{ DrawBounds(new Bounds(point, Vector3.one*0.1f), T, c); }
+
+		public static void DrawArrow(Vector3 ori, Vector3 dir, Transform T, Color c = default(Color))
+		{
+			float l = dir.magnitude;
+			float w = 0.1f;
+			Vector3 x = Mathf.Abs(Vector3.Dot(dir.normalized,Vector3.up)) < 0.9f ? 
+				Vector3.Cross(dir, Vector3.up).normalized : Vector3.Cross(Vector3.forward, dir).normalized;
+			Vector3 y = Vector3.Cross(x, dir).normalized*w; x *= w;
+			Vector3[] edges = new Vector3[5];
+			edges[0] = ori+dir; 
+			edges[1] = ori-x-y;
+			edges[2] = ori-x+y;
+			edges[3] = ori+x+y;
+			edges[4] = ori+x-y;
+			List<int> tris = new List<int>();
+			tris.AddRange(Utils.Quad2Tris(1, 2, 3, 4));
+			tris.AddRange(new []{0, 1, 2});
+			tris.AddRange(new []{0, 2, 3});
+			tris.AddRange(new []{0, 3, 4});
+			tris.AddRange(new []{0, 4, 1});
+			Utils.DrawMesh(edges, tris, T, c);
+		}
 		#endregion
 	}
 
