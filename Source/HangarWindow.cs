@@ -10,7 +10,8 @@ namespace AtHangar
 	public class HangarWindow : AddonWindowBase<HangarWindow>
 	{
 		//settings
-		static int highlight_hangar = 0; //1 -- enable highlight; -1 -- disable highlight; 0 -- do not set highlight (for mouseover highlighting).
+		static int  highlight_hangar = 0; //1 -- enable highlight; -1 -- disable highlight; 0 -- do not set highlight (for mouseover highlighting).
+		static bool draw_directions = false;
 		static bool selecting_crew = false;
 		static bool transfering_resources = false;
 		static Rect fWindowPos = new Rect();
@@ -384,6 +385,13 @@ namespace AtHangar
 			                              Utils.formatVolume(vessel_metric.volume)), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Dimensions: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label(String.Format("Crew Capacity: {0}", vessel_metric.CrewCapacity), GUILayout.ExpandWidth(true));
+			if(GUILayout.Toggle(draw_directions, "Show Directions")) 
+			{
+				draw_directions = true;
+				GUILayout.Label("Green - vessel's forward", GUILayout.ExpandWidth(true));
+				GUILayout.Label("Blue - vessel's bottom", GUILayout.ExpandWidth(true));
+			}
+			else draw_directions = false;
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 5000, 20));
 		}
@@ -432,7 +440,8 @@ namespace AtHangar
 				fWindowPos = GUILayout.Window(GetInstanceID(),
 											 fWindowPos, HangarCotrols,
 											 String.Format("{0} {1}, Gates {2}", "Hangar", hstate, gstate),
-											 GUILayout.Width(320));
+										 	 GUILayout.Width(320),
+											 GUILayout.Height(100));
 				//transfers
 				if(selected_vessel == null) selecting_crew = transfering_resources = false;
 				if(selecting_crew)
@@ -456,19 +465,31 @@ namespace AtHangar
 				eWindowPos = GUILayout.Window(GetInstanceID(),
 											  eWindowPos, VesselInfo,
 											  "Vessel info",
-											  GUILayout.Width(300));
+											  GUILayout.Width(300),
+											  GUILayout.Height(100));
 			}
 			UpdateGUIState();
 		}
 
-		#if DEBUG
 		public override void Update()
 		{
 			base.Update();
-			DrawBoundingBox();
+			if(draw_directions && vessel_metric != null && EditorLogic.fetch != null)
+			{
+				List<Part> parts;
+				try { parts = EditorLogic.SortedShipList; }
+				catch (NullReferenceException) { return; }
+				if(parts.Count == 0 || parts[0] == null) return;
+				Utils.DrawArrow(Vector3.zero, Vector3.up*vessel_metric.extents.y*2, parts[0].partTransform, Color.green);
+				Utils.DrawArrow(Vector3.zero, Vector3.forward*vessel_metric.extents.z*2, parts[0].partTransform, Color.blue);
+			}
+			#if DEBUG
+			DrawPoints();
+			#endif
 		}
-		
-		void DrawBoundingBox()
+
+		#if DEBUG
+		void DrawPoints()
 		{
 			if(vessel_metric == null) return;
 			if(EditorLogic.fetch != null)
@@ -482,10 +503,10 @@ namespace AtHangar
 			else 
 			{
 				vessel_metric.DrawCenter(FlightGlobals.ActiveVessel.vesselTransform);
-				Metric.DrawPoint(FlightGlobals.ActiveVessel.findLocalCenterOfMass(), 
-									FlightGlobals.ActiveVessel.vesselTransform, Color.green);
-				Metric.DrawPoint(Vector3.zero, 
-									FlightGlobals.ActiveVessel.vesselTransform, Color.green);
+				Utils.DrawPoint(FlightGlobals.ActiveVessel.findLocalCenterOfMass(), 
+								 FlightGlobals.ActiveVessel.vesselTransform, Color.green);
+				Utils.DrawPoint(Vector3.zero, 
+								 FlightGlobals.ActiveVessel.vesselTransform, Color.red);
 			}
 		}
 		#endif
