@@ -654,7 +654,14 @@ namespace AtHangar
 			//load vessel config
 			vessel_selector = null;
 			PackedConstruct pc = new PackedConstruct(filename, flagname);
-			if(pc.construct == null) return;
+			if(pc.construct == null) 
+			{
+				Utils.Log("PackedConstruct: unable to load ShipConstruct from {0}. " +
+					"This usually means that some parts are missing " +
+					"or some modules failed to initialize.", filename);
+				ScreenMessager.showMessage(string.Format("Unable to load {0}", filename), 3);
+				return;
+			}
 			//check if the construct contains launch clamps
 			if(Utils.HasLaunchClamp(pc.construct))
 			{
@@ -700,7 +707,14 @@ namespace AtHangar
 			{
 				remove_construct(pc);
 				get_launch_transform();
-				if(!pc.LoadConstruct()) continue;
+				if(!pc.LoadConstruct()) 
+				{
+					Utils.Log("PackedConstruct: unable to load ShipConstruct {0}. " +
+						"This usually means that some parts are missing " +
+						"or some modules failed to initialize.", pc.name);
+					ScreenMessager.showMessage(string.Format("Unable to load {0}", pc.name), 3);
+					continue;
+				}
 				ShipConstruction.PutShipToGround(pc.construct, launchTransform);
 				ShipConstruction.AssembleForLaunch(pc.construct, "Hangar", pc.flag, 
 				                                   FlightDriver.FlightStateCache,

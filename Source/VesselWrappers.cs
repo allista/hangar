@@ -20,7 +20,7 @@ namespace AtHangar
 			construct = new ShipConstruct();
 			if(!construct.LoadShip(vessel_node))
 			{
-				construct = null;
+				UnloadConstruct();
 				return false;
 			}
 			return true;
@@ -29,7 +29,11 @@ namespace AtHangar
 		public void UnloadConstruct() 
 		{ 
 			if(construct == null) return;
-			foreach(Part p in construct) UnityEngine.Object.Destroy(p.gameObject);
+			foreach(Part p in construct) 
+			{
+				if(p != null && p.gameObject != null)
+					UnityEngine.Object.Destroy(p.gameObject);
+			}
 			construct = null; 
 		}
 
@@ -53,12 +57,7 @@ namespace AtHangar
 			this.flag = flag;
 			vessel_node = ConfigNode.Load(file);
 			vessel_node.name = "VESSEL";
-			if(!LoadConstruct())
-			{
-				Utils.Log("PackedConstruct: unable to load ShipConstruct from {0}", file);
-				ScreenMessager.showMessage(string.Format("Unable to load {0}", file), 3);
-				return;
-			}
+			if(!LoadConstruct()) return;
 			metric = new Metric(construct.Parts);
 			name = construct.shipName;
 			id = Guid.NewGuid();
