@@ -324,6 +324,11 @@ namespace AtHangar
 	}
 
 
+	/// <summary>
+	/// Screen messager is an addon that displays on-screen 
+	/// messages in the top-center of the screen.
+	/// It is a part of the Hangar module.
+	/// </summary>
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 	public class ScreenMessager : MonoBehaviour
 	{

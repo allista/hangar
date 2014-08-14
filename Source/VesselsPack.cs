@@ -44,7 +44,12 @@ namespace AtHangar
 			return nd[0] < sd[0] || nd[1] < sd[1] || nd[2] < sd[2]; 
 		}
 
-		//all possible rotations of "s" are considered
+
+		/// <summary>
+		/// Compares size of the node with a given vector, 
+		/// considering all permutations of coordinates.
+		/// </summary>
+		/// <param name="s">A vector to which the node is compared</param>
 		public bool Matches(Vector3 s)
 		{ 
 			float[] nd = { size.x, size.y, size.z };
@@ -87,9 +92,14 @@ namespace AtHangar
 		public VesselsPack() {}
 		public VesselsPack(Metric space) { this.space = space; }
 
-		//Chooses the best rotation of a size vector "s" to store it inside the box with the size vector "box_size".
-		//The rotation is considered optimal if it gives the absolute maximum remainder in one of the dimensions,
-		//if in other dimensions the vector still fits.
+
+		/// <summary>
+		/// Chooses the best rotation of a size vector "s" to store it inside the box with the size vector "box_size".
+		/// The rotation is considered optimal if it gives the absolute maximum remainder in one of the dimensions,
+		/// if in other dimensions the vector still fits.
+		/// </summary>
+		/// <param name="box_size">Size vector of the box where the smaller box will be packed.</param>
+		/// <param name="s">Size vector of a small box to be packed.</param>
 		static Vector3 optimal_rotation(Vector3 box_size, Vector3 s)
 		{
 			Vector3[] vs = {s, //all six permutations of coorditates
