@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace AtHangar
 {
-	class WheelFrictionInfo
+	class WheelFrictionChanger
 	{ 
 		readonly Wheel wheel;
 		readonly float forwardStiffness, sidewaysStiffness;
 
-		public WheelFrictionInfo(Wheel w)
+		public WheelFrictionChanger(Wheel w)
 		{ 
 			wheel = w;
 			forwardStiffness  = w.whCollider.forwardFriction.stiffness; 
@@ -33,7 +33,7 @@ namespace AtHangar
 	{
 		ModuleWheel module;
 		readonly HashSet<uint> trigger_objects = new HashSet<uint>();
-		readonly List<WheelFrictionInfo> saved_wheels = new List<WheelFrictionInfo>();
+		readonly List<WheelFrictionChanger> saved_wheels = new List<WheelFrictionChanger>();
 		int last_id;
 
 		#region Methods
@@ -46,16 +46,15 @@ namespace AtHangar
 			if(module != null) return true;
 			module = part.Modules.OfType<ModuleWheel>().FirstOrDefault();
 			if(module == null) return false;
-			foreach(Wheel w in module.wheels)
-				saved_wheels.Add(new WheelFrictionInfo(w));
+			module.wheels.ForEach(w => saved_wheels.Add(new WheelFrictionChanger(w)));
 			return true;
 		}
 
 		public void StiffenWheels() 
-		{ foreach(WheelFrictionInfo wi in saved_wheels) wi.SetStiffness(1, 1); }
+		{ saved_wheels.ForEach(w => w.SetStiffness(1, 1)); }
 
 		public void RestoreWheels()
-		{ foreach(WheelFrictionInfo wi in saved_wheels) wi.RestoreWheel(); }
+		{ saved_wheels.ForEach(w => w.RestoreWheel()); }
 
 		public void RegisterTrigger(uint id) 
 		{ 
