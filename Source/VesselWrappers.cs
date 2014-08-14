@@ -14,11 +14,16 @@ namespace AtHangar
 		public ShipConstruct construct { get; private set; }
 		ConfigNode vessel_node;
 
-		public void LoadConstruct()
+		public bool LoadConstruct()
 		{
 			UnloadConstruct();
 			construct = new ShipConstruct();
-			construct.LoadShip(vessel_node);
+			if(!construct.LoadShip(vessel_node))
+			{
+				construct = null;
+				return false;
+			}
+			return true;
 		}
 
 		public void UnloadConstruct() 
@@ -48,7 +53,12 @@ namespace AtHangar
 			this.flag = flag;
 			vessel_node = ConfigNode.Load(file);
 			vessel_node.name = "VESSEL";
-			LoadConstruct();
+			if(!LoadConstruct())
+			{
+				Utils.Log("PackedConstruct: unable to load ShipConstruct from {0}", file);
+				ScreenMessager.showMessage(string.Format("Unable to load {0}", file), 3);
+				return;
+			}
 			metric = new Metric(construct.Parts);
 			name = construct.shipName;
 			id = Guid.NewGuid();

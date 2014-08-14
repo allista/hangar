@@ -224,7 +224,6 @@ namespace AtHangar
 		#endregion
 
 		#region Save-Load
-		//save the hangar
 		public override void OnSave(ConfigNode node)
 		{
 			//hangar state
@@ -236,7 +235,6 @@ namespace AtHangar
 				packed_constructs.Save(node.AddNode("PACKED_CONSTRUCTS"));
 		}
 
-		//load the hangar
 		public override void OnLoad(ConfigNode node)
 		{ 
 			//hangar state
@@ -251,7 +249,11 @@ namespace AtHangar
 		#endregion
 
 		#region Wheel stiffness changes
-		//inject WheelUpdater to a wheel part and register in it
+		/// <summary>
+		/// Injects WheelUpdater to a wheel part and 
+		/// registers current hangar as a trigger object.
+		/// </summary>
+		/// <param name="collision">Collision.</param>
 		void OnCollisionEnter(Collision collision) 
 		{
 			foreach(ContactPoint c in collision.contacts)
@@ -266,7 +268,10 @@ namespace AtHangar
 		#endregion
 		
 		#region Store
-		//if a vessel can be stored in the hangar
+		/// <summary>
+		/// Checks if a vessel can be stored in the hangar right now.
+		/// </summary>
+		/// <param name="vsl">A vessel to check</param>
 		bool can_store(Vessel vsl)
 		{
 			if(vsl == null || vsl == vessel || !vsl.enabled || vsl.isEVA) return false;
@@ -399,7 +404,9 @@ namespace AtHangar
 		
 		#region Restore
 		#region Positioning
-		//calculate transform of restored vessel
+		/// <summary>
+		/// Calculate transform of restored vessel.
+		/// </summary>
 		Transform get_launch_transform()
 		{
 			launchTransform = null;
@@ -419,7 +426,10 @@ namespace AtHangar
 			return launchTransform;
 		}
 		
-		//set vessel orbit, transform, coordinates
+		/// <summary>
+		/// Set vessel orbit, transform, coordinates.
+		/// </summary>
+		/// <param name="sv">Stored vessel</param>
 		void position_vessel(StoredVessel sv)
 		{
 			ProtoVessel pv = sv.vessel;
@@ -644,6 +654,7 @@ namespace AtHangar
 			//load vessel config
 			vessel_selector = null;
 			PackedConstruct pc = new PackedConstruct(filename, flagname);
+			if(pc.construct == null) return;
 			//check if the construct contains launch clamps
 			if(Utils.HasLaunchClamp(pc.construct))
 			{
@@ -689,7 +700,7 @@ namespace AtHangar
 			{
 				remove_construct(pc);
 				get_launch_transform();
-				pc.LoadConstruct();
+				if(!pc.LoadConstruct()) continue;
 				ShipConstruction.PutShipToGround(pc.construct, launchTransform);
 				ShipConstruction.AssembleForLaunch(pc.construct, "Hangar", pc.flag, 
 				                                   FlightDriver.FlightStateCache,

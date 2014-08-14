@@ -65,6 +65,7 @@ namespace AtHangar
 			cost = 0;
 			CrewCapacity = 0;
 			Bounds b = default(Bounds);
+			if(parts == null) return b;
 			foreach(Part p in parts)
 			{
 				if(p == null) continue; //EditorLogic.SortedShipList returns List<Part>{null} when all parts are deleted
