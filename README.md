@@ -7,12 +7,22 @@
 While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, _but I can't guarantee it_. So if you plan to use it in your main game, **backup your saves**.
 
 ###Known Issues###
+* GUI:
+    * Dropdown lists show vertical scrollbars when there are too many items. But due to the implemented click-through prevention mechanism the scrollbars cannot be moved by mouse cursor; use mouse wheel instead. _And curse Unity3D for the poor GUI API._
 * Rovers:
-    * Rovers moving on hangar's floor are sliding. Like cows on ice. That's because all hangars (and other parts, I presume) have the **default** PhysicMaterial with friction coefficient set to 0.4.  Don't know why, but changing that coefficient on the colliders in runtime does not change the friction. So I can't fix that. If anyone has an idea on this, PM me, please, on forum.
-    * If a rover is built in VAB with its wheels "down", it will be launched from a hangar rotated by 90 degrees, because in VAB the "up" axis is actually the forward one. Build rovers in SPH to workaround; its more convenient anyway.
     * Rovers stored in KSC have somewhat smaller dimensions due to inactive suspension of the wheels. So if you pack several rovers **tightly** into a hangar, and than launch one of them, the launched rover sometimes cannot be stored again into that same hangar with the "No room ..." message. Again: it's no bug, calculations are performed correctly, the rover's just got bigger.
 
 ###ChangeLog###
+* v1.1.1
+    * Added support for the stock AppLauncher. **The Toolbar is no longer required**, but _it takes priority over the AppLauncher_ if installed.
+    * Added option to show in Editor arrows indicating ship's forward and downward directions; such arrows are also shown for each hangar indicating orientation of a launched vessel. This should be especially **helpful in rover construction**, as rover's orientation often differs from the orientation of its control part.
+    * Added names to hangars and an option to rename a hangar through a context menu.
+    * **Removed docking ports from the _ground_ hangars**. If you have something somehow docked to these ports, **undock it prior to updating**.
+    * Important bugfixes ([the full list see on GitHub](https://github.com/allista/hangar/issues?q=milestone%3A%22v1.1.1+-+multiple+bugfixes+and+some+improvements%22+is%3Aclosed+-label%3Atask+-label%3Ainvalid)):
+        * Fixed the problem with friction between rover wheels and hangar's floor.
+        * GUI Windows are now constrained to the screen boundaries.
+        * Hangar selector is now shown only if there're multiple hangars in the same vessel.
+        * A ship with launch clamps cannot be stored inside a hangar in Editor anymore.
 * v1.1.0
     * Added Rover Lander Hangar to easily land rovers on planetary bodies
     * Added (proper) support for TAC Life Support, RemoteTech2 and DeadlyReentry (a heatshield for Rover Lander is included)
@@ -53,7 +63,7 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
 * An asteroid can also be stored in a hangar. If it fits, of course.
 * Interface:
     * Hangars are controlled with a dedicated GUI
-    * For the vessels that do not have any hangars the GUI shows their volume and dimensions
+    * For the vessels that do not have any hangars the GUI shows their volume and dimensions. In Editor there's also an option to display arrows that indicate vessel's orientation, which is helpful in rover design.
     * A vessel can have multiple hangars. Provided GUI allows easy switching between them by highlighting the hangar that is currently selected
 * In addition, several other parts are provided:
     * Powerfull 5-way RCS thrusters for Spaceport
@@ -64,11 +74,12 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
 
 * Hangar uses [KSPAPIExtensions](http://forum.kerbalspaceprogram.com/threads/81496) by [swamp_ig](http://forum.kerbalspaceprogram.com/members/100707-swamp_ig). This plugin is bundled with the Hangar as it should be.
 * The [ModuleManager](http://forum.kerbalspaceprogram.com/threads/55219), of course.
-* The [Toolbar](http://forum.kerbalspaceprogram.com/threads/60863) is required for now.
 
 ##Recommended mods##
 
 There are many great mods out there that I love and use myself. But the one mode that I strongly recommend to use with the Hangar to improve game experience is the [**Extraplanetary Launchpads**](http://forum.kerbalspaceprogram.com/threads/59545) by [Taniwha](https://github.com/taniwha-qf). For one thing: big ground hangars are not suitable as parts for vessel construction and are too heavy to launch anyway. So the only meaningful way to use them is to build them on site.
+
+Also if you want to avoid many problems when building a rover that you plan to store inside a hangar, I strongly recommend to use the [Select Root](http://forum.kerbalspaceprogram.com/threads/43208) and [Editor Extensions](http://forum.kerbalspaceprogram.com/threads/38768).
 
 ##Supported mods##
 
@@ -180,7 +191,10 @@ When establishing a colony rovers are often needed. They help to find a good spo
 
 First of, I want to thank my beloved wife for her support and understanding. This work takes much time...
 
-I also want to thank [Taniwha](https://github.com/taniwha-qf) for inspiration and advice.
+I also want to thank:
+
+* [Taniwha](https://github.com/taniwha-qf) for inspiration and advice.
+* [DragonEG](http://forum.kerbalspaceprogram.com/members/20077-DragonEG) for helping me to fix the friction problem.
 
 And here're the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
 
