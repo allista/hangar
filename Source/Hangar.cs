@@ -315,7 +315,7 @@ namespace AtHangar
 				return null;
 			}
 			//check vessel metrics
-			get_launch_transform();
+			GetLaunchTransform();
 			StoredVessel sv = new StoredVessel(vsl);
 			if(!sv.metric.FitsAligned(launchTransform, part.partTransform, hangar_metric))
 			{
@@ -407,7 +407,7 @@ namespace AtHangar
 		/// <summary>
 		/// Calculate transform of restored vessel.
 		/// </summary>
-		Transform get_launch_transform()
+		public Transform GetLaunchTransform()
 		{
 			launchTransform = null;
 			if(LaunchTransform != "")
@@ -613,7 +613,7 @@ namespace AtHangar
 			//transfer resources
 			transferResources(stored_vessel);
 			//set restored vessel orbit
-			get_launch_transform();
+			GetLaunchTransform();
 			position_vessel(stored_vessel);
 			//restore vessel
 			stored_vessel.Load();
@@ -633,7 +633,7 @@ namespace AtHangar
 		#region EditHangarContents
 		bool try_store_construct(PackedConstruct pc)
 		{
-			get_launch_transform();
+			GetLaunchTransform();
 			if(!pc.metric.FitsAligned(launchTransform, part.partTransform, hangar_metric))
 			{
 				ScreenMessager.showMessage(string.Format("{0} does not fit into this hangar", pc.name), 3);
@@ -706,7 +706,7 @@ namespace AtHangar
 			foreach(PackedConstruct pc in packed_constructs.Values)
 			{
 				remove_construct(pc);
-				get_launch_transform();
+				GetLaunchTransform();
 				if(!pc.LoadConstruct()) 
 				{
 					Utils.Log("PackedConstruct: unable to load ShipConstruct {0}. " +
