@@ -5,29 +5,19 @@ While fixing them and implementing new features I'll try as hard as I can to mai
 
 [SIZE=3][B]Known Issues[/B][/SIZE]
 [LIST]
+[*]GUI:
+[LIST]
+[*]Dropdown lists show vertical scrollbars when there are too many  items. But due to the implemented click-through prevention mechanism the  scrollbars cannot be moved by mouse cursor; use mouse wheel instead. [I]And curse Unity3D for the poor GUI API.[/I] 
+[/LIST]  
 [*]Rovers:
 [LIST]
-[*]Rovers moving on hangar's floor are sliding. Like cows on ice. That's because all hangars (and other parts, I presume) have the [B]default[/B] PhysicMaterial with friction coefficient set to 0.4. Don't know why, but changing that coefficient on the colliders in runtime does not change the friction. So I can't fix that. If anyone has an idea on this, PM me, please, on forum.
-[*]If a rover is built in VAB with its wheels "down", it will be launched from a hangar rotated by 90 degrees, because in VAB the "up" axis is actually the forward one. Build rovers in SPH to workaround; its more convenient anyway.
-[*]Rovers stored in KSC have somewhat smaller dimensions due to inactive suspension of the wheels. So if you pack several rovers [B]tightly[/B] into a hangar, and than launch one of them, the launched rover sometimes cannot be stored again into that same hangar with the "No room ..." message. Again: it's no bug, calculations are performed correctly, the rover's just got bigger.
-[/LIST]
-[/LIST]
-[SIZE=3][B]ChangeLog[/B][/SIZE]
-[LIST]
-[*]v1.1.0
-[LIST]
-[*]Added Rover Lander Hangar to easily land rovers on planetary bodies
-[*]Added (proper) support for TAC Life Support, RemoteTech2 and DeadlyReentry (a heatshield for Rover Lander is included)
-[*]Added recalculation of the amounts of resources on part resize, as well as several other properties of some modules. Unfortunately, I have to replicate some of TweakScale's functionality here; my part resizer is more specialized and TweakScale can't replace it, as much as want it to.
-[*][URL="https:/github.com/allista/hangar/issues?q=is%3Aissue+is%3Aclosed"]Fixed issues[/URL]: 1, 5, 6, 7, 8, 9, 11, 13, 14, 16, 17
-[*] Hotfixed Spaceport tech tree position (1:34, 7 Aug 14)
-[/LIST] 
-[*]v1.0.5324 -- Initial release 
-[/LIST]
+[*]Rovers stored in KSC have somewhat smaller dimensions due to inactive suspension of the wheels. So if you pack several rovers [B]tightly[/B]  into a hangar, and than launch one of them, the launched rover  sometimes cannot be stored again into that same hangar with the "No room  ..." message. Again: it's no bug, calculations are performed correctly,  the rover's just got bigger. 
+[/LIST][/LIST]
+[SIZE=3][B][URL="https://github.com/allista/hangar/blob/development/ChangeLog.md"]ChangeLog[/URL][/B][/SIZE]
+
 [SIZE=3][B][URL="https://github.com/allista/hangar/milestones"]See what's comming[/URL][/B][/SIZE]
 
-[SIZE=3][B]NOTE:[/B][/SIZE]
-[B]Before using a hangar, study the list of modules that are integrated into it [B](RMB on part's icon)[/B].[/B] Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating. 
+[SIZE=3][B][COLOR="#006400"]NOTE:[/COLOR][/B][/SIZE] [B]Before using a hangar, study the list of modules that are integrated into it [B](RMB on part's icon)[/B].[/B] Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating. 
 
 [SIZE=3][B]Introduction[/B][/SIZE]
 
@@ -47,16 +37,14 @@ All releases are published on [URL="https://github.com/allista/hangar/releases"]
 [LIST]
 [*]small light and cheap as well as huge, packed with all needed modules 
 [*][B]most may be rescaled[/B] to the needed size and proportions [B]via tweakables[/B] (mass, volume and cost are changed accordingly) 
-[/LIST]
-  
+[/LIST]  
 [*] There are several types of hangars:
 [LIST]
 [*][B]In-line hangars[/B] (simple and habitable) for spaceships 
 [*][B]Ground hangars[/B] (simple and habitable) for colonies 
 [*][B]Rover Lander[/B] hangar that has all needed modules and fuel to autonomously land on a planet or moon, bringing some rovers along the way 
 [*]there's also the [B]Spaceport[/B] that combines a huge hangar with a cockpit; as such, the Spaceport has only a single stack node at its bottom 
-[/LIST]
-  
+[/LIST]  
 [*]In-line hangars are equipped with internal docking port for easy targeting. If the hangar is inactive, this port may be used for normal docking 
 [*]Ground hangars have anchoring modules for comfort use on low-gravity worlds and integrated probe cores with antennas for autonomous operation 
 [*]Crew and resources can be transferred between a vessel with a hangar and stored vessels 
@@ -65,31 +53,26 @@ All releases are published on [URL="https://github.com/allista/hangar/releases"]
 [*]An asteroid can also be stored in a hangar. If it fits, of course. Interface:
 [LIST]
 [*]Hangars are controlled with a dedicated GUI 
-[*]For the vessels that do not have any hangars the GUI shows their volume and dimensions 
+[*]For the vessels that do not have any hangars the GUI shows their volume and dimensions. In Editor there's also an option to display arrows that indicate vessel's orientation, which is helpful in rover design. 
 [*]A vessel can have multiple hangars. Provided GUI allows easy switching between them by highlighting the hangar that is currently selected 
-[/LIST]
-  
+[/LIST]  
 [*] In addition, several other parts are provided:
 [LIST]
 [*]Powerfull 5-way RCS thrusters for Spaceport 
 [*]Heatshild with space for engines for Rover Lander. Especially helpful if you're playing with DeadlyReentry 
 [*]Two adapters for Size4 stack nodes 
-[/LIST]
-    
-[/LIST]
+[/LIST][/LIST]
 [SIZE=3][B]Requirements[/B][/SIZE]
 [LIST]
 [*]Hangar uses [URL="http://forum.kerbalspaceprogram.com/threads/81496"]KSPAPIExtensions[/URL] by [URL="http://forum.kerbalspaceprogram.com/members/100707-swamp_ig"]swamp_ig[/URL]. This plugin is bundled with the Hangar as it should be. 
 [*]The [URL="http://forum.kerbalspaceprogram.com/threads/55219"]ModuleManager[/URL], of course. 
-[*]The [URL="http://forum.kerbalspaceprogram.com/threads/60863"]Toolbar[/URL] is required for now. 
 [/LIST]
 [SIZE=3][B]Recommended mods[/B][/SIZE]
 There are many great mods out there that I love and use myself. But the one mode that I strongly recommend to use with the Hangar to improve game experience is the [URL="http://forum.kerbalspaceprogram.com/threads/59545"][B]Extraplanetary Launchpads[/B][/URL] by [URL="https://github.com/taniwha-qf"]Taniwha[/URL]. For one thing: big ground hangars are not suitable as parts for vessel construction and are too heavy to launch anyway. So the only meaningful way to use them is to build them on site.
+Also if you want to avoid many problems when building a rover that you  plan to store inside a hangar, I strongly recommend to use the [URL="http://forum.kerbalspaceprogram.com/threads/43208"]Select Root[/URL] and [URL="http://forum.kerbalspaceprogram.com/threads/38768"]Editor Extensions[/URL].
 
-[B]Supported mods[/B] 
-
+[SIZE=3][B]Supported mods[/B][/SIZE] 
 Hangar supports [URL="http://forum.kerbalspaceprogram.com/threads/79745-0-24-2-KSP-AVC-Add-on-Version-Checker-Plugin-1-0-4-KSP-AVC-Online"]KSP Addon Version Checker[/URL]. 
-
 And some functionality is added to hangars if the following mods are installed:
 [LIST]
 [*][URL="http://forum.kerbalspaceprogram.com/threads/40667?p=1281444&viewfull=1#post1281444"]TAC Life Support [B]beta[/B][/URL] adds life support resources to inhabitable hangars 
@@ -118,7 +101,6 @@ Select "Edit contents" entry in hangar's context menu to summon vessel selection
 Mass and cost of stored vessels are added to that of the hangar.
 
 [B]Launching a vessel[/B]
-
 A vessel can be launched from a hangar if:
 [LIST]
 [*]the hangar is activated and its gates are opened 
@@ -182,8 +164,12 @@ When establishing a colony rovers are often needed. They help to find a good spo
 
 [SIZE=3][B]Acknowledgements[/B][/SIZE]
 First of, I want to thank my beloved wife for her support and understanding. This work takes much time... 
-I also want to thank [URL="https://github.com/taniwha-qf"]Taniwha[/URL] for inspiration and advice.
 
+I also want to thank:
+[LIST]
+[*] [URL="https://github.com/taniwha-qf"]Taniwha[/URL] for inspiration and advice. 
+[*] [URL="http://forum.kerbalspaceprogram.com/members/20077-DragonEG"]DragonEG[/URL] for helping me to fix the friction problem. 
+[/LIST]
 And here're the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
 [LIST]
 [*][URL="http://forum.kerbalspaceprogram.com/threads/59545"]Extraplanetary Launchpads[/URL] 
@@ -194,8 +180,8 @@ And here're the mods which sources provided me with an understanding of how KSP 
 [*][URL="http://forum.kerbalspaceprogram.com/threads/50077-0-23-5-Fusebox-electric-charge-tracker-and-build-helper-1-0-released-12-07-14"]Fusebox[/URL] 
 [*][URL="http://forum.kerbalspaceprogram.com/threads/60936"]CrewManifest[/URL] 
 [*][URL="http://forum.kerbalspaceprogram.com/threads/80234"]TweakScale[/URL] 
-[*][URL="http://forum.kerbalspaceprogram.com/threads/24786"]Kerbal Alarm Clock[/URL]
-[*][URL="http://forum.kerbalspaceprogram.com/threads/57988"]RealChutes[/URL]
+[*][URL="http://forum.kerbalspaceprogram.com/threads/24786"]Kerbal Alarm Clock[/URL] 
+[*][URL="http://forum.kerbalspaceprogram.com/threads/57988"]RealChutes[/URL] 
 [*][URL="http://forum.kerbalspaceprogram.com/threads/83305"]RemoteTech2[/URL] 
 [/LIST]
 
