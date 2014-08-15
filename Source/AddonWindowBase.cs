@@ -14,6 +14,7 @@ namespace AtHangar
 		public static GUIStyle red;
 		public static GUIStyle yellow;
 		public static GUIStyle green;
+		public static GUIStyle blue;
 		public static GUIStyle white;
 		public static GUIStyle label;
 		public static GUIStyle slider;
@@ -71,6 +72,10 @@ namespace AtHangar
 			green = new GUIStyle (GUI.skin.box);
 			green.padding = new RectOffset (4, 4, 4, 4);
 			green.normal.textColor = green.focused.textColor = Color.green;
+
+			blue = new GUIStyle (GUI.skin.box);
+			blue.padding = new RectOffset (4, 4, 4, 4);
+			blue.normal.textColor = blue.focused.textColor = new Color(0.6f, 0.6f, 1f, 1f);
 
 			white = new GUIStyle (GUI.skin.box);
 			white.padding = new RectOffset (4, 4, 4, 4);
