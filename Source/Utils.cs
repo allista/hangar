@@ -301,7 +301,8 @@ namespace AtHangar
 		public static void DrawArrow(Vector3 ori, Vector3 dir, Transform T, Color c = default(Color))
 		{
 			float l = dir.magnitude;
-			float w = l*0.02f > 0.05f ? 0.05f : l*0.02f;
+			float w = l*0.02f;
+			w = w > 0.05f ? 0.05f : (w < 0.01f ? 0.01f : w);
 			Vector3 x = Mathf.Abs(Vector3.Dot(dir.normalized,Vector3.up)) < 0.9f ? 
 				Vector3.Cross(dir, Vector3.up).normalized : Vector3.Cross(Vector3.forward, dir).normalized;
 			Vector3 y = Vector3.Cross(x, dir).normalized*w; x *= w;
@@ -322,8 +323,8 @@ namespace AtHangar
 
 		public static void DrawYZ(Metric M, Transform T)
 		{
-			Utils.DrawArrow(Vector3.zero, Vector3.up*M.size.y, T, Color.green);
-			Utils.DrawArrow(Vector3.zero, Vector3.forward*M.size.z, T, Color.blue);
+			Utils.DrawArrow(Vector3.zero, Vector3.up*M.extents.y*0.8f, T, Color.green);
+			Utils.DrawArrow(Vector3.zero, Vector3.forward*M.extents.z*0.8f, T, Color.blue);
 		}
 		#endregion
 	}
