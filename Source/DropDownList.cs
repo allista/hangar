@@ -15,6 +15,7 @@ namespace AtHangar
 
         internal bool ListVisible;
 
+		public Rect windowRect;
         Rect rectButton = new Rect();
         Rect rectListBox = new Rect();
 		Rect rectScrollView = new Rect();
@@ -87,7 +88,7 @@ namespace AtHangar
 				{
 					y = rectButton.y + rectButton.height,
 					width  = rectButton.width + GUI.skin.verticalScrollbar.fixedWidth+1,
-					height = ListItemHeight * 2 + 1
+					height = windowRect != default(Rect)? windowRect.xMax - rectButton.y - rectButton.height : ListItemHeight * 2 + 1
 				};
                 rectListBox = new Rect(rectButton)
                 {

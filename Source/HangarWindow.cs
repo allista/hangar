@@ -304,6 +304,7 @@ namespace AtHangar
 			if(hangars.Count < 2) return;
 			hangar_list.styleListBox = Styles.list_box;
 			hangar_list.styleListItem = Styles.list_item;
+			hangar_list.windowRect = fWindowPos;
 			hangar_list.DrawBlockingSelector(); 
 		}
 
@@ -348,6 +349,7 @@ namespace AtHangar
 		{ 
 			vessel_list.styleListBox = Styles.list_box;
 			vessel_list.styleListItem = Styles.list_item;
+			vessel_list.windowRect = fWindowPos;
 			vessel_list.DrawBlockingSelector(); 
 		}
 
