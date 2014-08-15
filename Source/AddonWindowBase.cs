@@ -14,6 +14,7 @@ namespace AtHangar
 		public static GUIStyle red;
 		public static GUIStyle yellow;
 		public static GUIStyle green;
+		public static GUIStyle blue;
 		public static GUIStyle white;
 		public static GUIStyle label;
 		public static GUIStyle slider;
@@ -71,6 +72,10 @@ namespace AtHangar
 			green = new GUIStyle (GUI.skin.box);
 			green.padding = new RectOffset (4, 4, 4, 4);
 			green.normal.textColor = green.focused.textColor = Color.green;
+
+			blue = new GUIStyle (GUI.skin.box);
+			blue.padding = new RectOffset (4, 4, 4, 4);
+			blue.normal.textColor = blue.focused.textColor = new Color(0.6f, 0.6f, 1f, 1f);
 
 			white = new GUIStyle (GUI.skin.box);
 			white.padding = new RectOffset (4, 4, 4, 4);
@@ -195,6 +200,18 @@ namespace AtHangar
 		}
 		
 		//settings
+		public static void CheckRect(ref Rect R)
+		{
+			//check size
+			if(R.width > Screen.width) R.width = Screen.width;
+			if(R.height > Screen.height) R.height = Screen.height;
+			//check position
+			if(R.xMin < 0) R.x -= R.xMin;
+			else if(R.xMax > Screen.width) R.x -= R.xMax-Screen.width;
+			if(R.yMin < 0) R.y -= R.yMin;
+			else if(R.yMax > Screen.height) R.y -= R.yMax-Screen.height;
+		}
+
 		public static string mangleName(string name) { return typeof(T).Name+"-"+name; }
 		
 		virtual public void LoadSettings()

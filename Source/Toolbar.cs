@@ -1,20 +1,51 @@
 using UnityEngine;
-using Toolbar;
 
 namespace AtHangar {
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 	public class HangarToolbar : MonoBehaviour
 	{
-		IButton HangarButton;
+		IButton HangarToolbarButton;
+		ApplicationLauncherButton HangarButton;
 
 		public void Awake ()
 		{
-			HangarButton = ToolbarManager.Instance.add ("Hangar", "HangarButton");
-			HangarButton.TexturePath = "Hangar/Textures/icon_button";
-			HangarButton.ToolTip = "Hangar controls and info";
-			HangarButton.OnClick += e => HangarWindow.ToggleGUI ();
+			if(ToolbarManager.ToolbarAvailable)
+			{
+				HangarToolbarButton = ToolbarManager.Instance.add ("Hangar", "HangarButton");
+				HangarToolbarButton.TexturePath = "Hangar/Textures/icon_button";
+				HangarToolbarButton.ToolTip = "Hangar controls and info";
+				HangarToolbarButton.OnClick += e => HangarWindow.ToggleGUI();
+			}
+			else 
+				GameEvents.onGUIApplicationLauncherReady.Add(OnGUIAppLauncherReady);
 		}
 
-		void OnDestroy() { HangarButton.Destroy(); }
+		void OnDestroy() 
+		{ 
+			GameEvents.onGUIApplicationLauncherReady.Remove(OnGUIAppLauncherReady);
+			if(HangarButton != null)
+				ApplicationLauncher.Instance.RemoveModApplication(HangarButton);
+			if(HangarToolbarButton != null)
+				HangarToolbarButton.Destroy(); 
+		}
+
+		void OnGUIAppLauncherReady()
+		{
+			if (ApplicationLauncher.Ready)
+			{
+				HangarButton = ApplicationLauncher.Instance.AddModApplication(
+					onAppLaunchToggleOn,
+					onAppLaunchToggleOff,
+					DummyVoid, DummyVoid, DummyVoid, DummyVoid,
+					ApplicationLauncher.AppScenes.SPH|ApplicationLauncher.AppScenes.VAB|ApplicationLauncher.AppScenes.FLIGHT,
+					GameDatabase.Instance.GetTexture("Hangar/Textures/icon_button", false));
+			}
+		}
+
+		void onAppLaunchToggleOn() { HangarWindow.ShowGUI(); }
+
+		void onAppLaunchToggleOff() { HangarWindow.HideGUI(); }
+
+		void DummyVoid() {}
 	}
 }

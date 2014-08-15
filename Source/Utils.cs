@@ -134,10 +134,33 @@ namespace AtHangar
             ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " as not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
             return false;
         }
+
+		public static bool HasLaunchClamp(IEnumerable<Part> parts)
+		{
+			foreach(Part p in parts)
+			{ if(p.HasModule<LaunchClamp>()) return true; }
+			return false;
+		}
+
+		public static void UpdateEditorGUI()
+		{ if(EditorLogic.fetch != null)	GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship); }
 		
 		#region Debug
+		public static string formatVector(Vector3 v)
+		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
+
+		public static string formatVector(Vector3d v)
+		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
+
 		public static void Log(string msg, params object[] args)
-		{ Debug.Log(string.Format("[Hangar] "+msg, args)); }
+		{ 
+			for(int i = 0; i < args.Length; i++) 
+			{
+				if(args[i] is Vector3) args[i] = formatVector((Vector3)args[i]);
+				else if(args[i] is Vector3d) args[i] = formatVector((Vector3d)args[i]);
+			}
+			Debug.Log(string.Format("[Hangar] "+msg, args)); 
+		}
 
 		public static void logStamp(string msg = "") { Debug.Log("[Hangar] === " + msg); }
 
@@ -153,12 +176,6 @@ namespace AtHangar
 			Debug.Log(crew_str);
 		}
 		
-		public static string formatVector(Vector3 v)
-		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
-
-		public static string formatVector(Vector3d v)
-		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
-
 		public static void logVector(Vector3 v) { Debug.Log(formatVector(v)); }
 		public static void logVector(Vector3d v) { Debug.Log(formatVector(v)); }
 
@@ -219,7 +236,136 @@ namespace AtHangar
 		#endif
 		#endregion
 		#endregion
+
+		#region Graphics
+		static Material _material;
+		public static Material  material
+		{
+			get
+			{
+				if (_material == null)
+					_material = new Material(Shader.Find("GUI/Text Shader"));
+				return new Material(_material);
+			}
+		}
+
+		public static int[] Quad2Tris(int i1, int i2, int i3, int i4)
+		{
+			int[] tris = new int[6];
+			int i = 0;
+			tris[i++] = i1; tris[i++] = i2; tris[i++] = i3;
+			tris[i++] = i3; tris[i++] = i4; tris[i++] = i1;
+			return tris;
+		}
+
+		public static void DrawMesh(Vector3[] edges, IEnumerable<int> tris, Transform t, Color c = default(Color))
+		{
+			//make a mesh
+			Mesh m = new Mesh();
+			m.vertices  = edges;
+			m.triangles = tris.ToArray();
+			//recalculate normals and bounds
+			m.RecalculateBounds();
+			m.RecalculateNormals();
+			//make own material
+			Material mat = Utils.material;
+			mat.color = (c == default(Color))? Color.white : c;
+			//draw mesh in the world space
+			Graphics.DrawMesh(m, t.localToWorldMatrix, mat, 0);
+		}
+
+		//		edges[0] = new Vector3(min.x, min.y, min.z); //left-bottom-back
+		//	    edges[1] = new Vector3(min.x, min.y, max.z); //left-bottom-front
+		//	    edges[2] = new Vector3(min.x, max.y, min.z); //left-top-back
+		//	    edges[3] = new Vector3(min.x, max.y, max.z); //left-top-front
+		//	    edges[4] = new Vector3(max.x, min.y, min.z); //right-bottom-back
+		//	    edges[5] = new Vector3(max.x, min.y, max.z); //right-bottom-front
+		//	    edges[6] = new Vector3(max.x, max.y, min.z); //right-top-back
+		//	    edges[7] = new Vector3(max.x, max.y, max.z); //right-top-front
+		public static void DrawBounds(Bounds b, Transform T, Color c)
+		{
+			Vector3[] edges = Metric.BoundsEdges(b);
+			List<int> tris = new List<int>();
+			tris.AddRange(Utils.Quad2Tris(0, 1, 3, 2));
+			tris.AddRange(Utils.Quad2Tris(0, 2, 6, 4));
+			tris.AddRange(Utils.Quad2Tris(0, 1, 5, 4));
+			tris.AddRange(Utils.Quad2Tris(1, 3, 7, 5));
+			tris.AddRange(Utils.Quad2Tris(2, 3, 7, 6));
+			tris.AddRange(Utils.Quad2Tris(6, 7, 5, 4));
+			Utils.DrawMesh(edges, tris, T, c);
+		}
+
+		public static void DrawPoint(Vector3 point, Transform T, Color c = default(Color))
+		{ DrawBounds(new Bounds(point, Vector3.one*0.1f), T, c); }
+
+		public static void DrawArrow(Vector3 ori, Vector3 dir, Transform T, Color c = default(Color))
+		{
+			float l = dir.magnitude;
+			float w = l*0.02f;
+			w = w > 0.05f ? 0.05f : (w < 0.01f ? 0.01f : w);
+			Vector3 x = Mathf.Abs(Vector3.Dot(dir.normalized,Vector3.up)) < 0.9f ? 
+				Vector3.Cross(dir, Vector3.up).normalized : Vector3.Cross(Vector3.forward, dir).normalized;
+			Vector3 y = Vector3.Cross(x, dir).normalized*w; x *= w;
+			Vector3[] edges = new Vector3[5];
+			edges[0] = ori+dir; 
+			edges[1] = ori-x-y;
+			edges[2] = ori-x+y;
+			edges[3] = ori+x+y;
+			edges[4] = ori+x-y;
+			List<int> tris = new List<int>();
+			tris.AddRange(Utils.Quad2Tris(1, 2, 3, 4));
+			tris.AddRange(new []{0, 1, 2});
+			tris.AddRange(new []{0, 2, 3});
+			tris.AddRange(new []{0, 3, 4});
+			tris.AddRange(new []{0, 4, 1});
+			Utils.DrawMesh(edges, tris, T, c);
+		}
+
+		public static void DrawYZ(Metric M, Transform T)
+		{
+			Utils.DrawArrow(Vector3.zero, Vector3.up*M.extents.y*0.8f, T, Color.green);
+			Utils.DrawArrow(Vector3.zero, Vector3.forward*M.extents.z*0.8f, T, Color.blue);
+		}
+		#endregion
 	}
+
+
+	/// <summary>
+	/// Screen messager is an addon that displays on-screen 
+	/// messages in the top-center of the screen.
+	/// It is a part of the Hangar module.
+	/// </summary>
+	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
+	public class ScreenMessager : MonoBehaviour
+	{
+		static float osdMessageTime  = 0;
+		static string osdMessageText = null;
+
+		public static void showMessage(string msg, float delay)
+		{
+			#if DEBUG
+			Utils.Log(msg);
+			#endif
+			osdMessageText = msg;
+			osdMessageTime = Time.time + delay;
+		}
+
+		public void OnGUI ()
+		{
+			if (Time.time < osdMessageTime) 
+			{
+				GUI.skin = HighLogic.Skin;
+				GUIStyle style = new GUIStyle ("Label");
+				style.alignment = TextAnchor.MiddleCenter;
+				style.fontSize = 20;
+				style.normal.textColor = Color.black;
+				GUI.Label (new Rect (2, 2 + (Screen.height / 9), Screen.width, 50), osdMessageText, style);
+				style.normal.textColor = Color.yellow;
+				GUI.Label (new Rect (0, Screen.height / 9, Screen.width, 50), osdMessageText, style);
+			}
+		}
+	}
+
 
 	public static class PartExtension
 	{
@@ -251,35 +397,127 @@ namespace AtHangar
 		}
 
 		public static float DryCost(this Part p) { return p.TotalCost() - p.ResourcesCost(); }
-	}
-	
-	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
-	public class ScreenMessager : MonoBehaviour
-	{
-		static float osdMessageTime  = 0;
-		static string osdMessageText = null;
 
-		public static void showMessage (string msg, float delay)
+		public static float MassWithChildren(this Part p)
 		{
-			#if DEBUG
-			Utils.Log(msg);
-			#endif
-			osdMessageText = msg;
-			osdMessageTime = Time.time + delay;
+			float mass = p.TotalMass();
+			p.children.ForEach(ch => mass += ch.MassWithChildren());
+			return mass;
 		}
 
-		public void OnGUI ()
+		public static Part RootPart(this Part p) 
+		{ return p.parent == null ? p : p.parent.RootPart(); }
+
+		public static List<Part> AllChildren(this Part p)
 		{
-			if (Time.time < osdMessageTime) 
+			List<Part> all_children = new List<Part>{};
+			foreach(Part ch in p.children) 
 			{
-				GUI.skin = HighLogic.Skin;
-				GUIStyle style = new GUIStyle ("Label");
-				style.alignment = TextAnchor.MiddleCenter;
-				style.fontSize = 20;
-				style.normal.textColor = Color.black;
-				GUI.Label (new Rect (2, 2 + (Screen.height / 9), Screen.width, 50), osdMessageText, style);
-				style.normal.textColor = Color.yellow;
-				GUI.Label (new Rect (0, Screen.height / 9, Screen.width, 50), osdMessageText, style);
+				all_children.Add(ch);
+				all_children.AddRange(ch.AllChildren());
+			}
+			return all_children;
+		}
+
+		public static List<Part> AllConnectedParts(this Part p)
+		{
+			if(p.parent != null) return p.parent.AllConnectedParts();
+			List<Part> all_parts = new List<Part>{p};
+			all_parts.AddRange(p.AllChildren());
+			return all_parts;
+		}
+
+		public static void BreakConnectedStruts(this Part p)
+		{
+			//break strut connectors
+			foreach(Part part in p.AllConnectedParts())
+			{
+				StrutConnector s = part as StrutConnector;
+				if(s == null || s.target == null) continue;
+				if(s.parent == p || s.target == p)
+				{
+					s.BreakJoint();
+					s.targetAnchor.gameObject.SetActive(false);
+					s.direction = Vector3.zero;
+				}
+			}
+		}
+
+		public static WheelUpdater AddWheelUpdater(this Part p, uint trigger_id = default(uint))
+		{
+			WheelUpdater updater = (p.Modules.OfType<WheelUpdater>().FirstOrDefault() ?? 
+									p.AddModule("WheelUpdater") as WheelUpdater);
+			if(updater == null) return null;
+			if(trigger_id != default(uint))
+				updater.RegisterTrigger(trigger_id);
+			return updater;
+		}
+	}
+
+
+	public class ModuleGUIState
+	{
+		readonly public List<string> EditorFields    = new List<string>();
+		readonly public List<string> GUIFields       = new List<string>();
+		readonly public List<string> InactiveEvents  = new List<string>();
+		readonly public List<string> InactiveActions = new List<string>();
+	}
+
+	public static class PartModuleExtension
+	{
+		public static ModuleGUIState SaveGUIState(this PartModule pm)
+		{
+			ModuleGUIState state = new ModuleGUIState();
+			foreach(BaseField f in pm.Fields)
+			{
+				if(f.guiActive) state.GUIFields.Add(f.name);
+				if(f.guiActiveEditor) state.EditorFields.Add(f.name);
+			}
+			foreach(BaseEvent e in pm.Events)
+				if(!e.active) state.InactiveEvents.Add(e.name);
+			foreach(BaseAction a in pm.Actions)
+				if(!a.active) state.InactiveActions.Add(a.name);
+			return state;
+		}
+
+		public static ModuleGUIState DeactivateGUI(this PartModule pm)
+		{
+			ModuleGUIState state = new ModuleGUIState();
+			foreach(BaseField f in pm.Fields)
+			{
+				if(f.guiActive) state.GUIFields.Add(f.name);
+				if(f.guiActiveEditor) state.EditorFields.Add(f.name);
+				f.guiActive = f.guiActiveEditor = false;
+			}
+			foreach(BaseEvent e in pm.Events)
+			{
+				if(!e.active) state.InactiveEvents.Add(e.name);
+				e.active = false;
+			}
+			foreach(BaseAction a in pm.Actions)
+			{
+				if(!a.active) state.InactiveActions.Add(a.name);
+				a.active = false;
+			}
+			return state;
+		}
+
+		public static void ActivateGUI(this PartModule pm, ModuleGUIState state = null)
+		{
+			foreach(BaseField f in pm.Fields)
+			{
+				if(state.GUIFields.Contains(f.name)) f.guiActive = true;
+				if(state.EditorFields.Contains(f.name)) f.guiActiveEditor = true;
+			}
+			foreach(BaseEvent e in pm.Events)
+			{
+				if(state.InactiveEvents.Contains(e.name)) continue;
+				e.active = true;
+			}
+			foreach(BaseAction a in pm.Actions)
+			{
+				if(state.InactiveActions.Contains(a.name)) continue;
+				a.active = true;
 			}
 		}
 	}

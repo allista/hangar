@@ -181,9 +181,6 @@ namespace AtHangar
 		public void UpdateGUI(ShipConstruct ship)
 		{ massDisplay = Utils.formatMass(part.TotalMass()); }
 
-		public void UpdateGUI()
-		{ if(EditorLogic.fetch != null)	GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship); }
-
 		public override void OnRescale(Scale scale)
 		{
 			//change model scale
@@ -204,7 +201,7 @@ namespace AtHangar
 			//save size and aspect
 			old_size   = size;
 			old_aspect = aspect;
-			UpdateGUI();
+			Utils.UpdateEditorGUI();
 		}
 		public void Rescale() { OnRescale(scale); }
 

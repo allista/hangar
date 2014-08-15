@@ -53,8 +53,8 @@
       <HintPath>..\KSP_test\KSP_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="aaa_Toolbar">
-      <HintPath>..\KSP_test\GameData\000_Toolbar\Toolbar.dll</HintPath>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\KSP_test\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -78,6 +78,11 @@
     <Compile Include="VesselsPack.cs" />
     <Compile Include="VesselWrappers.cs" />
     <Compile Include="PartUpdaters.cs" />
+    <Compile Include="ToolbarWrapper.cs" />
+    <Compile Include="HangarGenericInflatable.cs" />
+    <Compile Include="AnimatedNode.cs" />
+    <Compile Include="ModuleWheelDebug.cs" />
+    <Compile Include="WheelUpdater.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

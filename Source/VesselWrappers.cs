@@ -14,17 +14,26 @@ namespace AtHangar
 		public ShipConstruct construct { get; private set; }
 		ConfigNode vessel_node;
 
-		public void LoadConstruct()
+		public bool LoadConstruct()
 		{
 			UnloadConstruct();
 			construct = new ShipConstruct();
-			construct.LoadShip(vessel_node);
+			if(!construct.LoadShip(vessel_node))
+			{
+				UnloadConstruct();
+				return false;
+			}
+			return true;
 		}
 
 		public void UnloadConstruct() 
 		{ 
 			if(construct == null) return;
-			foreach(Part p in construct) UnityEngine.Object.Destroy(p.gameObject);
+			foreach(Part p in construct) 
+			{
+				if(p != null && p.gameObject != null)
+					UnityEngine.Object.Destroy(p.gameObject);
+			}
 			construct = null; 
 		}
 
@@ -48,7 +57,7 @@ namespace AtHangar
 			this.flag = flag;
 			vessel_node = ConfigNode.Load(file);
 			vessel_node.name = "VESSEL";
-			LoadConstruct();
+			if(!LoadConstruct()) return;
 			metric = new Metric(construct.Parts);
 			name = construct.shipName;
 			id = Guid.NewGuid();
@@ -163,7 +172,7 @@ namespace AtHangar
 						int items_removed = o.values.Count-n.values.Count;
 						if(items_removed > 0)
 							Debug.Log(string.Format("Removed {0} of {1} values from {2} node", 
-							                        items_removed, o.values.Count, o.name)); //DEBUG
+							                        items_removed, o.values.Count, o.name));
 					}
 				}
 				ProtoPartModuleSnapshot first_logger = pp.modules.First(ppm => ppm.moduleName == trip_logger_name);
@@ -213,20 +222,33 @@ namespace AtHangar
 	{
 		readonly List<ProtoCrewMember> crew;
 		readonly StoredVessel sv;
+		readonly uint hangar_id;
 
-		public LaunchedVessel(StoredVessel sv, Vessel vsl, List<ProtoCrewMember> crew)
+		public LaunchedVessel(StoredVessel sv, Vessel vsl, List<ProtoCrewMember> crew, uint hangar_id)
 			: base(vsl)
 		{
 			this.sv = sv;
 			this.crew = crew;
+			this.hangar_id = hangar_id;
 		}
 
-		public void transferCrew() { CrewTransfer.addCrew(vessel, crew); }
+		public void transferCrew() 
+		{ CrewTransfer.addCrew(vessel, crew); }
 
 		public void tunePosition()
 		{
 			Vector3 dP = vessel.findLocalCenterOfMass() - sv.CoM;
 			vessel.SetPosition(vessel.vesselTransform.TransformPoint(dP));
+		}
+
+		public void stiffenWheels()
+		{
+			Utils.Log("Trying to add WheelUpdaters to the wheels of the launched vessel");
+			foreach(Part p in vessel.Parts) 
+			{ 
+				if(p.HasModule<ModuleWheel>()) 
+					p.AddWheelUpdater(hangar_id); 
+			}
 		}
 	}
 }

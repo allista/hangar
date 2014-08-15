@@ -10,7 +10,8 @@ namespace AtHangar
 	public class HangarWindow : AddonWindowBase<HangarWindow>
 	{
 		//settings
-		static int highlight_hangar = 0; //1 -- enable highlight; -1 -- disable highlight; 0 -- do not set highlight (for mouseover highlighting).
+		static int  highlight_hangar = 0; //1 -- enable highlight; -1 -- disable highlight; 0 -- do not set highlight (for mouseover highlighting).
+		static bool draw_directions = false;
 		static bool selecting_crew = false;
 		static bool transfering_resources = false;
 		static Rect fWindowPos = new Rect();
@@ -22,17 +23,28 @@ namespace AtHangar
 		static readonly string eLock = "HangarWindow.editorUI";
 		
 		//this vessel
+		static Vessel current_vessel
+		{
+			get
+			{
+				if(FlightGlobals.fetch != null && 
+					FlightGlobals.ActiveVessel != null &&
+					!FlightGlobals.ActiveVessel.isEVA)
+					return FlightGlobals.ActiveVessel;
+				return null;
+			}
+		}
 		Metric vessel_metric;
 		
 		//hangars
-		List<Hangar> hangars;
-		DropDownList hangar_list;
+		readonly List<Hangar> hangars = new List<Hangar>();
+		readonly DropDownList hangar_list = new DropDownList();
 		Hangar selected_hangar;
-		int hangar_id;
+		uint hangar_id;
 		
 		//vessels
-		List<StoredVessel> vessels;
-		DropDownList vessel_list;
+		List<StoredVessel> vessels = new List<StoredVessel>();
+		readonly DropDownList vessel_list = new DropDownList();
 		StoredVessel selected_vessel;
 		Guid vessel_id;
 		
@@ -42,10 +54,11 @@ namespace AtHangar
 		
 		
 		//vessel volume 
-		void updateVesselMetrics()
+		void updateVesselMetrics(Vessel vsl = null)
 		{
 			vessel_metric = null;
-			if(EditorLogic.fetch != null)
+			if(vsl != null) vessel_metric = new Metric(vsl);
+			else if(EditorLogic.fetch != null)
 			{
 				List<Part> parts = new List<Part>();
 				try { parts = EditorLogic.SortedShipList; }
@@ -53,63 +66,66 @@ namespace AtHangar
 				if(parts.Count > 0 && parts[0] != null)
 					vessel_metric = new Metric(parts);
 			}
-			else if(FlightGlobals.fetch != null && 
-			        FlightGlobals.ActiveVessel != null &&
-			        !FlightGlobals.ActiveVessel.isEVA)
-				vessel_metric = new Metric(FlightGlobals.ActiveVessel);
 		}
 		
 		//build dropdown list of all hangars in the vessel
 		void BuildHangarList(Vessel vsl)
 		{
-			if(selected_hangar != null)	selected_hangar.part.SetHighlightDefault();
-			hangars = null;
-			hangar_list = null;
+			//reset state
+			if(selected_hangar != null)	
+				selected_hangar.part.SetHighlightDefault();
+			hangars.Clear();
+			hangar_list.Items.Clear();
 			selected_hangar = null;
-			
-			var _hangars = new List<Hangar>();
+			//check the vessel
+			if(vsl == null) return;
+			//build new list
 			foreach(var p in vsl.Parts)
-				_hangars.AddRange(p.Modules.OfType<Hangar>());
-			
-			if(_hangars.Count > 0) 
+				hangars.AddRange(p.Modules.OfType<Hangar>().Where(h => h.enabled));
+			if(hangars.Count > 0) 
 			{
-				hangars = _hangars;
-				selected_hangar = hangars.Find(h => h.part.GetInstanceID() == hangar_id);
+				selected_hangar = hangars.Find(h => h.part.flightID == hangar_id);
 				if(selected_hangar == null) selected_hangar = hangars[0];
 				var hangar_names = new List<string>();
 				for(int i = 0; i < hangars.Count; i++)
-					hangar_names.Add("hangar-" + i);
-				hangar_list = new DropDownList(hangar_names, hangars.IndexOf(selected_hangar));
+				{
+					string h_name = hangars[i].HangarName == default(string) ? "Unnamed Hangar" : hangars[i].HangarName;
+					hangar_names.Add(string.Format("{0} {1}", i, h_name));
+				}
+				hangar_list.Items = hangar_names;
+				hangar_list.SelectItem(hangars.IndexOf(selected_hangar));
 			}
 		}
 		
 		//build dropdown list of stored vessels
 		void BuildVesselList(Hangar hangar)
 		{
-			vessels = null;
-			vessel_list = null;
+			//reset stat
+			vessels.Clear();
+			vessel_list.Items.Clear();
 			selected_vessel = null;
+			//check hangar
 			if(hangar == null) return;
-			
-			List<StoredVessel> _vessels = hangar.GetVessels();
-			if(_vessels.Count > 0) 
+			//build new list
+			vessels = hangar.GetVessels();
+			if(vessels.Count > 0) 
 			{
-				vessels = _vessels;
 				selected_vessel = vessels.Find(v => v.vessel.vesselID == vessel_id);
 				if(selected_vessel == null) selected_vessel = vessels[0];
 				var vessel_names = new List<string>();
 				foreach(var vsl in vessels)
 					vessel_names.Add(vsl.vessel.vesselName);
-				vessel_list = new DropDownList(vessel_names, vessels.IndexOf(selected_vessel));
+				vessel_list.Items = vessel_names;
+				vessel_list.SelectItem(vessels.IndexOf(selected_vessel));
 			}
 		}
 		
-		//callbacks
+		//update-init-destroy
 		void onVesselChange(Vessel vsl)
 		{
+			updateVesselMetrics(vsl);
 			BuildHangarList(vsl);
 			BuildVesselList(selected_hangar);
-			updateVesselMetrics();
 			UpdateGUIState();
 		}
 
@@ -117,13 +133,29 @@ namespace AtHangar
 		{ 
 			if(FlightGlobals.ActiveVessel == vsl) 
 			{
-				BuildHangarList(vsl);	
+				updateVesselMetrics(vsl);
+				BuildHangarList(vsl);
 				BuildVesselList(selected_hangar);
-				updateVesselMetrics();
+			}
+		}
+
+		public override void OnUpdate() 
+		{ 
+			if(!enabled) return;
+			Vessel vsl = current_vessel;
+			updateVesselMetrics(vsl);
+			BuildHangarList(vsl);
+			UpdateGUIState();
+			if(selected_hangar != null)
+			{
+				//vessel list
+				if(vessels.Count != selected_hangar.numVessels())
+					BuildVesselList(selected_hangar);
+				if(selected_vessel != null && transfering_resources)
+					selected_hangar.updateResourceList();
 			}
 		}
 		
-		//update-init-destroy
 		override public void UpdateGUIState()
 		{
 			base.UpdateGUIState();
@@ -141,21 +173,8 @@ namespace AtHangar
 					highlight_hangar = 0;
 				}
 			}
-			if(hangars != null)
-			{
-				foreach(var p in hangars)
-					p.UpdateMenus(enabled && p == selected_hangar);
-			}
-		}
-		
-		public override void OnUpdate() 
-		{ 
-			if(!enabled) return;
-			updateVesselMetrics(); 
-			if(selected_hangar != null && 
-			   selected_vessel != null && 
-			   transfering_resources)
-				selected_hangar.updateResourceList();
+			foreach(var p in hangars)
+				p.UpdateMenus(enabled && p == selected_hangar);
 		}
 		
 		new void Awake()
@@ -180,6 +199,8 @@ namespace AtHangar
 			eWindowPos = configfile.GetValue<Rect>(mangleName("eWindowPos"), eWindowPos);
 			cWindowPos = configfile.GetValue<Rect>(mangleName("cWindowPos"), cWindowPos);
 			rWindowPos = configfile.GetValue<Rect>(mangleName("rWindowPos"), rWindowPos);
+			hangar_id  = configfile.GetValue<uint>(mangleName("hangar_id"),  default(uint));
+			vessel_id  = configfile.GetValue<Guid>(mangleName("vessel_id"),  Guid.Empty);
 		}
 		
 		public override void SaveSettings()
@@ -188,6 +209,8 @@ namespace AtHangar
 			configfile.SetValue(mangleName("eWindowPos"), eWindowPos);
 			configfile.SetValue(mangleName("cWindowPos"), cWindowPos);
 			configfile.SetValue(mangleName("rWindowPos"), rWindowPos);
+			configfile.SetValue(mangleName("hangar_id"), hangar_id);
+			configfile.SetValue(mangleName("vessel_id"), vessel_id);
 			base.SaveSettings();
 		}
 		
@@ -201,8 +224,8 @@ namespace AtHangar
 		
 		void ToggleGatesButton()
 		{
-			if(selected_hangar.gates_state == HangarGates.Closed ||
-			   selected_hangar.gates_state == HangarGates.Closing)
+			if(selected_hangar.gates_state == AnimatorState.Closed ||
+			   selected_hangar.gates_state == AnimatorState.Closing)
 			{
 				if(GUILayout.Button("Open Gates", Styles.green_button, GUILayout.ExpandWidth(true)))
 					selected_hangar.Open();
@@ -278,6 +301,7 @@ namespace AtHangar
 		//Hangar selection list
 		void SelectHangar_start() 
 		{ 
+			if(hangars.Count < 2) return;
 			hangar_list.styleListBox = Styles.list_box;
 			hangar_list.styleListItem = Styles.list_item;
 			hangar_list.DrawBlockingSelector(); 
@@ -294,13 +318,14 @@ namespace AtHangar
 					highlight_hangar =  1;
 				}
 				selected_hangar = hangar;
-				hangar_id = hangar.GetInstanceID();
+				hangar_id = hangar.part.flightID;
 				hangar_list.SelectItem(hangars.IndexOf(hangar));
 			}
 		}
 
 		void SelectHangar()
 		{
+			if(hangars.Count < 2) return;
 			GUILayout.BeginHorizontal();
 			hangar_list.DrawButton();
 			if(GUILayout.Toggle(highlight_hangar == 1, "Highlight hangar")) highlight_hangar = 1;
@@ -312,7 +337,7 @@ namespace AtHangar
 
 		void SelectHangar_end()
 		{
-			if(hangar_list == null) return;
+			if(hangars.Count < 2) return;
 			hangar_list.DrawDropDown();
 			hangar_list.CloseOnOutsideClick();
 		}
@@ -346,7 +371,6 @@ namespace AtHangar
 
 		void SelectVessel_end()
 		{
-			if(vessel_list == null) return;
 			vessel_list.DrawDropDown();
 			vessel_list.CloseOnOutsideClick();
 		}
@@ -360,6 +384,27 @@ namespace AtHangar
 			                              Utils.formatVolume(vessel_metric.volume)), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Dimensions: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label(String.Format("Crew Capacity: {0}", vessel_metric.CrewCapacity), GUILayout.ExpandWidth(true));
+			if(HighLogic.LoadedScene == GameScenes.EDITOR ||
+			   HighLogic.LoadedScene == GameScenes.SPH)
+			{
+				if(GUILayout.Toggle(draw_directions, "Show Directions")) 
+				{
+					draw_directions = true;
+					GUILayout.BeginHorizontal();
+					GUILayout.Label("Green", Styles.green);
+					GUILayout.FlexibleSpace();
+					GUILayout.Label("Vessel's Forward");
+					GUILayout.EndHorizontal();
+					GUILayout.BeginHorizontal();
+					GUILayout.Label("Blue", Styles.blue);
+					GUILayout.FlexibleSpace();
+					GUILayout.Label("Vessel's Bottom");
+					GUILayout.EndHorizontal();
+					GUILayout.Label("If there are hangars in the vessel, additional sets of arrows show orientation " +
+									"in which a vessel will be launched from each of the hangars", GUILayout.ExpandWidth(true));
+				}
+				else draw_directions = false;
+			}
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 5000, 20));
 		}
@@ -377,11 +422,7 @@ namespace AtHangar
 			ToggleGatesButton();
 			ToggleStateButton();
 			GUILayout.EndHorizontal();
-			//vessel list
-			if(vessels == null && selected_hangar.numVessels() > 0 ||
-			   vessels != null && vessels.Count != selected_hangar.numVessels())
-				BuildVesselList(selected_hangar);
-			if(vessels != null)
+			if(vessels.Count > 0)
 			{
 				SelectVessel_start();
 				GUILayout.BeginVertical();
@@ -392,8 +433,8 @@ namespace AtHangar
 				LaunchButton();
 			}
 			CloseButton();
-			SelectHangar_end();
 			SelectVessel_end();
+			SelectHangar_end();
 			
 			GUI.DragWindow(new Rect(0, 0, 5000, 20));
 		}
@@ -404,7 +445,7 @@ namespace AtHangar
 			if(vessel_metric == null) return;
 			if(Event.current.type != EventType.Layout) return;
 			base.OnGUI();
-			if(hangars != null)
+			if(hangars.Count > 0)
 			{
 				//controls
 				string hstate = selected_hangar.hangar_state.ToString();
@@ -412,16 +453,22 @@ namespace AtHangar
 				fWindowPos = GUILayout.Window(GetInstanceID(),
 											 fWindowPos, HangarCotrols,
 											 String.Format("{0} {1}, Gates {2}", "Hangar", hstate, gstate),
-											 GUILayout.Width(320));
+										 	 GUILayout.Width(320),
+											 GUILayout.Height(100));
+				CheckRect(ref fWindowPos);
 				//transfers
 				if(selected_vessel == null) selecting_crew = transfering_resources = false;
 				if(selecting_crew)
+				{
 					cWindowPos = crew_window.Draw(selected_hangar.vessel.GetVesselCrew(), 
 				    	                          selected_vessel.crew, selected_vessel.CrewCapacity, cWindowPos);
+					CheckRect(ref cWindowPos);
+				}
 				if(transfering_resources)
 				{
 					selected_hangar.prepareResourceList(selected_vessel);
 					rWindowPos = resources_window.Draw(selected_hangar.resourceTransferList, rWindowPos);
+					CheckRect(ref rWindowPos);
 					if(resources_window.transferNow)
 					{
 						selected_hangar.transferResources(selected_vessel);
@@ -436,19 +483,39 @@ namespace AtHangar
 				eWindowPos = GUILayout.Window(GetInstanceID(),
 											  eWindowPos, VesselInfo,
 											  "Vessel info",
-											  GUILayout.Width(300));
+											  GUILayout.Width(300),
+											  GUILayout.Height(100));
+				CheckRect(ref eWindowPos);
 			}
 			UpdateGUIState();
 		}
 
-		#if DEBUG
 		public override void Update()
 		{
 			base.Update();
-			DrawBoundingBox();
+			if(draw_directions && vessel_metric != null && 
+				(HighLogic.LoadedScene == GameScenes.EDITOR ||
+				 HighLogic.LoadedScene == GameScenes.SPH))
+			{
+				List<Part> parts;
+				try { parts = EditorLogic.SortedShipList; }
+				catch (NullReferenceException) { parts = null; }
+				if(parts != null && parts.Count > 0 && parts[0] != null)
+					Utils.DrawYZ(vessel_metric, parts[0].partTransform);
+				foreach(Part p in parts.Where(p => p.HasModule<Hangar>()))
+				{
+					Hangar h = p.GetComponent<Hangar>();
+					if(h != null)
+						Utils.DrawYZ(h.part_metric, h.GetLaunchTransform());
+				}
+			}
+			#if DEBUG
+			DrawPoints();
+			#endif
 		}
-		
-		void DrawBoundingBox()
+
+		#if DEBUG
+		void DrawPoints()
 		{
 			if(vessel_metric == null) return;
 			if(EditorLogic.fetch != null)
@@ -462,10 +529,10 @@ namespace AtHangar
 			else 
 			{
 				vessel_metric.DrawCenter(FlightGlobals.ActiveVessel.vesselTransform);
-				vessel_metric.DrawPoint(FlightGlobals.ActiveVessel.findLocalCenterOfMass(), 
-										FlightGlobals.ActiveVessel.vesselTransform, Color.green);
-				vessel_metric.DrawPoint(Vector3.zero, 
-										FlightGlobals.ActiveVessel.vesselTransform, Color.green);
+				Utils.DrawPoint(FlightGlobals.ActiveVessel.findLocalCenterOfMass(), 
+								 FlightGlobals.ActiveVessel.vesselTransform, Color.green);
+				Utils.DrawPoint(Vector3.zero, 
+								 FlightGlobals.ActiveVessel.vesselTransform, Color.red);
 			}
 		}
 		#endif

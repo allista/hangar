@@ -6,6 +6,8 @@
 /Library/*Cache*
 /GameData/Hangar/Plugins/PluginData/Hangar/config.xml
 /Assets/bbox/**
+/Releases/**
+/Screenshots/**
 *obj*
 *cache*
 *bin*
@@ -15,3 +17,4 @@
 *.meta
 *.mdb
 /vessel_positioning.txt
+/Source/Hangar.userprefs
