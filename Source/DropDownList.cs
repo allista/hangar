@@ -9,19 +9,21 @@ namespace AtHangar
     public class DropDownList
     {
         //properties to use
-        internal List<String> Items { get; set; }
-        internal Int32 SelectedIndex { get; private set; }
-        internal String SelectedValue { get { return Items[SelectedIndex]; } }
+        internal List<string> Items { get; set; }
+        internal int SelectedIndex { get; private set; }
+        internal string SelectedValue { get { return Items[SelectedIndex]; } }
 
-        internal Boolean ListVisible;
+        internal bool ListVisible;
 
         Rect rectButton = new Rect();
         Rect rectListBox = new Rect();
+		Rect rectScrollView = new Rect();
+		Vector2 scroll_view;
 
         internal GUIStyle styleListItem = new GUIStyle();
         internal GUIStyle styleListBox = new GUIStyle();
         internal GUIStyle styleListBlocker = new GUIStyle();
-        internal Int32 ListItemHeight = 25;
+        internal int ListItemHeight = 25;
 
         //Constructors
         public DropDownList(List<String> Items, int SelectedIndex = 0) : this() 
@@ -47,18 +49,19 @@ namespace AtHangar
             if(ListVisible)
             {
                 //This will collect the click event before any other controls under the listrect
-                if(GUI.Button(rectListBox, "", styleListBlocker))
+				if(GUI.Button(rectScrollView, "", styleListBlocker))
                 {
-                    SelectedIndex = (Int32)Math.Floor((Event.current.mousePosition.y - rectListBox.y) / (rectListBox.height / Items.Count));
+					SelectedIndex = (int)Math.Floor((Event.current.mousePosition.y - rectScrollView.y + scroll_view.y) / ListItemHeight);
+					if(SelectedIndex >= Items.Count) SelectedIndex = Items.Count - 1;
                     ListVisible = false;
                 }
             }
         }
 
         //Draw the actual button for the list
-        internal Boolean DrawButton()
+        internal bool DrawButton()
         {
-            Boolean blnReturn = false;
+            bool blnReturn = false;
             //this is the dropdown button - toggle list visible if clicked
 			if (GUILayout.Button(SelectedValue, styleListBox))
             {
@@ -80,13 +83,20 @@ namespace AtHangar
             if (ListVisible)
             {
                 //work out the list of items box
+				rectScrollView = new Rect(rectButton)
+				{
+					y = rectButton.y + rectButton.height,
+					width  = rectButton.width + GUI.skin.verticalScrollbar.fixedWidth+1,
+					height = ListItemHeight * 2 + 1
+				};
                 rectListBox = new Rect(rectButton)
                 {
-                    y = rectButton.y + rectButton.height,
+					x = 0, y = 0,
                     height = Items.Count * ListItemHeight
                 };
                 //and draw it
-                GUI.Box(rectListBox, "", styleListBox);
+				scroll_view = GUI.BeginScrollView(rectScrollView, scroll_view, rectListBox);
+				GUI.Box(rectListBox, "", styleListBox);
                 //now draw each listitem
                 for (int i = 0; i < Items.Count; i++)
                 {
@@ -97,15 +107,16 @@ namespace AtHangar
                         SelectedIndex = i;
                     }
                 }
+				GUI.EndScrollView();
                 //maybe put this here to limit what happens in pre/post calls
                 //CloseOnOutsideClick();
             }
 
         }
 
-        internal Boolean CloseOnOutsideClick()
+        internal bool CloseOnOutsideClick()
         {
-            if(ListVisible && Event.current.type == EventType.mouseDown && !rectListBox.Contains(Event.current.mousePosition))
+			if(ListVisible && Event.current.type == EventType.mouseDown && !rectScrollView.Contains(Event.current.mousePosition))
             {
                 ListVisible = false;
                 return true;
