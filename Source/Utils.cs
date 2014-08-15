@@ -146,6 +146,12 @@ namespace AtHangar
 		{ if(EditorLogic.fetch != null)	GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship); }
 		
 		#region Debug
+		public static string formatVector(Vector3 v)
+		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
+
+		public static string formatVector(Vector3d v)
+		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
+
 		public static void Log(string msg, params object[] args)
 		{ 
 			for(int i = 0; i < args.Length; i++) 
@@ -170,12 +176,6 @@ namespace AtHangar
 			Debug.Log(crew_str);
 		}
 		
-		public static string formatVector(Vector3 v)
-		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
-
-		public static string formatVector(Vector3d v)
-		{ return string.Format("({0}, {1}, {2}); |v| = {3}", v.x, v.y, v.z, v.magnitude); }
-
 		public static void logVector(Vector3 v) { Debug.Log(formatVector(v)); }
 		public static void logVector(Vector3d v) { Debug.Log(formatVector(v)); }
 
