@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KSPAPIExtensions;
-using System;
 
 
 namespace AtHangar
@@ -302,7 +301,7 @@ namespace AtHangar
 		public static void DrawArrow(Vector3 ori, Vector3 dir, Transform T, Color c = default(Color))
 		{
 			float l = dir.magnitude;
-			float w = 0.1f;
+			float w = l*0.02f > 0.05f ? 0.05f : l*0.02f;
 			Vector3 x = Mathf.Abs(Vector3.Dot(dir.normalized,Vector3.up)) < 0.9f ? 
 				Vector3.Cross(dir, Vector3.up).normalized : Vector3.Cross(Vector3.forward, dir).normalized;
 			Vector3 y = Vector3.Cross(x, dir).normalized*w; x *= w;
@@ -319,6 +318,12 @@ namespace AtHangar
 			tris.AddRange(new []{0, 3, 4});
 			tris.AddRange(new []{0, 4, 1});
 			Utils.DrawMesh(edges, tris, T, c);
+		}
+
+		public static void DrawYZ(Metric M, Transform T)
+		{
+			Utils.DrawArrow(Vector3.zero, Vector3.up*M.size.y, T, Color.green);
+			Utils.DrawArrow(Vector3.zero, Vector3.forward*M.size.z, T, Color.blue);
 		}
 		#endregion
 	}
