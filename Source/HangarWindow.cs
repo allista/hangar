@@ -90,7 +90,7 @@ namespace AtHangar
 				for(int i = 0; i < hangars.Count; i++)
 				{
 					string h_name = hangars[i].HangarName == default(string) ? "Unnamed Hangar" : hangars[i].HangarName;
-					hangar_names.Add(string.Format("{0} {1}", i, h_name));
+					hangar_names.Add(string.Format("{0} {1}", i+1, h_name));
 				}
 				hangar_list.Items = hangar_names;
 				hangar_list.SelectItem(hangars.IndexOf(selected_hangar));
@@ -113,8 +113,8 @@ namespace AtHangar
 				selected_vessel = vessels.Find(v => v.vessel.vesselID == vessel_id);
 				if(selected_vessel == null) selected_vessel = vessels[0];
 				var vessel_names = new List<string>();
-				foreach(var vsl in vessels)
-					vessel_names.Add(vsl.vessel.vesselName);
+				for(int i = 0; i < vessels.Count; i++)
+					vessel_names.Add(string.Format("{0} {1}", i+1, vessels[i].vessel.vesselName));
 				vessel_list.Items = vessel_names;
 				vessel_list.SelectItem(vessels.IndexOf(selected_vessel));
 			}
