@@ -444,28 +444,25 @@ namespace AtHangar
 			Quaternion hangar_rot = vessel.vesselTransform.rotation;
 			//rotate launchTransform.rotation to protovessel's reference frame
 			pv.rotation = proto_rot*hangar_rot.Inverse()*launchTransform.rotation;
+			//calculate launch offset from vessel bounds
+			Vector3 bounds_offset = launchTransform.TransformDirection(sv.CoM - sv.CoG);
+			//set vessel's orbit
+			Orbit horb = vessel.orbit;
+			Orbit vorb = new Orbit();
+			Vector3 d_pos = launchTransform.position-vessel.findWorldCenterOfMass()+bounds_offset;
+			Vector3d vpos = horb.pos+new Vector3d(d_pos.x, d_pos.z, d_pos.y);
+			vorb.UpdateFromStateVectors(vpos, horb.vel, horb.referenceBody, Planetarium.GetUniversalTime());
+			pv.orbitSnapShot = new OrbitSnapshot(vorb);
 			//position on a surface
 			if(vessel.LandedOrSplashed)
 			{
 				//calculate launch offset from vessel bounds
-				Vector3 bounds_offset = launchTransform.TransformDirection(-sv.CoG);
+				bounds_offset = launchTransform.TransformDirection(-sv.CoG);
 				//set vessel's position
-				Vector3d vpos = Vector3d.zero+launchTransform.position+bounds_offset;
+				vpos = Vector3d.zero+launchTransform.position+bounds_offset;
 				pv.longitude  = vessel.mainBody.GetLongitude(vpos);
 				pv.latitude   = vessel.mainBody.GetLatitude(vpos);
 				pv.altitude   = vessel.mainBody.GetAltitude(vpos);
-			}
-			else //set the new orbit
-			{
-				//calculate launch offset from vessel bounds
-				Vector3 bounds_offset = launchTransform.TransformDirection(sv.CoM - sv.CoG);
-				//set vessel's orbit
-				Orbit horb = vessel.orbit;
-				Orbit vorb = new Orbit();
-				Vector3 d_pos = launchTransform.position-vessel.findWorldCenterOfMass()+bounds_offset;
-				Vector3d vpos = horb.pos+new Vector3d(d_pos.x, d_pos.z, d_pos.y);
-				vorb.UpdateFromStateVectors(vpos, horb.vel, horb.referenceBody, Planetarium.GetUniversalTime());
-				pv.orbitSnapShot = new OrbitSnapshot(vorb);
 			}
 		}
 		
