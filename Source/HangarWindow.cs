@@ -75,7 +75,7 @@ namespace AtHangar
 			if(selected_hangar != null)	
 				selected_hangar.part.SetHighlightDefault();
 			hangars.Clear();
-			hangar_list.Items.Clear();
+			hangar_list.Items = new List<string>();
 			selected_hangar = null;
 			//check the vessel
 			if(vsl == null) return;
@@ -102,7 +102,7 @@ namespace AtHangar
 		{
 			//reset stat
 			vessels.Clear();
-			vessel_list.Items.Clear();
+			vessel_list.Items = new List<string>();
 			selected_vessel = null;
 			//check hangar
 			if(hangar == null) return;
@@ -302,9 +302,9 @@ namespace AtHangar
 		void SelectHangar_start() 
 		{ 
 			if(hangars.Count < 2) return;
-			hangar_list.styleListBox = Styles.list_box;
+			hangar_list.styleListBox  = Styles.list_box;
 			hangar_list.styleListItem = Styles.list_item;
-			hangar_list.windowRect = fWindowPos;
+			hangar_list.windowRect    = fWindowPos;
 			hangar_list.DrawBlockingSelector(); 
 		}
 
@@ -347,9 +347,9 @@ namespace AtHangar
 		//Vessel selection list
 		void SelectVessel_start() 
 		{ 
-			vessel_list.styleListBox = Styles.list_box;
+			vessel_list.styleListBox  = Styles.list_box;
 			vessel_list.styleListItem = Styles.list_item;
-			vessel_list.windowRect = fWindowPos;
+			vessel_list.windowRect    = fWindowPos;
 			vessel_list.DrawBlockingSelector(); 
 		}
 
