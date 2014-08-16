@@ -75,7 +75,7 @@ namespace AtHangar
 			if(selected_hangar != null)	
 				selected_hangar.part.SetHighlightDefault();
 			hangars.Clear();
-			hangar_list.Items.Clear();
+			hangar_list.Items = new List<string>();
 			selected_hangar = null;
 			//check the vessel
 			if(vsl == null) return;
@@ -90,7 +90,7 @@ namespace AtHangar
 				for(int i = 0; i < hangars.Count; i++)
 				{
 					string h_name = hangars[i].HangarName == default(string) ? "Unnamed Hangar" : hangars[i].HangarName;
-					hangar_names.Add(string.Format("{0} {1}", i, h_name));
+					hangar_names.Add(string.Format("{0} {1}", i+1, h_name));
 				}
 				hangar_list.Items = hangar_names;
 				hangar_list.SelectItem(hangars.IndexOf(selected_hangar));
@@ -102,7 +102,7 @@ namespace AtHangar
 		{
 			//reset stat
 			vessels.Clear();
-			vessel_list.Items.Clear();
+			vessel_list.Items = new List<string>();
 			selected_vessel = null;
 			//check hangar
 			if(hangar == null) return;
@@ -113,8 +113,8 @@ namespace AtHangar
 				selected_vessel = vessels.Find(v => v.vessel.vesselID == vessel_id);
 				if(selected_vessel == null) selected_vessel = vessels[0];
 				var vessel_names = new List<string>();
-				foreach(var vsl in vessels)
-					vessel_names.Add(vsl.vessel.vesselName);
+				for(int i = 0; i < vessels.Count; i++)
+					vessel_names.Add(string.Format("{0} {1}", i+1, vessels[i].vessel.vesselName));
 				vessel_list.Items = vessel_names;
 				vessel_list.SelectItem(vessels.IndexOf(selected_vessel));
 			}
@@ -302,8 +302,9 @@ namespace AtHangar
 		void SelectHangar_start() 
 		{ 
 			if(hangars.Count < 2) return;
-			hangar_list.styleListBox = Styles.list_box;
+			hangar_list.styleListBox  = Styles.list_box;
 			hangar_list.styleListItem = Styles.list_item;
+			hangar_list.windowRect    = fWindowPos;
 			hangar_list.DrawBlockingSelector(); 
 		}
 
@@ -346,8 +347,9 @@ namespace AtHangar
 		//Vessel selection list
 		void SelectVessel_start() 
 		{ 
-			vessel_list.styleListBox = Styles.list_box;
+			vessel_list.styleListBox  = Styles.list_box;
 			vessel_list.styleListItem = Styles.list_item;
+			vessel_list.windowRect    = fWindowPos;
 			vessel_list.DrawBlockingSelector(); 
 		}
 

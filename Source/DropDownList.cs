@@ -9,12 +9,25 @@ namespace AtHangar
     public class DropDownList
     {
         //properties to use
-        internal List<string> Items { get; set; }
+		string widest_item;
+		List<string> items = new List<string>();
+		internal List<string> Items 
+		{ 
+			get { return items; }
+			set
+			{
+				items = value;
+				widest_item = "";
+				foreach(string i in items) 
+				{ if(i.Length > widest_item.Length) widest_item = i; }
+			}
+		}
         internal int SelectedIndex { get; private set; }
         internal string SelectedValue { get { return Items[SelectedIndex]; } }
 
         internal bool ListVisible;
 
+		internal Rect windowRect;
         Rect rectButton = new Rect();
         Rect rectListBox = new Rect();
 		Rect rectScrollView = new Rect();
@@ -26,14 +39,14 @@ namespace AtHangar
         internal int ListItemHeight = 25;
 
         //Constructors
-        public DropDownList(List<String> Items, int SelectedIndex = 0) : this() 
-		{ this.Items = Items; this.SelectedIndex =  SelectedIndex; }
         public DropDownList()
         {
             ListVisible = false;
             SelectedIndex = 0;
 			Items = new List<string>();
         }
+		public DropDownList(List<String> Items, int SelectedIndex = 0) : this() 
+		{ this.Items = Items; this.SelectedIndex =  SelectedIndex; }
 
 		public void SelectItem (int index)
 		{
@@ -63,7 +76,9 @@ namespace AtHangar
         {
             bool blnReturn = false;
             //this is the dropdown button - toggle list visible if clicked
-			if (GUILayout.Button(SelectedValue, styleListBox))
+			GUILayout.BeginHorizontal();
+			Vector2 button_size = styleListBox.CalcSize(new GUIContent(widest_item));
+			if(GUILayout.Button(SelectedValue, styleListBox, GUILayout.MinWidth(button_size.x)))
             {
                 ListVisible = !ListVisible;
                 blnReturn = true;
@@ -71,9 +86,14 @@ namespace AtHangar
             //get the drawn button rectangle
             if (Event.current.type == EventType.repaint)
             	rectButton = GUILayoutUtility.GetLastRect();
+
             //draw a dropdown symbol on the right edge
-            Rect rectDropIcon = new Rect(rectButton) { x = (rectButton.x + rectButton.width - 20), width = 20 };
-            GUI.Box(rectDropIcon, "\\/");
+			if(GUILayout.Button("\\/", styleListBox, GUILayout.MaxWidth(20)))
+			{
+				ListVisible = !ListVisible;
+				blnReturn = true;
+			}
+			GUILayout.EndHorizontal();
             return blnReturn;
         }
 
@@ -87,7 +107,8 @@ namespace AtHangar
 				{
 					y = rectButton.y + rectButton.height,
 					width  = rectButton.width + GUI.skin.verticalScrollbar.fixedWidth+1,
-					height = ListItemHeight * 2 + 1
+					height = windowRect != default(Rect)? 
+						windowRect.height - rectButton.y - rectButton.height : ListItemHeight * 2 + 1
 				};
                 rectListBox = new Rect(rectButton)
                 {
