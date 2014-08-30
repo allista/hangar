@@ -257,5 +257,16 @@ namespace AtHangar
 			module.CompressedGas *= scale.relative.cube;
 		}
 	}
+
+	public class GeneratorUpdater : ModuleUpdater<ModuleGenerator>
+	{
+		public override void OnRescale(Scale scale)
+		{
+			foreach(var res in module.inputList)
+				res.rate *= scale.relative.cube * scale.relative.aspect;
+			foreach(var res in module.outputList)
+				res.rate *= scale.relative.cube * scale.relative.aspect;
+		}
+	}
 }
 
