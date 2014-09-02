@@ -4,12 +4,16 @@ using System.Linq;
 using UnityEngine;
 using KSPAPIExtensions;
 
-
 namespace AtHangar
 {
 	public static class Utils
 	{
 		#region Techtree
+		public static readonly string minSizeName   = "HANGAR_MINSCALE";
+		public static readonly string maxSizeName   = "HANGAR_MAXSCALE";
+		public static readonly string minAspectName = "HANGAR_MINASPECT";
+		public static readonly string maxAspectName = "HANGAR_MAXASPECT";
+
 		static bool haveTech (string name)
 		{
 			if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
@@ -112,7 +116,7 @@ namespace AtHangar
 		}
 		
 		public static string formatDimensions(Vector3 size)
-		{ return string.Format("{0:F1}m x {1:F1}m x {2:F1}m", size.x, size.y, size.z); }
+		{ return string.Format("{0:F3}m x {1:F3}m x {2:F3}m", size.x, size.y, size.z); }
 		
 		
 		//sound (from the KAS mod; KAS_Shared class)
@@ -372,6 +376,9 @@ namespace AtHangar
 		#region from MechJeb2 PartExtensions
 		public static bool HasModule<T>(this Part p) where T : PartModule
 		{ return p.Modules.OfType<T>().Any(); }
+
+		public static T GetModule<T>(this Part p) where T : PartModule
+		{ return p.Modules.OfType<T>().FirstOrDefault(); }
 
 		public static bool IsPhysicallySignificant(this Part p)
 		{
