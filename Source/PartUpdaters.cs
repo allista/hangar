@@ -72,10 +72,8 @@ namespace AtHangar
 	}
 	#endregion
 
-
-	public class PartUpdater : PartModule
+	public class PartUpdaterBase : PartModule
 	{
-		public uint priority = 0; // 0 is highest
 		protected Part base_part;
 
 		public static Vector3 ScaleVector(Vector3 v, float s, float l)
@@ -85,10 +83,16 @@ namespace AtHangar
 		{ base_part = PartLoader.getPartInfoByName(part.partInfo.name).partPrefab; }
 
 		protected virtual void SaveDefaults() {}
+	}
+
+	public class PartUpdater : PartUpdaterBase
+	{
+		public uint priority = 0; // 0 is highest
+
 		public virtual void OnRescale(Scale scale) {}
 
 		#region ModuleUpdaters
-		protected readonly static Dictionary<string, Func<Part, PartUpdater>> updater_types = new Dictionary<string, Func<Part, PartUpdater>>();
+		public readonly static Dictionary<string, Func<Part, PartUpdater>> UpdatersTypes = new Dictionary<string, Func<Part, PartUpdater>>();
 
 		static Func<Part, PartUpdater> updaterConstructor<UpdaterType>() where UpdaterType : PartUpdater
 		{ 
@@ -102,9 +106,9 @@ namespace AtHangar
 			where UpdaterType : PartUpdater
 		{ 
 			string updater_name = typeof(UpdaterType).FullName;
-			if(updater_types.ContainsKey(updater_name)) return;
+			if(UpdatersTypes.ContainsKey(updater_name)) return;
 			Utils.Log("PartUpdater: registering {0}", updater_name);
-			updater_types[updater_name] = updaterConstructor<UpdaterType>();
+			UpdatersTypes[updater_name] = updaterConstructor<UpdaterType>();
 		}
 		#endregion
 	}
@@ -204,8 +208,8 @@ namespace AtHangar
 		{
 			base.Init();
 			priority = 100; 
-			module = part.Modules.OfType<T>().SingleOrDefault();
-			base_module = base_part.Modules.OfType<T>().SingleOrDefault();
+			module = part.GetModule<T>();
+			base_module = base_part.GetModule<T>();
 			if(module == null) 
 				throw new MissingComponentException(string.Format("[Hangar] ModuleUpdater: part {0} does not have {1} module", part.name, module));
 			SaveDefaults();
