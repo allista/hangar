@@ -60,13 +60,15 @@ namespace AtHangar
 		public static void setFieldRange(BaseField field, float minval, float maxval)
 		{
 			var fr = field.uiControlEditor as UI_FloatRange;
-			if (fr != null) {
+			if (fr != null) 
+			{
 				fr.minValue = minval;
 				fr.maxValue = maxval;
 			}
 		
 			var fe = field.uiControlEditor as UI_FloatEdit;
-			if (fe != null) {
+			if (fe != null) 
+			{
 				fe.minValue = minval;
 				fe.maxValue = maxval;
 			}
