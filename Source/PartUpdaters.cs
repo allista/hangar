@@ -79,6 +79,25 @@ namespace AtHangar
 		public static Vector3 ScaleVector(Vector3 v, float s, float l)
 		{ return Vector3.Scale(v, new Vector3(s, s*l, s)); }
 
+		public void updateAttachedPartPos(AttachNode node)
+		{
+			if(node == null) return;
+			var ap = node.attachedPart; 
+			if(!ap) return;
+			var an = ap.findAttachNodeByPart(part);	
+			if(an == null) return;
+			var dp =
+				part.transform.TransformPoint(node.position) -
+				ap.transform.TransformPoint(an.position);
+			if(ap == part.parent) 
+			{
+				while (ap.parent) ap = ap.parent;
+				ap.transform.position += dp;
+				part.transform.position -= dp;
+			} 
+			else ap.transform.position += dp;
+		}
+
 		public virtual void Init() 
 		{ base_part = PartLoader.getPartInfoByName(part.partInfo.name).partPrefab; }
 
@@ -120,25 +139,6 @@ namespace AtHangar
 		public override void Init() { base.Init(); SaveDefaults(); }
 		protected override void SaveDefaults()
 		{ foreach(AttachNode node in base_part.attachNodes) orig_sizes[node.id] = node.size; }
-
-		void updateAttachedPartPos(AttachNode node)
-		{
-			if(node == null) return;
-			var ap = node.attachedPart; 
-			if(!ap) return;
-			var an = ap.findAttachNodeByPart(part);	
-			if(an == null) return;
-			var dp =
-				part.transform.TransformPoint(node.position) -
-				ap.transform.TransformPoint(an.position);
-			if(ap == part.parent) 
-			{
-				while (ap.parent) ap = ap.parent;
-				ap.transform.position += dp;
-				part.transform.position -= dp;
-			} 
-			else ap.transform.position += dp;
-		}
 
 		public override void OnRescale(Scale scale)
 		{
