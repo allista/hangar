@@ -71,6 +71,7 @@ namespace AtHangar
 		[KSPField] public float aspectStepLarge = 0.5f;
 		[KSPField] public float aspectStepSmall = 0.1f;
 
+		protected Transform model;
 		protected float old_aspect  = -1;
 		public    float dry_cost    = 0f; 
 		public    float delta_cost  = 0f;
@@ -91,6 +92,9 @@ namespace AtHangar
 		{
 			old_aspect = aspect;
 			dry_cost   = base_part.DryCost();
+			model = part.FindModelTransform("model");
+			if(model == null)
+				Utils.Log("HangarPartResizer: no 'model' transform in the part", this);
 		}
 
 		public override void OnStart(StartState state)
@@ -163,7 +167,7 @@ namespace AtHangar
 			base.SaveDefaults();
 			HangarPartResizer resizer = base_part.GetModule<HangarPartResizer>();
 			if(resizer != null) orig_size  = resizer.size;
-			old_size   = size;
+			old_size = size;
 			create_updaters();
 		}
 
@@ -199,16 +203,10 @@ namespace AtHangar
 
 		public void Rescale()
 		{
+			if(model == null) return;
 			Scale _scale = scale;
 			//change model scale
-			Transform model = part.FindModelTransform("model");
-			if(model != null)
-				model.localScale = ScaleVector(Vector3.one, _scale, _scale.aspect);
-			else
-			{
-				Utils.Log("HangarPartResizer: no 'model' transform in the part", this);
-				return;
-			}
+			model.localScale = ScaleVector(Vector3.one, _scale, _scale.aspect);
 			//recalculate mass
 			part.mass  = ((specificMass.x * _scale + specificMass.y) * _scale + specificMass.z) * _scale * _scale.aspect + specificMass.w;
 			//update nodes and modules
