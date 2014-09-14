@@ -2,7 +2,6 @@
 // And on ideas drawn from the TweakScale plugin
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using KSPAPIExtensions;
 
@@ -59,11 +58,11 @@ namespace AtHangar
 		public string massDisplay;
 
 		//module config
-		[KSPField] public float minSize = 0.5f;
-		[KSPField] public float maxSize = 10f;
+		[KSPField] public float minSize = -1;
+		[KSPField] public float maxSize = -1;
 
-		[KSPField] public float minAspect = 0.5f;
-		[KSPField] public float maxAspect = 10f;
+		[KSPField] public float minAspect = -1;
+		[KSPField] public float maxAspect = -1;
 
 		[KSPField] public float sizeStepLarge = 1.0f;
 		[KSPField] public float sizeStepSmall = 0.1f;
@@ -109,11 +108,11 @@ namespace AtHangar
 				float max_Size   = Utils.getTechMaxValue(Utils.maxSizeName, 10);
 				float min_Aspect = Utils.getTechMinValue(Utils.minAspectName, 0.5f);
 				float max_Aspect = Utils.getTechMaxValue(Utils.maxAspectName, 10);
-				//truncate min-max values at hard limits
-				if(minSize < min_Size) minSize = min_Size;
-				if(maxSize > max_Size) maxSize = max_Size;
-				if(minAspect < min_Aspect) minAspect = min_Aspect;
-				if(maxAspect > max_Aspect) maxAspect = max_Aspect;
+				//and truncate min-max values at common limits; use common limits by default
+				if(minSize < 0   || minSize < min_Size) minSize = min_Size;
+				if(maxSize < 0   || maxSize > max_Size) maxSize = max_Size;
+				if(minAspect < 0 || minAspect < min_Aspect) minAspect = min_Aspect;
+				if(maxAspect < 0 || maxAspect > max_Aspect) maxAspect = max_Aspect;
 			}
 			just_loaded = true;
 		}
@@ -181,16 +180,16 @@ namespace AtHangar
 				if(aspectOnly) Fields["size"].guiActiveEditor=false;
 				else
 				{
-					Utils.setFieldRange (Fields ["size"], minSize, maxSize);
-					((UI_FloatEdit)Fields ["size"].uiControlEditor).incrementLarge = sizeStepLarge;
-					((UI_FloatEdit)Fields ["size"].uiControlEditor).incrementSmall = sizeStepSmall;
+					Utils.setFieldRange(Fields["size"], minSize, maxSize);
+					((UI_FloatEdit)Fields["size"].uiControlEditor).incrementLarge = sizeStepLarge;
+					((UI_FloatEdit)Fields["size"].uiControlEditor).incrementSmall = sizeStepSmall;
 				}
 				if(sizeOnly) Fields["aspect"].guiActiveEditor=false;
 				else
 				{
-					Utils.setFieldRange (Fields ["aspect"], minAspect, maxAspect);
-					((UI_FloatEdit)Fields ["aspect"].uiControlEditor).incrementLarge = aspectStepLarge;
-					((UI_FloatEdit)Fields ["aspect"].uiControlEditor).incrementSmall = aspectStepSmall;
+					Utils.setFieldRange(Fields["aspect"], minAspect, maxAspect);
+					((UI_FloatEdit)Fields["aspect"].uiControlEditor).incrementLarge = aspectStepLarge;
+					((UI_FloatEdit)Fields["aspect"].uiControlEditor).incrementSmall = aspectStepSmall;
 				}
 			}
 		}
