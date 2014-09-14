@@ -79,25 +79,6 @@ namespace AtHangar
 		public static Vector3 ScaleVector(Vector3 v, float s, float l)
 		{ return Vector3.Scale(v, new Vector3(s, s*l, s)); }
 
-		public void updateAttachedPartPos(AttachNode node)
-		{
-			if(node == null) return;
-			var ap = node.attachedPart; 
-			if(!ap) return;
-			var an = ap.findAttachNodeByPart(part);	
-			if(an == null) return;
-			var dp =
-				part.transform.TransformPoint(node.position) -
-				ap.transform.TransformPoint(an.position);
-			if(ap == part.parent) 
-			{
-				while (ap.parent) ap = ap.parent;
-				ap.transform.position += dp;
-				part.transform.position -= dp;
-			} 
-			else ap.transform.position += dp;
-		}
-
 		public virtual void Init() 
 		{ base_part = PartLoader.getPartInfoByName(part.partInfo.name).partPrefab; }
 
@@ -147,19 +128,24 @@ namespace AtHangar
 			{
 				//update node position
 				node.position = ScaleVector(node.originalPosition, scale, scale.aspect);
-				updateAttachedPartPos(node);
+				part.UpdateAttachedPartPos(node);
 				//update node size
 				int new_size = orig_sizes[node.id] + Mathf.RoundToInt(scale.size-scale.orig_size);
 				if(new_size < 0) new_size = 0;
 				node.size = new_size;
 			}
 			//update this surface attach node
-			if(part.srfAttachNode != null) 
+			if(part.srfAttachNode != null)
+			{
+				Vector3 old_position = part.srfAttachNode.position;
 				part.srfAttachNode.position = ScaleVector(part.srfAttachNode.originalPosition, scale, scale.aspect);
+				Vector3 d_pos = part.transform.TransformDirection(part.srfAttachNode.position - old_position);
+				part.transform.position -= d_pos;
+			}
 			//update parts that are surface attached to this
 			foreach(Part child in part.children)
 			{
-				if (child.srfAttachNode != null && child.srfAttachNode.attachedPart == part) // part is attached to us, but not on a node
+				if(child.srfAttachNode != null && child.srfAttachNode.attachedPart == part)
 				{
 					Vector3 attachedPosition = child.transform.localPosition + child.transform.localRotation * child.srfAttachNode.position;
 					Vector3 targetPosition = ScaleVector(attachedPosition, scale.relative, scale.relative.aspect);
