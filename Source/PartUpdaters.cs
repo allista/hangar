@@ -72,10 +72,8 @@ namespace AtHangar
 	}
 	#endregion
 
-
-	public class PartUpdater : PartModule
+	public class PartUpdaterBase : PartModule
 	{
-		public uint priority = 0; // 0 is highest
 		protected Part base_part;
 
 		public static Vector3 ScaleVector(Vector3 v, float s, float l)
@@ -85,10 +83,16 @@ namespace AtHangar
 		{ base_part = PartLoader.getPartInfoByName(part.partInfo.name).partPrefab; }
 
 		protected virtual void SaveDefaults() {}
+	}
+
+	public class PartUpdater : PartUpdaterBase
+	{
+		public uint priority = 0; // 0 is highest
+
 		public virtual void OnRescale(Scale scale) {}
 
 		#region ModuleUpdaters
-		protected readonly static Dictionary<string, Func<Part, PartUpdater>> updater_types = new Dictionary<string, Func<Part, PartUpdater>>();
+		public readonly static Dictionary<string, Func<Part, PartUpdater>> UpdatersTypes = new Dictionary<string, Func<Part, PartUpdater>>();
 
 		static Func<Part, PartUpdater> updaterConstructor<UpdaterType>() where UpdaterType : PartUpdater
 		{ 
@@ -102,9 +106,9 @@ namespace AtHangar
 			where UpdaterType : PartUpdater
 		{ 
 			string updater_name = typeof(UpdaterType).FullName;
-			if(updater_types.ContainsKey(updater_name)) return;
+			if(UpdatersTypes.ContainsKey(updater_name)) return;
 			Utils.Log("PartUpdater: registering {0}", updater_name);
-			updater_types[updater_name] = updaterConstructor<UpdaterType>();
+			UpdatersTypes[updater_name] = updaterConstructor<UpdaterType>();
 		}
 		#endregion
 	}
@@ -117,25 +121,6 @@ namespace AtHangar
 		protected override void SaveDefaults()
 		{ foreach(AttachNode node in base_part.attachNodes) orig_sizes[node.id] = node.size; }
 
-		void updateAttachedPartPos(AttachNode node)
-		{
-			if(node == null) return;
-			var ap = node.attachedPart; 
-			if(!ap) return;
-			var an = ap.findAttachNodeByPart(part);	
-			if(an == null) return;
-			var dp =
-				part.transform.TransformPoint(node.position) -
-				ap.transform.TransformPoint(an.position);
-			if(ap == part.parent) 
-			{
-				while (ap.parent) ap = ap.parent;
-				ap.transform.position += dp;
-				part.transform.position -= dp;
-			} 
-			else ap.transform.position += dp;
-		}
-
 		public override void OnRescale(Scale scale)
 		{
 			//update attach nodes and their parts
@@ -143,19 +128,24 @@ namespace AtHangar
 			{
 				//update node position
 				node.position = ScaleVector(node.originalPosition, scale, scale.aspect);
-				updateAttachedPartPos(node);
+				part.UpdateAttachedPartPos(node);
 				//update node size
 				int new_size = orig_sizes[node.id] + Mathf.RoundToInt(scale.size-scale.orig_size);
 				if(new_size < 0) new_size = 0;
 				node.size = new_size;
 			}
 			//update this surface attach node
-			if(part.srfAttachNode != null) 
+			if(part.srfAttachNode != null)
+			{
+				Vector3 old_position = part.srfAttachNode.position;
 				part.srfAttachNode.position = ScaleVector(part.srfAttachNode.originalPosition, scale, scale.aspect);
+				Vector3 d_pos = part.transform.TransformDirection(part.srfAttachNode.position - old_position);
+				part.transform.position -= d_pos;
+			}
 			//update parts that are surface attached to this
 			foreach(Part child in part.children)
 			{
-				if (child.srfAttachNode != null && child.srfAttachNode.attachedPart == part) // part is attached to us, but not on a node
+				if(child.srfAttachNode != null && child.srfAttachNode.attachedPart == part)
 				{
 					Vector3 attachedPosition = child.transform.localPosition + child.transform.localRotation * child.srfAttachNode.position;
 					Vector3 targetPosition = ScaleVector(attachedPosition, scale.relative, scale.relative.aspect);
@@ -204,8 +194,8 @@ namespace AtHangar
 		{
 			base.Init();
 			priority = 100; 
-			module = part.Modules.OfType<T>().SingleOrDefault();
-			base_module = base_part.Modules.OfType<T>().SingleOrDefault();
+			module = part.GetModule<T>();
+			base_module = base_part.GetModule<T>();
 			if(module == null) 
 				throw new MissingComponentException(string.Format("[Hangar] ModuleUpdater: part {0} does not have {1} module", part.name, module));
 			SaveDefaults();

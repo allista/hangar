@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="KSPAPIExtensions">
-      <HintPath>..\..\KSPAPIExtensions\KSPAPIExtensions.dll</HintPath>
+      <HintPath>..\KSPAPIExtensions.dll</HintPath>
     </Reference>
     <Reference Include="System.Core">
       <HintPath>..\KSP_test\KSP_Data\Managed\System.Core.dll</HintPath>
@@ -83,6 +83,8 @@
     <Compile Include="AnimatedNode.cs" />
     <Compile Include="ModuleWheelDebug.cs" />
     <Compile Include="WheelUpdater.cs" />
+    <Compile Include="ProceduralAdapter.cs" />
+    <Compile Include="TruncatedCone.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

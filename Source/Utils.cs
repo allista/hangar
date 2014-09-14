@@ -1,20 +1,94 @@
 // This code is based on Procedural Fairings plug-in by Alexey Volynskov, PMUtils class
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KSPAPIExtensions;
 
-
 namespace AtHangar
 {
+	public class Triangle : IEnumerable<int>
+	{
+		readonly protected int i1, i2, i3;
+
+		public Triangle(int i1, int i2, int i3) //indecies need to be clockwise
+		{ this.i1 = i1; this.i2 = i2; this.i3 = i3; }
+
+		public virtual IEnumerator<int> GetEnumerator()
+		{
+			yield return i1;
+			yield return i2;
+			yield return i3;
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{ return GetEnumerator(); }
+	}
+
+	public class Quad : Triangle
+	{
+		readonly int i4;
+
+		public Quad(int i1, int i2, int i3, int i4) //indecies need to be clockwise
+			: base(i1, i2, i3) { this.i4 = i4; }
+
+		public override IEnumerator<int> GetEnumerator ()
+		{
+			yield return i1;
+			yield return i2;
+			yield return i3;
+
+			yield return i3;
+			yield return i4;
+			yield return i1;
+		}
+	}
+
+	public class Basis
+	{
+		public readonly Vector3 x, y, z;
+		public Basis(Vector3 x, Vector3 y, Vector3 z)
+		{ this.x = x; this.y = y; this.z = z; }
+	}
+
+	public class State<T>
+	{
+		T _current, _old;
+
+		public T current 
+		{ 
+			get	{ return _current; }
+			set
+			{
+				_old = _current;
+				_current = value;
+			}
+		}
+
+		public T old { get { return _old; } }
+
+		public State(T cur, T old = default(T))
+		{
+			_current = cur;
+			_old = EqualityComparer<T>.Default.Equals(old, default(T)) ? cur : old;
+		}
+
+		public static implicit operator T(State<T> s) { return s._current; }
+	}
+
 	public static class Utils
 	{
 		#region Techtree
-		static bool haveTech (string name)
+		public static readonly string minSizeName   = "HANGAR_MINSCALE";
+		public static readonly string maxSizeName   = "HANGAR_MAXSCALE";
+		public static readonly string minAspectName = "HANGAR_MINASPECT";
+		public static readonly string maxAspectName = "HANGAR_MAXASPECT";
+
+		static bool haveTech(string name)
 		{
 			if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
 				return name == "sandbox";
-			return ResearchAndDevelopment.GetTechnologyState (name) == RDTech.State.Available;
+			return ResearchAndDevelopment.GetTechnologyState(name) == RDTech.State.Available;
 		}
 		
 		public static float getTechMinValue(string cfgname, float defVal)
@@ -26,7 +100,7 @@ namespace AtHangar
 				{
 					if(!haveTech(value.name)) continue;
 					float v = float.Parse(value.value);
-					if (!hasValue || v < minVal) 
+					if(!hasValue || v < minVal) 
 					{
 						minVal = v;
 						hasValue = true;
@@ -56,13 +130,15 @@ namespace AtHangar
 		public static void setFieldRange(BaseField field, float minval, float maxval)
 		{
 			var fr = field.uiControlEditor as UI_FloatRange;
-			if (fr != null) {
+			if (fr != null) 
+			{
 				fr.minValue = minval;
 				fr.maxValue = maxval;
 			}
 		
 			var fe = field.uiControlEditor as UI_FloatEdit;
-			if (fe != null) {
+			if (fe != null) 
+			{
 				fe.minValue = minval;
 				fe.maxValue = maxval;
 			}
@@ -112,7 +188,7 @@ namespace AtHangar
 		}
 		
 		public static string formatDimensions(Vector3 size)
-		{ return string.Format("{0:F1}m x {1:F1}m x {2:F1}m", size.x, size.y, size.z); }
+		{ return string.Format("{0:F2}m x {1:F2}m x {2:F2}m", size.x, size.y, size.z); }
 		
 		
 		//sound (from the KAS mod; KAS_Shared class)
@@ -249,15 +325,6 @@ namespace AtHangar
 			}
 		}
 
-		public static int[] Quad2Tris(int i1, int i2, int i3, int i4)
-		{
-			int[] tris = new int[6];
-			int i = 0;
-			tris[i++] = i1; tris[i++] = i2; tris[i++] = i3;
-			tris[i++] = i3; tris[i++] = i4; tris[i++] = i1;
-			return tris;
-		}
-
 		public static void DrawMesh(Vector3[] edges, IEnumerable<int> tris, Transform t, Color c = default(Color))
 		{
 			//make a mesh
@@ -286,12 +353,12 @@ namespace AtHangar
 		{
 			Vector3[] edges = Metric.BoundsEdges(b);
 			List<int> tris = new List<int>();
-			tris.AddRange(Utils.Quad2Tris(0, 1, 3, 2));
-			tris.AddRange(Utils.Quad2Tris(0, 2, 6, 4));
-			tris.AddRange(Utils.Quad2Tris(0, 1, 5, 4));
-			tris.AddRange(Utils.Quad2Tris(1, 3, 7, 5));
-			tris.AddRange(Utils.Quad2Tris(2, 3, 7, 6));
-			tris.AddRange(Utils.Quad2Tris(6, 7, 5, 4));
+			tris.AddRange(new Quad(0, 1, 3, 2));
+			tris.AddRange(new Quad(0, 2, 6, 4));
+			tris.AddRange(new Quad(0, 1, 5, 4));
+			tris.AddRange(new Quad(1, 3, 7, 5));
+			tris.AddRange(new Quad(2, 3, 7, 6));
+			tris.AddRange(new Quad(6, 7, 5, 4));
 			Utils.DrawMesh(edges, tris, T, c);
 		}
 
@@ -313,11 +380,11 @@ namespace AtHangar
 			edges[3] = ori+x+y;
 			edges[4] = ori+x-y;
 			List<int> tris = new List<int>();
-			tris.AddRange(Utils.Quad2Tris(1, 2, 3, 4));
-			tris.AddRange(new []{0, 1, 2});
-			tris.AddRange(new []{0, 2, 3});
-			tris.AddRange(new []{0, 3, 4});
-			tris.AddRange(new []{0, 4, 1});
+			tris.AddRange(new Quad(1, 2, 3, 4));
+			tris.AddRange(new Triangle(0, 1, 2));
+			tris.AddRange(new Triangle(0, 2, 3));
+			tris.AddRange(new Triangle(0, 3, 4));
+			tris.AddRange(new Triangle(0, 4, 1));
 			Utils.DrawMesh(edges, tris, T, c);
 		}
 
@@ -372,6 +439,9 @@ namespace AtHangar
 		#region from MechJeb2 PartExtensions
 		public static bool HasModule<T>(this Part p) where T : PartModule
 		{ return p.Modules.OfType<T>().Any(); }
+
+		public static T GetModule<T>(this Part p) where T : PartModule
+		{ return p.Modules.OfType<T>().FirstOrDefault(); }
 
 		public static bool IsPhysicallySignificant(this Part p)
 		{
@@ -451,6 +521,25 @@ namespace AtHangar
 			if(trigger_id != default(uint))
 				updater.RegisterTrigger(trigger_id);
 			return updater;
+		}
+
+		public static void UpdateAttachedPartPos(this Part p, AttachNode node)
+		{
+			if(node == null) return;
+			var ap = node.attachedPart; 
+			if(ap == null) return;
+			var an = ap.findAttachNodeByPart(p);	
+			if(an == null) return;
+			var dp =
+				p.transform.TransformPoint(node.position) -
+				ap.transform.TransformPoint(an.position);
+			if(ap == p.parent) 
+			{
+				while (ap.parent) ap = ap.parent;
+				ap.transform.position += dp;
+				p.transform.position -= dp;
+			} 
+			else ap.transform.position += dp;
 		}
 	}
 
