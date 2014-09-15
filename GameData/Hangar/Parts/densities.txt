@@ -261,4 +261,20 @@ mass = 0.58745
 specificMass = 0.038, 0.54945, 0.0, 0.0 //weights: [ 0.0646863562856, 0.935313643714, 0.0, 0.0 ]
 specificCost = 76.0, 325.6, 0.0, 0.0 //weights: [ 0.189243027888, 0.810756972112, 0.0, 0.0 ]
 
+=== Recycler ===
+//Volumes: [ (hull: 2.09m^3, 0.001t/m^3, 0.00209t, 20.9Cr) (clamp: 0.18m^3, 0.78t/m^3, 0.1404t, 540.0Cr) (machinery: 2.3m^3, 0.317t/m^3, 0.7291t, 2300.0Cr) ]
+//Total volume: 4.57 m^3
+//V mass: 0.87159 t
+//Shell: [ (hull: 14.9m^2, 0.005m, 2.7t/m^3, 0.20115t, 119.2Cr) ]
+//Total surface: 14.9 m^2
+//S mass: 0.20115 t
+//Additional mass: 0 t
+//Additional cost: 0 Cr
+//Resources cost: 0 Cr
+entryCost = 5960.2
+cost = 2980.1
+mass = 1.07274
+specificMass = 0.87159, 0.20115, 0.0, 0.0 //weights: [ 0.812489512836, 0.187510487164, 0.0, 0.0 ]
+specificCost = 2860.9, 119.2, 0.0, 0.0 //weights: [ 0.960001342237, 0.0399986577632, 0.0, 0.0 ]
+
 

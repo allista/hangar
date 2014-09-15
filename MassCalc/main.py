@@ -271,6 +271,14 @@ if __name__ == '__main__':
                      add_mass=0,
                      add_cost=0)
     
+    recycler   = ship('Recycler', 
+                     surfaces=[surface(14.9, 0.005, aluminium, 'hull'),],
+                     volumes=[volume(4.39-2.3, 0.001, 'hull', 10),
+                              volume(0.18, 0.78,'clamp', 3000),
+                              volume(2.3, 0.317, 'machinery', 1000)], 
+                     add_mass=0,
+                     add_cost=0)
+    
     l1 = 1#.27624
     l2 = 1#.03
     inline1_m   = np.fromiter((inline1.mass(s, l1) for s in scales), float)
@@ -344,6 +352,8 @@ if __name__ == '__main__':
     print(format_data(scales, (rcs_m, rcs_sm, rcs_v, rcs_c)))#, np.where(scales/3 >= 1)[0]))
     
     print(heatshield)
+    
+    print(recycler)
 
     sys.exit(0)
     
