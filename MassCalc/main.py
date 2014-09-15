@@ -151,7 +151,7 @@ if __name__ == '__main__':
     
     #inline
     inline1   = ship('InlineHangar', 
-                     surfaces=[surface(62.44, 0.005, aluminium, 'hull'), 
+                     surfaces=[surface(66.444, 0.005, aluminium, 'hull'), 
                                surface(9.32*2, 0.005, aluminium, 'doors')],
                      volumes=[volume(9.4-3.93, 0.02, 'hull', 1),
                               volume(3.93, 0.317, 'machinery', 100),
