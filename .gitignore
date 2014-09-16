@@ -8,6 +8,7 @@
 /Assets/bbox/**
 /Releases/**
 /Screenshots/**
+/DesaturatedTexturePack/GameData/**
 *obj*
 *cache*
 *bin*
