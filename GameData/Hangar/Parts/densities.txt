@@ -8,7 +8,7 @@
 //Additional mass: 0 t
 //Additional cost: 200 Cr
 //Resources cost: 0 Cr
-entryCost = 2560.92
+entryCost = 4737.52014673
 cost = 1280.46
 mass = 2.530204
 specificMass = 1.38157, 1.148634, 0.0, 0.0 //weights: [ 0.546031071012, 0.453968928988, 0.0, 0.0 ]
@@ -34,7 +34,7 @@ length: 1
 //Additional mass: 0 t
 //Additional cost: 280 Cr
 //Resources cost: 0 Cr
-entryCost = 27104.448
+entryCost = 46424.7725391
 cost = 13552.224
 mass = 17.278118
 specificMass = 11.77028, 5.507838, 0.0, 0.0 //weights: [ 0.681224656528, 0.318775343472, 0.0, 0.0 ]
@@ -57,7 +57,7 @@ length: 1
 //Additional mass: 8.8 t
 //Additional cost: 35580 Cr
 //Resources cost: 2400 Cr
-entryCost = 289088.752
+entryCost = 312842.63353
 cost = 144544.376
 mass = 63.7359289048
 specificMass = 41.2119619048, 13.723967, 0.0, 8.8 //weights: [ 0.646604868132, 0.215325441016, 0.0, 0.138069690851 ]
@@ -73,7 +73,7 @@ specificCost = 77942.352, 28622.024, 0.0, 35580.0 //weights: [ 0.548332295609, 0
 //Additional mass: 0.04 t
 //Additional cost: 680 Cr
 //Resources cost: 653.1 Cr
-entryCost = 13207.056
+entryCost = 23606.4036243
 cost = 6603.528
 mass = 4.1639607619
 specificMass = 2.4492047619, 1.674756, 0.0, 0.04 //weights: [ 0.588191124257, 0.402202637288, 0.0, 0.00960623845593 ]
@@ -95,7 +95,7 @@ specificCost = 4277.98, 992.448, 0.0, 680.0 //weights: [ 0.718936520197, 0.16678
 //Additional mass: 0.04 t
 //Additional cost: 780 Cr
 //Resources cost: 0 Cr
-entryCost = 14514.216
+entryCost = 25836.2418683
 cost = 7257.108
 mass = 4.172806
 specificMass = 1.5387, 2.594106, 0.0, 0.04 //weights: [ 0.368744676843, 0.621669447369, 0.0, 0.00958587578718 ]
@@ -121,7 +121,7 @@ length: 1
 //Additional mass: 0.76 t
 //Additional cost: 30760 Cr
 //Resources cost: 0 Cr
-entryCost = 315590.8
+entryCost = 333736.4183
 cost = 157795.4
 mass = 84.40215
 specificMass = 49.59662, 34.04553, 0.0, 0.76 //weights: [ 0.587622708663, 0.403372781381, 0.0, 0.0090045099562 ]
@@ -141,7 +141,7 @@ specificCost = 55360.6, 71674.8, 0.0, 30760.0 //weights: [ 0.350837857124, 0.454
 //Additional mass: 0 t
 //Additional cost: 0 Cr
 //Resources cost: 0 Cr
-entryCost = 909.46
+entryCost = 1691.66495211
 cost = 454.73
 mass = 0.148428
 specificMass = 0.0, 0.148428, 0.0, 0.0 //weights: [ 0.0, 1.0, 0.0, 0.0 ]
@@ -166,7 +166,7 @@ specificCost = 142.25, 312.48, 0.0, 0.0 //weights: [ 0.312822993864, 0.687177006
 //Additional mass: 0 t
 //Additional cost: 0 Cr
 //Resources cost: 0 Cr
-entryCost = 505.216
+entryCost = 941.00477585
 cost = 252.608
 mass = 0.246586
 specificMass = 0.02416, 0.222426, 0.0, 0.0 //weights: [ 0.0979779873959, 0.902022012604, 0.0, 0.0 ]
@@ -182,7 +182,7 @@ specificCost = 120.8, 131.808, 0.0, 0.0 //weights: [ 0.478211299721, 0.521788700
 //Additional mass: 0 t
 //Additional cost: 0 Cr
 //Resources cost: 0 Cr
-entryCost = 365.12
+entryCost = 680.382237742
 cost = 182.56
 mass = 0.18788
 specificMass = 0.01616, 0.17172, 0.0, 0.0 //weights: [ 0.0860123483074, 0.913987651693, 0.0, 0.0 ]
@@ -198,7 +198,7 @@ specificCost = 80.8, 101.76, 0.0, 0.0 //weights: [ 0.4425942156, 0.5574057844, 0
 //Additional mass: 0 t
 //Additional cost: 0 Cr
 //Resources cost: 0 Cr
-entryCost = 2150.72
+entryCost = 3984.0750857
 cost = 1075.36
 mass = 1.55252
 specificMass = 0.749, 0.80352, 0.0, 0.0 //weights: [ 0.48244145003, 0.51755854997, 0.0, 0.0 ]
@@ -214,7 +214,7 @@ specificCost = 599.2, 476.16, 0.0, 0.0 //weights: [ 0.557208748698, 0.4427912513
 //Additional mass: 0 t
 //Additional cost: 0 Cr
 //Resources cost: 0 Cr
-entryCost = 1974.84
+entryCost = 3660.39729288
 cost = 987.42
 mass = 0.251015
 specificMass = 0.0635, 0.187515, 0.0, 0.0 //weights: [ 0.252972929905, 0.747027070095, 0.0, 0.0 ]
@@ -230,7 +230,7 @@ specificCost = 876.3, 111.12, 0.0, 0.0 //weights: [ 0.887464300905, 0.1125356990
 //Additional mass: 0 t
 //Additional cost: 0 Cr
 //Resources cost: 0 Cr
-entryCost = 3694.32
+entryCost = 6808.76667823
 cost = 1847.16
 mass = 0.236241
 specificMass = 0.1728, 0.063441, 0.0, 0.0 //weights: [ 0.731456436436, 0.268543563564, 0.0, 0.0 ]
@@ -255,7 +255,7 @@ specificCost = 1713.6, 133.56, 0.0, 0.0 //weights: [ 0.927694406548, 0.072305593
 //Additional mass: 0 t
 //Additional cost: 0 Cr
 //Resources cost: 0 Cr
-entryCost = 803.2
+entryCost = 1494.54109493
 cost = 401.6
 mass = 0.58745
 specificMass = 0.038, 0.54945, 0.0, 0.0 //weights: [ 0.0646863562856, 0.935313643714, 0.0, 0.0 ]
@@ -271,7 +271,7 @@ specificCost = 76.0, 325.6, 0.0, 0.0 //weights: [ 0.189243027888, 0.810756972112
 //Additional mass: 0 t
 //Additional cost: 0 Cr
 //Resources cost: 0 Cr
-entryCost = 5960.2
+entryCost = 10903.7657582
 cost = 2980.1
 mass = 1.07274
 specificMass = 0.87159, 0.20115, 0.0, 0.0 //weights: [ 0.812489512836, 0.187510487164, 0.0, 0.0 ]

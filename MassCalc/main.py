@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
-
 class volume:
     def __init__(self, V, d, name, cost):
         self._V    = V
@@ -56,6 +55,10 @@ class surface:
 
 
 class ship:
+    _asymptote_slope     = 1.5
+    _asymptote_intercept = 1e5
+    _exponent_base       = 1.25
+    
     def __init__(self, name, surfaces, volumes, add_mass = 0, add_cost = 0, res_cost = 0):
         self.name       = name
         self._surfaces  = surfaces
@@ -89,6 +92,11 @@ class ship:
         return c
     #end def
     
+    @classmethod
+    def entry_cost(cls, c):
+        return c*cls._asymptote_slope + (1-cls._exponent_base**(-10*c/cls._asymptote_intercept))*cls._asymptote_intercept
+    #end def
+    
     def true_mass(self, scale=1, length=1):
         return self.V_mass(scale, length)+self.S_mass(scale, length)+self._add_mass
     #end def
@@ -117,7 +125,7 @@ class ship:
         s += '//Additional mass: %s t\n' % self._add_mass
         s += '//Additional cost: %s Cr\n' % self._add_cost
         s += '//Resources cost: %s Cr\n' % self._res_cost
-        s += 'entryCost = %s\n' % (self._cost*2)
+        s += 'entryCost = %s\n' % self.entry_cost(self._cost)
         s += 'cost = %s\n' % self._cost
         s += 'mass = %s\n' % self._init_mass
         s += 'specificMass = %s //weights: [ %s ]\n' % (', '.join(str(m) for m in self._spec_mass), 
@@ -354,6 +362,11 @@ if __name__ == '__main__':
     print(heatshield)
     
     print(recycler)
+    
+    c = np.arange(1, 2e5, 1e3)
+#     plt.plot(c, np.fromiter((ship.entry_cost(ci) for ci in c), dtype=float))
+    plt.plot(c, np.fromiter((ship.entry_cost(ci)/ci for ci in c), dtype=float))
+    plt.show()
 
     sys.exit(0)
     
