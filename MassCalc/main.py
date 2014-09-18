@@ -154,6 +154,7 @@ def format_data(x, ys, w=None):
 if __name__ == '__main__':
     scales = np.arange(0.5, 4.1, 0.5)
     
+    steel     = material(8.05, 15.0)
     aluminium = material(2.7, 8.0)
     composits = material(1.9, 20.0)
     
@@ -198,13 +199,18 @@ if __name__ == '__main__':
     lander     = ship('RoverLander', 
                      surfaces=[surface(92.1, 0.004, aluminium, 'hull'), 
                                surface(14.19*2+13.45*2, 0.003, aluminium, 'doors'),
-                               surface(2.39*6, 0.006, aluminium, 'fuel tanks')],
-                     volumes=[volume(7, 0.20, 'base', 40),
-                              volume(6.36, 0.110, 'machinery', 80),
+                               surface(2.39*6, 0.006, aluminium, 'fuel tanks'),
+                               surface(0.543*4, 0.002, steel, 'inner hydraulic cylinders'),
+                               surface(0.721*4, 0.002, steel, 'outer hydraulic cylinders'),
+                               ],
+                     volumes=[volume(0.0138*4, 2.7, 'ramp side walls', 8),
+                              volume(7, 0.15, 'base', 40),
+                              volume(5.93-0.17, 0.110, 'machinery', 80),
                               volume(0.045, 0.98,'clamp', 600),
                               volume(0.62*2+0.47*2, 0.02, 'doors', 1),
                               volume(0.444*2, 0.05/0.444, 'batteries', 880/0.444),
                               volume(0.17, 0.2/0.21, 'reaction wheel', 2100/0.21),
+                              volume(0.002*8, 2.7, 'hinges', 8),
                               ], 
                      add_mass=0.04, #probe core
                      add_cost=200 + 480, #Light + probe core
