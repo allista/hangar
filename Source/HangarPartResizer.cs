@@ -29,19 +29,21 @@ namespace AtHangar
 			public static implicit operator float(SimpleScale s) { return s.scale; }
 		}
 
-		public SimpleScale absolute;
-		public SimpleScale relative;
+		readonly public SimpleScale absolute;
+		readonly public SimpleScale relative;
+		readonly public bool FirstTime;
 
 		public float size { get; private set; }
 		public float orig_size { get; private set; }
 		public float aspect { get { return absolute.aspect; } }
 		
-		public Scale(float size, float old_size, float orig_size, float aspect, float old_aspect)
+		public Scale(float size, float old_size, float orig_size, float aspect, float old_aspect, bool first_time)
 		{ 
 			this.size      = size; 
 			this.orig_size = orig_size; 
 			absolute	   = new SimpleScale(size/orig_size, aspect);
 			relative	   = new SimpleScale(size/old_size, aspect/old_aspect);
+			FirstTime      = first_time;
 		}
 		
 		public static implicit operator float(Scale s) { return s.absolute; }
@@ -117,6 +119,14 @@ namespace AtHangar
 			just_loaded = true;
 		}
 
+//		public override void OnInitialize()
+//		{
+//			base.OnInitialize();
+//			Utils.Log("HangarPartResizerBase.OnInitialize");
+//			Init();
+//			SaveDefaults();
+//		}
+
 		public float GetModuleCost() { return delta_cost; }
 	}
 
@@ -137,10 +147,10 @@ namespace AtHangar
 		//state
 		float orig_size = -1;
 		float old_size  = -1;
-		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect); } }
+		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect, just_loaded); } }
 		
 		#region PartUpdaters
-		List<PartUpdater> updaters = new List<PartUpdater>();
+		readonly List<PartUpdater> updaters = new List<PartUpdater>();
 		
 		void create_updaters()
 		{
@@ -194,9 +204,17 @@ namespace AtHangar
 			}
 		}
 
+//		public override void OnInitialize()
+//		{
+//			base.OnInitialize();
+//			Rescale();
+//		}
+
 		public void FixedUpdate() 
 		{ 
-			if(size != old_size || aspect != old_aspect || just_loaded) 
+			if(size != old_size || aspect != old_aspect) 
+				{ Rescale(); part.BreakConnectedStruts(); }
+			else if(just_loaded) 
 				{ Rescale(); just_loaded = false; } 
 		}
 

@@ -139,9 +139,13 @@ namespace AtHangar
 			{
 				Vector3 old_position = part.srfAttachNode.position;
 				part.srfAttachNode.position = ScaleVector(part.srfAttachNode.originalPosition, scale, scale.aspect);
-				Vector3 d_pos = part.transform.TransformDirection(part.srfAttachNode.position - old_position);
-				part.transform.position -= d_pos;
+				if(!scale.FirstTime)
+				{
+					Vector3 d_pos = part.transform.TransformDirection(part.srfAttachNode.position - old_position);
+					part.transform.position -= d_pos;
+				}
 			}
+			if(scale.FirstTime) return;
 			//update parts that are surface attached to this
 			foreach(Part child in part.children)
 			{
@@ -152,7 +156,6 @@ namespace AtHangar
 					child.transform.Translate(targetPosition - attachedPosition, part.transform);
 				}
 			}
-			part.BreakConnectedStruts();
 		}
 	}
 
