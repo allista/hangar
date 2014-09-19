@@ -71,9 +71,9 @@ namespace AtHangar
 		//build dropdown list of all hangars in the vessel
 		void BuildHangarList(Vessel vsl)
 		{
+			//save selected hangar
+			Hangar prev_selected = selected_hangar;
 			//reset state
-			if(selected_hangar != null)	
-				selected_hangar.part.SetHighlightDefault();
 			hangars.Clear();
 			hangar_list.Items = new List<string>();
 			selected_hangar = null;
@@ -95,6 +95,9 @@ namespace AtHangar
 				hangar_list.Items = hangar_names;
 				hangar_list.SelectItem(hangars.IndexOf(selected_hangar));
 			}
+			//clear highlight of previously selected hangar
+			if(highlight_hangar == 1 && prev_selected != null && selected_hangar != prev_selected)
+				prev_selected.part.SetHighlightDefault();
 		}
 		
 		//build dropdown list of stored vessels
