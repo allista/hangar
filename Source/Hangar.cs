@@ -150,9 +150,7 @@ namespace AtHangar
 		{
 			//recalculate part and hangar metrics
 			part_metric = new Metric(part);
-			if(HangarSpace != "") 
-				hangar_metric = new Metric(part, HangarSpace);
-			else hangar_metric = null;
+			hangar_metric = HangarSpace != "" ? new Metric(part, HangarSpace) : null;
 			//if hangar metric is not provided, derive it from part metric
 			if(hangar_metric == null || hangar_metric.Empty)
 				hangar_metric = part_metric*usefull_volume_ratio;
