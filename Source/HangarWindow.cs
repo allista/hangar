@@ -54,7 +54,7 @@ namespace AtHangar
 		
 		
 		//vessel volume 
-		void updateVesselMetrics(Vessel vsl = null)
+		void updateVesselMetric(Vessel vsl = null)
 		{
 			vessel_metric = null;
 			if(vsl != null) vessel_metric = new Metric(vsl);
@@ -123,7 +123,7 @@ namespace AtHangar
 		//update-init-destroy
 		void onVesselChange(Vessel vsl)
 		{
-			updateVesselMetrics(vsl);
+			updateVesselMetric(vsl);
 			BuildHangarList(vsl);
 			BuildVesselList(selected_hangar);
 			UpdateGUIState();
@@ -133,7 +133,7 @@ namespace AtHangar
 		{ 
 			if(FlightGlobals.ActiveVessel == vsl) 
 			{
-				updateVesselMetrics(vsl);
+				updateVesselMetric(vsl);
 				BuildHangarList(vsl);
 				BuildVesselList(selected_hangar);
 			}
@@ -143,7 +143,7 @@ namespace AtHangar
 		{ 
 			if(!enabled) return;
 			Vessel vsl = current_vessel;
-			updateVesselMetrics(vsl);
+			updateVesselMetric(vsl);
 			BuildHangarList(vsl);
 			UpdateGUIState();
 			if(selected_hangar != null)
