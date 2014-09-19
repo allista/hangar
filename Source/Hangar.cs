@@ -619,6 +619,7 @@ namespace AtHangar
 			//change volume and mass
 			change_part_params(stored_vessel.metric, -1f);
 			//switch to restored vessel
+			launched_vessel.Splashed = launched_vessel.Landed = false;
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
 			SetupVessel(new LaunchedVessel(stored_vessel, launched_vessel, crew_to_transfer, part.flightID));
 		}
