@@ -41,13 +41,15 @@ namespace AtHangar
 			return new Vector3(old_pos.x, old_pos.y, old_pos.z).normalized*R;
 		}
 
-		public void WriteTo(int sides, Mesh mesh, string name = null)
+		public void WriteTo(int sides, Mesh mesh, bool for_collider = false)
 		{
-			if(sides < 3) throw new InvalidProgramException("TruncatedCone: number of sides " +
-				"cannot be less than 3");
+			if(sides < 3) 
+			{ sides = 3; Utils.Log("TruncatedCone: number of sides cannot be less than 3"); }
+			if(for_collider && sides > 127)
+			{ sides = 127; Utils.Log("TruncatedCone: for MeshCollider number of sides cannot be more than 127"); }
 			//build the cone
 			int loop = sides+1;
-			int num_vertices = loop*4;
+			int num_vertices = loop*(for_collider? 2: 4);
 			Vector3[] vertices = new Vector3[num_vertices];
 			Vector3[] normals  = new Vector3[num_vertices];
 			Vector2[] uvs      = new Vector2[num_vertices];
@@ -72,42 +74,53 @@ namespace AtHangar
 				float u   = du*i;
 				Vector3 n = new Vector3(x*nk, ny, z*nk);
 				Vector4 t = new Vector4(z, 0, -x, 1);
+				//sides
 				//bottom
-				vertices[i] = vertices[i+bottom_base] = new Vector3(R1*x, -h2, R1*z);
+				vertices[i] = new Vector3(R1*x, -h2, R1*z);
 				uvs[i] = new Vector2(u, 0);
 				normals[i]  = n;
 				tangents[i] = t;
-				uvs[i+bottom_base] = new Vector2(0.25f+0.25f*x, 0.75f+0.25f*z);
-				normals[i+bottom_base]  = bn;
-				tangents[i+bottom_base] = bt;
 				//top
-				vertices[loop+i] = vertices[i+top_base] = new Vector3(R2*x, h2, R2*z);
+				vertices[loop+i] = new Vector3(R2*x, h2, R2*z);
 				uvs[loop+i] = new Vector2(u, 0.49f); //leave a 1% gap between sides and bases
 				normals[loop+i]  = n;
 				tangents[loop+i] = t;
-				uvs[i+top_base] = new Vector2(0.75f+0.25f*x, 0.75f+0.25f*z);
-				normals[i+top_base]  = tn;
-				tangents[i+top_base] = tt;
+				//bases
+				if(!for_collider)
+				{
+					//bottom
+					vertices[i+bottom_base] = vertices[i];
+					uvs[i+bottom_base] = new Vector2(0.25f+0.25f*x, 0.75f+0.25f*z);
+					normals[i+bottom_base]  = bn;
+					tangents[i+bottom_base] = bt;
+					//top
+					vertices[i+top_base] = vertices[loop+i];
+					uvs[i+top_base] = new Vector2(0.75f+0.25f*x, 0.75f+0.25f*z);
+					normals[i+top_base]  = tn;
+					tangents[i+top_base] = tt;
+				}
 			}
 			//loop ends
 			vertices[loop-1]   = vertices[0];
 			vertices[loop*2-1] = vertices[loop];
 			//faces
 			List<Triangle> faces = new List<Triangle>();
-			//bases
-			for(int i = 2; i < sides; i++)
-			{
-				faces.Add(new Triangle(bottom_base+i, bottom_base+i-1, bottom_base));
-				faces.Add(new Triangle(top_base, top_base+i-1, top_base+i));
-			}
 			//sides
 			for(int i = 1; i < loop; i++)
 				faces.Add(new Quad(i, loop+i, loop-1+i, i-1));
+			if(!for_collider)
+			{
+				//bases
+				for(int i = 2; i < sides; i++)
+				{
+					faces.Add(new Triangle(bottom_base+i, bottom_base+i-1, bottom_base));
+					faces.Add(new Triangle(top_base, top_base+i-1, top_base+i));
+				}
+			}
 			//write to the mesh
 			List<int> triangles = new List<int>();
 			faces.ForEach(triangles.AddRange);
 			mesh.Clear();
-			if(name != null) mesh.name = name;
 			mesh.vertices  = vertices;
 			mesh.normals   = normals;
 			mesh.tangents  = tangents;
