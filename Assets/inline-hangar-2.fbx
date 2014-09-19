@@ -10,10 +10,10 @@ FBXHeaderExtension:  {
 		Version: 1000
 		Year: 2014
 		Month: 09
-		Day: 17
-		Hour: 14
-		Minute: 47
-		Second: 53
+		Day: 19
+		Hour: 20
+		Minute: 50
+		Second: 56
 		Millisecond: 0
 	}
 	Creator: "FBX SDK/FBX Plugins build 20070228"
@@ -21,7 +21,7 @@ FBXHeaderExtension:  {
 		FlagPLE: 0
 	}
 }
-CreationTime: "2014-09-17 14:47:53:000"
+CreationTime: "2014-09-19 20:50:56:000"
 Creator: "Blender version 2.71 (sub 0)"
 
 ; Object definitions
@@ -636,7 +636,7 @@ Objects:  {
 		Properties60:  {
 			Property: "QuaternionInterpolate", "bool", "",0
 			Property: "Visibility", "Visibility", "A+",1
-			Property: "Lcl Translation", "Lcl Translation", "A+",0.000002664770818,0.000000406474527,-3.297133922576904
+			Property: "Lcl Translation", "Lcl Translation", "A+",-0.000000231588288,-0.000000012263711,0.102876365184784
 			Property: "Lcl Rotation", "Lcl Rotation", "A+",-0.000132961318950,-0.000006830233138,89.999961523213827
 			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
 			Property: "RotationOffset", "Vector3D", "",0,0,0
@@ -13403,7 +13403,7 @@ Objects:  {
 		}
 		PoseNode:  {
 			Node: "Model::dockingNode"
-			Matrix: 0.000000758967133,1.000000000000000,0.000000119209943,0.000000000000000,-1.000000000000000,0.000000758967417,-0.000002320612566,0.000000000000000,-0.000002320612793,-0.000000119208181,1.000000000000000,0.000000000000000,0.000002664770818,0.000000406474527,-3.297133922576904,1.000000000000000
+			Matrix: 0.000000758967133,1.000000000000000,0.000000119209943,0.000000000000000,-1.000000000000000,0.000000758967417,-0.000002320612566,0.000000000000000,-0.000002320612793,-0.000000119208181,1.000000000000000,0.000000000000000,-0.000000231588288,-0.000000012263711,0.102876365184784,1.000000000000000
 		}
 		PoseNode:  {
 			Node: "Model::inline-hangar-2"
@@ -17720,27 +17720,27 @@ Takes:  {
 			Channel: "Transform" {
 				Channel: "T" {
 					Channel: "X" {
-						Default: 0.000002664770818
+						Default: -0.000000231588288
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.000002664770818,L
+							1924423250,-0.000000231588288,L
 						Color: 1,0,0
 					}
 					Channel: "Y" {
-						Default: 0.000000406474527
+						Default: -0.000000012263711
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.000000406474527,L
+							1924423250,-0.000000012263711,L
 						Color: 0,1,0
 					}
 					Channel: "Z" {
-						Default: -3.297133922576904
+						Default: 0.102876365184784
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,-3.297133922576904,L
+							1924423250,0.102876365184784,L
 						Color: 0,0,1
 					}
 					LayerType: 1
