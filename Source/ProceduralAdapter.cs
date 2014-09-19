@@ -37,14 +37,12 @@ namespace AtHangar
 
 		Mesh body_mesh;
 		MeshCollider body_collider;
-		readonly Mesh collider_mesh = new Mesh();
 
 		//methods
 		public override string GetInfo() 
 		{
-			// OnStart(StartState.Editor); //does not work as SaveDefaults needs partInfo which is not there yet
-			// Need to rescale everything to make it look good in the icon, but reenable otherwise OnStart won't get called again.
-			// isEnabled = enabled = true;
+			get_part_components();
+			update_body();
 			part.mass = SurfaceArea*AreaDensity;
 			return base.GetInfo();
 		}
@@ -64,6 +62,40 @@ namespace AtHangar
 			if(top_node != null) nodes_size.x = top_node.size;
 			AttachNode bottom_node = base_part.findAttachNode(BottomNodeName);
 			if(bottom_node != null) nodes_size.y = bottom_node.size;
+		}
+
+		public override void OnStart(StartState state)
+		{
+			base.OnStart(state);
+			if(HighLogic.LoadedSceneIsEditor) 
+			{
+				//setup sliders
+				Utils.setFieldRange(Fields["topSize"], minSize, maxSize);
+				((UI_FloatEdit)Fields["topSize"].uiControlEditor).incrementLarge = sizeStepLarge;
+				((UI_FloatEdit)Fields["topSize"].uiControlEditor).incrementSmall = sizeStepSmall;
+				Utils.setFieldRange(Fields["bottomSize"], minSize, maxSize);
+				((UI_FloatEdit)Fields["bottomSize"].uiControlEditor).incrementLarge = sizeStepLarge;
+				((UI_FloatEdit)Fields["bottomSize"].uiControlEditor).incrementSmall = sizeStepSmall;
+				Utils.setFieldRange (Fields ["aspect"], minAspect, maxAspect);
+				((UI_FloatEdit)Fields["aspect"].uiControlEditor).incrementLarge = aspectStepLarge;
+				((UI_FloatEdit)Fields["aspect"].uiControlEditor).incrementSmall = aspectStepSmall;
+			}
+			get_part_components();
+			update_body();
+		}
+
+//		public override void OnInitialize()
+//		{
+//			base.OnInitialize();
+//			UpdateMesh();
+//		}
+
+		public void FixedUpdate() 
+		{ 
+			if(size != old_size || aspect != old_aspect) 
+				{ UpdateMesh(); part.BreakConnectedStruts(); }
+			else if(just_loaded) 
+				{ UpdateMesh(); just_loaded = false; }
 		}
 
 		void get_part_components()
@@ -95,40 +127,25 @@ namespace AtHangar
 			}
 		}
 
-		public override void OnStart(StartState state)
-		{
-			base.OnStart(state);
-			if(HighLogic.LoadedSceneIsEditor) 
-			{
-				//setup sliders
-				Utils.setFieldRange(Fields["topSize"], minSize, maxSize);
-				((UI_FloatEdit)Fields["topSize"].uiControlEditor).incrementLarge = sizeStepLarge;
-				((UI_FloatEdit)Fields["topSize"].uiControlEditor).incrementSmall = sizeStepSmall;
-				Utils.setFieldRange(Fields["bottomSize"], minSize, maxSize);
-				((UI_FloatEdit)Fields["bottomSize"].uiControlEditor).incrementLarge = sizeStepLarge;
-				((UI_FloatEdit)Fields["bottomSize"].uiControlEditor).incrementSmall = sizeStepSmall;
-				Utils.setFieldRange (Fields ["aspect"], minAspect, maxAspect);
-				((UI_FloatEdit)Fields ["aspect"].uiControlEditor).incrementLarge = aspectStepLarge;
-				((UI_FloatEdit)Fields ["aspect"].uiControlEditor).incrementSmall = aspectStepSmall;
-			}
-			update_body();
-			get_part_components();
-			just_loaded = true;
-		}
-
-		public void FixedUpdate() 
-		{ 
-			if(size != old_size || aspect != old_aspect || just_loaded) 
-			{ UpdateMesh(); just_loaded = false; } 
-		}
-
 		void update_body()
 		{
+			//recalculate the cone
 			float H  = Length*aspect;
 			float Rb = bottomSize*UnitDiameter/2;
 			float Rt = topSize*UnitDiameter/2;
 			if(body == null) body = new State<TruncatedCone>(new TruncatedCone(Rb, Rt, H));
 			else body.current = new TruncatedCone(Rb, Rt, H);
+			//calculate number of sides and dimensions
+			int sides = Mathf.RoundToInt(24+6*(Mathf.Max(topSize, bottomSize)-1));
+			sides += sides%2; // make sides even
+			//update meshes
+			Mesh collider_mesh = new Mesh();
+			body.current.WriteTo(sides, body_mesh);
+			body.current.WriteTo(sides/2, collider_mesh, for_collider: true);
+			Destroy(body_collider.sharedMesh);
+			body_collider.sharedMesh = collider_mesh;
+			body_collider.enabled = false;
+			body_collider.enabled = true;
 		}
 
 		void update_nodes()
@@ -171,25 +188,15 @@ namespace AtHangar
 					child.transform.localRotation = drot * child.transform.localRotation;
 				}
 			}
-			part.BreakConnectedStruts();
 		}
 
 		public void UpdateMesh()
 		{
 			if(body_mesh == null || body_collider == null) return;
 			update_body();
-			//calculate number of sides and dimensions
-			int sides = Mathf.RoundToInt(24+6*(Mathf.Max(topSize, bottomSize)-1));
-			sides += sides%2; // make sides even
 			//calculate surface area, mass and cost changes
 			part.mass  = body.current.Area*AreaDensity;
 			delta_cost = dry_cost*(body.current.Area/orig_area-1);
-			//update meshes
-			body.current.WriteTo(sides, body_mesh);
-			body.current.WriteTo(sides/2, collider_mesh);
-			body_collider.sharedMesh = collider_mesh;
-			body_collider.enabled = false;
-			body_collider.enabled = true;
 			//update attach nodes
 			update_nodes();
 			//save new values
