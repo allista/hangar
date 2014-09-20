@@ -81,7 +81,6 @@
     <Compile Include="ToolbarWrapper.cs" />
     <Compile Include="HangarGenericInflatable.cs" />
     <Compile Include="AnimatedNode.cs" />
-    <Compile Include="ModuleWheelDebug.cs" />
     <Compile Include="WheelUpdater.cs" />
     <Compile Include="ProceduralAdapter.cs" />
     <Compile Include="TruncatedCone.cs" />
