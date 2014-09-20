@@ -1,4 +1,4 @@
-**!!! v1.2.0 WARNING WARNING WARNING v1.2.0 !!!**
+###!!! v1.2.0 WARNING WARNING WARNING v1.2.0 !!!
 
 **This update may break your saves, BUT all breaks are easily fixable.**
 
@@ -11,11 +11,12 @@ _You may keep the config.xml to save positions of GUI windows, though._
 3. Install the new version.
 4. **If** your savegame contains:
     * Any ship that includes **S4-S3 or S4-S2 adapters**:
-        * install the **Deprecated Parts Addon**, then recover such ship and rebuild it in editor using new Universal Stack Adapter
+        * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/raw/master/DeprecatedParts/DeprecatedPartsAddon.zip), then recover such ship and rebuild it in editor using new Universal Stack Adapter
     * Any ship that includes *small* **Inline Hangar** or *small* **Ground Hangar**, you should either:
-        * install the **Deprecated Parts Addon**, then recover such ship and rebuild it in editor,
+        * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/raw/master/DeprecatedParts/DeprecatedPartsAddon.zip), then recover such ship and rebuild it in editor,
         * or open the savegame file in any text editor, find the corresponding part (**InlineHangar1** or **Hangar1**), find the **HangarPartResizer** module and multiply the value of the **size** parameter by 2 ([see the HOWTO](http://imgur.com/crqY6jM) for details).
 5. After that, **if** you have installed the **Deprecated Parts Addon**, uninstall it.
+***
 
 ###ChangeLog###
 
