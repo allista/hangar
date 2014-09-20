@@ -6,8 +6,10 @@
 /Library/*Cache*
 /GameData/Hangar/Plugins/PluginData/Hangar/config.xml
 /Assets/bbox/**
-/Releases/**
+/Releases/*
 /Screenshots/**
+/DesaturatedTexturePack/GameData/**
+/DeprecatedParts/GameData/**
 *obj*
 *cache*
 *bin*

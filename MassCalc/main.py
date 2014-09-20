@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
-
 class volume:
     def __init__(self, V, d, name, cost):
         self._V    = V
@@ -31,6 +30,8 @@ class material:
 #end class
 
 class surface:
+    _unit_h = 0.005
+    
     def __init__(self, S, h, m, name):
         self._S   = S
         self.h    = h
@@ -44,7 +45,7 @@ class surface:
         return self.S(scale, length)*self.h*self.m.density;
     
     def cost(self, scale=1, length=1):
-        return self.S(scale, length)*self.m.cost;
+        return self.S(scale, length)*self.h/self._unit_h*self.m.cost;
     
     def __str__(self):
         return '(%s: %sm^2, %sm, %st/m^3, %st, %sCr)' % (self.name, self.S(), 
@@ -54,6 +55,10 @@ class surface:
 
 
 class ship:
+    _asymptote_slope     = 1.5
+    _asymptote_intercept = 1e5
+    _exponent_base       = 1.25
+    
     def __init__(self, name, surfaces, volumes, add_mass = 0, add_cost = 0, res_cost = 0):
         self.name       = name
         self._surfaces  = surfaces
@@ -87,6 +92,11 @@ class ship:
         return c
     #end def
     
+    @classmethod
+    def entry_cost(cls, c):
+        return c*cls._asymptote_slope + (1-cls._exponent_base**(-10*c/cls._asymptote_intercept))*cls._asymptote_intercept
+    #end def
+    
     def true_mass(self, scale=1, length=1):
         return self.V_mass(scale, length)+self.S_mass(scale, length)+self._add_mass
     #end def
@@ -115,7 +125,7 @@ class ship:
         s += '//Additional mass: %s t\n' % self._add_mass
         s += '//Additional cost: %s Cr\n' % self._add_cost
         s += '//Resources cost: %s Cr\n' % self._res_cost
-        s += 'entryCost = %s\n' % (self._cost*2)
+        s += 'entryCost = %s\n' % self.entry_cost(self._cost)
         s += 'cost = %s\n' % self._cost
         s += 'mass = %s\n' % self._init_mass
         s += 'specificMass = %s //weights: [ %s ]\n' % (', '.join(str(m) for m in self._spec_mass), 
@@ -144,12 +154,13 @@ def format_data(x, ys, w=None):
 if __name__ == '__main__':
     scales = np.arange(0.5, 4.1, 0.5)
     
-    aluminium = material(2.8, 8.0)
+    steel     = material(8.05, 15.0)
+    aluminium = material(2.7, 8.0)
     composits = material(1.9, 20.0)
     
     #inline
     inline1   = ship('InlineHangar', 
-                     surfaces=[surface(62.44, 0.005, aluminium, 'hull'), 
+                     surfaces=[surface(66.444, 0.005, aluminium, 'hull'), 
                                surface(9.32*2, 0.005, aluminium, 'doors')],
                      volumes=[volume(9.4-3.93, 0.02, 'hull', 1),
                               volume(3.93, 0.317, 'machinery', 100),
@@ -188,13 +199,18 @@ if __name__ == '__main__':
     lander     = ship('RoverLander', 
                      surfaces=[surface(92.1, 0.004, aluminium, 'hull'), 
                                surface(14.19*2+13.45*2, 0.003, aluminium, 'doors'),
-                               surface(2.39*6, 0.006, aluminium, 'fuel tanks')],
-                     volumes=[volume(7, 0.20, 'base', 40),
-                              volume(6.36, 0.110, 'machinery', 80),
+                               surface(2.39*6, 0.006, aluminium, 'fuel tanks'),
+                               surface(0.543*4, 0.002, steel, 'inner hydraulic cylinders'),
+                               surface(0.721*4, 0.002, steel, 'outer hydraulic cylinders'),
+                               ],
+                     volumes=[volume(0.0138*4, 2.7, 'ramp side walls', 8),
+                              volume(7, 0.15, 'base', 40),
+                              volume(5.93-0.17, 0.110, 'machinery', 80),
                               volume(0.045, 0.98,'clamp', 600),
                               volume(0.62*2+0.47*2, 0.02, 'doors', 1),
                               volume(0.444*2, 0.05/0.444, 'batteries', 880/0.444),
                               volume(0.17, 0.2/0.21, 'reaction wheel', 2100/0.21),
+                              volume(0.002*8, 2.7, 'hinges', 8),
                               ], 
                      add_mass=0.04, #probe core
                      add_cost=200 + 480, #Light + probe core
@@ -227,17 +243,33 @@ if __name__ == '__main__':
                      add_cost=280 + 300 + 29700 + 480) #DockPort +  Light + generator + probe core
     
     #utilities
-    adapter1  = ship('Adapter1', 
-                     surfaces=[surface(62.48, 0.005, composits, 'hull'), 
-                               surface(50.61, 0.003, composits, 'innerside')],
-                     volumes=[volume(29.68-21.64, 0.01, 'hull', 50)], 
+    adapter  = ship('Adapter', 
+                     surfaces=[surface(13.02, 0.006, composits, 'hull')],
+                     volumes=[volume(2.845, 0.0, 'hull', 50)], 
                      add_mass=0,
                      add_cost=0)
     
-    adapter2  = ship('Adapter2', 
-                     surfaces=[surface(55.38, 0.005, composits, 'hull'), 
-                               surface(44.86, 0.003, composits, 'innerside')],
-                     volumes=[volume(22.67-16.53, 0.01, 'hull', 50)], 
+    r_adapter2 = ship('Radial Adapter 2', 
+                     surfaces=[surface(10.01+1.86*2, 0.006, aluminium, 'hull')],
+                     volumes=[volume(2.09+0.163*2, 0.01, 'hull', 50)], 
+                     add_mass=0,
+                     add_cost=0)
+    
+    r_adapter1 = ship('Radial Adapter 1', 
+                     surfaces=[surface(6.37+2.37+1.86, 0.006, aluminium, 'hull')],
+                     volumes=[volume(1.24+0.213+0.163, 0.01, 'hull', 50)], 
+                     add_mass=0,
+                     add_cost=0)
+    
+    station_hub = ship('Station Hub', 
+                     surfaces=[surface(29.76, 0.01, aluminium, 'hull')],
+                     volumes=[volume(7.49, 0.1, 'hull', 80)], 
+                     add_mass=0,
+                     add_cost=0)
+    
+    docking_port = ship('Docking Port', 
+                     surfaces=[surface(13.89, 0.005, aluminium, 'hull')],
+                     volumes=[volume(0.635, 0.1, 'hull', 1380)], 
                      add_mass=0,
                      add_cost=0)
     
@@ -250,6 +282,14 @@ if __name__ == '__main__':
     heatshield = ship('Square Heatshield', 
                      surfaces=[surface(40.7, 0.005, aluminium, 'hull'),],
                      volumes=[volume(3.8, 0.01, 'hull', 20)], 
+                     add_mass=0,
+                     add_cost=0)
+    
+    recycler   = ship('Recycler', 
+                     surfaces=[surface(14.9, 0.005, aluminium, 'hull'),],
+                     volumes=[volume(4.39-2.3, 0.001, 'hull', 10),
+                              volume(0.18, 0.78,'clamp', 3000),
+                              volume(2.3, 0.317, 'machinery', 1000)], 
                      add_mass=0,
                      add_cost=0)
     
@@ -289,15 +329,10 @@ if __name__ == '__main__':
     small_c  = np.fromiter((small.cost(s, lg1) for s in scales), float)
     big_c    = np.fromiter((big.cost(s/3, 1) for s in scales), float)
     
-    adapter1_m  = np.fromiter((adapter1.mass(s/3, lg1) for s in scales), float)
-    adapter1_sm = np.fromiter((adapter1.S_mass(s/3, lg1) for s in scales), float)
-    adapter1_v  = np.fromiter((adapter1.volume(s/3, lg1) for s in scales), float)
-    adapter1_c  = np.fromiter((adapter1.cost(s/3, lg1) for s in scales), float)
-    
-    adapter2_m  = np.fromiter((adapter2.mass(s/3, lg1) for s in scales), float)
-    adapter2_sm = np.fromiter((adapter2.S_mass(s/3, lg1) for s in scales), float)
-    adapter2_v  = np.fromiter((adapter2.volume(s/3, lg1) for s in scales), float)
-    adapter2_c  = np.fromiter((adapter2.cost(s/3, lg1) for s in scales), float)
+    adapter_m  = np.fromiter((adapter.mass(s/3, lg1) for s in scales), float)
+    adapter_sm = np.fromiter((adapter.S_mass(s/3, lg1) for s in scales), float)
+    adapter_v  = np.fromiter((adapter.volume(s/3, lg1) for s in scales), float)
+    adapter_c  = np.fromiter((adapter.cost(s/3, lg1) for s in scales), float)
     
     rcs_m  = np.fromiter((rcs.mass(s/3, lg1) for s in scales), float)
     rcs_sm = np.fromiter((rcs.S_mass(s/3, lg1) for s in scales), float)
@@ -319,15 +354,25 @@ if __name__ == '__main__':
     print(big);
     print(format_data(scales, (big_m, big_sm, big_v, big_c), np.where(scales/3 >= 1)[0]))
     
-    print(adapter1);
-    print(format_data(scales, (adapter1_m, adapter1_sm, adapter1_v, adapter1_c)))
-    print(adapter2);
-    print(format_data(scales, (adapter2_m, adapter2_sm, adapter2_v, adapter2_c)))
+    print(adapter);
+    print(format_data(scales, (adapter_m, adapter_sm, adapter_v, adapter_c)))
+    
+    print(r_adapter2);
+    print(r_adapter1);
+    print(station_hub);
+    print(docking_port);
 
     print(rcs);
     print(format_data(scales, (rcs_m, rcs_sm, rcs_v, rcs_c)))#, np.where(scales/3 >= 1)[0]))
     
     print(heatshield)
+    
+    print(recycler)
+    
+    c = np.arange(1, 2e5, 1e3)
+#     plt.plot(c, np.fromiter((ship.entry_cost(ci) for ci in c), dtype=float))
+    plt.plot(c, np.fromiter((ship.entry_cost(ci)/ci for ci in c), dtype=float))
+    plt.show()
 
     sys.exit(0)
     

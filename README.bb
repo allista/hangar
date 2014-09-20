@@ -3,21 +3,47 @@
 [COLOR=#FF0000][SIZE=4][B]WARNING: this is still BETA. There should be bugs.[/B][/SIZE][/COLOR]
 While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, [I]but I can't guarantee it[/I]. So if you plan to use it in your main game, [SIZE=5][COLOR=#FF0000][B]backup your saves[/B][/COLOR][/SIZE].
 
-[SIZE=3][B]Known Issues[/B][/SIZE]
-[LIST]
-[*]GUI:
-[LIST]
-[*]Dropdown lists show vertical scrollbars when there are too many  items. But due to the implemented click-through prevention mechanism the  scrollbars cannot be moved by mouse cursor; use mouse wheel instead. [I]And curse Unity3D for the poor GUI API.[/I] 
-[/LIST]  
-[*]Rovers:
-[LIST]
-[*]Rovers stored in KSC have somewhat smaller dimensions due to inactive suspension of the wheels. So if you pack several rovers [B]tightly[/B]  into a hangar, and than launch one of them, the launched rover  sometimes cannot be stored again into that same hangar with the "No room  ..." message. Again: it's no bug, calculations are performed correctly,  the rover's just got bigger. 
-[/LIST][/LIST]
-[SIZE=3][B][URL="https://github.com/allista/hangar/blob/development/ChangeLog.md"]ChangeLog[/URL][/B][/SIZE]
+[COLOR=#FF0000][SIZE=5][b]!!! v1.2.0 WARNING WARNING WARNING v1.2.0 !!![/b][/COLOR][/SIZE]
 
+[SIZE=3][b]This update may break your saves, BUT all breaks are easily fixable.[/b][/SIZE]
+
+To [b]safely[/b] install the update, do the following:
+[list=1]
+[*][b]If[/b] your savegame contains [i]landed[/i] [b]Rover Lander[/b] [i]with opened doors[/i],[list]
+[*]switch to it [b]before[/b] upgrading and [b]close the doors[/b].
+[/list]
+[*]Delete the old version of the mod before installing this one.
+[i]You may keep the config.xml to save positions of GUI windows, though.[/i]
+[*]Install the new version.
+[*][b]If[/b] your savegame contains:[list]
+[*]Any ship that includes [b]S4-S3 or S4-S2 adapters[/b]:[list]
+[*]install the [url=https://github.com/allista/hangar/raw/master/DeprecatedParts/DeprecatedPartsAddon.zip][b]Deprecated Parts Addon[/b][/url], then recover such ship and rebuild it in editor using new Universal Stack Adapter
+[/list]
+[*]Any ship that includes [i]small[/i] [b]Inline Hangar[/b] or [i]small[/i] [b]Ground Hangar[/b], you should either:[list]
+[*]install the [url=https://github.com/allista/hangar/raw/master/DeprecatedParts/DeprecatedPartsAddon.zip][b]Deprecated Parts Addon[/b][/url], then recover such ship and rebuild it in editor,
+[*]or open the savegame file in any text editor, find the corresponding part ([b]InlineHangar1[/b] or [b]Hangar1[/b]), find the [b]HangarPartResizer[/b] module and multiply the value of the [b]size[/b] parameter by 2 ([url=http://imgur.com/crqY6jM]see the HOWTO[/url] for details).
+[/list]
+[/list]
+[*]After that, [b]if[/b] you have installed the [b]Deprecated Parts Addon[/b], uninstall it.
+[/list]
+[SIZE=3][b][url=https://github.com/allista/hangar/blob/development/ChangeLog.md]ChangeLog[/url] - [b]read it carefully every time before installing a new version![/b][/b][/SIZE]
+
+[SIZE=3][B]Known Issues[/B][/SIZE]
+[list]
+[*]Hangars:[list]
+[*][b]In editor[/b] [i]Inline[/i] Hangars allow to store vessels that are actually bigger then hangar's internal compartment, so when such vessels are launched they collide with the hangar and explode. The problem is not trivial and I'm working on it, but for now [b]be careful when storing something that fits tightly[/b] in these hangars and make test launches. Sorry for the inconvenience.
+[*]If you try to store a vessel that has some [b]resizable[/b] parts [b]in editor[/b], calculated vessel's dimensions are incorrect. It may result in the storing of a vessel that does not really fit, as well as the other way around.
+[/list]
+[*]GUI:[list]
+[*]Dropdown lists show vertical scrollbars when there are too many items. But due to the implemented click-through prevention mechanism the scrollbars cannot be moved by mouse cursor; use mouse wheel instead. [i]And curse Unity3D for the poor GUI API.[/i]
+[/list]
+[*]Rovers:[list]
+[*]Rovers stored [b]in editor[/b] have somewhat smaller dimensions due to inactive suspension of the wheels. So if you pack several rovers [b]tightly[/b] into a hangar, and than launch one of them, the launched rover sometimes cannot be stored again into that same hangar with the "No room ..." message. Again: it's no bug, calculations are performed correctly, the rover's just got bigger.
+[/list]
+[/list]
 [SIZE=3][B][URL="https://github.com/allista/hangar/milestones"]See what's comming[/URL][/B][/SIZE]
 
-[SIZE=3][B][COLOR="#006400"]NOTE:[/COLOR][/B][/SIZE] [B]Before using a hangar, study the list of modules that are integrated into it [B](RMB on part's icon)[/B].[/B] Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating. 
+[SIZE=3][B][COLOR=#006400]NOTE:[/COLOR] Before using a hangar, study the list of modules that are integrated into it (RMB on part's icon)[/B]. Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating.[/SIZE] 
 
 [SIZE=3][B]Introduction[/B][/SIZE]
 
@@ -28,8 +54,11 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
 [imgur]Z916l[/imgur]
 
 [SIZE=3][B]Downloads:[/B][/SIZE]
-All releases are published on [URL="https://github.com/allista/hangar/releases"]GitHub[/URL].
-[URL="https://github.com/allista/hangar/tree/master"]Source code[/URL] may be obtained there as well.
+All releases, addons and packs, as well as the source code are published on [b]GitHub[/b] and may be download from there:
+[URL="https://github.com/allista/hangar/releases"][b]Releases with their change-logs[/b][/URL].
+[url=https://github.com/allista/hangar/raw/master/DeprecatedParts/DeprecatedPartsAddon.zip][b]Deprecated Parts Addon[/b][/url].
+[URL="https://github.com/allista/hangar/raw/master/DesaturatedTexturePack/DesaturatedTexturePack.zip"][b]Desaturated Texture Pack[/b][/URL] [i]is now officially maintained[/i].
+[URL="https://github.com/allista/hangar/tree/master"][b]Source code[/b][/URL].
 
 [SIZE=3][B]Features[/B][/SIZE]
 [LIST]
@@ -37,14 +66,14 @@ All releases are published on [URL="https://github.com/allista/hangar/releases"]
 [LIST]
 [*]small light and cheap as well as huge, packed with all needed modules 
 [*][B]most may be rescaled[/B] to the needed size and proportions [B]via tweakables[/B] (mass, volume and cost are changed accordingly) 
-[/LIST]  
+[/LIST]
 [*] There are several types of hangars:
 [LIST]
 [*][B]In-line hangars[/B] (simple and habitable) for spaceships 
 [*][B]Ground hangars[/B] (simple and habitable) for colonies 
 [*][B]Rover Lander[/B] hangar that has all needed modules and fuel to autonomously land on a planet or moon, bringing some rovers along the way 
 [*]there's also the [B]Spaceport[/B] that combines a huge hangar with a cockpit; as such, the Spaceport has only a single stack node at its bottom 
-[/LIST]  
+[/LIST]
 [*]In-line hangars are equipped with internal docking port for easy targeting. If the hangar is inactive, this port may be used for normal docking 
 [*]Ground hangars have anchoring modules for comfort use on low-gravity worlds and integrated probe cores with antennas for autonomous operation 
 [*]Crew and resources can be transferred between a vessel with a hangar and stored vessels 
@@ -55,17 +84,20 @@ All releases are published on [URL="https://github.com/allista/hangar/releases"]
 [*]Hangars are controlled with a dedicated GUI 
 [*]For the vessels that do not have any hangars the GUI shows their volume and dimensions. In Editor there's also an option to display arrows that indicate vessel's orientation, which is helpful in rover design. 
 [*]A vessel can have multiple hangars. Provided GUI allows easy switching between them by highlighting the hangar that is currently selected 
-[/LIST]  
+[/LIST]
 [*] In addition, several other parts are provided:
 [LIST]
-[*]Powerfull 5-way RCS thrusters for Spaceport 
-[*]Heatshild with space for engines for Rover Lander. Especially helpful if you're playing with DeadlyReentry 
-[*]Two adapters for Size4 stack nodes 
-[/LIST][/LIST]
+[*]Powerfull 5-way RCS thrusters for Spaceport,
+[*]Square Heatshild with space for engines for Rover Lander. Especially helpful if you're playing with DeadlyReentry,
+[*]Two resizable Radial-to-Stack adapters, one with a single stack node and an aerodynamic cap, the other with two symmetrical stack nodes,
+[*]Resizable Station Hub which is analogous to the HubMax Multi-Point Connector, except that its radial nodes are placed more apart to accommodate parts that are wider than their attach nodes. 
+[*]Universal Stack Adapter, which has separate tweakable sizes of all stack nodes and thus may be used to join any two stack parts, rescaled or not.
+[/LIST]
+[/LIST]
 [SIZE=3][B]Requirements[/B][/SIZE]
 [LIST]
 [*]Hangar uses [URL="http://forum.kerbalspaceprogram.com/threads/81496"]KSPAPIExtensions[/URL] by [URL="http://forum.kerbalspaceprogram.com/members/100707-swamp_ig"]swamp_ig[/URL]. This plugin is bundled with the Hangar as it should be. 
-[*]The [URL="http://forum.kerbalspaceprogram.com/threads/55219"]ModuleManager[/URL], of course. 
+[*]The [url=http://forum.kerbalspaceprogram.com/threads/55219]ModuleManager[/url] is required if you are using the DeprecatedPartsAddon, or if you want to get the enhancements of the supported modes (see below).
 [/LIST]
 [SIZE=3][B]Recommended mods[/B][/SIZE]
 There are many great mods out there that I love and use myself. But the one mode that I strongly recommend to use with the Hangar to improve game experience is the [URL="http://forum.kerbalspaceprogram.com/threads/59545"][B]Extraplanetary Launchpads[/B][/URL] by [URL="https://github.com/taniwha-qf"]Taniwha[/URL]. For one thing: big ground hangars are not suitable as parts for vessel construction and are too heavy to launch anyway. So the only meaningful way to use them is to build them on site.
@@ -78,6 +110,7 @@ And some functionality is added to hangars if the following mods are installed:
 [*][URL="http://forum.kerbalspaceprogram.com/threads/40667?p=1281444&viewfull=1#post1281444"]TAC Life Support [B]beta[/B][/URL] adds life support resources to inhabitable hangars 
 [*][URL="http://forum.kerbalspaceprogram.com/threads/83305"]RemoteTech2[/URL] adds RT antennas and SPUs to controllable hangars 
 [*][URL="http://forum.kerbalspaceprogram.com/threads/54954"]Deadly Reentry[/URL] adds integrated heatshield to lander hangars 
+[*][url=http://forum.kerbalspaceprogram.com/threads/59545]Extraplanetary Launchpads[/url] adds a new Heavy Recycler model that fits the style of hangars.
 [/LIST]
 [SIZE=3][B]Usage details[/B][/SIZE]
 
@@ -182,7 +215,8 @@ And here're the mods which sources provided me with an understanding of how KSP 
 [*][URL="http://forum.kerbalspaceprogram.com/threads/80234"]TweakScale[/URL] 
 [*][URL="http://forum.kerbalspaceprogram.com/threads/24786"]Kerbal Alarm Clock[/URL] 
 [*][URL="http://forum.kerbalspaceprogram.com/threads/57988"]RealChutes[/URL] 
-[*][URL="http://forum.kerbalspaceprogram.com/threads/83305"]RemoteTech2[/URL] 
+[*][URL="http://forum.kerbalspaceprogram.com/threads/83305"]RemoteTech2[/URL]
+[*][url=http://forum.kerbalspaceprogram.com/threads/70676-WIP-Procedural-Parts-The-next-phase-of-Stretchy-SRBs]ProceduralParts[/url]
 [/LIST]
 
 [URL="http://creativecommons.org/licenses/by/4.0/"][IMG]http://i.creativecommons.org/l/by/4.0/88x31.png[/IMG][/URL]

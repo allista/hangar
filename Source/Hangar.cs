@@ -150,9 +150,7 @@ namespace AtHangar
 		{
 			//recalculate part and hangar metrics
 			part_metric = new Metric(part);
-			if(HangarSpace != "") 
-				hangar_metric = new Metric(part, HangarSpace);
-			else hangar_metric = null;
+			hangar_metric = HangarSpace != "" ? new Metric(part, HangarSpace) : null;
 			//if hangar metric is not provided, derive it from part metric
 			if(hangar_metric == null || hangar_metric.Empty)
 				hangar_metric = part_metric*usefull_volume_ratio;
@@ -621,6 +619,7 @@ namespace AtHangar
 			//change volume and mass
 			change_part_params(stored_vessel.metric, -1f);
 			//switch to restored vessel
+			launched_vessel.Splashed = launched_vessel.Landed = false;
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
 			SetupVessel(new LaunchedVessel(stored_vessel, launched_vessel, crew_to_transfer, part.flightID));
 		}
