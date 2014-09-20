@@ -1,5 +1,25 @@
+**!!! v1.2.0 WARNING WARNING WARNING v1.2.0 !!!**
+
+**This update may break your saves, BUT all breaks are easily fixable.**
+
+To **safely** install the update, do the following:
+
+1. **If** your savegame contains *landed* **Rover Lander** *with opened doors*,
+    * switch to it **before** upgrading and **close the doors**.
+2. Delete the old version of the mod before installing this one.
+_You may keep the config.xml to save positions of GUI windows, though._
+3. Install the new version.
+4. **If** your savegame contains:
+    * Any ship that includes **S4-S3 or S4-S2 adapters**:
+        * install the **Deprecated Parts Addon**, then recover such ship and rebuild it in editor using new Universal Stack Adapter
+    * Any ship that includes *small* **Inline Hangar** or *small* **Ground Hangar**, you should either:
+        * install the **Deprecated Parts Addon**, then recover such ship and rebuild it in editor,
+        * or open the savegame file in any text editor, find the corresponding part (**InlineHangar1** or **Hangar1**), find the **HangarPartResizer** module and multiply the value of the **size** parameter by 2 ([see the HOWTO](http://imgur.com/crqY6jM) for details).
+5. After that, **if** you have installed the **Deprecated Parts Addon**, uninstall it.
+
 ###ChangeLog###
-* v1.2.0 - **WARNING: delete the old version before installing this one. _But_** save config.xml if you want to keep positions of GUI windows.
+
+* **v1.2.0** - **READ THE INSTALLATION INSTRUCTIONS CAREFULLY**
     * Added resizable **Radial-to-Stack Adapters** and the 6-node **Station Hub** with elongated radial tubes to connect parts that are wider than their attach nodes.
     * Added **Procedural Adapter** with separately resizable stack nodes to connect resized hangars with other parts seamlessly.
     * Added resizable **Heavy Recycler** for those who have *Extraplanetary Launchpads* (the part will not appear if ExLP is not present). It is more powerful, has integrated lights and metal storage. Its model matches more or less the style of hangars and its trigger area is much smaller and is hidden between two arms that help to prevent accidental recycling and add a little bit of realism.
