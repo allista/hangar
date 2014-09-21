@@ -270,9 +270,9 @@ specificCost = 76.0, 325.6, 0.0, 0.0 //weights: [ 0.189243027888, 0.810756972112
 //S mass: 0.20115 t
 //Additional mass: 0 t
 //Additional cost: 0 Cr
-//Resources cost: 0 Cr
-entryCost = 10903.7657582
-cost = 2980.1
+//Resources cost: 24920 Cr
+entryCost = 88193.9274565
+cost = 27900.1
 mass = 1.07274
 specificMass = 0.87159, 0.20115, 0.0, 0.0 //weights: [ 0.812489512836, 0.187510487164, 0.0, 0.0 ]
 specificCost = 2860.9, 119.2, 0.0, 0.0 //weights: [ 0.960001342237, 0.0399986577632, 0.0, 0.0 ]

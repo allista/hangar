@@ -291,7 +291,8 @@ if __name__ == '__main__':
                               volume(0.18, 0.78,'clamp', 3000),
                               volume(2.3, 0.317, 'machinery', 1000)], 
                      add_mass=0,
-                     add_cost=0)
+                     add_cost=0,
+                     res_cost=24920)
     
     l1 = 1#.27624
     l2 = 1#.03
