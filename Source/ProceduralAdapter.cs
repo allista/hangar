@@ -196,7 +196,7 @@ namespace AtHangar
 			update_body();
 			//calculate surface area, mass and cost changes
 			part.mass  = body.current.Area*AreaDensity;
-			delta_cost = dry_cost*(body.current.Area/orig_area-1);
+			delta_cost = part.DryCost()*(body.current.Area/orig_area-1);
 			//update attach nodes
 			update_nodes();
 			//save new values

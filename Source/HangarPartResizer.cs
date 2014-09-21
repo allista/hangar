@@ -74,7 +74,6 @@ namespace AtHangar
 
 		protected Transform model;
 		protected float old_aspect  = -1;
-		public    float dry_cost    = 0f; 
 		public    float delta_cost  = 0f;
 		protected bool  just_loaded = true;
 
@@ -92,7 +91,6 @@ namespace AtHangar
 		protected override void SaveDefaults()
 		{
 			old_aspect = aspect;
-			dry_cost   = base_part.DryCost();
 			model = part.FindModelTransform("model");
 			if(model == null)
 				Utils.Log("HangarPartResizer: no 'model' transform in the part", this);
@@ -229,7 +227,7 @@ namespace AtHangar
 			//update nodes and modules
 			foreach(PartUpdater updater in updaters) updater.OnRescale(_scale);
 			//recalculate cost after all updaters
-			delta_cost = ((specificCost.x * _scale + specificCost.y) * _scale + specificCost.z) * _scale * _scale.aspect + specificCost.w - dry_cost;
+			delta_cost = ((specificCost.x * _scale + specificCost.y) * _scale + specificCost.z) * _scale * _scale.aspect + specificCost.w - part.DryCost();
 			//save size and aspect
 			old_size   = size;
 			old_aspect = aspect;
