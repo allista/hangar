@@ -466,7 +466,13 @@ namespace AtHangar
 				.Aggregate(0.0, (a, b) => a + b.amount * b.info.unitCost); 
 		}
 
-		public static float DryCost(this Part p) { return p.TotalCost() - p.ResourcesCost(); }
+		public static float MaxResourcesCost(this Part p) 
+		{ 
+			return (float)p.Resources.Cast<PartResource>()
+				.Aggregate(0.0, (a, b) => a + b.maxAmount * b.info.unitCost); 
+		}
+
+		public static float DryCost(this Part p) { return p.TotalCost() - p.MaxResourcesCost(); }
 
 		public static float MassWithChildren(this Part p)
 		{
