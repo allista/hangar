@@ -1,8 +1,8 @@
-[SIZE=5][B]Hangar[/B] - [B][I]store your vessels until they are needed[/I][/B][/SIZE]
-
-[COLOR=#FF0000][SIZE=4][B]WARNING: this is still BETA. There should be bugs.[/B][/SIZE][/COLOR]
-While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, [I]but I can't guarantee it[/I]. So if you plan to use it in your main game, [SIZE=5][COLOR=#FF0000][B]backup your saves[/B][/COLOR][/SIZE].
-
+[CENTER][SIZE=5][B]Hangar[/B] - [B][I]store your vessels until they are needed[/I][/B][/SIZE][/CENTER]
+[HR][/HR]
+[CENTER][COLOR=#FF0000][SIZE=4][B]WARNING: this is still BETA. There should be bugs.[/B][/SIZE][/COLOR]
+While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, [I]but I can't guarantee it[/I]. So if you plan to use it in your main game, [SIZE=5][COLOR=#FF0000][B]backup your saves[/B][/COLOR][/SIZE].[/CENTER]
+[HR][/HR]
 [COLOR=#FF0000][SIZE=5][b]!!! v1.2.0 WARNING WARNING WARNING v1.2.0 !!![/b][/COLOR][/SIZE]
 
 [SIZE=3][b]This update may break your saves, BUT all breaks are easily fixable.[/b][/SIZE]
@@ -26,6 +26,8 @@ To [b]safely[/b] install the update, do the following:
 [/list]
 [*]After that, [b]if[/b] you have installed the [b]Deprecated Parts Addon[/b], uninstall it.
 [/list]
+[SIZE=3][b]Also [URL="https://github.com/allista/hangar/releases/download/v1.2.0/Hangar-v1.2.0-recycler-cost-fix.zip"]there is a hotfix[/URL] for those who have negative cost of the Heavy Recycler problem.[/b][/SIZE]
+[HR][/HR]
 [SIZE=3][b][url=https://github.com/allista/hangar/blob/development/ChangeLog.md]ChangeLog[/url] - [b]read it carefully every time before installing a new version![/b][/b][/SIZE]
 
 [SIZE=3][B]Known Issues[/B][/SIZE]
