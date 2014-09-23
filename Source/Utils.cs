@@ -422,7 +422,7 @@ namespace AtHangar
 			if (Time.time < osdMessageTime) 
 			{
 				GUI.skin = HighLogic.Skin;
-				GUIStyle style = new GUIStyle ("Label");
+				GUIStyle style = new GUIStyle("Label");
 				style.alignment = TextAnchor.MiddleCenter;
 				style.fontSize = 20;
 				style.normal.textColor = Color.black;
