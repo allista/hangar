@@ -35,6 +35,7 @@ namespace AtHangar
 		[KSPField (isPersistant = false)] public string AnimatorID;
 		[KSPField (isPersistant = false)] public float  VolumePerKerbal = 3f; // m^3
 		[KSPField (isPersistant = false)] public bool   StaticCrewCapacity = true;
+		[KSPField (isPersistant = false)] public bool   HasRepairMachinery = false;
 		[KSPField (isPersistant = true)]  public float  base_mass = -1f;
 		
 		//vessels storage
@@ -705,6 +706,16 @@ namespace AtHangar
 				set_part_params();
 			}
 			resourceTransferList.Clear();
+		}
+		#endregion
+
+		#region Repair
+		public bool CanRepair { get { return HasRepairMachinery || part.protoModuleCrew.Count > 0; } }
+
+		public void RepairDamage(StoredVessel sv)
+		{
+			if(!CanRepair || !sv.damaged) return;
+
 		}
 		#endregion
 		

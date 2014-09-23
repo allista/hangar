@@ -547,6 +547,18 @@ namespace AtHangar
 			} 
 			else ap.transform.position += dp;
 		}
+
+		public static bool HasDamagedWheels(this Part p)
+		{
+			IEnumerable<ModuleWheel> wheels = p.Modules.OfType<ModuleWheel>();
+			return wheels.Any(w => w.isDamaged);
+		}
+
+		public static void RepairWheels(this Part p)
+		{
+			List<ModuleWheel> wheels = new List<ModuleWheel>(p.Modules.OfType<ModuleWheel>());
+			wheels.ForEach(w => w.RepairWheel());
+		}
 	}
 
 

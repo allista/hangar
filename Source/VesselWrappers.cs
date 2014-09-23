@@ -109,16 +109,18 @@ namespace AtHangar
 		public List<ProtoCrewMember> crew { get; private set; }
 		public int CrewCapacity { get{ return metric.CrewCapacity; } }
 		public VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot> resources { get; private set; }
+		public bool damaged { get; private set; }
 
 		public StoredVessel() {}
 
 		public StoredVessel(Vessel vsl)
 		{
-			vessel = vsl.BackupVessel();
-			metric = new Metric(vsl);
-			id     = vessel.vesselID;
-			CoM    = vsl.findLocalCenterOfMass();
-			crew   = vsl.GetVesselCrew();
+			vessel  = vsl.BackupVessel();
+			metric  = new Metric(vsl);
+			id      = vessel.vesselID;
+			CoM     = vsl.findLocalCenterOfMass();
+			crew    = vsl.GetVesselCrew();
+			damaged = vsl.parts.Aggregate(false, (d, p) => d || p.HasDamagedWheels());
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
 //			fixTripLogger(); //FIXME
 		}
@@ -138,6 +140,7 @@ namespace AtHangar
 			}
 			//values
 			node.AddValue("CoM", ConfigNode.WriteVector(CoM));
+			node.AddValue("damaged", damaged);
 		}
 
 		public override void Load(ConfigNode node)
@@ -151,7 +154,15 @@ namespace AtHangar
 			foreach(ConfigNode cn in crew_node.nodes) crew.Add(new ProtoCrewMember(cn));
 			id   = vessel.vesselID;
 			CoM  = ConfigNode.ParseVector3(node.GetValue("CoM"));
+			bool _damaged = false;
+			if(node.HasValue("damaged")) bool.TryParse(node.GetValue("damaged"), out _damaged);
+			damaged = _damaged;
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
+		}
+
+		public void Repair()
+		{
+			if(!damaged) return;
 		}
 
 		void fixTripLogger() //FIXME
