@@ -19,6 +19,8 @@ namespace AtHangar
 		public float vessels_cost     = -1f;
 		public float used_volume      = -1f;
 		BaseHangarAnimator hangar_gates;
+		Vector3 deltaV = Vector3.zero;
+		bool change_velocity = false;
 		
 		public AnimatorState gates_state { get { return hangar_gates.State; } }
 		public HangarState hangar_state { get; private set; }
@@ -376,6 +378,11 @@ namespace AtHangar
 				stored_vessel = new StoredVessel(vsl);
 				stored_vessels.ForceAdd(stored_vessel);
 			}
+			//recalculate volume and mass
+			change_part_params(stored_vessel.metric);
+			//calculate velocity change to conserve impulse
+			deltaV = (vsl.orbit.vel-vessel.orbit.vel)*stored_vessel.mass/vessel.GetTotalMass();
+			change_velocity = true;
 			//get vessel crew on board
 			List<ProtoCrewMember> _crew = new List<ProtoCrewMember>(stored_vessel.crew);
 			CrewTransfer.delCrew(vsl, _crew);
@@ -384,8 +391,6 @@ namespace AtHangar
 			CrewTransfer.addCrew(part, _crew);
 			//then add to other vessel parts if needed
 			CrewTransfer.addCrew(vessel, _crew);
-			//recalculate volume and mass
-			change_part_params(stored_vessel.metric);
 			//switch to hangar vessel before storing
 			if(FlightGlobals.ActiveVessel.id == vsl.id)
 				FlightGlobals.ForceSetActiveVessel(vessel);
@@ -593,7 +598,7 @@ namespace AtHangar
 				Vector3 d_vel = launch_transform.TransformDirection(launchVelocity);
 				vvel += (Vector3d.zero + d_vel*hM/tM).xzy;
 				//:calculate hangar's vessel velocity
-				Vector3d hvel = horb.vel + (Vector3d.zero - d_vel*(sv.mass)/tM).xzy;
+				Vector3d hvel = horb.vel + (Vector3d.zero + d_vel*(-sv.mass)/tM).xzy;
 				vessel.orbitDriver.SetOrbitMode(OrbitDriver.UpdateMode.UPDATE);
 				horb.UpdateFromStateVectors(horb.pos, hvel, horb.referenceBody, UT);
 			}
@@ -611,7 +616,17 @@ namespace AtHangar
 				pv.altitude   = vessel.mainBody.GetAltitude(vpos);
 			}
 		}
-		
+
+		public override void OnFixedUpdate()
+		{
+			if(change_velocity)
+			{
+				vessel.ChangeWorldVelocity((Vector3d.zero+deltaV).xzy);
+				change_velocity = false;
+				deltaV = Vector3.zero;
+			}
+		}
+
 		//static coroutine launched from a DontDestroyOnLoad sentinel object allows to execute code while the scene is switching
 		static IEnumerator<YieldInstruction> setup_vessel(UnityEngine.Object sentinel, LaunchedVessel lv)
 		{
