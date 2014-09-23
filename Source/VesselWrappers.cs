@@ -63,6 +63,20 @@ namespace AtHangar
 			id = Guid.NewGuid();
 		}
 
+		protected PackedConstruct(PackedConstruct pc)
+		{
+			flag = pc.flag;
+			vessel_node = pc.vessel_node;
+			metric = pc.metric;
+			name = pc.name;
+			if(pc.construct != null)
+				LoadConstruct();
+			id = Guid.NewGuid();
+		}
+
+		public virtual PackedConstruct Clone()
+		{ return new PackedConstruct(this); }
+
 		public override void Save(ConfigNode node)
 		{
 			ConfigNode metric_node = node.AddNode("METRIC");
