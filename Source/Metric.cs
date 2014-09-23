@@ -209,7 +209,13 @@ namespace AtHangar
 			}
 			return true;
 		}
-		
+			
+		/// <summary>
+		/// Returns true if THIS metric fits inside the OTHER metric.
+		/// </summary>
+		/// <param name="this_T">Transform of this metric.</param>
+		/// <param name="other_T">Transform of the other metric.</param>
+		/// <param name="other">Metric acting as a container.</param>
 		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
 		{
 			Vector3[] edges = BoundsEdges(Vector3.zero, bounds.size);
@@ -217,6 +223,35 @@ namespace AtHangar
 			{
 				Vector3 _edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edge));
 				if(!other.bounds.Contains(_edge)) return false;
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Returns true if THIS metric fits inside the given CONTAINER mesh.
+		/// </summary>
+		/// <param name="this_T">Transform of this metric.</param>
+		/// <param name="other_T">Transform of the given mesh.</param>
+		/// <param name="container">Mesh acting as a container.</param>
+		/// Implemeted using algorithm described at
+		/// http://answers.unity3d.com/questions/611947/am-i-inside-a-volume-without-colliders.html
+		public bool FitsAligned(Transform this_T, Transform other_T, Mesh container)
+		{
+			//get edges in containers reference frame
+			Vector3[] edges   = BoundsEdges(Vector3.zero, bounds.size);
+			for(int i = 0; i < edges.Length; i++) 
+				edges[i] = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]));
+			//check each triangle of container
+			Vector3[] c_edges = container.vertices;
+			int[] triangles   = container.triangles;
+			for(int i = 0; i < triangles.Length/3; i++)
+			{
+				var V1 = c_edges[triangles[i*3]];
+				var V2 = c_edges[triangles[i*3+1]];
+				var V3 = c_edges[triangles[i*3+2]];
+				var P  = new Plane(V1, V2, V3);
+				foreach(Vector3 edge in edges)
+				{ if(!P.GetSide(edge)) return false; }
 			}
 			return true;
 		}
