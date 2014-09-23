@@ -21,18 +21,19 @@ namespace AtHangar
 		BaseHangarAnimator hangar_gates;
 		
 		public AnimatorState gates_state { get { return hangar_gates.State; } }
-		public HangarState hangar_state { get; private set;}
-		public Metric part_metric { get; private set;}
-		public Metric hangar_metric { get; private set;}
+		public HangarState hangar_state { get; private set; }
+		public Metric part_metric { get; private set; }
+		public Metric hangar_metric { get; private set; }
+		public MeshFilter hangar_space { get; private set; }
 		public float used_volume_frac { get { if(hangar_metric.Empty) return 0; return used_volume/hangar_metric.volume; } }
 		public VesselResources<Vessel, Part, PartResource> hangarResources { get; private set; }
 		public List<ResourceManifest> resourceTransferList = new List<ResourceManifest>();
 		
 		//fields
 		[KSPField (isPersistant = false)] public string AnimatorID;
-		[KSPField (isPersistant = false)] public float VolumePerKerbal = 3f; // m^3
-		[KSPField (isPersistant = false)] public bool  StaticCrewCapacity = false;
-		[KSPField (isPersistant = true)]  public float base_mass = -1f;
+		[KSPField (isPersistant = false)] public float  VolumePerKerbal = 3f; // m^3
+		[KSPField (isPersistant = false)] public bool   StaticCrewCapacity = true;
+		[KSPField (isPersistant = true)]  public float  base_mass = -1f;
 		
 		//vessels storage
 		VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
@@ -41,7 +42,9 @@ namespace AtHangar
 		//vessel spawn
 		[KSPField (isPersistant = false)] public float  LaunchHeightOffset;
 		[KSPField (isPersistant = false)] public string LaunchTransform;
+		[KSPField (isPersistant = false)] public string LaunchSpeed;
 		[KSPField (isPersistant = false)] public string HangarSpace;
+		[KSPField (isPersistant = false)] public bool   UseHangarSpaceMesh = false;
 		Transform launchTransform;
 		Vessel launched_vessel;
 
@@ -154,6 +157,9 @@ namespace AtHangar
 			//if hangar metric is not provided, derive it from part metric
 			if(hangar_metric == null || hangar_metric.Empty)
 				hangar_metric = part_metric*usefull_volume_ratio;
+			//else if mesh should be used to calculate fits, get it as well
+			else if(UseHangarSpaceMesh)
+				hangar_space = part.FindModelComponent<MeshFilter>(HangarSpace);
 			//setup vessels pack
 			stored_vessels.space = hangar_metric;
 			packed_constructs.space = hangar_metric;
@@ -303,6 +309,15 @@ namespace AtHangar
 			}
 			return true;
 		}
+
+		bool metric_fits_into_hangar_space(Metric m)
+		{
+			GetLaunchTransform();
+			return hangar_space == null ? 
+				m.FitsAligned(launchTransform, part.partTransform, hangar_metric) : 
+				m.FitsAligned(launchTransform, hangar_space.transform, hangar_space.sharedMesh);
+		}
+
 		
 		StoredVessel try_store(Vessel vsl)
 		{
@@ -313,11 +328,11 @@ namespace AtHangar
 				return null;
 			}
 			//check vessel metrics
-			GetLaunchTransform();
 			StoredVessel sv = new StoredVessel(vsl);
-			if(!sv.metric.FitsAligned(launchTransform, part.partTransform, hangar_metric))
+			if(!metric_fits_into_hangar_space(sv.metric))
 			{
-				ScreenMessager.showMessage("The vessel does not fit into this hangar", 3);
+				ScreenMessager.showMessage("Insufficient vessel clearance for safe docking\n" +
+					"The vessel cannot be stored in this hangar", 3);
 				return null;
 			}
 			if(!stored_vessels.Add(sv))
@@ -398,8 +413,117 @@ namespace AtHangar
 			if(probed_ids.ContainsKey(p.vessel.id)) probed_ids.Remove(p.vessel.id);
 		}
 		#endregion
-		
-		
+
+		#region EditHangarContents
+		bool try_store_construct(PackedConstruct pc)
+		{
+			GetLaunchTransform();
+			if(!metric_fits_into_hangar_space(pc.metric))
+			{
+				ScreenMessager.showMessage(string.Format("Insufficient vessel clearance for safe docking\n" +
+					"\"{0}\" cannot be stored in this hangar", pc.name), 5);
+				return false;
+			}
+			if(!packed_constructs.Add(pc))
+			{
+				ScreenMessager.showMessage(string.Format("There's no room in the hangar for \"{0}\"", pc.name), 3);
+				return false;
+			}
+			return true;
+		}
+
+		void vessel_selected(string filename, string flagname)
+		{
+			EditorLogic EL = EditorLogic.fetch;
+			if(EL == null) return;
+			//load vessel config
+			vessel_selector = null;
+			PackedConstruct pc = new PackedConstruct(filename, flagname);
+			if(pc.construct == null) 
+			{
+				Utils.Log("PackedConstruct: unable to load ShipConstruct from {0}. " +
+					"This usually means that some parts are missing " +
+					"or some modules failed to initialize.", filename);
+				ScreenMessager.showMessage(string.Format("Unable to load {0}", filename), 3);
+				return;
+			}
+			//check if the construct contains launch clamps
+			if(Utils.HasLaunchClamp(pc.construct))
+			{
+				ScreenMessager.showMessage(string.Format("\"{0}\" has launch clamps. Remove them before storing.", pc.name), 3);
+				pc.UnloadConstruct();
+				return;
+			}
+			//check if it's possible to launch such vessel
+			bool cant_launch = false;
+			PreFlightCheck preFlightCheck = new PreFlightCheck(new Callback(() => cant_launch = false), new Callback(() => cant_launch = true));
+			preFlightCheck.AddTest(new PreFlightTests.ExperimentalPartsAvailable(pc.construct));
+			preFlightCheck.RunTests(); 
+			pc.UnloadConstruct();
+			//cleanup loaded parts and try to store construct
+			if(cant_launch) return;
+			if(try_store_construct(pc)) 
+				change_part_params(pc.metric);
+		}
+		void selection_canceled() { vessel_selector = null; }
+
+		void remove_construct(PackedConstruct pc)
+		{
+			change_part_params(pc.metric, -1f);
+			packed_constructs.Remove(pc.id);
+		}
+
+		void clear_constructs() 
+		{ foreach(PackedConstruct pc in packed_constructs.Values) remove_construct(pc); }
+
+		IEnumerator<YieldInstruction> store_constructs()
+		{
+			if(FlightGlobals.fetch == null || 
+				FlightGlobals.ActiveVessel == null ||
+				packed_constructs.Count == 0) 
+				yield break;
+			//wait for hangar.vessel to be loaded
+			VesselWaiter self = new VesselWaiter(vessel);
+			while(!self.launched) yield return new WaitForFixedUpdate();
+			while(!enabled) yield return new WaitForFixedUpdate();
+			//create vessels from constructs and store them
+			HangarState cur_state = hangar_state; Deactivate();
+			foreach(PackedConstruct pc in packed_constructs.Values)
+			{
+				remove_construct(pc);
+				GetLaunchTransform();
+				if(!pc.LoadConstruct()) 
+				{
+					Utils.Log("PackedConstruct: unable to load ShipConstruct {0}. " +
+						"This usually means that some parts are missing " +
+						"or some modules failed to initialize.", pc.name);
+					ScreenMessager.showMessage(string.Format("Unable to load {0}", pc.name), 3);
+					continue;
+				}
+				ShipConstruction.PutShipToGround(pc.construct, launchTransform);
+				ShipConstruction.AssembleForLaunch(pc.construct, "Hangar", pc.flag, 
+					FlightDriver.FlightStateCache,
+					new VesselCrewManifest());
+				VesselWaiter vsl = new VesselWaiter(FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1]);
+				FlightGlobals.ForceSetActiveVessel(vsl.vessel);
+				Staging.beginFlight();
+				//wait for vsl to be launched
+				while(!vsl.launched) yield return new WaitForFixedUpdate();
+				store_vessel(vsl.vessel, false);
+				//wait a 0.1 sec, otherwise the vessel may not be destroyed properly
+				yield return new WaitForSeconds(0.1f); 
+
+			}
+			stored_mass = Utils.formatMass(vessels_mass);
+			if(cur_state == HangarState.Active) Activate();
+			//save game afterwards
+			FlightGlobals.ForceSetActiveVessel(vessel);
+			while(!self.launched) yield return null;
+			yield return new WaitForSeconds(0.5f);
+			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
+		}
+		#endregion
+
 		#region Restore
 		#region Positioning
 		/// <summary>
@@ -625,117 +749,6 @@ namespace AtHangar
 		}
 		#endregion
 
-
-		#region EditHangarContents
-		bool try_store_construct(PackedConstruct pc)
-		{
-			GetLaunchTransform();
-			if(!pc.metric.FitsAligned(launchTransform, part.partTransform, hangar_metric))
-			{
-				ScreenMessager.showMessage(string.Format("{0} does not fit into this hangar", pc.name), 3);
-				return false;
-			}
-			if(!packed_constructs.Add(pc))
-			{
-				ScreenMessager.showMessage(string.Format("There's no room in the hangar for {0}", pc.name), 3);
-				return false;
-			}
-			return true;
-		}
-
-		void vessel_selected(string filename, string flagname)
-		{
-			EditorLogic EL = EditorLogic.fetch;
-			if(EL == null) return;
-			//load vessel config
-			vessel_selector = null;
-			PackedConstruct pc = new PackedConstruct(filename, flagname);
-			if(pc.construct == null) 
-			{
-				Utils.Log("PackedConstruct: unable to load ShipConstruct from {0}. " +
-					"This usually means that some parts are missing " +
-					"or some modules failed to initialize.", filename);
-				ScreenMessager.showMessage(string.Format("Unable to load {0}", filename), 3);
-				return;
-			}
-			//check if the construct contains launch clamps
-			if(Utils.HasLaunchClamp(pc.construct))
-			{
-				ScreenMessager.showMessage(string.Format("{0} has launch clamps. Remove them before storing.", pc.name), 3);
-				pc.UnloadConstruct();
-				return;
-			}
-			//check if it's possible to launch such vessel
-			bool cant_launch = false;
-			PreFlightCheck preFlightCheck = new PreFlightCheck(new Callback(() => cant_launch = false), new Callback(() => cant_launch = true));
-			preFlightCheck.AddTest(new PreFlightTests.ExperimentalPartsAvailable(pc.construct));
-			preFlightCheck.RunTests(); 
-			pc.UnloadConstruct();
-			//cleanup loaded parts and try to store construct
-			if(cant_launch) return;
-			if(try_store_construct(pc)) 
-				change_part_params(pc.metric);
-		}
-		void selection_canceled() { vessel_selector = null; }
-
-		void remove_construct(PackedConstruct pc)
-		{
-			change_part_params(pc.metric, -1f);
-			packed_constructs.Remove(pc.id);
-		}
-
-		void clear_constructs() 
-		{ foreach(PackedConstruct pc in packed_constructs.Values) remove_construct(pc); }
-
-		IEnumerator<YieldInstruction> store_constructs()
-		{
-			if(FlightGlobals.fetch == null || 
-				FlightGlobals.ActiveVessel == null ||
-				packed_constructs.Count == 0) 
-				yield break;
-			//wait for hangar.vessel to be loaded
-			VesselWaiter self = new VesselWaiter(vessel);
-			while(!self.launched) yield return new WaitForFixedUpdate();
-			while(!enabled) yield return new WaitForFixedUpdate();
-			//create vessels from constructs and store them
-			HangarState cur_state = hangar_state; Deactivate();
-			foreach(PackedConstruct pc in packed_constructs.Values)
-			{
-				remove_construct(pc);
-				GetLaunchTransform();
-				if(!pc.LoadConstruct()) 
-				{
-					Utils.Log("PackedConstruct: unable to load ShipConstruct {0}. " +
-						"This usually means that some parts are missing " +
-						"or some modules failed to initialize.", pc.name);
-					ScreenMessager.showMessage(string.Format("Unable to load {0}", pc.name), 3);
-					continue;
-				}
-				ShipConstruction.PutShipToGround(pc.construct, launchTransform);
-				ShipConstruction.AssembleForLaunch(pc.construct, "Hangar", pc.flag, 
-				                                   FlightDriver.FlightStateCache,
-				                                   new VesselCrewManifest());
-				VesselWaiter vsl = new VesselWaiter(FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1]);
-				FlightGlobals.ForceSetActiveVessel(vsl.vessel);
-				Staging.beginFlight();
-				//wait for vsl to be launched
-				while(!vsl.launched) yield return new WaitForFixedUpdate();
-				store_vessel(vsl.vessel, false);
-				//wait a 0.1 sec, otherwise the vessel may not be destroyed properly
-				yield return new WaitForSeconds(0.1f); 
-
-			}
-			stored_mass = Utils.formatMass(vessels_mass);
-			if(cur_state == HangarState.Active) Activate();
-			//save game afterwards
-			FlightGlobals.ForceSetActiveVessel(vessel);
-			while(!self.launched) yield return null;
-			yield return new WaitForSeconds(0.5f);
-			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
-		}
-		#endregion
-
-
 		#region Events&Actions
 		//events
 		[KSPEvent (guiActiveEditor = true, guiName = "Open gates", active = true)]
@@ -844,6 +857,8 @@ namespace AtHangar
 				GUILayout.Label(string.Format("{0}: {1}   Cost: {2:F1}", 
 				                              pc.name, Utils.formatMass(pc.metric.mass), pc.metric.cost), 
 				                Styles.label, GUILayout.ExpandWidth(true));
+				if(GUILayout.Button("+1", Styles.green_button, GUILayout.Width(25))) 
+				{ if(try_store_construct(pc.Clone())) change_part_params(pc.metric); }
 				if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) remove_construct(pc);
 				GUILayout.EndHorizontal();
 			}
