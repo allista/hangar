@@ -14,7 +14,7 @@ namespace AtHangar
 
 		//internal properties
 		const float crew_volume_ratio = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
-		float usefull_volume_ratio    = 0.7f;    //only 70% of the volume may be used by docking vessels
+		float usefull_volume_ratio    = 0.7f; //only 70% of the volume may be used by docking vessels
 		public float vessels_mass     = -1f;
 		public float vessels_cost     = -1f;
 		public float used_volume      = -1f;
@@ -33,7 +33,8 @@ namespace AtHangar
 		
 		//fields
 		[KSPField (isPersistant = false)] public string AnimatorID;
-		[KSPField (isPersistant = false)] public float  VolumePerKerbal = 3f; // m^3
+		[KSPField (isPersistant = false)] public float  EnergyConsumption = 0.75f;
+		[KSPField (isPersistant = false)] public float  VolumePerKerbal = 6.7f; // m^3
 		[KSPField (isPersistant = false)] public bool   StaticCrewCapacity = true;
 		[KSPField (isPersistant = true)]  public float  base_mass = -1f;
 		
@@ -83,7 +84,15 @@ namespace AtHangar
 				yield return new WaitForSeconds(0.5f);
 			}
 		}
-		
+
+		public override string GetInfo()
+		{
+			string info = "Energy Cosumption:\n";
+			info += string.Format("Hangar: {0}/sec\n", EnergyConsumption);
+			var gates = part.Modules.OfType<HangarAnimator>().FirstOrDefault(m => m.AnimatorID == AnimatorID);
+			if(gates != null) info += string.Format("Doors: {0}/sec\n", gates.EnergyConsumption);
+			return info;
+		}
 		
 		#region For HangarWindow
 		public List<StoredVessel> GetVessels() { return stored_vessels.Values; }
@@ -281,6 +290,27 @@ namespace AtHangar
 			}
 		}
 		#endregion
+
+		public void FixedUpdate()
+		{
+			//change vessel velocity if requested
+			if(change_velocity)
+			{
+				vessel.ChangeWorldVelocity((Vector3d.zero+deltaV).xzy);
+				change_velocity = false;
+				deltaV = Vector3.zero;
+			}
+			//consume energy if hangar is operational
+			if(hangar_state == HangarState.Active)
+			{
+				float request = EnergyConsumption*TimeWarp.fixedDeltaTime;
+				if(part.RequestResource("ElectricCharge", request) < request)
+				{
+					ScreenMessager.showMessage("Not enough energy. The hangar has deactivated.", 3);
+					Deactivate();
+				}
+			}
+		}
 		
 		#region Store
 		/// <summary>
@@ -614,16 +644,6 @@ namespace AtHangar
 				pv.longitude  = vessel.mainBody.GetLongitude(vpos);
 				pv.latitude   = vessel.mainBody.GetLatitude(vpos);
 				pv.altitude   = vessel.mainBody.GetAltitude(vpos);
-			}
-		}
-
-		public override void OnFixedUpdate()
-		{
-			if(change_velocity)
-			{
-				vessel.ChangeWorldVelocity((Vector3d.zero+deltaV).xzy);
-				change_velocity = false;
-				deltaV = Vector3.zero;
 			}
 		}
 
