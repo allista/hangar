@@ -13,8 +13,8 @@ namespace AtHangar
 
 	public class GasCompressor
 	{
-		public float ConversionRate { get; private set; }
-		public float ConsumptionRate { get; private set; }
+		public float ConversionRate { get; set; }
+		public float ConsumptionRate { get; set; }
 		Part part;
 
 		public GasCompressor(Part p) { part = p; ConsumptionRate = 1.0f; ConversionRate = 0.05f; }
@@ -62,7 +62,7 @@ namespace AtHangar
 		readonly List<AnimatedNode> animated_nodes = new List<AnimatedNode>();
 
 		public ConfigNode CompressorConfig = null;
-		GasCompressor compressor = null;
+		public GasCompressor Compressor { get; protected set; }
 		bool has_compressed_gas { get { return CompressedGas >= InflatableVolume; } }
 
 		Part   prefab = null;
@@ -78,10 +78,10 @@ namespace AtHangar
 		#region Info
 		public override string GetInfo()
 		{ 
-			if(compressor == null) return "";
+			if(Compressor == null) return "";
 			string info = "Compressor:\n";
-			info += string.Format("Rate: {0}/el.u.\n", Utils.formatVolume(compressor.ConversionRate));
-			info += string.Format("Power Consumption: {0} el.u./sec\n", compressor.ConsumptionRate);
+			info += string.Format("Rate: {0}/el.u.\n", Utils.formatVolume(Compressor.ConversionRate));
+			info += string.Format("Power Consumption: {0} el.u./sec\n", Compressor.ConsumptionRate);
 			return info;
 		}
 
@@ -159,8 +159,8 @@ namespace AtHangar
 			//load compressor
 			if(CompressorConfig != null)
 			{
-				compressor = new GasCompressor(part);
-				compressor.Load(CompressorConfig);
+				Compressor = new GasCompressor(part);
+				Compressor.Load(CompressorConfig);
 			}
 			//forbid surface attachment for the inflatable
 			part.attachRules.allowSrfAttach = false;
@@ -179,8 +179,8 @@ namespace AtHangar
 			{
 				CompressorConfig = node.GetNode("COMPRESSOR");
 				//for part info only
-				compressor = new GasCompressor(part);
-				compressor.Load(CompressorConfig);
+				Compressor = new GasCompressor(part);
+				Compressor.Load(CompressorConfig);
 			}
 			if(!node.HasValue("SavedState"))
 				State = PackedByDefault? AnimatorState.Closed : AnimatorState.Opened;
@@ -188,8 +188,9 @@ namespace AtHangar
 		#endregion
 
 		#region Updates
-		public void FixedUpdate()
+		public override void FixedUpdate()
 		{
+			base.FixedUpdate();
 			if(State == AnimatorState.Opening  || 
 				State == AnimatorState.Closing ||
 				just_loaded) 
@@ -205,9 +206,9 @@ namespace AtHangar
 					part.BreakConnectedStruts();
 				}
 			}
-			if(compressor != null && !has_compressed_gas)
+			if(Compressor != null && !has_compressed_gas)
 			{
-				CompressedGas += compressor.CompressGas();
+				CompressedGas += Compressor.CompressGas();
 				if(has_compressed_gas) ToggleEvents();
 			}
 		}
