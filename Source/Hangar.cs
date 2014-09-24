@@ -116,6 +116,8 @@ namespace AtHangar
 		public void ShowUI () { HangarWindow.ShowGUI (); }
 		
 		public int numVessels() { return stored_vessels.Count; }
+
+		public bool IsControllable { get { return vessel.IsControllable || part.protoModuleCrew.Count > 0; } }
 		#endregion
 		
 		
@@ -358,7 +360,6 @@ namespace AtHangar
 				m.FitsAligned(launch_transform, part.partTransform, hangar_metric) : 
 				m.FitsAligned(launch_transform, hangar_space.transform, hangar_space.sharedMesh);
 		}
-
 		
 		StoredVessel try_store(Vessel vsl)
 		{
