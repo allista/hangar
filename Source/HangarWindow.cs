@@ -233,14 +233,23 @@ namespace AtHangar
 		
 		void ToggleGatesButton()
 		{
-			if(selected_hangar.gates_state == AnimatorState.Closed ||
-			   selected_hangar.gates_state == AnimatorState.Closing)
+			switch(selected_hangar.gates_state)
 			{
+			case AnimatorState.Closed:
 				if(GUILayout.Button("Open Gates", Styles.green_button, GUILayout.ExpandWidth(true)))
 					selected_hangar.Open();
-			}
-			else if(GUILayout.Button("Close Gates", Styles.red_button, GUILayout.ExpandWidth(true)))
+				break;
+			case AnimatorState.Opened:
+				if(GUILayout.Button("Close Gates", Styles.red_button, GUILayout.ExpandWidth(true)))
 					selected_hangar.Close();
+				break;
+			case AnimatorState.Closing:
+				GUILayout.Label("Closing", Styles.white, GUILayout.ExpandWidth(true));
+				break;
+			case AnimatorState.Opening:
+				GUILayout.Label("Opening", Styles.white, GUILayout.ExpandWidth(true));
+				break;
+			}
 		}
 		
 		void ToggleStateButton()
@@ -456,7 +465,7 @@ namespace AtHangar
 			if(vessel_metric == null) return;
 			if(Event.current.type != EventType.Layout) return;
 			base.OnGUI();
-			if(hangars.Count > 0)
+			if(hangars.Count > 0)// && InputLockManager.IsUnlocked(ControlTypes.ALL_SHIP_CONTROLS))
 			{
 				//controls
 				string hstate = selected_hangar.hangar_state.ToString();
