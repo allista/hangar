@@ -228,7 +228,19 @@ namespace AtHangar
 	}
 
 	public class HangarUpdater : ModuleUpdater<Hangar>
-	{ public override void OnRescale(Scale scale) { module.Setup(true); } }
+	{ 
+		public override void OnRescale(Scale scale) 
+		{ 
+			module.Setup(true);
+			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect;
+		}
+	}
+
+	public class AnimatorUpdater : ModuleUpdater<HangarAnimator>
+	{ 
+		public override void OnRescale(Scale scale) 
+		{ module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect; }
+	}
 
 	public class ReactionWheelUpdater : ModuleUpdater<ModuleReactionWheel>
 	{
@@ -247,7 +259,9 @@ namespace AtHangar
 		public override void OnRescale(Scale scale)
 		{
 			module.InflatableVolume = base_module.InflatableVolume * scale.absolute.cube;
-			module.CompressedGas *= scale.relative.cube;
+			module.CompressedGas   *= scale.relative.cube;
+			module.Compressor.ConversionRate  = base_module.Compressor.ConversionRate * scale.absolute.cube * scale.absolute.aspect;
+			module.Compressor.ConsumptionRate = base_module.Compressor.ConsumptionRate * scale.absolute.cube * scale.absolute.aspect;
 		}
 	}
 
