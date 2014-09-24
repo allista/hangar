@@ -69,8 +69,6 @@ namespace AtHangar
 
 		public virtual void Update()
         {
-			if(speed_multiplier == 0) return;
-
             if (State == AnimatorState.Opening && animation_states.TrueForAll(s => s.normalizedTime >= 1))
                 State = AnimatorState.Opened;
             else if (State == AnimatorState.Closing && animation_states.TrueForAll(s => s.normalizedTime <= 0))
