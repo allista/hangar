@@ -465,7 +465,7 @@ namespace AtHangar
 			if(vessel_metric == null) return;
 			if(Event.current.type != EventType.Layout) return;
 			base.OnGUI();
-			if(hangars.Count > 0)// && InputLockManager.IsUnlocked(ControlTypes.ALL_SHIP_CONTROLS))
+			if(hangars.Count > 0 && selected_hangar.IsControllable)
 			{
 				//controls
 				string hstate = selected_hangar.hangar_state.ToString();
