@@ -164,8 +164,10 @@ namespace AtHangar
 			}
 			//forbid surface attachment for the inflatable
 			part.attachRules.allowSrfAttach = false;
+			//ignore DragMultiplier as Drag is changed with volume
+			DragMultiplier = 1f;
+			//update part, GUI and set the flag
 			UpdatePart();
-			//update GUI and set the flag
 			ToggleEvents();
 			StartCoroutine(UpdateStatus());
 			gui_state = this.DeactivateGUI();

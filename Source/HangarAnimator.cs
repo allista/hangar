@@ -12,7 +12,9 @@ namespace AtHangar
 		[KSPField(isPersistant = false)] public float  ForwardSpeed = 1f;
 		[KSPField(isPersistant = false)] public float  ReverseSpeed = 1f;
 		[KSPField(isPersistant = false)] public float  EnergyConsumption = 0f;
+		[KSPField(isPersistant = false)] public float  DragMultiplier = 1f;
 		[KSPField(isPersistant = true)]  public float  progress = 0f;
+		float last_progress    = 0f;
 		float speed_multiplier = 1f;
 		
 		//animation
@@ -85,19 +87,28 @@ namespace AtHangar
 				else speed *= speed_multiplier;
 				state.speed = speed;
             }
+			last_progress = progress;
 			progress = _progress;
         }
 
 		public virtual void FixedUpdate()
 		{
 			//consume energy if doors are mooving
-			if(EnergyConsumption == 0) return;
-			if(State == AnimatorState.Closing || State == AnimatorState.Opening)
+			if(EnergyConsumption > 0 && 
+				(State == AnimatorState.Closing || State == AnimatorState.Opening))
 			{
 				float request = EnergyConsumption*TimeWarp.fixedDeltaTime;
 				float consumed = part.RequestResource("ElectricCharge", request);
 				speed_multiplier = consumed/request;
 				if(speed_multiplier < 0.01f) speed_multiplier = 0f;
+			}
+			//change Drag according to the animation progress
+			if(DragMultiplier != 1 && last_progress != progress)
+			{
+				float mult = 1 + (DragMultiplier-1)*progress;
+				part.maximum_drag = part.partInfo.partPrefab.maximum_drag * mult;
+				part.minimum_drag = part.partInfo.partPrefab.minimum_drag * mult;
+				part.angularDrag  = part.partInfo.partPrefab.angularDrag  * mult;
 			}
 		}
 	}
