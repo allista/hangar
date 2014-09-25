@@ -54,7 +54,8 @@ namespace AtHangar
 		Vessel launched_vessel;
 
 		//in-editor vessel docking
-		static readonly string eLock = "Hangar.EditHangar";
+		static readonly string eLock  = "Hangar.EditHangar";
+		static readonly string scLock = "Hangar.LoadShipConstruct";
 		static readonly List<string> vessel_dirs = new List<string>{"VAB", "SPH", "../Subassemblies"};
 		Rect eWindowPos     = new Rect(Screen.width/2-200, 100, 400, 100);
 		Rect neWindowPos    = new Rect(Screen.width/2-200, 100, 400, 50);
@@ -158,7 +159,7 @@ namespace AtHangar
 			Setup();
 			StartCoroutine(UpdateStatus());
 			//store packed constructs if any
-			if(packed_constructs.Count > 0) StartCoroutine(store_constructs());
+			if(packed_constructs.Count > 0) StartCoroutine(convert_constructs_to_vessels());
 			//set vessel type
 			EditorLogic el = EditorLogic.fetch;
 			if(el != null) vessel_type = el.editorType == EditorLogic.EditorMode.SPH ? VesselType.SPH : VesselType.VAB;
@@ -296,21 +297,24 @@ namespace AtHangar
 		#region Physics changes
 		public void FixedUpdate()
 		{
-			//change vessel velocity if requested
-			if(change_velocity)
+			if(HighLogic.LoadedSceneIsFlight)
 			{
-				vessel.ChangeWorldVelocity((Vector3d.zero+deltaV).xzy);
-				change_velocity = false;
-				deltaV = Vector3.zero;
-			}
-			//consume energy if hangar is operational
-			if(hangar_state == HangarState.Active)
-			{
-				float request = EnergyConsumption*TimeWarp.fixedDeltaTime;
-				if(part.RequestResource("ElectricCharge", request) < request)
+				//change vessel velocity if requested
+				if(change_velocity)
 				{
-					ScreenMessager.showMessage("Not enough energy. The hangar has deactivated.", 3);
-					Deactivate();
+					vessel.ChangeWorldVelocity((Vector3d.zero+deltaV).xzy);
+					change_velocity = false;
+					deltaV = Vector3.zero;
+				}
+				//consume energy if hangar is operational
+				if(hangar_state == HangarState.Active)
+				{
+					float request = EnergyConsumption*TimeWarp.fixedDeltaTime;
+					if(part.RequestResource("ElectricCharge", request) < request)
+					{
+						ScreenMessager.showMessage("Not enough energy. The hangar has deactivated.", 3);
+						Deactivate();
+					}
 				}
 			}
 		}
@@ -479,6 +483,19 @@ namespace AtHangar
 			return true;
 		}
 
+		IEnumerator<YieldInstruction> delayed_try_store_construct(PackedConstruct pc)
+		{
+			if(pc.construct == null) yield break;
+			Utils.LockEditor(scLock);
+			for(int i = 0; i < 3; i++)
+				yield return new WaitForEndOfFrame();
+			pc.UpdateMetric();
+			if(try_store_construct(pc)) 
+				change_part_params(pc.metric);
+			pc.UnloadConstruct();
+			Utils.LockEditor(scLock, false);
+		}
+
 		void vessel_selected(string filename, string flagname)
 		{
 			EditorLogic EL = EditorLogic.fetch;
@@ -506,11 +523,9 @@ namespace AtHangar
 			PreFlightCheck preFlightCheck = new PreFlightCheck(new Callback(() => cant_launch = false), new Callback(() => cant_launch = true));
 			preFlightCheck.AddTest(new PreFlightTests.ExperimentalPartsAvailable(pc.construct));
 			preFlightCheck.RunTests(); 
-			pc.UnloadConstruct();
 			//cleanup loaded parts and try to store construct
-			if(cant_launch) return;
-			if(try_store_construct(pc)) 
-				change_part_params(pc.metric);
+			if(cant_launch) pc.UnloadConstruct();
+			else StartCoroutine(delayed_try_store_construct(pc));
 		}
 		void selection_canceled() { vessel_selector = null; }
 
@@ -523,7 +538,7 @@ namespace AtHangar
 		void clear_constructs() 
 		{ foreach(PackedConstruct pc in packed_constructs.Values) remove_construct(pc); }
 
-		IEnumerator<YieldInstruction> store_constructs()
+		IEnumerator<YieldInstruction> convert_constructs_to_vessels()
 		{
 			if(FlightGlobals.fetch == null || 
 				FlightGlobals.ActiveVessel == null ||
@@ -531,7 +546,7 @@ namespace AtHangar
 				yield break;
 			//wait for hangar.vessel to be loaded
 			VesselWaiter self = new VesselWaiter(vessel);
-			while(!self.launched) yield return new WaitForFixedUpdate();
+			while(!self.loaded) yield return new WaitForFixedUpdate();
 			while(!enabled) yield return new WaitForFixedUpdate();
 			//create vessels from constructs and store them
 			HangarState cur_state = hangar_state; Deactivate();
@@ -555,7 +570,7 @@ namespace AtHangar
 				FlightGlobals.ForceSetActiveVessel(vsl.vessel);
 				Staging.beginFlight();
 				//wait for vsl to be launched
-				while(!vsl.launched) yield return new WaitForFixedUpdate();
+				while(!vsl.loaded) yield return new WaitForFixedUpdate();
 				store_vessel(vsl.vessel, false);
 				//wait a 0.1 sec, otherwise the vessel may not be destroyed properly
 				yield return new WaitForSeconds(0.1f); 
@@ -565,7 +580,7 @@ namespace AtHangar
 			if(cur_state == HangarState.Active) Activate();
 			//save game afterwards
 			FlightGlobals.ForceSetActiveVessel(vessel);
-			while(!self.launched) yield return null;
+			while(!self.loaded) yield return null;
 			yield return new WaitForSeconds(0.5f);
 			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
 		}
@@ -653,7 +668,7 @@ namespace AtHangar
 		//static coroutine launched from a DontDestroyOnLoad sentinel object allows to execute code while the scene is switching
 		static IEnumerator<YieldInstruction> setup_vessel(UnityEngine.Object sentinel, LaunchedVessel lv)
 		{
-			while(!lv.launched) yield return new WaitForFixedUpdate();
+			while(!lv.loaded) yield return new WaitForFixedUpdate();
 			lv.tunePosition();
 			lv.stiffenWheels();
 			lv.transferCrew();
@@ -931,7 +946,7 @@ namespace AtHangar
 			if(GUILayout.Button("Clear", Styles.red_button, GUILayout.ExpandWidth(true))) clear_constructs();
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
-				Utils.LockIfMouseOver(eLock, eWindowPos, false);
+				Utils.LockEditor(eLock, false);
 				editing_hangar = false;
 			}
 			GUILayout.EndVertical();
@@ -944,7 +959,7 @@ namespace AtHangar
 			HangarName = GUILayout.TextField(HangarName, 50);
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
-				Utils.LockIfMouseOver(eLock, neWindowPos, false);
+				Utils.LockEditor(eLock, false);
 				editing_hangar_name = false;
 			}
 			GUILayout.EndVertical();
@@ -967,7 +982,7 @@ namespace AtHangar
 			{
 				if(vessel_selector == null) 
 				{
-					Utils.LockIfMouseOver(eLock, eWindowPos, true);
+					Utils.LockIfMouseOver(eLock, eWindowPos);
 					eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
 								                  hangar_content_editor,
 								                  "Choose vessel type",
@@ -976,14 +991,14 @@ namespace AtHangar
 				}
 				else 
 				{
-					Utils.LockIfMouseOver(eLock, vessel_selector.windowRect, true);
+					Utils.LockIfMouseOver(eLock, vessel_selector.windowRect);
 					vessel_selector.OnGUI();
 				}
 			}
 			//edit name
 			else if(editing_hangar_name)
 			{
-				Utils.LockIfMouseOver(eLock, neWindowPos, true);
+				Utils.LockIfMouseOver(eLock, neWindowPos);
 				neWindowPos = GUILayout.Window(GetInstanceID(), neWindowPos,
 											   hangar_name_editor,
 											   "Rename Hangar",

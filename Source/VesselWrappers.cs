@@ -26,6 +26,12 @@ namespace AtHangar
 			return true;
 		}
 
+		public void UpdateMetric()
+		{ 
+			if(construct == null) return;
+			metric = new Metric(construct.Parts); 
+		}
+
 		public void UnloadConstruct() 
 		{ 
 			if(construct == null) return;
@@ -37,19 +43,6 @@ namespace AtHangar
 			construct = null; 
 		}
 
-		public void DisablePhysics()
-		{
-			if(construct == null) return;
-			foreach(Part p in construct.Parts)
-				if(p.Rigidbody != null) p.Rigidbody.Sleep();
-		}
-		public void EnablePhysics()
-		{
-			if(construct == null) return;
-			foreach(Part p in construct.Parts)
-				if(p.Rigidbody != null) p.Rigidbody.WakeUp();
-		}
-
 		public PackedConstruct() {}
 
 		public PackedConstruct(string file, string flag)
@@ -58,9 +51,9 @@ namespace AtHangar
 			vessel_node = ConfigNode.Load(file);
 			vessel_node.name = "VESSEL";
 			if(!LoadConstruct()) return;
-			metric = new Metric(construct.Parts);
 			name = construct.shipName;
 			id = Guid.NewGuid();
+			UpdateMetric();
 		}
 
 		protected PackedConstruct(PackedConstruct pc)
@@ -205,29 +198,35 @@ namespace AtHangar
 		}
 	}
 
-
+	#region Waiters
 	public class VesselWaiter
 	{
 		public Vessel vessel;
 		public VesselWaiter(Vessel vsl) { vessel = vsl; }
 
-		public bool launched
+		protected static bool parts_inited(List<Part> parts)
+		{
+			bool inited = true;
+			foreach(Part p in parts)
+			{
+				if(!p.started)
+				{
+					inited = false;
+					break;
+				}
+			}
+			return inited;
+		}
+
+		public bool loaded
 		{
 			get 
 			{
 				if(vessel.id != FlightGlobals.ActiveVessel.id) return false;
 				vessel = FlightGlobals.ActiveVessel;
-				bool parts_inited = true;
-				foreach(Part p in vessel.parts)
-				{
-					if(!p.started)
-					{
-						parts_inited = false;
-						OrbitPhysicsManager.HoldVesselUnpack(2);
-						break;
-					}
-				}
-				return parts_inited;
+				if(parts_inited(vessel.parts)) return true;
+				OrbitPhysicsManager.HoldVesselUnpack(2);
+				return false;
 			}
 		}
 	}
@@ -265,5 +264,6 @@ namespace AtHangar
 			}
 		}
 	}
+	#endregion
 }
 
