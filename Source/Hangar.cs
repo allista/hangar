@@ -293,6 +293,7 @@ namespace AtHangar
 		}
 		#endregion
 
+		#region Physics changes
 		public void FixedUpdate()
 		{
 			//change vessel velocity if requested
@@ -313,6 +314,7 @@ namespace AtHangar
 				}
 			}
 		}
+		#endregion
 		
 		#region Store
 		/// <summary>
