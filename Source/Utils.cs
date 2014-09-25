@@ -146,29 +146,30 @@ namespace AtHangar
 		#endregion
 
 		#region ControlLock
-		public static void LockIfMouseOver(string LockName, Rect WindowRect, bool Lock)
-		//taken from Kerbal Alarm Clock mod
+		//modified from Kerbal Alarm Clock mod
+		public static void LockEditor(string LockName, bool Lock=true)
 		{
-			if(Lock && WindowRect.Contains(Event.current.mousePosition))
+			if(Lock && InputLockManager.GetControlLock(LockName) != ControlTypes.EDITOR_LOCK)
 			{
-				if(InputLockManager.GetControlLock(LockName) != ControlTypes.EDITOR_LOCK)
-				{
-					#if DEBUG
-					Log("AddingLock: {0}", LockName);
-					#endif
-					InputLockManager.SetControlLock(ControlTypes.EDITOR_LOCK, LockName);
-				}
+				#if DEBUG
+				Log("AddingLock: {0}", LockName);
+				#endif
+				InputLockManager.SetControlLock(ControlTypes.EDITOR_LOCK, LockName);
+				return;
 			}
-			else
+			if(!Lock && InputLockManager.GetControlLock(LockName) == ControlTypes.EDITOR_LOCK) 
 			{
-				if (InputLockManager.GetControlLock(LockName) == ControlTypes.EDITOR_LOCK) 
-				{
-					#if DEBUG
-					Log("RemovingLock: {0}", LockName);
-					#endif
-					InputLockManager.RemoveControlLock(LockName);
-				}
+				#if DEBUG
+				Log("RemovingLock: {0}", LockName);
+				#endif
+				InputLockManager.RemoveControlLock(LockName);
 			}
+		}
+
+		public static void LockIfMouseOver(string LockName, Rect WindowRect, bool Lock=true)
+		{
+			Lock &= WindowRect.Contains(Event.current.mousePosition);
+			LockEditor(LockName, Lock);
 		}
 		#endregion
 		
@@ -245,18 +246,17 @@ namespace AtHangar
 		{
 			string crew_str = "";
 			foreach(ProtoCrewMember c in crew)
-			{
-				if(crew_str != "") crew_str += "\n";
-				crew_str += string.Format("{0}, seat {1}, seatIdx {2}, roster {3}, ref {4}", c.name, c.seat, c.seatIdx, c.rosterStatus, c.KerbalRef);
-			}
-			Debug.Log(crew_str);
+				crew_str += string.Format("\n{0}, seat {1}, seatIdx {2}, roster {3}, ref {4}", 
+					c.name, c.seat, c.seatIdx, c.rosterStatus, c.KerbalRef);
+			Log("Crew List:{0}", crew_str);
 		}
 		
-		public static void logVector(Vector3 v) { Debug.Log(formatVector(v)); }
-		public static void logVector(Vector3d v) { Debug.Log(formatVector(v)); }
-
 		public static void logVectors(IEnumerable<Vector3> vecs)
-		{ foreach(Vector3 v in vecs) Debug.Log(formatVector(v)); }
+		{ 
+			string vs = "";
+			foreach(Vector3 v in vecs) vs += "\n"+formatVector(v);
+			Log("Vectors:{0}", vs);
+		}
 
 		public static Vector3d planetaryPosition(Vector3 v, CelestialBody planet) 
 		{ 
@@ -267,26 +267,25 @@ namespace AtHangar
 		}
 
 		public static void logPlanetaryPosition(Vector3 v, CelestialBody planet) 
-		{ 
-			double lng = planet.GetLongitude(v);
-			double lat = planet.GetLatitude(v);
-			double alt = planet.GetAltitude(v);
-			Debug.Log(formatVector(planet.GetWorldSurfacePosition(lat, lng, alt)));
-		}
+		{ Log("Planetary position: {0}", planetaryPosition(v, planet));	}
 
 		public static void logLongLatAlt(Vector3 v, CelestialBody planet) 
 		{ 
 			double lng = planet.GetLongitude(v);
 			double lat = planet.GetLatitude(v);
 			double alt = planet.GetAltitude(v);
-			Debug.Log(string.Format("Long: {0}, Lat: {1}, Alt: {2}", lng, lat, alt));
+			Log("Long: {0}, Lat: {1}, Alt: {2}", lng, lat, alt);
 		}
 		
 		public static void logBounds(Bounds b)
 		{
-			Debug.Log(string.Format("Center:  {0}", formatVector(b.center)));
-			Debug.Log(string.Format("Extents: {0}", formatVector(b.extents)));
-			Debug.Log(string.Format("Bounds:\n{0}\n{1}", formatVector(b.center+b.extents), formatVector(b.center-b.extents)));
+			Log("Bounds:\n" +
+				"Center:  {0}\n" +
+				"Extents: {1}\n" +
+				"Min:     {2}\n" +
+				"Max:     {3}\n" +
+				"=========", 
+				b.center, b.extents, b.min, b.max);
 		}
 		
 		public static void logProtovesselCrew(ProtoVessel pv)
