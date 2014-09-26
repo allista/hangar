@@ -145,6 +145,38 @@ namespace AtHangar
 		}
 		#endregion
 
+		#region Misc
+		//sound (from the KAS mod; KAS_Shared class)
+		public static bool createFXSound(Part part, FXGroup group, string sndPath, bool loop, float maxDistance = 30f)
+		{
+			group.audio = part.gameObject.AddComponent<AudioSource>();
+			group.audio.volume = GameSettings.SHIP_VOLUME;
+			group.audio.rolloffMode = AudioRolloffMode.Linear;
+			group.audio.dopplerLevel = 0f;
+			group.audio.panLevel = 1f;
+			group.audio.maxDistance = maxDistance;
+			group.audio.loop = loop;
+			group.audio.playOnAwake = false;
+			if (GameDatabase.Instance.ExistsAudioClip(sndPath))
+			{
+				group.audio.clip = GameDatabase.Instance.GetAudioClip(sndPath);
+				return true;
+			}
+			ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " as not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
+			return false;
+		}
+
+		public static void UpdateEditorGUI()
+		{ if(EditorLogic.fetch != null)	GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship); }
+
+		public static bool HasLaunchClamp(IEnumerable<Part> parts)
+		{
+			foreach(Part p in parts)
+			{ if(p.HasModule<LaunchClamp>()) return true; }
+			return false;
+		}
+		#endregion
+
 		#region ControlLock
 		//modified from Kerbal Alarm Clock mod
 		public static void LockEditor(string LockName, bool Lock=true)
@@ -191,36 +223,6 @@ namespace AtHangar
 		public static string formatDimensions(Vector3 size)
 		{ return string.Format("{0:F2}m x {1:F2}m x {2:F2}m", size.x, size.y, size.z); }
 		
-		
-		//sound (from the KAS mod; KAS_Shared class)
-		public static bool createFXSound(Part part, FXGroup group, string sndPath, bool loop, float maxDistance = 30f)
-        {
-            group.audio = part.gameObject.AddComponent<AudioSource>();
-            group.audio.volume = GameSettings.SHIP_VOLUME;
-            group.audio.rolloffMode = AudioRolloffMode.Linear;
-            group.audio.dopplerLevel = 0f;
-            group.audio.panLevel = 1f;
-            group.audio.maxDistance = maxDistance;
-            group.audio.loop = loop;
-            group.audio.playOnAwake = false;
-            if (GameDatabase.Instance.ExistsAudioClip(sndPath))
-            {
-                group.audio.clip = GameDatabase.Instance.GetAudioClip(sndPath);
-                return true;
-            }
-            ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " as not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
-            return false;
-        }
-
-		public static bool HasLaunchClamp(IEnumerable<Part> parts)
-		{
-			foreach(Part p in parts)
-			{ if(p.HasModule<LaunchClamp>()) return true; }
-			return false;
-		}
-
-		public static void UpdateEditorGUI()
-		{ if(EditorLogic.fetch != null)	GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship); }
 		
 		#region Debug
 		public static string formatVector(Vector3 v)
