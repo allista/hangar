@@ -63,8 +63,13 @@ namespace AtHangar
 				List<Part> parts = new List<Part>();
 				try { parts = EditorLogic.SortedShipList; }
 				catch (NullReferenceException) { return; }
+				#if !DEBUG
 				if(parts.Count > 0 && parts[0] != null)
 					vessel_metric = new Metric(parts);
+				#else
+				if(parts.Count > 0 && parts[0] != null)
+					vessel_metric = new Metric(parts, true);
+				#endif
 			}
 		}
 		
@@ -545,6 +550,7 @@ namespace AtHangar
 				catch (NullReferenceException) { return; }
 				if(parts.Count == 0 || parts[0] == null) return;
 				vessel_metric.DrawCenter(parts[0].partTransform);
+				Utils.DrawHull(vessel_metric, parts[0].partTransform);
 			}
 			else 
 			{
