@@ -187,8 +187,8 @@ namespace AtHangar
 			stored_vessels.space = hangar_metric;
 			packed_constructs.space = hangar_metric;
 			//display recalculated values
-			hangar_v  = Utils.formatVolume(hangar_metric.volume);
-			hangar_d  = Utils.formatDimensions(hangar_metric.size);
+			hangar_v = Utils.formatVolume(hangar_metric.volume);
+			hangar_d = Utils.formatDimensions(hangar_metric.size);
 			//now recalculate used volume
 			if(reset)
 			{   //if resetting, try to repack vessels on resize
@@ -201,7 +201,7 @@ namespace AtHangar
 			//calculate used_volume
 			used_volume = 0;
 			foreach(StoredVessel sv in stored_vessels.Values) used_volume += sv.volume;
-			foreach(PackedConstruct pc in packed_constructs.Values) used_volume += pc.metric.volume;
+			foreach(PackedConstruct pc in packed_constructs.Values) used_volume += pc.volume;
 			//then set other part parameters
 			set_part_params(reset);
 		}
@@ -214,14 +214,14 @@ namespace AtHangar
 			{
 				vessels_mass = 0;
 				foreach(StoredVessel sv in stored_vessels.Values) vessels_mass += sv.mass;
-				foreach(PackedConstruct pc in packed_constructs.Values) vessels_mass += pc.metric.mass;
+				foreach(PackedConstruct pc in packed_constructs.Values) vessels_mass += pc.mass;
 				stored_mass = Utils.formatMass(vessels_mass);
 			}
 			if(vessels_cost < 0 || reset)
 			{
 				vessels_cost = 0;
 				foreach(StoredVessel sv in stored_vessels.Values) vessels_cost += sv.cost;
-				foreach(PackedConstruct pc in packed_constructs.Values) vessels_cost += pc.metric.cost;
+				foreach(PackedConstruct pc in packed_constructs.Values) vessels_cost += pc.cost;
 				stored_cost = vessels_cost.ToString();
 			}
 			//set part mass
