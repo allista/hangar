@@ -94,13 +94,16 @@ namespace AtHangar
 		public virtual void FixedUpdate()
 		{
 			//consume energy if doors are mooving
-			if(EnergyConsumption > 0 && 
-				(State == AnimatorState.Closing || State == AnimatorState.Opening))
+			if(HighLogic.LoadedSceneIsFlight)
 			{
-				float request = EnergyConsumption*TimeWarp.fixedDeltaTime;
-				float consumed = part.RequestResource("ElectricCharge", request);
-				speed_multiplier = consumed/request;
-				if(speed_multiplier < 0.01f) speed_multiplier = 0f;
+				if(EnergyConsumption > 0 && 
+					(State == AnimatorState.Closing || State == AnimatorState.Opening))
+				{
+					float request = EnergyConsumption*TimeWarp.fixedDeltaTime;
+					float consumed = part.RequestResource("ElectricCharge", request);
+					speed_multiplier = consumed/request;
+					if(speed_multiplier < 0.01f) speed_multiplier = 0f;
+				}
 			}
 			//change Drag according to the animation progress
 			if(DragMultiplier != 1 && last_progress != progress)
