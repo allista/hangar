@@ -84,6 +84,7 @@
     <Compile Include="WheelUpdater.cs" />
     <Compile Include="ProceduralAdapter.cs" />
     <Compile Include="TruncatedCone.cs" />
+    <Compile Include="ConvexHull3D.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
