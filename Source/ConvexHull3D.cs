@@ -15,6 +15,7 @@ namespace AtHangar
 
 	public class Face : IEnumerable<Vector3>
 	{
+		int i0, i1, i2;
 		public Plane   P  { get; private set; }
 		public Vector3 v0 { get; private set; }
 		public Vector3 v1 { get; private set; }
@@ -38,15 +39,50 @@ namespace AtHangar
 			var t = v0; v0 = v1; v1 = t;
 		}
 
-		public Face(Vector3 v0, Vector3 v1, Vector3 v2)
+		void init()
 		{
-			this.v0 = v0; this.v1 = v1; this.v2 = v2;
 			c = ConvexHull3D.Centroid(v0, v1, v2);
 			P = new Plane(v0, v1, v2);
 		}
 
+		public Face() {}
+		public Face(Vector3 v0, Vector3 v1, Vector3 v2)
+		{
+			this.v0 = v0; this.v1 = v1; this.v2 = v2;
+			init();
+		}
 		public Face(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 p)
 			: this(v0,v1,v2) { Orient(p); }
+
+		public void UpdateIndices(List<Vector3> points)
+		{
+			i0 = points.FindIndex(p => p.Equals(v0));
+			i1 = points.FindIndex(p => p.Equals(v1));
+			i2 = points.FindIndex(p => p.Equals(v2));
+		}
+
+		public void UpdateFromIndices(List<Vector3> points)
+		{
+			v0 = points[i0];
+			v1 = points[i1];
+			v2 = points[i2];
+			init();
+		}
+
+		public void Save(ConfigNode node)
+		{
+			node.AddValue("i0", i0);
+			node.AddValue("i1", i1);
+			node.AddValue("i2", i2);
+		}
+
+		public void Load(ConfigNode node, List<Vector3> points)
+		{
+			i0 = int.Parse(node.GetValue("i0"));
+			i1 = int.Parse(node.GetValue("i1"));
+			i2 = int.Parse(node.GetValue("i2"));
+			UpdateFromIndices(points);
+		}
 	}
 
 	public class ConvexHull3D : IEnumerable<Vector3>
@@ -68,25 +104,30 @@ namespace AtHangar
 			return c;
 		}
 
-		public ConvexHull3D(List<Vector3> points)
+		public ConvexHull3D()
+		{
+			Points = new List<Vector3>();
+			Faces  = new List<Face>();
+		}
+
+		public ConvexHull3D(List<Vector3> points) : this()
 		{
 			//initial checks
 			if(points.Count < 4) 
 				throw new NotSupportedException(string.Format("[Hangar] ConvexHull3D needs at least 4 edges, {0} given", points.Count));
-			if(points.Count == 4) //trivial case
-			{
-				Points = points;
-				return;
-			}
-			//lists of faces
-			Faces = new List<Face>();
 			//build the seed tetrahedron
 			var c0 = Centroid(points.GetRange(0,4).ToArray());
 			Faces.Add(new Face(points[0], points[1], points[2], c0));
 			Faces.Add(new Face(points[3], points[1], points[2], c0));
 			Faces.Add(new Face(points[3], points[2], points[3], c0));
 			Faces.Add(new Face(points[3], points[1], points[3], c0));
-			//incrementally udate the seed
+			//if this is a tetrahedron, all is done
+			if(points.Count == 4)
+			{
+				Points.AddRange(points);
+				return;
+			}
+			//otherwise incrementally udate the seed
 			Update(points.GetRange(4,points.Count-4));
 		}
 		public ConvexHull3D(Vector3[] points) : this(new List<Vector3>(points)) {}
@@ -138,28 +179,39 @@ namespace AtHangar
 					if(f != null) Faces.Add(f);
 				}
 			}
+			Points.Clear();
 			Faces.ForEach(Points.AddRange);
+		}
+
+		/// <summary>
+		/// Updates indices of vertices of faces.
+		/// Use it BEFORE Save.
+		/// </summary>
+		public void UpdateFaces() { Faces.ForEach(f => f.UpdateIndices(Points)); }
+
+		public void Scale(float s)
+		{
+			for(int i = 0; i < Points.Count; i++) Points[i] = Points[i]*s;
+			Faces.ForEach(f => f.UpdateFromIndices(Points));
 		}
 
 		public void Save(ConfigNode node)
 		{
+			ConfigNode points = node.AddNode("POINTS");
+			ConfigNode faces  = node.AddNode("FACES");
 			foreach(Vector3 p in Points)
-				node.AddValue("point", ConfigNode.WriteVector(p));
+				points.AddValue("point", ConfigNode.WriteVector(p));
+			foreach(Face f in Faces) 
+				f.Save(faces.AddNode("FACE"));
 		}
 
 		public void Load(ConfigNode node)
 		{
-			Points.Clear();
-			foreach(ConfigNode.Value v in node.values)
-			{
-				Vector3 p;
-				try 
-				{ 
-					p = ConfigNode.ParseVector3(v.value); 
-					Points.Add(p);
-				}
-				catch(Exception ex)	{ Debug.LogException(ex); }
-			}
+			Points.Clear(); Faces.Clear();
+			foreach(ConfigNode.Value v in node.GetNode("POINTS").values)
+				Points.Add(ConfigNode.ParseVector3(v.value));
+			foreach(ConfigNode n in node.GetNode("FACES").nodes)	
+			{ Face f = new Face(); f.Load(n, Points); }
 		}
 	}
 }
