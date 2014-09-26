@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,10 +25,10 @@ namespace AtHangar
 			return true;
 		}
 
-		public void UpdateMetric()
+		public void UpdateMetric(bool compute_hull = false)
 		{ 
 			if(construct == null) return;
-			metric = new Metric(construct.Parts); 
+			metric = new Metric(construct.Parts, compute_hull); 
 		}
 
 		public void UnloadConstruct() 
@@ -53,7 +52,7 @@ namespace AtHangar
 			if(!LoadConstruct()) return;
 			name = construct.shipName;
 			id = Guid.NewGuid();
-			UpdateMetric();
+			metric = new Metric();
 		}
 
 		protected PackedConstruct(PackedConstruct pc)
@@ -94,26 +93,21 @@ namespace AtHangar
 	public class StoredVessel : PackedVessel
 	{
 		public ProtoVessel vessel { get; private set; }
-		public float volume { get { return metric.volume; } }
-		public float mass { get { return metric.mass; } set { metric.mass = value; } }
-		public float cost { get { return metric.cost; } set { metric.cost = value; } }
 		public Vector3 CoM { get; private set; }
-		public Vector3 CoG { get { return metric.center; } } //center of geometry
 		public List<ProtoCrewMember> crew { get; private set; }
 		public int CrewCapacity { get{ return metric.CrewCapacity; } }
 		public VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot> resources { get; private set; }
 
 		public StoredVessel() {}
 
-		public StoredVessel(Vessel vsl)
+		public StoredVessel(Vessel vsl, bool compute_hull=false)
 		{
 			vessel = vsl.BackupVessel();
-			metric = new Metric(vsl);
+			metric = new Metric(vsl, compute_hull);
 			id     = vessel.vesselID;
 			CoM    = vsl.findLocalCenterOfMass();
 			crew   = vsl.GetVesselCrew();
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
-//			fixTripLogger(); //FIXME
 		}
 
 		public override void Save(ConfigNode node)
@@ -147,52 +141,8 @@ namespace AtHangar
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
 		}
 
-		void fixTripLogger() //FIXME
-		{
-			//workaround for the bug that spams savegame with multiple instances of ModuleTripLogger and 'at = ...' ConfigNode.Value-s
-			Utils.logStamp("Cleaning TripLog for "+vessel.vesselName);
-			string trip_logger_name = typeof(ModuleTripLogger).Name;
-			foreach(ProtoPartSnapshot pp in vessel.protoPartSnapshots)
-			{
-				List<ProtoPartModuleSnapshot> trip_loggers = new List<ProtoPartModuleSnapshot>(pp.modules.Where(ppm => ppm.moduleName == trip_logger_name));
-				if(trip_loggers.Count == 0) continue;
-				ConfigNode _new = new ConfigNode();
-				Dictionary<string, HashSet<string>> bodies = new Dictionary<string, HashSet<string>>();
-				foreach(ProtoPartModuleSnapshot logger in trip_loggers)
-				{
-					ConfigNode _old = logger.moduleValues;
-					foreach(ConfigNode.Value v in _old.values) 
-					{ if(!_new.HasValue(v.name)) _new.AddValue(v.name, v.value); }
-					foreach(ConfigNode o in _old.nodes)
-					{
-						if(!_new.HasNode(o.name)) _new.AddNode(o.name);
-						if(!bodies.ContainsKey(o.name)) bodies.Add(o.name, new HashSet<string>());
-						ConfigNode n = _new.GetNode(o.name);
-						foreach(ConfigNode.Value v in o.values)
-						{
-							if(v.name != "at" && !n.HasValue(v.name)) 
-							{ n.AddValue(v.name, v.value); continue; }
-							if(bodies[o.name].Contains(v.value)) continue;
-							bodies[o.name].Add(v.value);
-							n.AddValue(v.name, v.value);
-						}
-						int items_removed = o.values.Count-n.values.Count;
-						if(items_removed > 0)
-							Debug.Log(string.Format("Removed {0} of {1} values from {2} node", 
-							                        items_removed, o.values.Count, o.name));
-					}
-				}
-				ProtoPartModuleSnapshot first_logger = pp.modules.First(ppm => ppm.moduleName == trip_logger_name);
-				first_logger.moduleValues = _new;
-				pp.modules.RemoveAll(ppm => ppm.moduleName == trip_logger_name);
-				pp.modules.Add(first_logger);
-			}
-			Utils.logStamp();
-		}
-
 		public void Load()
 		{
-//			fixTripLogger(); //FIXME
 			vessel.Load(FlightDriver.FlightStateCache.flightState);
 			vessel.LoadObjects();
 		}
