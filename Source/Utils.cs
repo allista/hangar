@@ -315,18 +315,29 @@ namespace AtHangar
 		#endregion
 
 		#region Graphics
+		static Material _material_no_z;
+		public static Material  material_no_z
+		{
+			get
+			{
+				if (_material_no_z == null)
+					_material_no_z = new Material(Shader.Find("GUI/Text Shader"));
+				return new Material(_material_no_z);
+			}
+		}
+
 		static Material _material;
 		public static Material  material
 		{
 			get
 			{
 				if (_material == null)
-					_material = new Material(Shader.Find("GUI/Text Shader"));
+					_material = new Material(Shader.Find("Diffuse"));
 				return new Material(_material);
 			}
 		}
 
-		public static void DrawMesh(Vector3[] edges, IEnumerable<int> tris, Transform t, Color c = default(Color))
+		public static void DrawMesh(Vector3[] edges, IEnumerable<int> tris, Transform t, Color c = default(Color), Material mat = null)
 		{
 			//make a mesh
 			Mesh m = new Mesh();
@@ -336,7 +347,7 @@ namespace AtHangar
 			m.RecalculateBounds();
 			m.RecalculateNormals();
 			//make own material
-			Material mat = Utils.material;
+			if(mat == null) mat = material_no_z;
 			mat.color = (c == default(Color))? Color.white : c;
 			//draw mesh in the world space
 			Graphics.DrawMesh(m, t.localToWorldMatrix, mat, 0);
