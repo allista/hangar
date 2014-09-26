@@ -6,15 +6,21 @@ namespace AtHangar
 {
 	public class Metric
 	{
-		public float volume { get; private set; }
-		public float area { get; private set; }
-		public float mass { get; set; }
-		public float cost { get; set; }
-		public Bounds bounds { get; private set; }
-		public Vector3 center { get { return bounds.center; } }
+		//convex hull
+		public ConvexHull3D hull { get; private set; }
+		//bounds
+		public Bounds  bounds  { get; private set; }
+		public Vector3 center  { get { return bounds.center; } }
 		public Vector3 extents { get { return bounds.extents; } }
-		public Vector3 size { get { return bounds.size; } }
+		public Vector3 size    { get { return bounds.size; } }
+		//physical properties
+		public float volume { get; private set; }
+		public float area   { get; private set; }
+		public float mass   { get; set; }
+		//part-vessel properties
 		public int CrewCapacity { get; private set; }
+		public float cost { get; set; }
+
 		public bool Empty { get { return volume == 0 && area == 0; } }
 		
 		public static Vector3[] BoundsEdges(Bounds b)
@@ -39,12 +45,13 @@ namespace AtHangar
 			return BoundsEdges(b);
 		}
 		
-		static void local2local(Transform _from, Transform _to, Vector3[] points)
+		static Vector3[] local2local(Transform _from, Transform _to, Vector3[] points)
 		{
 			for(int p=0; p < points.Length; p++)
 				points[p] = _to.InverseTransformPoint(_from.TransformPoint(points[p]));
+			return points;
 		}
-		
+
 		static float boundsVolume(Bounds b)
 		{ return b.size.x*b.size.y*b.size.z; }
 
@@ -58,8 +65,20 @@ namespace AtHangar
 				b.Encapsulate(edges[i]);
 			return b;
 		}
-		
-		Bounds partsBounds(List<Part> parts, Transform vT)
+
+		static void updateBounds(ref Bounds b, Vector3[] edges)
+		{
+			if(b == default(Bounds)) b = initBounds(edges);
+			else foreach(Vector3 edge in edges) b.Encapsulate(edge);
+		}
+
+		static void updateBounds(ref Bounds b, Bounds nb)
+		{
+			if(b == default(Bounds)) b = nb;
+			else b.Encapsulate(nb);
+		}
+
+		Bounds partsBounds(List<Part> parts, Transform vT, bool compute_hull=false)
 		{
 			mass = 0;
 			cost = 0;
@@ -69,18 +88,20 @@ namespace AtHangar
 			foreach(Part p in parts)
 			{
 				if(p == null) continue; //EditorLogic.SortedShipList returns List<Part>{null} when all parts are deleted
+				Bounds pb = default(Bounds);
 				foreach(MeshFilter m in p.FindModelComponents<MeshFilter>())
 				{
 					if(m.renderer == null || !m.renderer.enabled) continue;
-					Transform mT = m.transform;
-					Vector3[] edges;
 					//wheels are round and rotating >_<
-					if(m.name.IndexOf("wheel", StringComparison.OrdinalIgnoreCase) >= 0)
-						edges = m.sharedMesh.vertices;
-					else edges = BoundsEdges(m.sharedMesh.bounds);
-					local2local(mT, vT, edges);
-					if(b == default(Bounds)) b = initBounds(edges);
-					else foreach(Vector3 edge in edges) b.Encapsulate(edge);
+					Vector3[] edges = m.name.IndexOf("wheel", StringComparison.OrdinalIgnoreCase) >= 0 ? 
+						m.sharedMesh.vertices : BoundsEdges(m.sharedMesh.bounds);
+					updateBounds(ref pb, local2local(m.transform, vT, edges));
+				}
+				updateBounds(ref b, pb);
+				if(compute_hull)
+				{
+					if(hull == null) hull = new ConvexHull3D(BoundsEdges(pb)); 
+					else hull.Update(BoundsEdges(pb));
 				}
 				CrewCapacity += p.CrewCapacity;
 				if(p.IsPhysicallySignificant())	mass += p.TotalMass();
@@ -88,8 +109,8 @@ namespace AtHangar
 			}
 			return b;
 		}
-		
-		
+
+		#region Constructors
 		//empty metric
 		public Metric()
 		{
@@ -103,6 +124,7 @@ namespace AtHangar
 		//metric copy
 		public Metric(Metric m)
 		{
+			hull   = m.hull;
 			bounds = new Bounds(m.bounds.center, m.bounds.size);
 			volume = m.volume;
 			area   = m.area;
@@ -131,8 +153,9 @@ namespace AtHangar
 		}
 		
 		//metric form edges
-		public Metric(Vector3[] edges, float m = 0f, int crew_capacity = 0)
+		public Metric(Vector3[] edges, float m = 0f, int crew_capacity = 0, bool compute_hull=false)
 		{
+			if(compute_hull) hull = new ConvexHull3D(edges);
 			bounds = initBounds(edges);
 			volume = boundsVolume(bounds);
 			area   = boundsArea(bounds);
@@ -144,14 +167,13 @@ namespace AtHangar
 		public Metric(ConfigNode node) { Load(node); }
 		
 		//mesh metric
-		public Metric(Part part, string mesh_name)
+		public Metric(Part part, string mesh_name, bool compute_hull=false)
 		{
 			MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
 			if(m == null) { Utils.Log("[Metric] {0} does not have '{1}' mesh", part.name, mesh_name); return; }
-			Transform pT = part.partTransform;
-			Transform mT = m.transform;
+			if(compute_hull) hull = new ConvexHull3D(m.sharedMesh.vertices);
 			Vector3[] edges = BoundsEdges(m.sharedMesh.bounds);
-			local2local(mT, pT, edges);
+			local2local(m.transform, part.partTransform, edges);
 			bounds = initBounds(edges);
 			volume = boundsVolume(bounds);
 			area   = boundsArea(bounds);
@@ -159,35 +181,71 @@ namespace AtHangar
 		}
 		
 		//part metric
-		public Metric(Part part)
+		public Metric(Part part, bool compute_hull=false)
 		{
-			Transform pT = part.partTransform;
-			bounds = partsBounds(new List<Part>{part}, pT);
+			bounds = partsBounds(new List<Part>{part}, part.partTransform, compute_hull);
 			volume = boundsVolume(bounds);
 			area   = boundsArea(bounds);
 		}
 		
 		//vessel metric
-		public Metric(Vessel vessel)
+		public Metric(Vessel vessel, bool compute_hull=false)
 		{
-			Transform vT = vessel.vesselTransform;
-			bounds = partsBounds(vessel.parts, vT);
+			bounds = partsBounds(vessel.parts, vessel.vesselTransform, compute_hull);
 			volume = boundsVolume(bounds);
 			area   = boundsArea(bounds);
 		}
 		
 		//in-editor vessel metric
-		public Metric(List<Part> vessel)
+		public Metric(List<Part> vessel, bool compute_hull=false)
 		{
-			Transform vT = vessel[0].partTransform;
-			bounds = partsBounds(vessel, vT);
+			bounds = partsBounds(vessel, vessel[0].partTransform, compute_hull);
 			volume = boundsVolume(bounds);
 			area   = boundsArea(bounds);
 		}
+		#endregion
 		
 		//public methods
 		public Bounds GetBounds() { return new Bounds(bounds.center, bounds.size); }
+
+		public void Scale(float s)
+		{
+			bounds = new Bounds(center, size*s);
+			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
+			if(hull != null) hull = hull.Scale(s);
+		}
 		
+		public void Save(ConfigNode node)
+		{
+			node.AddValue("bounds_center", ConfigNode.WriteVector(bounds.center));
+			node.AddValue("bounds_size", ConfigNode.WriteVector(bounds.size));
+			node.AddValue("crew_capacity", CrewCapacity);
+			node.AddValue("mass", mass);
+			node.AddValue("cost", cost);
+			if(hull != null) hull.Save(node.AddNode("HULL"));
+		}
+		
+		public void Load(ConfigNode node)
+		{
+			if(!node.HasValue("bounds_center") || 
+			   !node.HasValue("bounds_size")   ||
+			   !node.HasValue("crew_capacity") ||
+			   !node.HasValue("mass")||
+			   !node.HasValue("cost"))
+				throw new KeyNotFoundException("Metric.Load: not all needed values are present in the config node.");
+			Vector3 _center = ConfigNode.ParseVector3(node.GetValue("bounds_center"));
+			Vector3 _size   = ConfigNode.ParseVector3(node.GetValue("bounds_size"));
+			bounds = new Bounds(_center, _size);
+			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
+			CrewCapacity = int.Parse(node.GetValue("crew_capacity"));
+			mass = float.Parse(node.GetValue("mass"));
+			cost = float.Parse(node.GetValue("cost"));
+			if(node.HasNode("HULL")) hull = ConvexHull3D.Load(node.GetNode("HULL"));
+		}
+
+		#region Fitting
 		public bool FitsSomehow(Metric other)
 		{
 			List<float>  D = new List<float>{size.x, size.y, size.z};
@@ -209,7 +267,7 @@ namespace AtHangar
 			}
 			return true;
 		}
-			
+
 		/// <summary>
 		/// Returns true if THIS metric fits inside the OTHER metric.
 		/// </summary>
@@ -218,11 +276,13 @@ namespace AtHangar
 		/// <param name="other">Metric acting as a container.</param>
 		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
 		{
-			Vector3[] edges = BoundsEdges(Vector3.zero, bounds.size);
+			Vector3[] edges = hull != null? hull.TranslatePoints(-center) : BoundsEdges(Vector3.zero, bounds.size);
 			foreach(Vector3 edge in edges)
 			{
 				Vector3 _edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edge));
-				if(!other.bounds.Contains(_edge)) return false;
+				if(other.hull != null) 
+				{ if(!other.hull.Contains(_edge)) return false; }
+				else if(!other.bounds.Contains(_edge)) return false;
 			}
 			return true;
 		}
@@ -237,8 +297,9 @@ namespace AtHangar
 		/// http://answers.unity3d.com/questions/611947/am-i-inside-a-volume-without-colliders.html
 		public bool FitsAligned(Transform this_T, Transform other_T, Mesh container)
 		{
+			Utils.logBounds(bounds);
 			//get edges in containers reference frame
-			Vector3[] edges   = BoundsEdges(Vector3.zero, bounds.size);
+			Vector3[] edges = hull != null? hull.TranslatePoints(-center) : BoundsEdges(Vector3.zero, bounds.size);
 			for(int i = 0; i < edges.Length; i++) 
 				edges[i] = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]));
 			//check each triangle of container
@@ -250,48 +311,27 @@ namespace AtHangar
 				var V2 = c_edges[triangles[i*3+1]];
 				var V3 = c_edges[triangles[i*3+2]];
 				var P  = new Plane(V1, V2, V3);
+				#if !DEBUG
 				foreach(Vector3 edge in edges)
 				{ if(!P.GetSide(edge)) return false; }
+				#else
+				Utils.Log("Plane:\n{0}\n{1}\n{2}", V1,V2,V3);
+				foreach(Vector3 edge in edges)
+				{
+					if(!P.GetSide(edge))
+					{
+						Utils.Log("Edge is outside: {0}", edge);
+						return false;
+					}
+					Utils.Log("Edge is inside: {0}", edge);
+				}
+				#endif
 			}
 			return true;
 		}
+		#endregion
 		
-		public void Scale(float s)
-		{
-			bounds = new Bounds(center, size*s);
-			volume = boundsVolume(bounds);
-			area   = boundsArea(bounds);
-		}
-		
-		public void Save(ConfigNode node)
-		{
-			node.AddValue("bounds_center", ConfigNode.WriteVector(bounds.center));
-			node.AddValue("bounds_size", ConfigNode.WriteVector(bounds.size));
-			node.AddValue("crew_capacity", CrewCapacity);
-			node.AddValue("mass", mass);
-			node.AddValue("cost", cost);
-		}
-		
-		public void Load(ConfigNode node)
-		{
-			if(!node.HasValue("bounds_center") || 
-			   !node.HasValue("bounds_size")   ||
-			   !node.HasValue("crew_capacity") ||
-			   !node.HasValue("mass")||
-			   !node.HasValue("cost"))
-				throw new KeyNotFoundException("Metric.Load: not all needed values are present in the config node.");
-			Vector3 _center = ConfigNode.ParseVector3(node.GetValue("bounds_center"));
-			Vector3 _size   = ConfigNode.ParseVector3(node.GetValue("bounds_size"));
-			bounds = new Bounds(_center, _size);
-			volume = boundsVolume(bounds);
-			area   = boundsArea(bounds);
-			CrewCapacity = int.Parse(node.GetValue("crew_capacity"));
-			mass = float.Parse(node.GetValue("mass"));
-			cost = float.Parse(node.GetValue("cost"));
-		}
-		
-		
-		//operators
+		#region Operators
 		public static Metric operator*(Metric m, float scale)
 		{
 			Metric _new = new Metric(m);
@@ -305,6 +345,7 @@ namespace AtHangar
 		//static methods
 		public static float Volume(Part part) { return (new Metric(part)).volume; }
 		public static float Volume(Vessel vessel) { return (new Metric(vessel)).volume; }
+		#endregion
 		
 		#region Graphics
 		public void DrawBox(Transform vT) { Utils.DrawBounds(bounds, vT, Color.white); }
