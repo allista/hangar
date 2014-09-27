@@ -7,6 +7,34 @@ using KSPAPIExtensions;
 
 namespace AtHangar
 {
+	#if DEBUG
+	public class NamedStopwatch
+	{
+		readonly System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+		readonly string name;
+
+		public NamedStopwatch(string name)
+		{ this.name = name; }
+
+		public void Start()
+		{
+			Utils.Log("{0}: start counting time", name);
+			sw.Start();
+		}
+
+		public void Stamp()
+		{
+			Utils.Log("{0}: elapsed time: {1}us", name, 
+				sw.ElapsedTicks/(System.Diagnostics.Stopwatch.Frequency/(1000000L)));
+		}
+
+		public void Stop() { sw.Stop(); Stamp(); }
+
+		public void Reset() { sw.Stop(); sw.Reset(); }
+	}
+	#endif
+
+
 	public class Triangle : IEnumerable<int>
 	{
 		readonly protected int i1, i2, i3;
