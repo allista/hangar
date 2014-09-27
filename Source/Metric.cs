@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Diagnostics;
 
 namespace AtHangar
 {
@@ -78,35 +79,60 @@ namespace AtHangar
 			else b.Encapsulate(nb);
 		}
 
+		static Vector3[] uniqueEdges(Mesh m)
+		{
+			var v_set = new HashSet<Vector3>();
+			foreach(Vector3 v in m.vertices) v_set.Add(v);
+			var new_verts = new Vector3[v_set.Count];
+			v_set.CopyTo(new_verts);
+			return new_verts;
+		}
+
 		Bounds partsBounds(List<Part> parts, Transform vT, bool compute_hull=false)
 		{
+			NamedStopwatch sw = new NamedStopwatch("Compute Hull"); //debug
+			if(compute_hull) sw.Start();
+
 			mass = 0;
 			cost = 0;
 			CrewCapacity = 0;
 			Bounds b = default(Bounds);
 			if(parts == null) return b;
+			float b_size = 0;
 			foreach(Part p in parts)
 			{
 				if(p == null) continue; //EditorLogic.SortedShipList returns List<Part>{null} when all parts are deleted
-				Bounds pb = default(Bounds);
+				Utils.Log("Computing bounds and hull for {0}", p.name);
 				foreach(MeshFilter m in p.FindModelComponents<MeshFilter>())
 				{
 					if(m.renderer == null || !m.renderer.enabled) continue;
 					//wheels are round and rotating >_<
 					Vector3[] edges = m.name.IndexOf("wheel", StringComparison.OrdinalIgnoreCase) >= 0 ? 
 						m.sharedMesh.vertices : BoundsEdges(m.sharedMesh.bounds);
-					updateBounds(ref pb, local2local(m.transform, vT, edges));
-				}
-				updateBounds(ref b, pb);
-				if(compute_hull)
-				{
-					if(hull == null) hull = new ConvexHull3D(BoundsEdges(pb)); 
-					else hull.Update(BoundsEdges(pb));
+					updateBounds(ref b, local2local(m.transform, vT, edges));
+					if(compute_hull)
+					{
+						float m_size = Vector3.Scale(m.sharedMesh.bounds.size, m.transform.lossyScale).sqrMagnitude;
+						IEnumerable<Vector3> verts = edges;
+						Utils.Log("{0} size {1}; total size {2}", m.name, m_size, b_size);
+						if(m_size > b_size/10)
+						{
+							verts = local2local(m.transform, vT, uniqueEdges(m.sharedMesh));
+							Utils.Log("Using mesh");
+						}
+						else Utils.Log("Using bounds");
+						if(hull == null) hull = new ConvexHull3D(verts); 
+						else hull.Update(verts);
+						sw.Stamp();//debug
+					}
+					b_size = b.size.sqrMagnitude;
 				}
 				CrewCapacity += p.CrewCapacity;
 				if(p.IsPhysicallySignificant())	mass += p.TotalMass();
 				cost += p.TotalCost();
 			}
+			if(compute_hull) sw.Stop(); //debug
+			Utils.Log("Bounds and hull were computed");
 			return b;
 		}
 
@@ -276,10 +302,10 @@ namespace AtHangar
 		/// <param name="other">Metric acting as a container.</param>
 		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
 		{
-			Vector3[] edges = hull != null? hull.TranslatePoints(-center) : BoundsEdges(Vector3.zero, bounds.size);
+			Vector3[] edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
 			foreach(Vector3 edge in edges)
 			{
-				Vector3 _edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edge));
+				Vector3 _edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edge-center));
 				if(other.hull != null) 
 				{ if(!other.hull.Contains(_edge)) return false; }
 				else if(!other.bounds.Contains(_edge)) return false;
@@ -297,36 +323,51 @@ namespace AtHangar
 		/// http://answers.unity3d.com/questions/611947/am-i-inside-a-volume-without-colliders.html
 		public bool FitsAligned(Transform this_T, Transform other_T, Mesh container)
 		{
-			Utils.logBounds(bounds);
+			var sw = new NamedStopwatch("Fitting aligned");//debug
+			sw.Start();//debug
 			//get edges in containers reference frame
-			Vector3[] edges = hull != null? hull.TranslatePoints(-center) : BoundsEdges(Vector3.zero, bounds.size);
-			for(int i = 0; i < edges.Length; i++) 
-				edges[i] = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]));
+			Vector3[] edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
 			//check each triangle of container
 			Vector3[] c_edges = container.vertices;
 			int[] triangles   = container.triangles;
-			for(int i = 0; i < triangles.Length/3; i++)
+			if(triangles.Length/3 > edges.Length)
 			{
-				var V1 = c_edges[triangles[i*3]];
-				var V2 = c_edges[triangles[i*3+1]];
-				var V3 = c_edges[triangles[i*3+2]];
-				var P  = new Plane(V1, V2, V3);
-				#if !DEBUG
-				foreach(Vector3 edge in edges)
-				{ if(!P.GetSide(edge)) return false; }
-				#else
-				Utils.Log("Plane:\n{0}\n{1}\n{2}", V1,V2,V3);
-				foreach(Vector3 edge in edges)
+				for(int i = 0; i < edges.Length; i++) 
+					edges[i] = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
+				for(int i = 0; i < triangles.Length/3; i++)
 				{
-					if(!P.GetSide(edge))
-					{
-						Utils.Log("Edge is outside: {0}", edge);
-						return false;
-					}
-					Utils.Log("Edge is inside: {0}", edge);
+					var V1 = c_edges[triangles[i*3]];
+					var V2 = c_edges[triangles[i*3+1]];
+					var V3 = c_edges[triangles[i*3+2]];
+					var P  = new Plane(V1, V2, V3);
+					foreach(Vector3 edge in edges)
+					{ if(!P.GetSide(edge)) return false; }
 				}
-				#endif
 			}
+			else
+			{
+				Plane[] planes = new Plane[triangles.Length/3];
+				for(int i = 0; i < triangles.Length/3; i++)
+				{
+					var V1 = c_edges[triangles[i*3]];
+					var V2 = c_edges[triangles[i*3+1]];
+					var V3 = c_edges[triangles[i*3+2]];
+					planes[i] = new Plane(V1, V2, V3);
+				}
+				for(int i = 0; i < edges.Length; i++) 
+				{
+					Vector3 edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
+					foreach(Plane P in planes)
+					{ 
+						if(!P.GetSide(edge)) 
+						{
+							sw.Stop();//debug
+							return false; 
+						}
+					}
+				}
+			}
+			sw.Stop();//debug
 			return true;
 		}
 		#endregion
