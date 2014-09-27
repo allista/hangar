@@ -87,6 +87,40 @@ namespace AtHangar
 			return points;
 		}
 
+//		static float distance_to_line(Vector3 a, Vector3 n, Vector3 p)
+//		{ 
+//			Vector3 dp = a-p;
+//			return (dp - n * Vector3.Dot(dp, n)).magnitude;
+//		}
+//
+//		void init_seed(IEnumerable<Vector3> points)
+//		{
+//			Vector3 min_xv, max_xv, min_yv, max_yv, min_zv, max_zv;
+//			float   min_x,  max_x,  min_y,  max_y,  min_z,  max_z;
+//			min_x = max_x = min_y = max_y = min_z = max_z = -1;
+//			foreach(Vector3 p in points)
+//			{
+//				if(p.x < min_x || min_x < 0) { min_x = p.x; min_xv = p; }
+//				else if(p.x > max_x) { max_x = p.x; max_xv = p; }
+//
+//				if(p.y < min_y || min_y < 0) { min_y = p.y; min_yv = p; }
+//				else if(p.y > max_y) { max_y = p.y; max_yv = p; }
+//
+//				if(p.z < min_z || min_z < 0) { min_z = p.z; min_zv = p; }
+//				else if(p.z > max_z) { max_z = p.z; max_zv = p; }
+//			}
+//			Vector3 xl = (max_xv - min_xv);
+//			Vector3 yl = (max_yv - min_yv);
+//			Vector3 zl = (max_zv - min_zv);
+//			float max_l = -1; Vector3 ml;
+//			foreach(Vector3 l in new []{xl, yl, zl})
+//			{ if(l.magnitude > max_l) { max_l = l.magnitude; ml = l; } }
+//			float max_d = -1; Vector3 mln = ml.normalized;
+////			foreach(Vector3 p in new []{min_xv, max_xv, min_yv, max_yv, min_zv, max_zv})
+////			{ if(distance_to_line())}
+////			Vector3[] dims
+//		}
+
 		public ConvexHull3D(List<Vector3> points)
 		{
 			//initial checks
@@ -136,7 +170,7 @@ namespace AtHangar
 			points.RemoveRange(0,3);
 			Update(points);
 		}
-		public ConvexHull3D(Vector3[] points) : this(new List<Vector3>(points)) {}
+		public ConvexHull3D(IEnumerable<Vector3> points) : this(new List<Vector3>(points)) {}
 
 		public ConvexHull3D Scale(float s)
 		{
