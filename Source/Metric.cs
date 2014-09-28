@@ -99,13 +99,15 @@ namespace AtHangar
 			Bounds b = default(Bounds);
 			if(parts == null) return b;
 			float b_size = 0;
+			List<Vector3> hull_points = compute_hull ? new List<Vector3>() : null;
 			foreach(Part p in parts)
 			{
 				if(p == null) continue; //EditorLogic.SortedShipList returns List<Part>{null} when all parts are deleted
-				Utils.Log("Computing bounds and hull for {0}", p.name);
+//				Utils.Log("Computing bounds and hull for {0}", p.name);
 				foreach(MeshFilter m in p.FindModelComponents<MeshFilter>())
 				{
 					if(m.renderer == null || !m.renderer.enabled) continue;
+					if(m.name.IndexOf("flagtransform", StringComparison.OrdinalIgnoreCase) >= 0) continue;
 					//wheels are round and rotating >_<
 					Vector3[] edges = m.name.IndexOf("wheel", StringComparison.OrdinalIgnoreCase) >= 0 ? 
 						m.sharedMesh.vertices : BoundsEdges(m.sharedMesh.bounds);
@@ -114,16 +116,9 @@ namespace AtHangar
 					{
 						float m_size = Vector3.Scale(m.sharedMesh.bounds.size, m.transform.lossyScale).sqrMagnitude;
 						IEnumerable<Vector3> verts = edges;
-						Utils.Log("{0} size {1}; total size {2}", m.name, m_size, b_size);
 						if(m_size > b_size/10)
-						{
 							verts = local2local(m.transform, vT, uniqueEdges(m.sharedMesh));
-							Utils.Log("Using mesh");
-						}
-						else Utils.Log("Using bounds");
-						if(hull == null) hull = new ConvexHull3D(verts); 
-						else hull.Update(verts);
-						sw.Stamp();//debug
+						hull_points.AddRange(verts);
 					}
 					b_size = b.size.sqrMagnitude;
 				}
@@ -131,6 +126,9 @@ namespace AtHangar
 				if(p.IsPhysicallySignificant())	mass += p.TotalMass();
 				cost += p.TotalCost();
 			}
+			Utils.Log("All points were accumulated");
+			if(compute_hull) sw.Stamp(); //debug
+			if(compute_hull) hull = new ConvexHull3D(hull_points); 
 			if(compute_hull) sw.Stop(); //debug
 			Utils.Log("Bounds and hull were computed");
 			return b;
