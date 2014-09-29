@@ -77,11 +77,7 @@ namespace ConvexHullTest
 	class MainClass
 	{
 		static float NextFloat(System.Random random)
-		{
-//			double mantissa = (random.NextDouble() * 2.0) - 1.0;
-//			double exponent = Math.Pow(2.0, random.Next(-126, 128));
-			return (float)((random.NextDouble() * 2.0) - 1.0);
-		}
+		{ return (float)((random.NextDouble() * 2.0) - 1.0); }
 
 		public static void Main(string[] args)
 		{
@@ -89,7 +85,7 @@ namespace ConvexHullTest
 			if(args.Length > 0) int.TryParse(args[0], out N);
 			if(args.Length > 1) int.TryParse(args[1], out N1);
 			var vertices = new Vector3[N];
-			var r = new System.Random();
+			var r = new System.Random(42); //for reproduceability
 			var sw = new NamedStopwatch("Compute Hull");
 			for(int n = 0; n < N1; n++)
 			{
