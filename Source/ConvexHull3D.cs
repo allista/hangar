@@ -265,11 +265,11 @@ namespace AtHangar
 			//make other 3 faces
 			f0.Orient(mv2); //f0 is not visible now, 
 			//so its edges should be taken in the oposite direction
-			var neighbours = new List<Face.Edge>(3);
-			neighbours.Add(f0.GetEdge(2));
-			neighbours.Add(f0.GetEdge(1));
-			neighbours.Add(f0.GetEdge(0));
-			var faces = make_pyramid(mv2, neighbours);
+			var edges = new List<Face.Edge>(3);
+			edges.Add(f0.GetEdge(2));
+			edges.Add(f0.GetEdge(1));
+			edges.Add(f0.GetEdge(0));
+			var faces = make_pyramid(mv2, edges);
 			Faces.Add(f0); Faces.AddRange(faces);
 			points.Remove(mv1);	 points.Remove(mv2);
 			points.Remove(ml.s); points.Remove(ml.e);
