@@ -27,7 +27,7 @@ Global
 		{A1DAE496-7A38-46F3-A450-D32F34C90416}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Hangar.csproj
+		StartupItem = ConvexHullTest\ConvexHullTest.csproj
 		Policies = $0
 		$0.NameConventionPolicy = $1
 		$1.Rules = $2
