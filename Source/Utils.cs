@@ -54,7 +54,7 @@ namespace AtHangar
 
 		public static TSource Pop<TSource>(this LinkedList<TSource> l)
 		{
-			TSource e = l.Last();
+			TSource e = l.Last.Value;
 			l.RemoveLast();
 			return e;
 		}
