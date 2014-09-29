@@ -96,11 +96,6 @@ namespace ConvexHullTest
 				GC.Collect();
 				for(int i = 0; i < N; i++)
 					vertices[i] = new Vector3(NextFloat(r), NextFloat(r), NextFloat(r)).normalized;
-//				sw.Start();
-//				var hull = new BruteHull(vertices);
-//				sw.Stop();
-//				Console.WriteLine(string.Format("BruteHull computed: faces {0}; vertices {1}", hull.Faces.Count, hull.Points.Count));
-//				sw.Reset();
 				sw.Start();
 				var hull1 = new QuickHull(vertices);
 				sw.Stop();
