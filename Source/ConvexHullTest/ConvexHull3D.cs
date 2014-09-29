@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+//NOTE:
+//The for loop is faster than List.ForEach and especially foreach with compiler optimizations.
+//See: http://diditwith.net/2006/10/05/PerformanceOfForeachVsListForEach.aspx
+//And profiling confirms it.
 namespace ConvexHullTest
 {
 	//quickhull
@@ -178,16 +182,16 @@ namespace ConvexHullTest
 		/// <param name="p">Apex of the pyramid.</param>
 		/// <param name="horizon">CCW list of edges belongin to the Faces 
 		/// to which the pyramid will be connected.</param>
-		static List<Face> make_pyramid(Vector3 p, Face.Edge[] horizon)
+		static List<Face> make_pyramid(Vector3 p, IList<Face.Edge> horizon)
 		{
-			var faces = new Face[horizon.Length];
-			for(int i = 0; i < horizon.Length; i++)
+			var faces = new Face[horizon.Count];
+			for(int i = 0; i < horizon.Count; i++)
 			{
 				Face.Edge e = horizon[i];
 				var nf = new Face(p, e.v1, e.v0);
 				nf.Join(1, e); //join with the horizon
 				if(i > 0) nf.Join(0, faces[i-1], 2); //join with previous
-				if(i == horizon.Length-1) nf.Join(2, faces[0], 0); //join with the firts
+				if(i == horizon.Count-1) nf.Join(2, faces[0], 0); //join with the firts
 				faces[i] = nf;
 			}
 			return faces.ToList();
@@ -225,28 +229,30 @@ namespace ConvexHullTest
 			//make other 3 faces
 			f0.Orient(mv2); //f0 is not visible now, 
 			//so its edges should be taken in the oposite direction
-			var neighbours = new Face.Edge[3];
-			neighbours[0] = f0.GetEdge(2);
-			neighbours[1] = f0.GetEdge(1);
-			neighbours[2] = f0.GetEdge(0);
+			var neighbours = new List<Face.Edge>(3);
+			neighbours.Add(f0.GetEdge(2));
+			neighbours.Add(f0.GetEdge(1));
+			neighbours.Add(f0.GetEdge(0));
 			var faces = make_pyramid(mv2, neighbours);
 			Faces.Add(f0); Faces.AddRange(faces);
 			points.Remove(mv1);	 points.Remove(mv2);
 			points.Remove(ml.s); points.Remove(ml.e);
 		}
 
-		static void sort_points(IEnumerable<Vector3> points, ICollection<Face> faces)
+		static void sort_points(IList<Vector3> points, IList<Face> faces)
 		{
-			foreach(Vector3 p in points)
+			for(int p = 0; p < points.Count; p++)
 			{ 
-				foreach(Face f in faces) 
+				for(int f = 0; f < faces.Count; f++)
 				{ 
-					float d = f.DistanceTo(p);
+					var face  = faces[f];
+					var point = points[p];
+					float d = face.DistanceTo(point);
 					if(d > Face.MinDistance)
 					{ 
-						f.VisiblePoints.Add(p);
-						if(d > f.FurthestDistance)
-						{ f.FurthestDistance = d; f.Furthest = p; }
+						face.VisiblePoints.Add(point);
+						if(d > face.FurthestDistance)
+						{ face.FurthestDistance = d; face.Furthest = point; }
 						break; 
 					}
 				}
@@ -274,7 +280,7 @@ namespace ConvexHullTest
 		/// Incrementally update the existing hull using provided points.
 		/// </summary>
 		/// <param name="points">Points used to update the hull.</param>
-		public void Update(IEnumerable<Vector3> points)
+		public void Update(IList<Vector3> points)
 		{
 			var visible = new VisibleFaces();
 			var working_set = new LinkedList<Face>(Faces);
@@ -291,15 +297,18 @@ namespace ConvexHullTest
 				visible.Clear();
 				build_horizon(f.Furthest, visible, f);
 				//create new faces
-				var new_faces = make_pyramid(f.Furthest, visible.Horizon.ToArray());
+				var new_faces = make_pyramid(f.Furthest, visible.Horizon);
 				//add points from visible faces to the new faces
-				visible.ForEach(vf => sort_points(vf.VisiblePoints, new_faces));
+				for(int i = 0; i < visible.Count; i++) 
+					sort_points(visible[i].VisiblePoints, new_faces);
 				//add new faces to the working set
-				new_faces.ForEach(nf => working_set.AddFirst(nf));
+				for(int i = 0; i < new_faces.Count; i++)
+					working_set.AddFirst(new_faces[i]);
 			}
 			//build a list of unique hull points
 			var _Points = new HashSet<Vector3>();
-			Faces.ForEach(f => { _Points.Add(f.v0); _Points.Add(f.v1); _Points.Add(f.v2); });
+			for(int i = 0; i < Faces.Count; i++)
+			{ var f = Faces[i]; _Points.Add(f.v0); _Points.Add(f.v1); _Points.Add(f.v2); }
 			Points.Clear(); Points.AddRange(_Points);
 		}
 

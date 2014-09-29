@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+//NOTE:
+//The for loop is faster than List.ForEach and especially foreach with compiler optimizations.
+//See: http://diditwith.net/2006/10/05/PerformanceOfForeachVsListForEach.aspx
+//And profiling confirms it.
 namespace AtHangar
 {
 	public class Face : IEnumerable<Vector3>
@@ -271,18 +275,20 @@ namespace AtHangar
 			points.Remove(ml.s); points.Remove(ml.e);
 		}
 
-		static void sort_points(IEnumerable<Vector3> points, ICollection<Face> faces)
+		static void sort_points(IList<Vector3> points, IList<Face> faces)
 		{
-			foreach(Vector3 p in points)
+			for(int p = 0; p < points.Count; p++)
 			{ 
-				foreach(Face f in faces) 
+				for(int f = 0; f < faces.Count; f++)
 				{ 
-					float d = f.DistanceTo(p);
+					var face  = faces[f];
+					var point = points[p];
+					float d = face.DistanceTo(point);
 					if(d > Face.MinDistance)
 					{ 
-						f.VisiblePoints.Add(p);
-						if(d > f.FurthestDistance)
-						{ f.FurthestDistance = d; f.Furthest = p; }
+						face.VisiblePoints.Add(point);
+						if(d > face.FurthestDistance)
+						{ face.FurthestDistance = d; face.Furthest = point; }
 						break; 
 					}
 				}
@@ -310,7 +316,7 @@ namespace AtHangar
 		/// Incrementally update the existing hull using provided points.
 		/// </summary>
 		/// <param name="points">Points used to update the hull.</param>
-		public void Update(IEnumerable<Vector3> points)
+		public void Update(IList<Vector3> points)
 		{
 //			Utils.Log("Faces0: {0}", Faces.Count); //debug
 			var visible = new VisibleFaces();
@@ -334,9 +340,11 @@ namespace AtHangar
 				//create new faces
 				var new_faces = make_pyramid(f.Furthest, visible.Horizon);
 				//add points from visible faces to the new faces
-				visible.ForEach(vf => sort_points(vf.VisiblePoints, new_faces));
+				for(int i = 0; i < visible.Count; i++) 
+					sort_points(visible[i].VisiblePoints, new_faces);
 				//add new faces to the working set
-				new_faces.ForEach(nf => working_set.AddFirst(nf));
+				for(int i = 0; i < new_faces.Count; i++)
+					working_set.AddFirst(new_faces[i]);
 //				Utils.Log("New faces: {0}\n" +
 //						  "Points remains: {1}",
 //					new_faces.Count, working_set.Sum(wf => wf.VisiblePoints.Count));
@@ -345,7 +353,8 @@ namespace AtHangar
 //			Utils.Log("Faces: {0}", Faces.Count); //debug
 //			int nump = Points.Count; //debug
 			var _Points = new HashSet<Vector3>();
-			Faces.ForEach(f => { _Points.Add(f.v0); _Points.Add(f.v1); _Points.Add(f.v2); });
+			for(int i = 0; i < Faces.Count; i++)
+			{ var f = Faces[i]; _Points.Add(f.v0); _Points.Add(f.v1); _Points.Add(f.v2); }
 			Points.Clear(); Points.AddRange(_Points);
 //			Utils.Log("ConvexHull points: {0} was, {1} now", nump, Points.Count);//debug
 		}
