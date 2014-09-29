@@ -26,7 +26,7 @@ namespace AtHangar
 		
 		public static Vector3[] BoundsEdges(Bounds b)
 		{
-			Vector3[] edges = new Vector3[8];
+			var edges = new Vector3[8];
 			Vector3 min = b.min;
 			Vector3 max = b.max;
 			edges[0] = new Vector3(min.x, min.y, min.z); //left-bottom-back
@@ -42,7 +42,7 @@ namespace AtHangar
 		
 		public static Vector3[] BoundsEdges(Vector3 center, Vector3 size)
 		{
-			Bounds b = new Bounds(center, size);
+			var b = new Bounds(center, size);
 			return BoundsEdges(b);
 		}
 		
@@ -61,7 +61,7 @@ namespace AtHangar
 		
 		static Bounds initBounds(Vector3[] edges)
 		{
-			Bounds b = new Bounds(edges[0], new Vector3());
+			var b = new Bounds(edges[0], new Vector3());
 			for(int i = 1; i < edges.Length; i++)
 				b.Encapsulate(edges[i]);
 			return b;
@@ -90,8 +90,8 @@ namespace AtHangar
 
 		Bounds partsBounds(List<Part> parts, Transform vT, bool compute_hull=false)
 		{
-			NamedStopwatch sw = new NamedStopwatch("Compute Hull"); //debug
-			if(compute_hull) sw.Start();
+			var sw = new NamedStopwatch("Compute Hull"); //debug
+			if(compute_hull) sw.Start(); //debug
 
 			mass = 0;
 			cost = 0;
@@ -103,34 +103,35 @@ namespace AtHangar
 			foreach(Part p in parts)
 			{
 				if(p == null) continue; //EditorLogic.SortedShipList returns List<Part>{null} when all parts are deleted
-//				Utils.Log("Computing bounds and hull for {0}", p.name);
+//				Utils.Log("Computing bounds and hull for {0}", p.name); //debug
 				foreach(MeshFilter m in p.FindModelComponents<MeshFilter>())
 				{
 					if(m.renderer == null || !m.renderer.enabled) continue;
 					if(m.name.IndexOf("flagtransform", StringComparison.OrdinalIgnoreCase) >= 0) continue;
 					//wheels are round and rotating >_<
+					//TODO: rework this block for more efficiency: do not call Mesh.vertices twice
 					Vector3[] edges = m.name.IndexOf("wheel", StringComparison.OrdinalIgnoreCase) >= 0 ? 
-						m.sharedMesh.vertices : BoundsEdges(m.sharedMesh.bounds);
+									  m.sharedMesh.vertices : BoundsEdges(m.sharedMesh.bounds);
 					updateBounds(ref b, local2local(m.transform, vT, edges));
 					if(compute_hull)
 					{
 						float m_size = Vector3.Scale(m.sharedMesh.bounds.size, m.transform.lossyScale).sqrMagnitude;
-						IEnumerable<Vector3> verts = edges;
-						if(m_size > b_size/10)
-							verts = local2local(m.transform, vT, uniqueEdges(m.sharedMesh));
+						var verts = m_size > b_size/10? local2local(m.transform, vT, uniqueEdges(m.sharedMesh)) : edges;
 						hull_points.AddRange(verts);
+						b_size = b.size.sqrMagnitude;
 					}
-					b_size = b.size.sqrMagnitude;
 				}
 				CrewCapacity += p.CrewCapacity;
 				if(p.IsPhysicallySignificant())	mass += p.TotalMass();
 				cost += p.TotalCost();
 			}
-			Utils.Log("All points were accumulated");
-			if(compute_hull) sw.Stamp(); //debug
+			if(compute_hull) {
+				Utils.Log("All points were accumulated");//debug
+				sw.Stamp(); } //debug
 			if(compute_hull) hull = new ConvexHull3D(hull_points); 
-			if(compute_hull) sw.Stop(); //debug
-			Utils.Log("Bounds and hull were computed");
+			if(compute_hull) {
+				sw.Stop(); //debug
+				Utils.Log("Bounds and hull were computed"); }//debug
 			return b;
 		}
 
@@ -272,8 +273,8 @@ namespace AtHangar
 		#region Fitting
 		public bool FitsSomehow(Metric other)
 		{
-			List<float>  D = new List<float>{size.x, size.y, size.z};
-			List<float> _D = new List<float>{other.size.x, other.size.y, other.size.z};
+			var  D = new List<float>{size.x, size.y, size.z};
+			var _D = new List<float>{other.size.x, other.size.y, other.size.z};
 			D.Sort(); _D.Sort();
 			foreach(float d in D)
 			{
@@ -300,7 +301,7 @@ namespace AtHangar
 		/// <param name="other">Metric acting as a container.</param>
 		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
 		{
-			Vector3[] edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
+			var edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
 			foreach(Vector3 edge in edges)
 			{
 				Vector3 _edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edge-center));
@@ -324,10 +325,10 @@ namespace AtHangar
 			var sw = new NamedStopwatch("Fitting aligned");//debug
 			sw.Start();//debug
 			//get edges in containers reference frame
-			Vector3[] edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
+			var edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
 			//check each triangle of container
-			Vector3[] c_edges = container.vertices;
-			int[] triangles   = container.triangles;
+			var c_edges   = container.vertices;
+			var triangles = container.triangles;
 			if(triangles.Length/3 > edges.Length)
 			{
 				for(int i = 0; i < edges.Length; i++) 
@@ -344,7 +345,7 @@ namespace AtHangar
 			}
 			else
 			{
-				Plane[] planes = new Plane[triangles.Length/3];
+				var planes = new Plane[triangles.Length/3];
 				for(int i = 0; i < triangles.Length/3; i++)
 				{
 					var V1 = c_edges[triangles[i*3]];
@@ -373,7 +374,7 @@ namespace AtHangar
 		#region Operators
 		public static Metric operator*(Metric m, float scale)
 		{
-			Metric _new = new Metric(m);
+			var _new = new Metric(m);
 			_new.Scale(scale);
 			return _new;
 		}
