@@ -35,6 +35,36 @@ namespace AtHangar
 	}
 	#endif
 
+	class MemoryTimer : IEnumerator<YieldInstruction>
+	{
+		public delegate void Callback();
+
+		public bool  Active = true;
+		public float WaitPeriod = 1f;
+		public Callback EndAction = null;
+
+		public YieldInstruction Current
+		{
+			get
+			{
+				Active = false;
+				return new WaitForSeconds(WaitPeriod);
+			}
+		}
+		object IEnumerator.Current { get { return Current; } }
+
+		public bool MoveNext() 
+		{ 
+			if(!Active && EndAction != null) 
+				EndAction();
+			return Active; 
+		}
+
+		public void Reset() { Active = true; }
+
+		public void Dispose() {}
+	}
+
 	public static class CollectionsExtension
 	{
 		public static TSource SelectMax<TSource>(this IEnumerable<TSource> s, Func<TSource, float> metric)
