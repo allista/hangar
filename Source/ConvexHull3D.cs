@@ -1,5 +1,4 @@
-﻿//this algorithm was adopted from: http://www.nicoptere.net/AS3/convexhull/src/ConvexHull.as
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -200,7 +199,7 @@ namespace AtHangar
 		/// and the base defined as the CCW list of edges.
 		/// </summary>
 		/// <param name="p">Apex of the pyramid.</param>
-		/// <param name="edges">CCW list of edges belongin to the Faces 
+		/// <param name="edges">CCW list of edges belonging to the Faces 
 		/// to which the pyramid will be connected.</param>
 		static List<Face> make_pyramid(Vector3 p, IList<Face.Edge> edges)
 		{
@@ -306,16 +305,13 @@ namespace AtHangar
 		/// <param name="points">Points used to update the hull.</param>
 		public void Update(IList<Vector3> points)
 		{
-//			Utils.Log("Faces0: {0}", Faces.Count); //debug
 			var visible     = new VisibleFaces();
 			var working_set = new LinkedList<Face>(Faces);
 			var final_set   = new LinkedList<Face>();
 			sort_points(points, Faces); Faces.Clear();
 			while(working_set.Count > 0)
 			{
-//				Utils.Log("working set: {0}", working_set.Count);//debug
 				Face f = working_set.Pop();
-//				f.Log();//debug
 				//if the face was dropped, skip it
 				if(f.Dropped) continue;
 				//if the face has no visible points it belongs to the hull
@@ -324,8 +320,6 @@ namespace AtHangar
 				//if not, build the visible set of faces and the horizon for the furthest visible point 
 				visible.Clear();
 				build_horizon(f.Furthest, visible, f);
-//				Utils.Log("Visible set: {0} faces\nHorizon: {1} edges", visible.Count, visible.Horizon.Count);
-//				visible.Horizon.ForEach(n => Utils.Log("Horizon edge{0}: {1}, {2}", n.Index, n.v0, n.v1));
 				//create new faces
 				var new_faces = make_pyramid(f.Furthest, visible.Horizon);
 				//add points from visible faces to the new faces
@@ -334,14 +328,10 @@ namespace AtHangar
 				//add new faces to the working set
 				for(int i = 0; i < new_faces.Count; i++)
 					working_set.AddFirst(new_faces[i]);
-//				Utils.Log("New faces: {0}\n" +
-//						  "Points remains: {1}",
-//					new_faces.Count, working_set.Sum(wf => wf.VisiblePoints.Count));
 			}
 			//filter out faces that are still visible
 			Faces.AddRange(from f in final_set where !f.Dropped select f);
 			//build a list of unique hull points
-//			int nump = Points.Count; //debug
 			var _Points = new HashSet<Vector3>();
 			for(int i = 0; i < Faces.Count; i++)
 			{ var f = Faces[i]; _Points.Add(f.v0); _Points.Add(f.v1); _Points.Add(f.v2); }
@@ -355,7 +345,6 @@ namespace AtHangar
 			if(points.Count < 4) 
 				throw new NotSupportedException(string.Format("[Hangar] ConvexHull3D needs at least 4 edges, {0} given", points.Count));
 			//initialize the initial tetrahedron
-//			Utils.Log("Initial points {0}", points.Count);//debug
 			make_seed(points);
 			//incrementally udate the seed
 			Update(points);

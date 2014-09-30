@@ -90,9 +90,6 @@ namespace AtHangar
 
 		Bounds partsBounds(List<Part> parts, Transform vT, bool compute_hull=false)
 		{
-			var sw = new NamedStopwatch("Compute Hull"); //debug
-			if(compute_hull) sw.Start(); //debug
-
 			mass = 0;
 			cost = 0;
 			CrewCapacity = 0;
@@ -103,7 +100,6 @@ namespace AtHangar
 			foreach(Part p in parts)
 			{
 				if(p == null) continue; //EditorLogic.SortedShipList returns List<Part>{null} when all parts are deleted
-//				Utils.Log("Computing bounds and hull for {0}", p.name); //debug
 				foreach(MeshFilter m in p.FindModelComponents<MeshFilter>())
 				{
 					if(m.renderer == null || !m.renderer.enabled) continue;
@@ -125,13 +121,7 @@ namespace AtHangar
 				if(p.IsPhysicallySignificant())	mass += p.TotalMass();
 				cost += p.TotalCost();
 			}
-			if(compute_hull) {
-				Utils.Log("All points were accumulated");//debug
-				sw.Stamp(); } //debug
 			if(compute_hull) hull = new ConvexHull3D(hull_points); 
-			if(compute_hull) {
-				sw.Stop(); //debug
-				Utils.Log("Bounds and hull were computed"); }//debug
 			return b;
 		}
 
@@ -322,8 +312,6 @@ namespace AtHangar
 		/// http://answers.unity3d.com/questions/611947/am-i-inside-a-volume-without-colliders.html
 		public bool FitsAligned(Transform this_T, Transform other_T, Mesh container)
 		{
-			var sw = new NamedStopwatch("Fitting aligned");//debug
-			sw.Start();//debug
 			//get edges in containers reference frame
 			var edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
 			//check each triangle of container
@@ -357,16 +345,9 @@ namespace AtHangar
 				{
 					Vector3 edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
 					foreach(Plane P in planes)
-					{ 
-						if(!P.GetSide(edge)) 
-						{
-							sw.Stop();//debug
-							return false; 
-						}
-					}
+					{ if(!P.GetSide(edge)) return false; }
 				}
 			}
-			sw.Stop();//debug
 			return true;
 		}
 		#endregion
