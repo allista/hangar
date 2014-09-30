@@ -12,16 +12,33 @@ namespace AtHangar
 	{
 		public enum HangarState { Active, Inactive }
 
-		//internal properties
-		const float crew_volume_ratio = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
-		float usefull_volume_ratio    = 0.7f; //only 70% of the volume may be used by docking vessels
-		public float vessels_mass     = -1f;
-		public float vessels_cost     = -1f;
-		public float used_volume      = -1f;
+		#region Configuration
+		//hangar properties
+		[KSPField (isPersistant = false)] public string HangarSpace;
+		[KSPField (isPersistant = false)] public bool   UseHangarSpaceMesh = false;
+		[KSPField (isPersistant = false)] public string AnimatorID;
+		[KSPField (isPersistant = false)] public float  EnergyConsumption = 0.75f;
+		[KSPField (isPersistant = false)] public float  VolumePerKerbal = 6.7f; // m^3
+		[KSPField (isPersistant = false)] public bool   StaticCrewCapacity = true;
+		//vessel spawning
+		[KSPField (isPersistant = false)] public float  LaunchHeightOffset;
+		[KSPField (isPersistant = false)] public string LaunchTransform;
+		[KSPField (isPersistant = false)] public string LaunchVelocity;
+		[KSPField (isPersistant = true)]  public bool   LaunchWithPunch = false;
+		#endregion
+
+		#region Internals
+		//physical properties
+		[KSPField (isPersistant = true)]  
+		public float base_mass = -1f;
+		const float  crew_volume_ratio = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
+		float usefull_volume_ratio     = 0.7f; //only 70% of the volume may be used by docking vessels
+		public float vessels_mass      = -1f;
+		public float vessels_cost      = -1f;
+		public float used_volume       = -1f;
+
+		//hangar machinery
 		BaseHangarAnimator hangar_gates;
-		Vector3 deltaV = Vector3.zero;
-		bool change_velocity = false;
-		
 		public AnimatorState gates_state { get { return hangar_gates.State; } }
 		public HangarState hangar_state { get; private set; }
 		public Metric part_metric { get; private set; }
@@ -30,28 +47,17 @@ namespace AtHangar
 		public float used_volume_frac { get { if(hangar_metric.Empty) return 0; return used_volume/hangar_metric.volume; } }
 		public VesselResources<Vessel, Part, PartResource> hangarResources { get; private set; }
 		public List<ResourceManifest> resourceTransferList = new List<ResourceManifest>();
-		
-		//fields
-		[KSPField (isPersistant = false)] public string AnimatorID;
-		[KSPField (isPersistant = false)] public float  EnergyConsumption = 0.75f;
-		[KSPField (isPersistant = false)] public float  VolumePerKerbal = 6.7f; // m^3
-		[KSPField (isPersistant = false)] public bool   StaticCrewCapacity = true;
-		[KSPField (isPersistant = true)]  public float  base_mass = -1f;
-		
+
 		//vessels storage
 		VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
 		Dictionary<Guid, bool> probed_ids = new Dictionary<Guid, bool>();
-		
+
 		//vessel spawn
-		[KSPField (isPersistant = false)] public float  LaunchHeightOffset;
-		[KSPField (isPersistant = false)] public string LaunchTransform;
-		[KSPField (isPersistant = false)] public string LaunchVelocity;
-		[KSPField (isPersistant = false)] public string HangarSpace;
-		[KSPField (isPersistant = false)] public bool   UseHangarSpaceMesh = false;
-		[KSPField (isPersistant = true)]  public bool   LaunchWithPunch = false;
 		public Vector3 launchVelocity;
 		Transform launch_transform;
 		Vessel launched_vessel;
+		Vector3 deltaV = Vector3.zero;
+		bool change_velocity = false;
 
 		//in-editor vessel docking
 		static readonly string eLock  = "Hangar.EditHangar";
@@ -63,8 +69,9 @@ namespace AtHangar
 		VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>();
 		CraftBrowser vessel_selector;
 		VesselType   vessel_type;
-		
-		//gui fields
+		#endregion
+
+		#region GUI
 		[KSPField (guiName = "Volume",        guiActiveEditor=true)] public string hangar_v;
 		[KSPField (guiName = "Dimensions",    guiActiveEditor=true)] public string hangar_d;
 		[KSPField (guiName = "Crew Capacity", guiActiveEditor=true)] public string crew_capacity;
@@ -94,6 +101,7 @@ namespace AtHangar
 			if(gates != null) info += string.Format("Doors: {0}/sec\n", gates.EnergyConsumption);
 			return info;
 		}
+		#endregion
 		
 		#region For HangarWindow
 		public List<StoredVessel> GetVessels() { return stored_vessels.Values; }
