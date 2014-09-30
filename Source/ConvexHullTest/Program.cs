@@ -45,7 +45,7 @@ namespace ConvexHullTest
 		{ 
 			for(int i = 0; i < args.Length; i++) 
 				if(args[i] is Vector3) args[i] = formatVector((Vector3)args[i]);
-			Console.WriteLine(string.Format("[Hangar] "+msg, args)); 
+			Console.WriteLine(string.Format(msg, args)); 
 		}
 	}
 
@@ -93,11 +93,26 @@ namespace ConvexHullTest
 				for(int i = 0; i < N; i++)
 					vertices[i] = new Vector3(NextFloat(r), NextFloat(r), NextFloat(r)).normalized;
 				sw.Start();
-				var hull1 = new QuickHull(vertices);
+				var qhull = new QuickHull(vertices);
 				sw.Stop();
-				Console.WriteLine(string.Format("QuickHull computed: faces {0}; vertices {1}", hull1.Faces.Count, hull1.Points.Count));
+				Console.WriteLine(string.Format("QuickHull computed: faces {0}; vertices {1}", qhull.Faces.Count, qhull.Points.Count));
 				sw.Reset();
-				Console.WriteLine("=========");
+//				sw.Start();
+//				var hull = new BruteHull(vertices);
+//				sw.Stop();
+//				Console.WriteLine(string.Format("BruteHull computed: faces {0}; vertices {1}", hull.Faces.Count, hull.Points.Count));
+//				sw.Reset();
+				Console.WriteLine("==================");
+//				Console.WriteLine("\n=========Faces that differ=========");
+//				int df = 0;
+//				foreach(QFace qf in qhull.Faces)
+//				{
+//					bool both_have = false;
+//					foreach(Face f in hull.Faces)
+//					{ both_have = f.SameAs(qf); if(both_have) break; }
+//					if(!both_have) { qf.Log(); df++; }
+//				}
+//				Utils.Log("{0} faces differ", df);
 			}
 		}
 	}
