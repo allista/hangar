@@ -366,7 +366,9 @@ namespace AtHangar
 				m.FitsAligned(launch_transform, part.partTransform, hangar_metric) : 
 				m.FitsAligned(launch_transform, hangar_space.transform, hangar_space.sharedMesh);
 		}
-		
+
+		bool compute_hull { get { return hangar_space != null; } }
+
 		StoredVessel try_store(Vessel vsl)
 		{
 			//check vessel crew
@@ -376,7 +378,7 @@ namespace AtHangar
 				return null;
 			}
 			//check vessel metrics
-			StoredVessel sv = new StoredVessel(vsl);
+			StoredVessel sv = new StoredVessel(vsl, compute_hull);
 			if(!metric_fits_into_hangar_space(sv.metric))
 			{
 				ScreenMessager.showMessage("Insufficient vessel clearance for safe docking\n" +
@@ -489,7 +491,7 @@ namespace AtHangar
 			Utils.LockEditor(scLock);
 			for(int i = 0; i < 3; i++)
 				yield return new WaitForEndOfFrame();
-			pc.UpdateMetric();
+			pc.UpdateMetric(compute_hull);
 			if(try_store_construct(pc)) 
 				change_part_params(pc.metric);
 			pc.UnloadConstruct();

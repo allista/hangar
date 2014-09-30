@@ -2,11 +2,64 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using UnityEngine;
 using KSPAPIExtensions;
 
 namespace AtHangar
 {
+	#if DEBUG
+	public class NamedStopwatch
+	{
+		readonly System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+		readonly string name;
+
+		public NamedStopwatch(string name)
+		{ this.name = name; }
+
+		public void Start()
+		{
+			Utils.Log("{0}: start counting time", name);
+			sw.Start();
+		}
+
+		public void Stamp()
+		{
+			Utils.Log("{0}: elapsed time: {1}us", name, 
+				sw.ElapsedTicks/(System.Diagnostics.Stopwatch.Frequency/(1000000L)));
+		}
+
+		public void Stop() { sw.Stop(); Stamp(); }
+
+		public void Reset() { sw.Stop(); sw.Reset(); }
+	}
+	#endif
+
+	public static class CollectionsExtension
+	{
+		public static TSource SelectMax<TSource>(this IEnumerable<TSource> s, Func<TSource, float> metric)
+		{
+			float max_v = -1;
+			TSource max_e = default(TSource);
+			foreach(TSource e in s)
+			{
+				float m = metric(e);
+				if(m > max_v) { max_v = m; max_e = e; }
+			}
+			return max_e;
+		}
+
+		public static void ForEach<TSource>(this TSource[] a, Action<TSource> action)
+		{ foreach(TSource e in a) action(e); }
+
+		public static TSource Pop<TSource>(this LinkedList<TSource> l)
+		{
+			TSource e = l.Last.Value;
+			l.RemoveLast();
+			return e;
+		}
+	}
+
 	public class Triangle : IEnumerable<int>
 	{
 		readonly protected int i1, i2, i3;
@@ -340,7 +393,7 @@ namespace AtHangar
 		public static void DrawMesh(Vector3[] edges, IEnumerable<int> tris, Transform t, Color c = default(Color), Material mat = null)
 		{
 			//make a mesh
-			Mesh m = new Mesh();
+			var m = new Mesh();
 			m.vertices  = edges;
 			m.triangles = tris.ToArray();
 			//recalculate normals and bounds
@@ -391,7 +444,7 @@ namespace AtHangar
 			edges[2] = ori-x+y;
 			edges[3] = ori+x+y;
 			edges[4] = ori+x-y;
-			List<int> tris = new List<int>();
+			var tris = new List<int>();
 			tris.AddRange(new Quad(1, 2, 3, 4));
 			tris.AddRange(new Triangle(0, 1, 2));
 			tris.AddRange(new Triangle(0, 2, 3));
@@ -404,6 +457,20 @@ namespace AtHangar
 		{
 			Utils.DrawArrow(Vector3.zero, Vector3.up*M.extents.y*0.8f, T, Color.green);
 			Utils.DrawArrow(Vector3.zero, Vector3.forward*M.extents.z*0.8f, T, Color.blue);
+		}
+
+		public static void DrawHull(Metric M, Transform T, Color c = default(Color))
+		{
+			if(M.hull == null) return;
+			var h = M.hull;
+			var verts = new List<Vector3>(h.Faces.Count*3);
+			var tris  = new List<int>(h.Faces.Count*3);
+			foreach(Face f in h.Faces) 
+			{
+				verts.AddRange(f);
+				tris.AddRange(new []{0+tris.Count, 1+tris.Count, 2+tris.Count});
+			}
+			Utils.DrawMesh(verts.ToArray(), tris, T, c, material);
 		}
 		#endregion
 	}

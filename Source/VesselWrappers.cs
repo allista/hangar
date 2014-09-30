@@ -25,10 +25,10 @@ namespace AtHangar
 			return true;
 		}
 
-		public void UpdateMetric()
+		public void UpdateMetric(bool compute_hull = false)
 		{ 
 			if(construct == null) return;
-			metric = new Metric(construct.Parts); 
+			metric = new Metric(construct.Parts, compute_hull); 
 		}
 
 		public void UnloadConstruct() 
@@ -99,10 +99,10 @@ namespace AtHangar
 
 		public StoredVessel() {}
 
-		public StoredVessel(Vessel vsl)
+		public StoredVessel(Vessel vsl, bool compute_hull=false)
 		{
 			vessel = vsl.BackupVessel();
-			metric = new Metric(vsl);
+			metric = new Metric(vsl, compute_hull);
 			id     = vessel.vesselID;
 			CoM    = vsl.findLocalCenterOfMass();
 			crew   = vsl.GetVesselCrew();
