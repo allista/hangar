@@ -57,6 +57,20 @@ namespace AtHangar
 		public bool Visited = false;
 		public bool Dropped = false;
 
+		#region Constructors
+		public Face(Vector3 v0, Vector3 v1, Vector3 v2)
+		{
+			this.v0 = v0; this.v1 = v1; this.v2 = v2;
+			P = new Plane(v0, v1, v2);
+			edges[0] = new Edge(this, 0);
+			edges[1] = new Edge(this, 1);
+			edges[2] = new Edge(this, 2);
+		}
+
+		public Face(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 p)
+			: this(v0,v1,v2) { Orient(p); }
+		#endregion
+
 		#region Access to members
 		public Vector3 this[int i]
 		{
@@ -78,7 +92,7 @@ namespace AtHangar
 		public IEnumerator<Edge> Edges(int start = 0) 
 		{ 
 			for(int i = start; i < start+3; i++)
-				yield return GetEdge(i);
+				yield return edges[i % 3];
 		}
 
 		public void Join(int edge, Edge other)
@@ -91,41 +105,10 @@ namespace AtHangar
 		}
 		public void Join(int edge, Face other, int other_edge)
 		{ Join(edge, other.GetEdge(other_edge)); }
-
-		public void JoinAtBorder(Edge other)
-		{
-			for(int i = 0; i < 3; i++)
-			{
-				if(edges[i].IsBorder)
-				{ Join(i, other); break; }
-			}
-		}
-
-		public void RemoveNeighbour(int edge)
-		{ edges[edge % 3].Neighbour = null; }
-
-		public void RemoveNeighbour(Edge other)
-		{ 
-			if(other.Neighbour == this)
-				edges[other.NeighbourIndex].Neighbour = null;
-		}
 		#endregion
 
-		public Face(Vector3 v0, Vector3 v1, Vector3 v2)
-		{
-			this.v0 = v0; this.v1 = v1; this.v2 = v2;
-			P = new Plane(v0, v1, v2);
-			edges[0] = new Edge(this, 0);
-			edges[1] = new Edge(this, 1);
-			edges[2] = new Edge(this, 2);
-		}
-
-		public Face(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 p)
-			: this(v0,v1,v2) { Orient(p); }
-
+		#region Geometry
 		public bool Visible(Vector3 p) { return P.GetDistanceToPoint(p) > MinDistance; }
-
-		public float DistanceTo(Vector3 p) { return P.GetDistanceToPoint(p); }
 
 		public void Flip()
 		{
@@ -136,7 +119,8 @@ namespace AtHangar
 			var t = v0; v0 = v1; v1 = t;
 		}
 
-		public void Orient(Vector3 p) { if(Visible(p)) Flip(); }
+		public void Orient(Vector3 p) { if(P.GetDistanceToPoint(p) > MinDistance) Flip(); }
+		#endregion
 
 		#if DEBUG
 		public void Log()
@@ -202,8 +186,8 @@ namespace AtHangar
 			public new void Clear()	{ base.Clear(); Horizon.Clear(); }
 		}
 
-		public readonly List<Vector3> Points = new List<Vector3>();
-		public readonly List<Face>    Faces  = new List<Face>();
+		public List<Vector3> Points { get; private set; }
+		public List<Face>    Faces  { get; private set; }
 
 		public virtual IEnumerator<Vector3> GetEnumerator()
 		{ return Points.GetEnumerator(); }
@@ -216,25 +200,28 @@ namespace AtHangar
 		/// and the base defined as the CCW list of edges.
 		/// </summary>
 		/// <param name="p">Apex of the pyramid.</param>
-		/// <param name="horizon">CCW list of edges belongin to the Faces 
+		/// <param name="edges">CCW list of edges belongin to the Faces 
 		/// to which the pyramid will be connected.</param>
-		static List<Face> make_pyramid(Vector3 p, IList<Face.Edge> horizon)
+		static List<Face> make_pyramid(Vector3 p, IList<Face.Edge> edges)
 		{
-			var faces = new Face[horizon.Count];
-			for(int i = 0; i < horizon.Count; i++)
+			int num_edges = edges.Count;
+			var faces = new List<Face>(num_edges);
+			for(int i = 0; i < num_edges; i++)
 			{
-				Face.Edge e = horizon[i];
+				Face.Edge e = edges[i];
 				var nf = new Face(p, e.v1, e.v0);
 				nf.Join(1, e); //join with the horizon
 				if(i > 0) nf.Join(0, faces[i-1], 2); //join with previous
-				if(i == horizon.Count-1) nf.Join(2, faces[0], 0); //join with the firts
-				faces[i] = nf;
+				if(i == num_edges-1) nf.Join(2, faces[0], 0); //join with the firts
+				faces.Add(nf);
 			}
-			return faces.ToList();
+			return faces;
 		}
 
-		void make_seed(ICollection<Vector3> points)
+		void make_seed(List<Vector3> points)
 		{
+			//initialize Faces
+			Faces = new List<Face>(4);
 			//find min-max points of a set
 			Vector3 min_xv, max_xv, min_yv, max_yv, min_zv, max_zv;
 			float   min_x,  max_x,  min_y,  max_y,  min_z,  max_z;
@@ -261,7 +248,7 @@ namespace AtHangar
 			Vector3 mv1 = EP.SelectMax(ml.DistanceTo);
 			//make a face and find the furthest point from it
 			var f0 = new Face(ml.s, ml.e, mv1);
-			Vector3 mv2 = EP.SelectMax(p => Math.Abs(f0.DistanceTo(p)));
+			Vector3 mv2 = EP.SelectMax(p => Math.Abs(f0.P.GetDistanceToPoint(p)));
 			//make other 3 faces
 			f0.Orient(mv2); //f0 is not visible now, 
 			//so its edges should be taken in the oposite direction
@@ -279,11 +266,12 @@ namespace AtHangar
 		{
 			for(int p = 0; p < points.Count; p++)
 			{ 
-				for(int f = 0; f < faces.Count; f++)
+				int num_faces = faces.Count;
+				for(int f = 0; f < num_faces; f++)
 				{ 
 					var face  = faces[f];
 					var point = points[p];
-					float d = face.DistanceTo(point);
+					float d = face.P.GetDistanceToPoint(point);
 					if(d > Face.MinDistance)
 					{ 
 						face.VisiblePoints.Add(point);
@@ -304,7 +292,7 @@ namespace AtHangar
 			while(edges.MoveNext())
 			{
 				var e = edges.Current;
-				if(e.Neighbour.Visited) continue;
+				if(e.Neighbour.Visited || e.Neighbour.Dropped) continue;
 				if(e.Neighbour.Visible(p)) 
 					build_horizon(p, visible, e.Neighbour, e.NeighbourIndex);
 				else visible.Horizon.Add(e.NeigbourEdge);
@@ -319,19 +307,20 @@ namespace AtHangar
 		public void Update(IList<Vector3> points)
 		{
 //			Utils.Log("Faces0: {0}", Faces.Count); //debug
-			var visible = new VisibleFaces();
+			var visible     = new VisibleFaces();
 			var working_set = new LinkedList<Face>(Faces);
+			var final_set   = new LinkedList<Face>();
 			sort_points(points, Faces); Faces.Clear();
 			while(working_set.Count > 0)
 			{
 //				Utils.Log("working set: {0}", working_set.Count);//debug
 				Face f = working_set.Pop();
+//				f.Log();//debug
 				//if the face was dropped, skip it
 				if(f.Dropped) continue;
-//				f.Log();//debug
 				//if the face has no visible points it belongs to the hull
 				if(f.VisiblePoints.Count == 0) 
-				{ Faces.Add(f); continue; }
+				{ final_set.AddFirst(f); continue; }
 				//if not, build the visible set of faces and the horizon for the furthest visible point 
 				visible.Clear();
 				build_horizon(f.Furthest, visible, f);
@@ -349,14 +338,15 @@ namespace AtHangar
 //						  "Points remains: {1}",
 //					new_faces.Count, working_set.Sum(wf => wf.VisiblePoints.Count));
 			}
+			//filter out faces that are still visible
+			Faces.AddRange(from f in final_set where !f.Dropped select f);
 			//build a list of unique hull points
-//			Utils.Log("Faces: {0}", Faces.Count); //debug
 //			int nump = Points.Count; //debug
 			var _Points = new HashSet<Vector3>();
 			for(int i = 0; i < Faces.Count; i++)
 			{ var f = Faces[i]; _Points.Add(f.v0); _Points.Add(f.v1); _Points.Add(f.v2); }
-			Points.Clear(); Points.AddRange(_Points);
-//			Utils.Log("ConvexHull points: {0} was, {1} now", nump, Points.Count);//debug
+			Points = new List<Vector3>(_Points.Count);
+			Points.AddRange(_Points);
 		}
 
 		public ConvexHull3D(List<Vector3> points)
@@ -367,12 +357,7 @@ namespace AtHangar
 			//initialize the initial tetrahedron
 //			Utils.Log("Initial points {0}", points.Count);//debug
 			make_seed(points);
-//			Utils.Log("Points after seed creation {0}", points.Count);//debug
-//			Faces.ForEach(f => f.Log());//debug
-			//if this IS a tetrahedron, all is done
-			if(points.Count == 4) 
-			{ Points.AddRange(points); return; }
-			//otherwise incrementally udate the seed
+			//incrementally udate the seed
 			Update(points);
 		}
 		public ConvexHull3D(IEnumerable<Vector3> points) : this(points.ToList()) {}
