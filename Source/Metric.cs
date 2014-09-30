@@ -78,7 +78,7 @@ namespace AtHangar
 			else b.Encapsulate(nb);
 		}
 
-		static Vector3[] uniqueEdges(Mesh m)
+		static Vector3[] uniqueVertices(Mesh m)
 		{
 			var v_set = new HashSet<Vector3>();
 			foreach(Vector3 v in m.vertices) v_set.Add(v);
@@ -111,7 +111,7 @@ namespace AtHangar
 					if(compute_hull)
 					{
 						float m_size = Vector3.Scale(m.sharedMesh.bounds.size, m.transform.lossyScale).sqrMagnitude;
-						var verts = m_size > b_size/10? local2local(m.transform, vT, uniqueEdges(m.sharedMesh)) : edges;
+						var verts = m_size > b_size/10? local2local(m.transform, vT, uniqueVertices(m.sharedMesh)) : edges;
 						hull_points.AddRange(verts);
 						b_size = b.size.sqrMagnitude;
 					}
@@ -185,7 +185,7 @@ namespace AtHangar
 		{
 			MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
 			if(m == null) { Utils.Log("[Metric] {0} does not have '{1}' mesh", part.name, mesh_name); return; }
-			if(compute_hull) hull = new ConvexHull3D(m.sharedMesh.vertices);
+			if(compute_hull) hull = new ConvexHull3D(uniqueVertices(m.sharedMesh));
 			Vector3[] edges = BoundsEdges(m.sharedMesh.bounds);
 			local2local(m.transform, part.partTransform, edges);
 			bounds = initBounds(edges);
