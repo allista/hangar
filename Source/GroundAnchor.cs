@@ -23,7 +23,7 @@ namespace AtHangar
         [KSPField] public string detachSndPath = "Hangar/Sounds/anchorDetach";
         public FXGroup fxSndAttach, fxSndDetach;
 		
-		
+		IEnumerator<YieldInstruction> joint_checker;
 		IEnumerator<YieldInstruction> check_joint()
 		{
 			while(true)
@@ -40,8 +40,9 @@ namespace AtHangar
 		
 		public override void OnAwake()
 		{
-			base.OnAwake ();
-			StartCoroutine(check_joint());
+			base.OnAwake();
+			joint_checker = check_joint();
+			StartCoroutine(joint_checker);
 		}
 		
 		public override void OnStart(PartModule.StartState state)
@@ -61,7 +62,7 @@ namespace AtHangar
 		void OnDestroy()
         {
 			DestroyAnchor();
-			StopCoroutine("check_joint");
+			StopCoroutine(joint_checker);
         }
 		
 		void OnPartPack() { DestroyAnchor(); }
