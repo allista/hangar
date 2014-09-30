@@ -91,16 +91,20 @@ namespace ConvexHullTest
 			{
 				GC.Collect();
 				for(int i = 0; i < N; i++)
-					vertices[i] = new Vector3(NextFloat(r), NextFloat(r), NextFloat(r)).normalized;
+					vertices[i] = new Vector3(NextFloat(r), NextFloat(r), NextFloat(r));//.normalized;
 				sw.Start();
 				var qhull = new QuickHull(vertices);
 				sw.Stop();
 				Console.WriteLine(string.Format("QuickHull computed: faces {0}; vertices {1}", qhull.Faces.Count, qhull.Points.Count));
+//				qhull.CheckFaces();
+				Console.WriteLine();
 				sw.Reset();
 //				sw.Start();
 //				var hull = new BruteHull(vertices);
 //				sw.Stop();
 //				Console.WriteLine(string.Format("BruteHull computed: faces {0}; vertices {1}", hull.Faces.Count, hull.Points.Count));
+//				hull.CheckFaces();
+//				Utils.Log("BruteHull has {0} face more than QuickHull", hull.Faces.Count-qhull.Faces.Count);
 //				sw.Reset();
 				Console.WriteLine("==================");
 //				Console.WriteLine("\n=========Faces that differ=========");
