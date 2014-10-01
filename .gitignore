@@ -20,3 +20,7 @@
 *.mdb
 /vessel_positioning.txt
 /Source/Hangar.userprefs
+/Library/CurrentLayout.dwlt
+/Library/ScriptMapper
+/Library/expandedItems
+/Library/guidmapper
