@@ -11,8 +11,8 @@ namespace AtHangar
 	{
 		//settings
 		static int  highlight_hangar = 0; //1 -- enable highlight; -1 -- disable highlight; 0 -- do not set highlight (for mouseover highlighting).
-		static bool draw_directions = false;
-		static bool selecting_crew = false;
+		static bool draw_directions  = false;
+		static bool selecting_crew   = false;
 		static bool transfering_resources = false;
 		static Rect fWindowPos = new Rect();
 		static Rect eWindowPos = new Rect();
@@ -344,6 +344,7 @@ namespace AtHangar
 				selected_hangar = hangar;
 				hangar_id = hangar.part.flightID;
 				hangar_list.SelectItem(hangars.IndexOf(hangar));
+				BuildVesselList(selected_hangar);
 			}
 		}
 
@@ -550,7 +551,7 @@ namespace AtHangar
 				catch (NullReferenceException) { return; }
 				if(parts.Count == 0 || parts[0] == null) return;
 				vessel_metric.DrawCenter(parts[0].partTransform);
-				Utils.DrawHull(vessel_metric, parts[0].partTransform);
+//				Utils.DrawHull(vessel_metric, parts[0].partTransform);
 			}
 			else 
 			{
