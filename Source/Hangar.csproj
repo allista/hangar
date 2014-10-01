@@ -85,6 +85,10 @@
     <Compile Include="ProceduralAdapter.cs" />
     <Compile Include="TruncatedCone.cs" />
     <Compile Include="ConvexHull3D.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="DebugUtils.cs" />
+    <Compile Include="GraphicsUtils.cs" />
+    <Compile Include="Addons.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
