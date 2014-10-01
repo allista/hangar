@@ -69,6 +69,8 @@ namespace AtHangar
 		VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>();
 		CraftBrowser vessel_selector;
 		VesselType   vessel_type;
+		readonly List<Hangar> ready_cecklist = new List<Hangar>();
+		public bool Ready;
 		#endregion
 
 		#region GUI
@@ -134,6 +136,29 @@ namespace AtHangar
 		//all initialization goes here instead of the constructor as documented in Unity API
 		void update_resources()
 		{ hangarResources = new VesselResources<Vessel, Part, PartResource>(vessel); }
+
+		void build_checklist()
+		{
+			if(HighLogic.LoadedScene != GameScenes.FLIGHT) return;
+			ready_cecklist.Clear();
+			foreach(Part p in vessel.parts)
+			{
+				if(p == part) break;
+				ready_cecklist.AddRange(p.Modules.OfType<Hangar>());
+			}
+		}
+
+		bool other_hangars_ready
+		{
+			get
+			{
+				if(ready_cecklist.Count == 0) return true;
+				bool ready = true;
+				foreach(Hangar h in ready_cecklist)
+				{ ready &= h.Ready; if(!ready) break; }
+				return ready;
+			}
+		}
 		
 		public override void OnAwake()
 		{
@@ -146,6 +171,9 @@ namespace AtHangar
 			//base OnStart
 			base.OnStart(state);
 			if(state == StartState.None) return;
+			//set vessel type
+			EditorLogic el = EditorLogic.fetch;
+			if(el != null) vessel_type = el.editorType == EditorLogic.EditorMode.SPH ? VesselType.SPH : VesselType.VAB;
 			//setup hangar name
 			if(HangarName == "_none_") HangarName = part.partInfo.title;
 			//initialize resources
@@ -153,7 +181,7 @@ namespace AtHangar
 			//initialize Animator
 			part.force_activate();
 			hangar_gates = part.Modules.OfType<BaseHangarAnimator>().FirstOrDefault(m => m.AnimatorID == AnimatorID);
-			if (hangar_gates == null)
+			if(hangar_gates == null)
 			{
                 hangar_gates = new BaseHangarAnimator();
 				Utils.Log("Using BaseHangarAnimator");
@@ -166,11 +194,11 @@ namespace AtHangar
 			//recalculate volume and mass, start updating labels
 			Setup();
 			StartCoroutine(UpdateStatus());
+			//if there are multiple hangars in the vessel,
+			//coordinate with them before storing packed constructs
+			build_checklist();
 			//store packed constructs if any
-			if(packed_constructs.Count > 0) StartCoroutine(convert_constructs_to_vessels());
-			//set vessel type
-			EditorLogic el = EditorLogic.fetch;
-			if(el != null) vessel_type = el.editorType == EditorLogic.EditorMode.SPH ? VesselType.SPH : VesselType.VAB;
+			StartCoroutine(convert_constructs_to_vessels());
 		}
 		
 		public void Setup(bool reset = false)	
@@ -320,7 +348,7 @@ namespace AtHangar
 					float request = EnergyConsumption*TimeWarp.fixedDeltaTime;
 					if(part.RequestResource("ElectricCharge", request) < request)
 					{
-						ScreenMessager.showMessage("Not enough energy. The hangar has deactivated.", 3);
+						ScreenMessager.showMessage("Not enough energy. The hangar has deactivated.");
 						Deactivate();
 					}
 				}
@@ -339,7 +367,7 @@ namespace AtHangar
 			//if hangar is not ready, return
 			if(hangar_state == HangarState.Inactive) 
 			{
-				ScreenMessager.showMessage("Activate the hangar first", 3);
+				ScreenMessager.showMessage("Activate the hangar first");
 				return false;
 			}
 			//check self state first
@@ -347,7 +375,7 @@ namespace AtHangar
 			{
 			case ClearToSaveStatus.NOT_WHILE_ABOUT_TO_CRASH:
 			{
-				ScreenMessager.showMessage("Cannot accept the vessel while about to crush", 3);
+				ScreenMessager.showMessage("Cannot accept the vessel while about to crush");
 				return false;
 			}
 			}
@@ -355,13 +383,13 @@ namespace AtHangar
 			Vector3 rv = vessel.GetObtVelocity()-vsl.GetObtVelocity();
 			if(rv.magnitude > 1f) 
 			{
-				ScreenMessager.showMessage("Cannot accept a vessel with a relative speed higher than 1m/s", 3);
+				ScreenMessager.showMessage("Cannot accept a vessel with a relative speed higher than 1m/s");
 				return false;
 			}
 			Vector3 ra = vessel.acceleration - vsl.acceleration;
 			if(ra.magnitude > 0.1)
 			{
-				ScreenMessager.showMessage("Cannot accept an accelerating vessel", 3);
+				ScreenMessager.showMessage("Cannot accept an accelerating vessel");
 				return false;
 			}
 			return true;
@@ -382,7 +410,7 @@ namespace AtHangar
 			//check vessel crew
 			if(vsl.GetCrewCount() > vessel.GetCrewCapacity()-vessel.GetCrewCount())
 			{
-				ScreenMessager.showMessage("Not enough space for the crew of a docking vessel", 3);
+				ScreenMessager.showMessage("Not enough space for the crew of a docking vessel");
 				return null;
 			}
 			//check vessel metrics
@@ -390,12 +418,12 @@ namespace AtHangar
 			if(!metric_fits_into_hangar_space(sv.metric))
 			{
 				ScreenMessager.showMessage("Insufficient vessel clearance for safe docking\n" +
-					"The vessel cannot be stored in this hangar", 3);
+					"The vessel cannot be stored in this hangar");
 				return null;
 			}
 			if(!stored_vessels.Add(sv))
 			{
-				ScreenMessager.showMessage("There's no room in the hangar for this vessel", 3);
+				ScreenMessager.showMessage("There's no room in the hangar for this vessel");
 				return null;
 			}
 			return sv;
@@ -449,7 +477,7 @@ namespace AtHangar
 				FlightGlobals.ForceSetActiveVessel(vessel);
 			//destroy vessel
 			vsl.Die();
-			ScreenMessager.showMessage("Vessel has been docked inside the hangar", 3);
+			ScreenMessager.showMessage("Vessel has been docked inside the hangar");
 		}
 		
 		//called every frame while part collider is touching the trigger
@@ -486,13 +514,13 @@ namespace AtHangar
 			GetLaunchTransform();
 			if(!metric_fits_into_hangar_space(pc.metric))
 			{
-				ScreenMessager.showMessage(string.Format("Insufficient vessel clearance for safe docking\n" +
-					"\"{0}\" cannot be stored in this hangar", pc.name), 5);
+				ScreenMessager.showMessage(5, "Insufficient vessel clearance for safe docking\n" +
+					"\"{0}\" cannot be stored in this hangar", pc.name);
 				return false;
 			}
 			if(!packed_constructs.Add(pc))
 			{
-				ScreenMessager.showMessage(string.Format("There's no room in the hangar for \"{0}\"", pc.name), 3);
+				ScreenMessager.showMessage("There's no room in the hangar for \"{0}\"", pc.name);
 				return false;
 			}
 			return true;
@@ -523,13 +551,13 @@ namespace AtHangar
 				Utils.Log("PackedConstruct: unable to load ShipConstruct from {0}. " +
 					"This usually means that some parts are missing " +
 					"or some modules failed to initialize.", filename);
-				ScreenMessager.showMessage(string.Format("Unable to load {0}", filename), 3);
+				ScreenMessager.showMessage("Unable to load {0}", filename);
 				return;
 			}
 			//check if the construct contains launch clamps
 			if(Utils.HasLaunchClamp(pc.construct))
 			{
-				ScreenMessager.showMessage(string.Format("\"{0}\" has launch clamps. Remove them before storing.", pc.name), 3);
+				ScreenMessager.showMessage("\"{0}\" has launch clamps. Remove them before storing.", pc.name);
 				pc.UnloadConstruct();
 				return;
 			}
@@ -547,7 +575,7 @@ namespace AtHangar
 		void remove_construct(PackedConstruct pc)
 		{
 			change_part_params(pc.metric, -1f);
-			packed_constructs.Remove(pc.id);
+			packed_constructs.Remove(pc);
 		}
 
 		void clear_constructs() 
@@ -555,37 +583,39 @@ namespace AtHangar
 
 		IEnumerator<YieldInstruction> convert_constructs_to_vessels()
 		{
-			if(FlightGlobals.fetch == null || 
-				FlightGlobals.ActiveVessel == null ||
+			if(HighLogic.LoadedScene != GameScenes.FLIGHT ||
 				packed_constructs.Count == 0) 
-				yield break;
+			{ Ready = true;	yield break; }
+			//temporarely deactivate the hangar
+			HangarState cur_state = hangar_state; Deactivate();
 			//wait for hangar.vessel to be loaded
 			var self = new VesselWaiter(vessel);
-			while(!self.loaded) yield return new WaitForFixedUpdate();
-			while(!enabled) yield return new WaitForFixedUpdate();
+			while(!self.loaded) yield return null;
+			while(!enabled) yield return null;
+			//wait for other hangars to be ready
+			while(!other_hangars_ready) yield return null;
 			//create vessels from constructs and store them
-			HangarState cur_state = hangar_state; Deactivate();
 			foreach(PackedConstruct pc in packed_constructs.Values)
 			{
 				remove_construct(pc);
-				GetLaunchTransform();
 				if(!pc.LoadConstruct()) 
 				{
 					Utils.Log("PackedConstruct: unable to load ShipConstruct {0}. " +
 						"This usually means that some parts are missing " +
 						"or some modules failed to initialize.", pc.name);
-					ScreenMessager.showMessage(string.Format("Unable to load {0}", pc.name), 3);
+					ScreenMessager.showMessage("Unable to load {0}", pc.name);
 					continue;
 				}
-				ShipConstruction.PutShipToGround(pc.construct, launch_transform);
-				ShipConstruction.AssembleForLaunch(pc.construct, "Hangar", pc.flag, 
+				ShipConstruction.PutShipToGround(pc.construct, get_transform_for_construct(pc));
+				ShipConstruction.AssembleForLaunch(pc.construct, 
+					vessel.vesselName+":"+HangarName, pc.flag, 
 					FlightDriver.FlightStateCache,
 					new VesselCrewManifest());
 				var vsl = new VesselWaiter(FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1]);
 				FlightGlobals.ForceSetActiveVessel(vsl.vessel);
 				Staging.beginFlight();
 				//wait for vsl to be launched
-				while(!vsl.loaded) yield return new WaitForFixedUpdate();
+				while(!vsl.loaded) yield return null;
 				store_vessel(vsl.vessel, false);
 				//wait a 0.1 sec, otherwise the vessel may not be destroyed properly
 				yield return new WaitForSeconds(0.1f); 
@@ -598,6 +628,7 @@ namespace AtHangar
 			while(!self.loaded) yield return null;
 			yield return new WaitForSeconds(0.5f);
 			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
+			Ready = true;
 		}
 		#endregion
 
@@ -623,6 +654,16 @@ namespace AtHangar
 				Utils.Log("LaunchTransform not found. Using offset.");
 			}
 			return launch_transform;
+		}
+
+		Transform get_transform_for_construct(PackedConstruct pc)
+		{
+			GetLaunchTransform();
+			var tmp = new GameObject();
+			Vector3 bounds_offset  = launch_transform.TransformDirection(pc.metric.center);
+			tmp.transform.position = launch_transform.position+bounds_offset;
+			tmp.transform.rotation = launch_transform.rotation;
+			return tmp.transform;
 		}
 		
 		/// <summary>
@@ -683,7 +724,7 @@ namespace AtHangar
 		//static coroutine launched from a DontDestroyOnLoad sentinel object allows to execute code while the scene is switching
 		static IEnumerator<YieldInstruction> setup_vessel(UnityEngine.Object sentinel, LaunchedVessel lv)
 		{
-			while(!lv.loaded) yield return new WaitForFixedUpdate();
+			while(!lv.loaded) yield return null;
 			lv.tunePosition();
 			lv.stiffenWheels();
 			lv.transferCrew();
@@ -766,19 +807,19 @@ namespace AtHangar
 			//if hangar is not ready, return
 			if(hangar_state == HangarState.Inactive) 
 			{
-				ScreenMessager.showMessage("Activate the hangar first", 3);
+				ScreenMessager.showMessage("Activate the hangar first");
 				return false;
 			}
 			if(hangar_gates.State != AnimatorState.Opened) 
 			{
-				ScreenMessager.showMessage("Open hangar gates first", 3);
+				ScreenMessager.showMessage("Open hangar gates first");
 				return false;
 			}
 			//if something is docked to the hangar docking port (if its present)
 			ModuleDockingNode dport = part.Modules.OfType<ModuleDockingNode>().SingleOrDefault();
 			if(dport != null && dport.vesselInfo != null)
 			{
-				ScreenMessager.showMessage("Cannot launch a vessel while another is docked", 3);
+				ScreenMessager.showMessage("Cannot launch a vessel while another is docked");
 				return false;
 			}
 			//if in orbit or on the ground and not moving
@@ -786,28 +827,28 @@ namespace AtHangar
 			{
 				case ClearToSaveStatus.NOT_IN_ATMOSPHERE:
 				{
-					ScreenMessager.showMessage("Cannot launch a vessel while flying in atmosphere", 3);
+					ScreenMessager.showMessage("Cannot launch a vessel while flying in atmosphere");
 					return false;
 				}
 				case ClearToSaveStatus.NOT_UNDER_ACCELERATION:
 				{
-					ScreenMessager.showMessage("Cannot launch a vessel hangar is under accelleration", 3);
+					ScreenMessager.showMessage("Cannot launch a vessel hangar is under accelleration");
 					return false;
 				}
 				case ClearToSaveStatus.NOT_WHILE_ABOUT_TO_CRASH:
 				{
-					ScreenMessager.showMessage("Cannot launch a vessel while about to crush", 3);
+					ScreenMessager.showMessage("Cannot launch a vessel while about to crush");
 					return false;
 				}
 				case ClearToSaveStatus.NOT_WHILE_MOVING_OVER_SURFACE:
 				{
-					ScreenMessager.showMessage("Cannot launch a vessel while moving over the surface", 3);
+					ScreenMessager.showMessage("Cannot launch a vessel while moving over the surface");
 					return false;
 				}
 			}
 			if(vessel.angularVelocity.magnitude > 0.003)
 			{
-				ScreenMessager.showMessage("Cannot launch a vessel while rotating", 3);
+				ScreenMessager.showMessage("Cannot launch a vessel while rotating");
 				return false;
 			}
 			return true;
@@ -816,9 +857,14 @@ namespace AtHangar
 		public void TryRestoreVessel(StoredVessel stored_vessel)
 		{
 			if(!can_restore()) return;
-			ScreenMessager.showMessage(string.Format("Launching {0}...", stored_vessel.vessel.vesselName), 3);
 			//clean up
-			stored_vessels.Remove(stored_vessel.vessel.vesselID);
+			if(!stored_vessels.Remove(stored_vessel))
+			{
+				ScreenMessager.showMessage("WARNING: restored vessel ID is not found in the Stored Vessels: {0}\n" +
+					"This should never happen!", stored_vessel.id);
+				return;
+			}
+			ScreenMessager.showMessage("Launching \"{0}\"...", stored_vessel.name);
 			//switch hangar state
 			hangar_state = HangarState.Inactive;
 			//transfer resources
@@ -829,7 +875,7 @@ namespace AtHangar
 			//restore vessel
 			stored_vessel.Load();
 			//get restored vessel from the world
-			launched_vessel = stored_vessel.vessel.vesselRef;
+			launched_vessel = stored_vessel.launched_vessel;
 			//transfer crew back to the launched vessel
 			List<ProtoCrewMember> crew_to_transfer = CrewTransfer.delCrew(vessel, stored_vessel.crew);
 			//change volume and mass
@@ -1036,17 +1082,17 @@ namespace AtHangar
 		{ 
 			if(stored_vessels.Count > 0 || packed_constructs.Count > 0)
 			{
-				ScreenMessager.showMessage("Empty the hangar before deflating it", 3);
+				ScreenMessager.showMessage("Empty the hangar before deflating it");
 				return false;
 			}
 			if(EditorLogic.fetch == null && hangar_state == HangarState.Active)
 			{
-				ScreenMessager.showMessage("Deactivate the hangar before deflating it", 3);
+				ScreenMessager.showMessage("Deactivate the hangar before deflating it");
 				return false;
 			}
 			if(hangar_gates.State != AnimatorState.Closed)
 			{
-				ScreenMessager.showMessage("Close hangar doors before deflating it", 3);
+				ScreenMessager.showMessage("Close hangar doors before deflating it");
 				return false;
 			}
 			return true;

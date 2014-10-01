@@ -514,15 +514,18 @@ namespace AtHangar
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 	public class ScreenMessager : MonoBehaviour
 	{
-		static float osdMessageTime  = 0;
+		static float  osdMessageTime = 0;
 		static string osdMessageText = null;
 
-		public static void showMessage(string msg, float delay)
+		public static void showMessage(string msg, params object[] args)
+		{ showMessage(3, msg, args);}
+
+		public static void showMessage(float delay, string msg, params object[] args)
 		{
 			#if DEBUG
-			Utils.Log(msg);
+			Utils.Log(msg, args);
 			#endif
-			osdMessageText = msg;
+			osdMessageText = string.Format(msg, args);
 			osdMessageTime = Time.time + delay;
 		}
 

@@ -8,7 +8,6 @@ namespace AtHangar
 
 	public class PackedConstruct : PackedVessel
 	{
-		public string name { get; private set; }
 		public string flag { get; private set; }
 		public ShipConstruct construct { get; private set; }
 		ConfigNode vessel_node;
@@ -92,6 +91,7 @@ namespace AtHangar
 	public class StoredVessel : PackedVessel
 	{
 		public ProtoVessel vessel { get; private set; }
+		public Vessel launched_vessel { get { return vessel.vesselRef; } }
 		public Vector3 CoM { get; private set; }
 		public List<ProtoCrewMember> crew { get; private set; }
 		public int CrewCapacity { get{ return metric.CrewCapacity; } }
@@ -104,6 +104,7 @@ namespace AtHangar
 			vessel = vsl.BackupVessel();
 			metric = new Metric(vsl, compute_hull);
 			id     = vessel.vesselID;
+			name   = vessel.vesselName;
 			CoM    = vsl.findLocalCenterOfMass();
 			crew   = vsl.GetVesselCrew();
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
@@ -136,6 +137,7 @@ namespace AtHangar
 			crew   = new List<ProtoCrewMember>();
 			foreach(ConfigNode cn in crew_node.nodes) crew.Add(new ProtoCrewMember(cn));
 			id   = vessel.vesselID;
+			name = vessel.vesselName;
 			CoM  = ConfigNode.ParseVector3(node.GetValue("CoM"));
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(vessel);
 		}

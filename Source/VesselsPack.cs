@@ -78,6 +78,7 @@ namespace AtHangar
 	{ 
 		public Metric metric; 
 		public Guid id; 
+		public string  name   { get; protected set; }
 		public Vector3 size   { get { return metric.size; } }
 		public float   volume { get { return metric.volume; } }
 		public float   mass   { get { return metric.mass; } set { metric.mass = value; } }
@@ -211,11 +212,7 @@ namespace AtHangar
 		public List<V> Repack() { return pack_some(Values); }
 		
 		//mimic Dictionary
-		public void Remove(Guid vid)
-		{
-			if(!stored_vessels.ContainsKey(vid)) return;
-			stored_vessels.Remove(vid);
-		}
+		public bool Remove(V vsl) { return stored_vessels.Remove(vsl.id); }
 
 		public void Clear() { stored_vessels.Clear(); }
 		
