@@ -260,8 +260,7 @@ namespace AtHangar
 		{
 			if(!enable) EnableModules(enable);
 			AnimatorState target_state = enable ? AnimatorState.Opened : AnimatorState.Closed;
-			while(State != target_state) 
-				yield return new WaitForFixedUpdate();
+			while(State != target_state) yield return null;
 			UpdatePart();
 			yield return new WaitForSeconds(0.5f);
 			if(enable) EnableModules(enable);
