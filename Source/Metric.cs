@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +7,8 @@ namespace AtHangar
 {
 	public class Metric
 	{
+		//ignore list
+		public static readonly List<string> MeshesToSkip = new List<string>();
 		//convex hull
 		public ConvexHull3D hull { get; private set; }
 		//bounds
@@ -101,8 +104,15 @@ namespace AtHangar
 				if(p == null) continue; //EditorLogic.SortedShipList returns List<Part>{null} when all parts are deleted
 				foreach(MeshFilter m in p.FindModelComponents<MeshFilter>())
 				{
+					//skip meshes without renderer
 					if(m.renderer == null || !m.renderer.enabled) continue;
-					if(m.name.IndexOf("flagtransform", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+					//skip meshes from the blacklist
+					bool skip_mesh = false;
+					foreach(string mesh_name in MeshesToSkip)
+					{
+						skip_mesh = m.name.IndexOf(mesh_name, StringComparison.OrdinalIgnoreCase) >= 0;
+						if(skip_mesh) break;
+					} if(skip_mesh) continue;
 					//wheels are round and rotating >_<
 					//TODO: rework this block for more efficiency: do not call Mesh.vertices twice
 					Vector3[] edges = m.name.IndexOf("wheel", StringComparison.OrdinalIgnoreCase) >= 0 ? 

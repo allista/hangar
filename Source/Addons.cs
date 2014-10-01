@@ -2,6 +2,33 @@
 
 namespace AtHangar
 {
+	[KSPAddon(KSPAddon.Startup.Instantly, false)]
+	public class HangarConfigLoader : MonoBehaviour
+	{
+		public const string HANGAR_CONFIG  = "HANGAR_CONFIG";
+		public const string MESHES_TO_SKIP = "MeshesToSkip";
+
+		public static string GetConfigValue(string cfg_name, string separator = " ")
+		{
+			string val = "";
+			foreach(ConfigNode n in GameDatabase.Instance.GetConfigNodes(HANGAR_CONFIG))
+				if(n.HasValue(cfg_name)) 
+				{
+					if(val != "") val += separator;
+					foreach(string v in n.GetValues(cfg_name)) val += v;
+				}
+			return val;
+		}
+
+		public void Start()
+		{
+			//init meshes names
+			string meshes = GetConfigValue(MESHES_TO_SKIP);
+			Metric.MeshesToSkip.Clear();
+			Metric.MeshesToSkip.AddRange(meshes.Split(' '));
+		}
+	}
+
 	/// <summary>
 	/// Screen messager is an addon that displays on-screen 
 	/// messages in the top-center of the screen.
