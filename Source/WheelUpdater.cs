@@ -6,23 +6,22 @@ namespace AtHangar
 {
 	class WheelFrictionChanger
 	{ 
-		readonly Wheel wheel;
+		public readonly WheelCollider Collider;
 		readonly float forwardStiffness, sidewaysStiffness;
 
 		public WheelFrictionChanger(Wheel w)
 		{ 
-			wheel = w;
-			forwardStiffness  = w.whCollider.forwardFriction.stiffness; 
-			sidewaysStiffness = w.whCollider.sidewaysFriction.stiffness; 
+			Collider = w.whCollider;
+			forwardStiffness  = Collider.forwardFriction.stiffness; 
+			sidewaysStiffness = Collider.sidewaysFriction.stiffness; 
 		}
 
 		public void SetStiffness(float f, float s)
 		{
-			if(wheel.whCollider == null) return;
-			WheelFrictionCurve ff = wheel.whCollider.forwardFriction;
-			ff.stiffness = f; wheel.whCollider.forwardFriction = ff;
-			WheelFrictionCurve sf = wheel.whCollider.sidewaysFriction;
-			sf.stiffness = s; wheel.whCollider.sidewaysFriction = sf;
+			WheelFrictionCurve ff = Collider.forwardFriction;
+			ff.stiffness = f; Collider.forwardFriction = ff;
+			WheelFrictionCurve sf = Collider.sidewaysFriction;
+			sf.stiffness = s; Collider.sidewaysFriction = sf;
 		}
 
 		public void RestoreWheel()
@@ -35,19 +34,19 @@ namespace AtHangar
 		readonly HashSet<uint> trigger_objects = new HashSet<uint>();
 		readonly List<WheelFrictionChanger> saved_wheels = new List<WheelFrictionChanger>();
 		int last_id;
+		IEnumerator<YieldInstruction> collision_checker;
 
-		#region Methods
-		public override void OnStart(StartState state) { setup(); }
+		public override void OnStart(StartState state) 
+		{ 
+			setup();
+			collision_checker = check_collisions();
+			StartCoroutine(collision_checker);
+		}
 
-		void OnDestroy() { RestoreWheels(); }
-
-		bool setup()
-		{
-			if(module != null) return true;
-			module = part.Modules.OfType<ModuleWheel>().FirstOrDefault();
-			if(module == null) return false;
-			module.wheels.ForEach(w => saved_wheels.Add(new WheelFrictionChanger(w)));
-			return true;
+		void OnDestroy() 
+		{ 
+			RestoreWheels(); 
+			StopCoroutine(collision_checker);
 		}
 
 		public void StiffenWheels() 
@@ -63,19 +62,38 @@ namespace AtHangar
 			if(new_trigger)	StiffenWheels();
 		}
 
-		void OnCollisionEnter(Collision collision) 
+		bool setup()
 		{
-			if(!setup()) return;
-			//check object id
-			int id = collision.gameObject.GetInstanceID();
-			if(id == last_id) return;
-			last_id = id;
-			//check part
-			Part other_part = collision.gameObject.GetComponents<Part>().FirstOrDefault();
-			if(other_part != null && trigger_objects.Contains(other_part.flightID)) StiffenWheels();
-			else RestoreWheels();
+			if(module != null) return true;
+			module = part.Modules.OfType<ModuleWheel>().FirstOrDefault();
+			if(module == null) return false;
+			module.wheels.ForEach(w => saved_wheels.Add(new WheelFrictionChanger(w)));
+			return true;
 		}
-		#endregion
+
+		IEnumerator<YieldInstruction> check_collisions()
+		{
+			WheelHit hit;
+			while(true)
+			{
+				yield return new WaitForSeconds(0.1f);
+				if(!setup()) continue;
+				foreach(WheelFrictionChanger wc in saved_wheels)
+				{
+					if(!wc.Collider.GetGroundHit(out hit)) continue;
+					//check object id
+					var obj = hit.collider.gameObject ;
+					int id = obj.GetInstanceID();
+					if(id == last_id) continue;
+					last_id = id;
+					//check part
+					Part other_part = obj.GetComponents<Part>().FirstOrDefault();
+					if(other_part != null && trigger_objects.Contains(other_part.flightID)) 
+						wc.SetStiffness(1, 1);
+					else wc.RestoreWheel();
+				}
+			}
+		}
 	}
 }
 
