@@ -3,9 +3,9 @@
 [CENTER][COLOR=#FF0000][SIZE=4][B]WARNING: this is still BETA. There should be bugs.[/B][/SIZE][/COLOR]
 While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, [I]but I can't guarantee it[/I]. So if you plan to use it in your main game, [SIZE=5][COLOR=#FF0000][B]backup your saves[/B][/COLOR][/SIZE].[/CENTER]
 [HR][/HR]
-[COLOR=#FF0000][SIZE=5][b]!!! v1.2.0 WARNING WARNING WARNING v1.2.0 !!![/b][/COLOR][/SIZE]
+[COLOR=#FF0000][SIZE=4][b]!!! WARNING WARNING WARNING !!![/b][/COLOR][/SIZE]
 
-[SIZE=3][b]This update may break your saves, BUT all breaks are easily fixable.[/b][/SIZE]
+[SIZE=3][b]If you're upgrading from v1.1.1.1 or below, this update [I]may[/I] break your saves, BUT all breaks are easily fixable.[/b][/SIZE]
 
 To [b]safely[/b] install the update, do the following:
 [list=1]
@@ -26,16 +26,11 @@ To [b]safely[/b] install the update, do the following:
 [/list]
 [*]After that, [b]if[/b] you have installed the [b]Deprecated Parts Addon[/b], uninstall it.
 [/list]
-[SIZE=3][b]Also [URL="https://github.com/allista/hangar/releases/download/v1.2.0/Hangar-v1.2.0-recycler-cost-fix.zip"]there is a hotfix[/URL] for those who have negative cost of the Heavy Recycler problem.[/b][/SIZE]
 [HR][/HR]
 [SIZE=3][b][url=https://github.com/allista/hangar/blob/development/ChangeLog.md]ChangeLog[/url] - [b]read it carefully every time before installing a new version![/b][/b][/SIZE]
 
 [SIZE=3][B]Known Issues[/B][/SIZE]
 [list]
-[*]Hangars:[list]
-[*][b]In editor[/b] [i]Inline[/i] Hangars allow to store vessels that are actually bigger then hangar's internal compartment, so when such vessels are launched they collide with the hangar and explode. The problem is not trivial and I'm working on it, but for now [b]be careful when storing something that fits tightly[/b] in these hangars and make test launches. Sorry for the inconvenience.
-[*]If you try to store a vessel that has some [b]resizable[/b] parts [b]in editor[/b], calculated vessel's dimensions are incorrect. It may result in the storing of a vessel that does not really fit, as well as the other way around.
-[/list]
 [*]GUI:[list]
 [*]Dropdown lists show vertical scrollbars when there are too many items. But due to the implemented click-through prevention mechanism the scrollbars cannot be moved by mouse cursor; use mouse wheel instead. [i]And curse Unity3D for the poor GUI API.[/i]
 [/list]
@@ -99,7 +94,7 @@ All releases, addons and packs, as well as the source code are published on [b]G
 [SIZE=3][B]Requirements[/B][/SIZE]
 [LIST]
 [*]Hangar uses [URL="http://forum.kerbalspaceprogram.com/threads/81496"]KSPAPIExtensions[/URL] by [URL="http://forum.kerbalspaceprogram.com/members/100707-swamp_ig"]swamp_ig[/URL]. This plugin is bundled with the Hangar as it should be. 
-[*]The [url=http://forum.kerbalspaceprogram.com/threads/55219]ModuleManager[/url] is required if you are using the DeprecatedPartsAddon, or if you want to get the enhancements of the supported modes (see below).
+[*]The [url=http://forum.kerbalspaceprogram.com/threads/55219]ModuleManager[/url] [B]is required.[/B]
 [/LIST]
 [SIZE=3][B]Recommended mods[/B][/SIZE]
 There are many great mods out there that I love and use myself. But the one mode that I strongly recommend to use with the Hangar to improve game experience is the [URL="http://forum.kerbalspaceprogram.com/threads/59545"][B]Extraplanetary Launchpads[/B][/URL] by [URL="https://github.com/taniwha-qf"]Taniwha[/URL]. For one thing: big ground hangars are not suitable as parts for vessel construction and are too heavy to launch anyway. So the only meaningful way to use them is to build them on site.
@@ -107,11 +102,11 @@ Also if you want to avoid many problems when building a rover that you  plan to 
 
 [SIZE=3][B]Supported mods[/B][/SIZE] 
 Hangar supports [URL="http://forum.kerbalspaceprogram.com/threads/79745-0-24-2-KSP-AVC-Add-on-Version-Checker-Plugin-1-0-4-KSP-AVC-Online"]KSP Addon Version Checker[/URL]. 
-And some functionality is added to hangars if the following mods are installed:
+And some functionality and parts are added if the following mods are installed:
 [LIST]
-[*][URL="http://forum.kerbalspaceprogram.com/threads/40667?p=1281444&viewfull=1#post1281444"]TAC Life Support [B]beta[/B][/URL] adds life support resources to inhabitable hangars 
+[*][URL="http://forum.kerbalspaceprogram.com/threads/40667?p=1281444&viewfull=1#post1281444"]TAC Life Support [B]beta[/B][/URL] adds life support resources and systems to inhabitable hangars 
 [*][URL="http://forum.kerbalspaceprogram.com/threads/83305"]RemoteTech2[/URL] adds RT antennas and SPUs to controllable hangars 
-[*][URL="http://forum.kerbalspaceprogram.com/threads/54954"]Deadly Reentry[/URL] adds integrated heatshield to lander hangars 
+[*][URL="http://forum.kerbalspaceprogram.com/threads/54954"]Deadly Reentry[/URL] adds ablative coating resource to the Square Heatshield for Rover Lander,
 [*][url=http://forum.kerbalspaceprogram.com/threads/59545]Extraplanetary Launchpads[/url] adds a new Heavy Recycler model that fits the style of hangars.
 [/LIST]
 [SIZE=3][B]Usage details[/B][/SIZE]

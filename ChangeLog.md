@@ -1,6 +1,6 @@
-###!!! v1.2.0 WARNING WARNING WARNING v1.2.0 !!!
+###!!! WARNING WARNING WARNING !!!
 
-**This update may break your saves, BUT all breaks are easily fixable.**
+**If you're upgrading from v1.1.1.1 or below, this update *may* break your saves, BUT all breaks are easily fixable.**
 
 To **safely** install the update, do the following:
 
@@ -20,7 +20,21 @@ _You may keep the config.xml to save positions of GUI windows, though._
 
 ###ChangeLog###
 
-* **v1.2.0** - **READ THE INSTALLATION INSTRUCTIONS CAREFULLY**
+* **v1.2.1** - **_IF you are upgrading from v1.1.1.1 or below_, READ THE INSTALLATION INSTRUCTIONS CAREFULLY**
+    * Added an option to launch vessels from a hangar **in orbit** with a slight push. Launching small probes that don't have RCS is much simpler now.
+        * _When a vessel is pushed out of the hangar or is stored at non-zero relative velocity, **the hangar itself receives a push** to conserve impulse of the system._
+    * Added **+1** button to Hangar Contents Editor window to easily add multiple identical vessels in Editor.
+    * Changed center of mass of Inhabitable hangars so that it is closer to geometric center of the parts.
+    * Inline hangars and Spaceport (_the hangars with non-box-shaped hangar space_) now refuse to store vessels that fit by dimensions **but** may actually collide with hangar walls when launched.
+    * Active hangars and opening/closing hangar doors **consume electric charge now**.
+    * Opened hangar doors now increase **Drag** of hangars. In case of the Rover Lander this increase (as expected from its geometry) is considerable.
+    * Rebalanced parts' masses and costs. Inter alia: Rover Lander and Inline Hangars became lighter and Station Hub does not gain so much weight when resized.
+    * Reworked rover wheels friction workaround a little. It uses ModuleManager now, so _without MM your rovers will slide on a hangar floor_.
+    * Fixed Heavy Recycler cost. As well as cost calculations of all resizable parts that contain resources.
+    * Fixed problem with storing ships containing resizable parts **in editor**.
+    * Fixed problem with launching of ships containing several hangars with something stored **in editor** in more than one of them.
+    * [**See the full list of changes and bugfixes...**](https://github.com/allista/hangar/issues?q=milestone%3A%22Improved+Functionality+Update%22+is%3Aclosed)
+* v1.2.0
     * Added resizable **Radial-to-Stack Adapters** and the 6-node **Station Hub** with elongated radial tubes to connect parts that are wider than their attach nodes.
     * Added **Procedural Adapter** with separately resizable stack nodes to connect resized hangars with other parts seamlessly.
     * Added resizable **Heavy Recycler** for those who have *Extraplanetary Launchpads* (the part will not appear if ExLP is not present). It is more powerful, has integrated lights and metal storage. Its model matches more or less the style of hangars and its trigger area is much smaller and is hidden between two arms that help to prevent accidental recycling and add a little bit of realism.
