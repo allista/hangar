@@ -186,14 +186,12 @@ namespace AtHangar
 	{
 		readonly List<ProtoCrewMember> crew;
 		readonly StoredVessel sv;
-		readonly uint hangar_id;
 
-		public LaunchedVessel(StoredVessel sv, Vessel vsl, List<ProtoCrewMember> crew, uint hangar_id)
+		public LaunchedVessel(StoredVessel sv, Vessel vsl, List<ProtoCrewMember> crew)
 			: base(vsl)
 		{
 			this.sv = sv;
 			this.crew = crew;
-			this.hangar_id = hangar_id;
 		}
 
 		public void transferCrew() 
@@ -203,16 +201,6 @@ namespace AtHangar
 		{
 			Vector3 dP = vessel.findLocalCenterOfMass() - sv.CoM;
 			vessel.SetPosition(vessel.vesselTransform.TransformPoint(dP));
-		}
-
-		public void stiffenWheels()
-		{
-			Utils.Log("Trying to add WheelUpdaters to the wheels of the launched vessel");
-			foreach(Part p in vessel.Parts) 
-			{ 
-				if(p.HasModule<ModuleWheel>()) 
-					p.AddWheelUpdater(hangar_id); 
-			}
 		}
 	}
 	#endregion

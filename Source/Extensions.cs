@@ -115,16 +115,6 @@ namespace AtHangar
 			}
 		}
 
-		public static WheelUpdater AddWheelUpdater(this Part p, uint trigger_id = default(uint))
-		{
-			Utils.Log("Trying to add WheelUpdater to {0}, {1}", p.name, p.flightID);//debug
-			WheelUpdater updater = (p.GetModule<WheelUpdater>() ?? 	p.AddModule("WheelUpdater") as WheelUpdater);
-			if(updater == null) return null;
-			if(trigger_id != default(uint))
-				updater.RegisterTrigger(trigger_id);
-			return updater;
-		}
-
 		public static void UpdateAttachedPartPos(this Part p, AttachNode node)
 		{
 			if(node == null) return;

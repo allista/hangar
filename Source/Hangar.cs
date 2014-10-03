@@ -311,26 +311,6 @@ namespace AtHangar
 		}
 		#endregion
 
-		#region Wheel stiffness changes
-		/// <summary>
-		/// Injects WheelUpdater to a wheel part and 
-		/// registers current hangar as a trigger object.
-		/// </summary>
-		/// <param name="collision">Collision.</param>
-		void OnCollisionEnter(Collision collision) 
-		{
-			foreach(ContactPoint c in collision.contacts)
-			{
-				if(!(c.otherCollider is WheelCollider)) continue;
-				Part other_part = collision.gameObject.GetComponent<Part>();
-				Utils.Log("Hangar collided with a wheel collider: {0}, {1}", other_part.name, other_part.flightID);
-				if(other_part == null) continue;
-				other_part.AddWheelUpdater(part.flightID);
-				return;
-			}
-		}
-		#endregion
-
 		#region Physics changes
 		public void FixedUpdate()
 		{
@@ -727,7 +707,6 @@ namespace AtHangar
 		{
 			while(!lv.loaded) yield return null;
 			lv.tunePosition();
-			lv.stiffenWheels();
 			lv.transferCrew();
 			//it seems you must give KSP a moment to sort it all out,
             //so delay the remaining steps of the transfer process. 
@@ -886,7 +865,7 @@ namespace AtHangar
 			// otherwise launched rovers are sometimes stuck to the ground despite of the launch_transform
 			launched_vessel.Splashed = launched_vessel.Landed = false; 
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
-			SetupVessel(new LaunchedVessel(stored_vessel, launched_vessel, crew_to_transfer, part.flightID));
+			SetupVessel(new LaunchedVessel(stored_vessel, launched_vessel, crew_to_transfer));
 		}
 		#endregion
 
