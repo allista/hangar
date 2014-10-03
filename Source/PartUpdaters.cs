@@ -245,7 +245,7 @@ namespace AtHangar
 			module.YawTorque   = base_module.YawTorque   * scale.absolute.cube * scale.absolute.aspect;
 			module.RollTorque  = base_module.RollTorque  * scale.absolute.cube * scale.absolute.aspect;
 			foreach(ModuleResource r in	module.inputResources)
-				r.rate *= scale.relative.cube;
+				r.rate *= scale.relative.cube * scale.absolute.aspect;
 		}
 	}
 
