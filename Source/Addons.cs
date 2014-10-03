@@ -46,7 +46,8 @@ namespace AtHangar
 		public static void showMessage(float delay, string msg, params object[] args)
 		{
 			#if DEBUG
-			Utils.Log(msg, args);
+			if(osdMessageText != string.Format(msg, args))
+				Utils.Log(msg, args);
 			#endif
 			osdMessageText = string.Format(msg, args);
 			osdMessageTime = Time.time + delay;
