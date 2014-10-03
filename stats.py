@@ -54,13 +54,16 @@ for full_name in full_names:
         r = requests.get('https://api.github.com/repos/' + full_name + '/releases')
         myobj = r.json()
  
+        total_downloads = 0
         for p in myobj:
             if "assets" in p:
                 for asset in p['assets']:
+                    total_downloads += asset['download_count']
                     print(asset['name'] + ", tag: " + p['tag_name'] + ", created at " + asset['created_at'])
                     print("Downloaded " + str(asset['download_count']) + " times")
                     print("")
             else:
                 print("No data")
+        print('Total downloads: %d' % total_downloads)
     except:
         pass
