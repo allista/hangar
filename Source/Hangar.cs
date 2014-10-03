@@ -322,7 +322,8 @@ namespace AtHangar
 			foreach(ContactPoint c in collision.contacts)
 			{
 				if(!(c.otherCollider is WheelCollider)) continue;
-				Part other_part = collision.gameObject.GetComponents<Part>().FirstOrDefault();
+				Part other_part = collision.gameObject.GetComponent<Part>();
+				Utils.Log("Hangar collided with a wheel collider: {0}, {1}", other_part.name, other_part.flightID);
 				if(other_part == null) continue;
 				other_part.AddWheelUpdater(part.flightID);
 				return;

@@ -117,6 +117,7 @@ namespace AtHangar
 
 		public static WheelUpdater AddWheelUpdater(this Part p, uint trigger_id = default(uint))
 		{
+			Utils.Log("Trying to add WheelUpdater to {0}, {1}", p.name, p.flightID);//debug
 			WheelUpdater updater = (p.Modules.OfType<WheelUpdater>().FirstOrDefault() ?? 
 				p.AddModule("WheelUpdater") as WheelUpdater);
 			if(updater == null) return null;
