@@ -25,6 +25,7 @@ _You may keep the config.xml to save positions of GUI windows, though._
         * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/raw/master/DeprecatedParts/DeprecatedPartsAddon.zip), then recover such ship and rebuild it in editor,
         * or open the savegame file in any text editor, find the corresponding part (**InlineHangar1** or **Hangar1**), find the **HangarPartResizer** module and multiply the value of the **size** parameter by 2 ([see the HOWTO](http://imgur.com/crqY6jM) for details).
 5. After that, **if** you have installed the **Deprecated Parts Addon**, uninstall it.
+
 ***
 
 ###[ChangeLog](https://github.com/allista/hangar/blob/development/ChangeLog.md) - **read it carefully every time before installing a new version!**###
