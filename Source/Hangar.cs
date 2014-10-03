@@ -817,7 +817,7 @@ namespace AtHangar
 				return false;
 			}
 			//if something is docked to the hangar docking port (if its present)
-			ModuleDockingNode dport = part.Modules.OfType<ModuleDockingNode>().SingleOrDefault();
+			ModuleDockingNode dport = part.GetModule<ModuleDockingNode>();
 			if(dport != null && dport.vesselInfo != null)
 			{
 				ScreenMessager.showMessage("Cannot launch a vessel while another is docked");

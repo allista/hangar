@@ -95,12 +95,7 @@ namespace AtHangar
 		public readonly static Dictionary<string, Func<Part, PartUpdater>> UpdatersTypes = new Dictionary<string, Func<Part, PartUpdater>>();
 
 		static Func<Part, PartUpdater> updaterConstructor<UpdaterType>() where UpdaterType : PartUpdater
-		{ 
-			return part => 
-				part.Modules.Contains(typeof(UpdaterType).Name) ? 
-				part.Modules.OfType<UpdaterType>().FirstOrDefault() : 
-				(UpdaterType)part.AddModule(typeof(UpdaterType).Name); 
-		}
+		{ return part => part.GetModule<UpdaterType>() ?? part.AddModule(typeof(UpdaterType).Name) as UpdaterType; }
 
 		public static void RegisterUpdater<UpdaterType>() 
 			where UpdaterType : PartUpdater
