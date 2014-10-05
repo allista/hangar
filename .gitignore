@@ -18,7 +18,9 @@
 *.log
 *.meta
 *.mdb
+*.pyc
 /vessel_positioning.txt
 /Source/Hangar.userprefs
 /Library/CurrentLayout.dwlt
 /Library/expandedItems
+/Assets/Textures/sources
