@@ -40,13 +40,22 @@ class surface:
 
 
 class volume:
-    def __init__(self, V, d, name, cost, surface=None, subvolumes=[]):
-        self._V    = V
-        self.d     = d
+    def __init__(self, V, name, cost=0, d=0, mass=-1, surface=None, subvolumes=[]):
+        self._V    = float(V)
         self.name  = name
-        self._cost = cost
+        self._cost = float(cost)
         self._surface = surface
         self._subvolumes = subvolumes
+        #transitory check
+        if mass is surface: raise ValueError("volume: mass should be a number")
+        #recalculate mass and density
+        if d < 0 and mass < 0:
+            raise ValueError('volume: either mass or density should be non-negative')
+        elif d < 0: 
+            d = float(mass)/self.V()
+            self._cost = cost/self.V() 
+        elif mass > 0: print('volume: non-negative density was given; mass is ignored')
+        self.d = float(d)
     #end def
         
     #volume and surface area
