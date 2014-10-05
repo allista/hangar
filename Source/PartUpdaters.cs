@@ -255,6 +255,7 @@ namespace AtHangar
 		{
 			module.InflatableVolume = base_module.InflatableVolume * scale.absolute.cube;
 			module.CompressedGas   *= scale.relative.cube;
+			if(module.Compressor == null) return;
 			module.Compressor.ConversionRate  = base_module.Compressor.ConversionRate * scale.absolute.cube * scale.absolute.aspect;
 			module.Compressor.ConsumptionRate = base_module.Compressor.ConsumptionRate * scale.absolute.cube * scale.absolute.aspect;
 		}
