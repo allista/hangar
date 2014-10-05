@@ -116,6 +116,41 @@ class volume:
         return s
 #end class
 
+class battery(volume):
+    #stock densities:
+    #(0.005/0.033, 0.01/0.083, 0.02/0.1, 0.05/0.3, 0.2/1.6) = [0.15151515, 0.12048193, 0.2, 0.16666667, 0.125]
+    #stock costs per volume:
+    #(80/0.033, 360/0.083, 550/0.1, 880/0.3, 4500/1.6) = [2424.2424, 4337.3494, 5500, 2933.3333, 2812.5]
+    #per mass:
+    #(80/0.005, 360/0.01, 550/0.02, 880/0.05, 4500/0.2) = [16000, 36000, 27500, 17600, 22500]
+    #per energy:
+    #(80/100, 360/200, 550/400, 880/1000, 4500/4000) = [0.8, 1.8, 1.375, 0.88, 1.125]
+    #stock energy density:
+    #(100/0.033, 200/0.083, 400/0.1, 1000/0.3, 4000/1.6) = [3030.303, 2409.6386, 4000, 3333.3333, 2500]
+    #batteries of RoverLander: 0.444m^3, 0.5t, 1000El.u
+    _density        = 0.05/0.444   #t/m^3
+    _energy_cost    = 0.88         #Cr/El.u
+    _energy_density = 1000.0/0.444 #El.u/m^3
+    
+    def __init__(self, V, energy=-1):
+        if V < 0 and energy < 0: 
+            raise ValueError("battery: either V or energy should be positive")
+        #compute energy, energy density and volume
+        if        V < 0: V = energy/self._energy_density
+        elif energy < 0: energy = V*self._energy_density
+        else: self._energy_density = energy/float(V)
+        self.energy = energy
+        #initialize volume
+        volume.__init__(self, V, self._density, 'batteries', self._energy_cost*energy/V)
+    #end def
+    
+    def __str__(self):
+        s  = volume.__str__(self)
+        s += '   energy: %.1f\n' % self.energy
+        return s
+#end class
+
+
 class ship:
     _asymptote_slope     = 1.5
     _asymptote_intercept = 1e5
@@ -225,6 +260,7 @@ if __name__ == '__main__':
     aluminium = material(2.7,   8.0)
     Al_Li     = material(2.63, 12.0)
     composits = material(1.9,  20.0)
+    lavsan    = material(300e-6/0.001, 1)
 
     #inline
     inline1   = ship('InlineHangar',
@@ -255,7 +291,7 @@ if __name__ == '__main__':
                      volumes=[volume(366.046, 0.01, 'hull', 2,
                                      surface(960.55, 0.007, composits),
                                      [volume(46.92, 0.01, 'machinery room', 15,
-                                             subvolumes=[volume(1.5, 0.75, 'battery', 22500/1.5),
+                                             subvolumes=[battery(V=-1, energy=20000),
                                                          volume(0.95, 0.2/0.21, 'reaction wheel', 2100/0.21),
                                                          volume(1, 0.72, 'generator', 29700),
                                                          volume(2, 0.0, 'monopropellent tank', 0,
@@ -281,7 +317,7 @@ if __name__ == '__main__':
                                       surface(14.19*2+13.45*2, 0.003, Al_Li),
                                       [volume(0.0138*4, 2.7, 'ramp side walls', 8),]),
                                volume(0.045, 0.98,'clamp', 600),
-                               volume(0.444*2, 0.05/0.444, 'batteries', 880/0.444),
+                               battery(V=0.444*2),
                                volume(0.186*6, 0, 'fuel tanks', 0,
                                       surface(2.39*6, 0.006, aluminium),),
                                volume(0.0225*4, 0, 'outer hydraulic cylinders', 0,
@@ -298,28 +334,43 @@ if __name__ == '__main__':
     small     = ship('SmallHangar',
                      volumes=[volume(13.82, 0.02, 'hull', 1,
                                      surface(145.7, 0.006, aluminium),
-                                     [volume(4.7, 0.213, 'machinery', 80,
-                                             subvolumes=[volume(0.3, 0.75, 'battery', 4500/0.3)])]),
+                                     [volume(4.7, 0.321, 'machinery', 120,
+                                             subvolumes=[battery(V=-1, energy=4000)])]),
                               volume(0.74, 0.02, 'doors', 1,
                                      surface(14.43, 0.006, aluminium)),
                               volume(0.18, 0.78,'clamp', 300)
                               ], 
                      add_mass=0.04, #probe core
-                     add_cost=100 + 200 + 480) #Light + DockPort + probe core
+                     add_cost=100 + 480) #Light + probe core
     
     big       = ship('BigHangar', 
                      volumes=[volume(527.4, 0.01, 'hull', 2,
                                      surface(1667.79, 0.01, composits),
                                      [volume(218.99, 0.183, 'cabins', 150,
-                                             subvolumes=[volume(27.75, 0.246, 'machinery', 80,
-                                                                subvolumes=[volume(1.5, 0.75, 'battery', 22500/1.5),
+                                             subvolumes=[volume(38.15, 0.321, 'machinery', 120,
+                                                                subvolumes=[battery(V=-1, energy=40000),
                                                                             volume(1.14, 0.72, 'generator', 29700)])])]),
                               volume(17.89, 0.01,'doors', 2,
                                      surface(124.08, 0.01, composits)),
                               volume(4.34, 0.78,'clamp', 300),
                               ],
                      add_mass=0.04, #probe core
-                     add_cost=280 + 300 + 480) #DockPort +  Light + probe core
+                     add_cost=300 + 480) #Light + probe core
+    
+    inflatable1 = ship('InflatableHangar1',
+                     volumes=[volume(0.469, 0.02, 'hull', 1,
+                                     surface(11.82, 0.01, aluminium)),
+                              volume(0.019*4, 0.02, 'doors', 1,
+                                     surface(1.32*4, 0.005, aluminium)),
+                              battery(V=0.02245*2),
+                              volume(0.00002*8, 2.7, 'hinges', 8),
+                              volume(6.96, 0.0012, 'hangar', 1,
+                                     surface(136.24, 0.001, lavsan)),
+                              volume(0.67, 0.0012, 'hangar-door', 1,
+                                     surface(15.06, 0.001, lavsan)),
+                              ], 
+                     add_mass=0.04, #probe core
+                     add_cost=480) #Light + probe core
     
     #utilities
     adapter  = ship('Adapter', 
@@ -433,6 +484,8 @@ if __name__ == '__main__':
 
     print(big);
     print(format_data(scales, (big_m, big_sm, big_v, big_c), np.where(scales/3 >= 1)[0]))
+    
+    print(inflatable1);
     
     print(adapter);
     print(format_data(scales, (adapter_m, adapter_sm, adapter_v, adapter_c)))
