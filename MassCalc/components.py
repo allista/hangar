@@ -6,7 +6,7 @@ class custom_volume(volume):
     _cost_density = 1
     
     def __init__(self, V):
-        volume.__init__(self, V, self._density, self._name, self._cost_density)
+        volume.__init__(self, V, self._name, self._cost_density, self._density)
         
     def _add_str(self): return ''
     
@@ -44,9 +44,9 @@ class battery(custom_volume):
     #(100/0.033, 200/0.083, 400/0.1, 1000/0.3, 4000/1.6) = [3030.303, 2409.6386, 4000, 3333.3333, 2500]
     #batteries of RoverLander: 0.444m^3, 0.5t, 1000El.u
     _name = 'batteries'
-    _density        = 0.05/0.444   #t/m^3
-    _energy_cost    = 0.88         #Cr/El.u
-    _energy_density = 1000.0/0.444 #El.u/m^3
+    _density        = 0.2   #t/m^3
+    _energy_cost    = 1.375 #Cr/El.u
+    _energy_density = 4000  #El.u/m^3
     
     def __init__(self, V, energy=-1):
         if V < 0 and energy < 0: 
@@ -54,7 +54,11 @@ class battery(custom_volume):
         #compute energy, energy density and volume
         if        V < 0: V = energy/self._energy_density
         elif energy < 0: energy = V*self._energy_density
-        else: self._energy_density = energy/float(V)
+        else: 
+            self._energy_density = energy/float(V)
+            k = self._energy_density/battery._energy_density
+            self._density *= k
+            self._energy_cost *= k
         self._cost_density = self._energy_cost*energy/V
         self.energy = energy
         #initialize volume
