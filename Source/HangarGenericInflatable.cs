@@ -13,6 +13,7 @@ namespace AtHangar
 
 	public class GasCompressor
 	{
+		public const string NODE_NAME = "COMPRESSOR";
 		public float ConversionRate { get; set; }
 		public float ConsumptionRate { get; set; }
 		Part part;
@@ -41,20 +42,11 @@ namespace AtHangar
 
 	public class HangarGenericInflatable : HangarAnimator
 	{
-		[KSPField(isPersistant = false)]
-		public string ControlledModules;
-
-		[KSPField(isPersistant = false)]
-		public string AnimatedNodes;
-
-		[KSPField(isPersistant = false)]
-		public bool PackedByDefault = true;
-
-		[KSPField(isPersistant = false)]
-		public float InflatableVolume;
-
-		[KSPField(isPersistant = true)]
-		public float CompressedGas = -1f;
+		[KSPField(isPersistant = false)] public string ControlledModules;
+		[KSPField(isPersistant = false)] public string AnimatedNodes;
+		[KSPField(isPersistant = false)] public bool   PackedByDefault = true;
+		[KSPField(isPersistant = false)] public float  InflatableVolume;
+		[KSPField(isPersistant = true)]	 public float  CompressedGas = -1f;
 
 		[KSPField (guiName = "Compressed Gas", guiActive=true)] public string CompressedGasDisplay;
 
@@ -100,6 +92,10 @@ namespace AtHangar
 		{
 			base.OnAwake();
 			GameEvents.onEditorShipModified.Add(UpdateGUI);
+			//this is nesessary as KSP initializes the node with an empty ConfigNode() somewhere
+			if(CompressorConfig != null && 
+				CompressorConfig.name != GasCompressor.NODE_NAME)
+				CompressorConfig = null;
 		}
 		void OnDestroy() { GameEvents.onEditorShipModified.Remove(UpdateGUI); }
 
@@ -110,6 +106,7 @@ namespace AtHangar
 			//get controlled modules
 			foreach(string module_name in ControlledModules.Split(' '))
 			{
+				if(module_name == "") continue;
 				if(!part.Modules.Contains(module_name))
 				{
 					Utils.Log("HangarGenericInflatable.OnStart: {0} does not contain {1} module.", part.name, module_name);
@@ -135,6 +132,7 @@ namespace AtHangar
 			//get animated nodes
 			foreach(string node_name in AnimatedNodes.Split(' '))
 			{
+				if(node_name == "") continue;
 				Transform node_transform = part.FindModelTransform(node_name);
 				if(node_transform == null) 
 				{
@@ -162,8 +160,6 @@ namespace AtHangar
 				Compressor = new GasCompressor(part);
 				Compressor.Load(CompressorConfig);
 			}
-			//forbid surface attachment for the inflatable
-			part.attachRules.allowSrfAttach = false;
 			//ignore DragMultiplier as Drag is changed with volume
 			DragMultiplier = 1f;
 			//update part, GUI and set the flag
@@ -177,9 +173,9 @@ namespace AtHangar
 		public override void OnLoad(ConfigNode node)
 		{
 			base.OnLoad(node);
-			if(node.HasNode("COMPRESSOR")) 
+			if(node.HasNode(GasCompressor.NODE_NAME)) 
 			{
-				CompressorConfig = node.GetNode("COMPRESSOR");
+				CompressorConfig = node.GetNode(GasCompressor.NODE_NAME);
 				//for part info only
 				Compressor = new GasCompressor(part);
 				Compressor.Load(CompressorConfig);
