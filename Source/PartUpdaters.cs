@@ -244,8 +244,7 @@ namespace AtHangar
 			module.PitchTorque = base_module.PitchTorque * scale.absolute.cube * scale.absolute.aspect;
 			module.YawTorque   = base_module.YawTorque   * scale.absolute.cube * scale.absolute.aspect;
 			module.RollTorque  = base_module.RollTorque  * scale.absolute.cube * scale.absolute.aspect;
-			foreach(ModuleResource r in	module.inputResources)
-				r.rate *= scale.relative.cube * scale.absolute.aspect;
+			module.inputResources.ForEach(r => r.rate *= scale.relative.cube * scale.absolute.aspect);
 		}
 	}
 
@@ -265,10 +264,8 @@ namespace AtHangar
 	{
 		public override void OnRescale(Scale scale)
 		{
-			foreach(var res in module.inputList)
-				res.rate *= scale.relative.cube * scale.relative.aspect;
-			foreach(var res in module.outputList)
-				res.rate *= scale.relative.cube * scale.relative.aspect;
+			module.inputList.ForEach(r => r.rate *= scale.relative.cube * scale.relative.aspect);
+			module.outputList.ForEach(r => r.rate *= scale.relative.cube * scale.relative.aspect);
 		}
 	}
 }
