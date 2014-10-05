@@ -31,23 +31,21 @@ if __name__ == '__main__':
 
     #inline
     inline1   = ship('InlineHangar',
-                     volumes=[volume(9.4, 0.02, 'hull', 1,
+                     volumes=[volume(9.4, 'hull', 1, 0.02, -1,
                                      surface(66.444, 0.005, Al_Li),
-                                     [volume(3.93, 0.227, 'machinery', 100)]),
-                              volume(0.659*2, 0.02, 'doors', 1,
+                                     [volume(3.93, 'machinery', 100, 0.227)]),
+                              volume(0.659*2, 'doors', 1, 0.02, -1,
                                      surface(9.32*2, 0.005, Al_Li)),
                               ],
                      add_mass=0,
                      add_cost=200) #docking port
     
     inline2   = ship('InlineHangar2',
-                     volumes=[volume(98.08, 0.02, 'hull', 1,
+                     volumes=[volume(98.08, 'hull', 1, 0.02, -1,
                                      surface(268.11, 0.006, Al_Li),
-                                     [volume(53.66, 0.143, 'machinery', 80,
-                                             subvolumes=[volume(40.45, 0.153, 'cabins', 220), #like Hitchhikers container
-                                                         ]),
-                                      ]),
-                              volume(4.05*2, 0.02,'doors', 1,
+                                     [volume(53.66, 'machinery', 80, 0.143, -1,
+                                             subvolumes=[volume(40.45, 'cabins', 220, 0.153)])]), #like Hitchhikers container
+                              volume(4.05*2, 'doors', 1, 0.02, -1,
                                      surface(35.94*2, 0.006, Al_Li)),
                               ], 
                      add_mass=0,
@@ -55,18 +53,18 @@ if __name__ == '__main__':
 
     #spaceport
     spaceport = ship('Spaceport', 
-                     volumes=[volume(366.046, 0.01, 'hull', 2,
+                     volumes=[volume(366.046, 'hull', 2, 0.01, -1,
                                      surface(960.55, 0.007, composits),
-                                     [volume(46.92, 0.01, 'machinery room', 15,
+                                     [volume(46.92, 'machinery room', 15, 0.01, -1,
                                              subvolumes=[battery(V=-1, energy=20000),
                                                          reaction_wheel(0.95),
                                                          generator(V=-1, energy=6.75),
-                                                         volume(2, 0.0, 'monopropellent tank', 0,
+                                                         volume(2, 'monopropellent tank', 0, 0, -1,
                                                                 surface(11.04, 0.006, aluminium))]),
-                                      volume(112.64*2, 0.168, 'cabins', 200), #density of the SpaceX Dragon vessel
-                                      volume(1.5*2+8.7, 0.001, 'coridors', 1),
+                                      volume(112.64*2, 'cabins', 200, 0.168), #density of the SpaceX Dragon vessel
+                                      volume(1.5*2+8.7, 'coridors', 1, 0.001),
                                       ]),
-                              volume(1.64*2, 0.01,'doors', 2,
+                              volume(1.64*2, 'doors', 2, 0.01, -1,
                                      surface(28.94*2, 0.007, composits)),
                               ],
                      add_mass=2+6+0.08,  #cockpit, machinery, probe core
@@ -75,23 +73,23 @@ if __name__ == '__main__':
 
     #landers
     lander     = ship('RoverLander', 
-                      volumes=[volume(9.536, 0.01, 'hull', 2,
+                      volumes=[volume(9.536, 'hull', 2, 0.01, -1,
                                       surface(92.1, 0.004, Al_Li),
-                                      [volume(3.498, 0.12, 'machinery', 220,
+                                      [volume(3.498, 'machinery', 220, 0.12, -1,
                                               subvolumes=[reaction_wheel(0.17)]),
-                                       volume(2.225, 0.29, 'base', 40)]),
-                               volume(0.62*2+0.47*2+0.0138*4, 0.02, 'doors', 1,
+                                       volume(2.225, 'base', 40, 0.29)]),
+                               volume(0.62*2+0.47*2+0.0138*4, 'doors', 1, 0.02, -1,
                                       surface(14.19*2+13.45*2, 0.003, Al_Li),
-                                      [volume(0.0138*4, 2.7, 'ramp side walls', 8),]),
-                               volume(0.045, 0.98,'clamp', 600),
-                               battery(V=0.444*2),
-                               volume(0.186*6, 0, 'fuel tanks', 0,
+                                      [volume(0.0138*4, 'ramp side walls', 8, 2.7),]),
+                               volume(0.045, 'clamp', 600, 0.98),
+                               battery(V=0.444*2, energy=2000),
+                               volume(0.186*6, 'fuel tanks', 0, 0, -1,
                                       surface(2.39*6, 0.006, aluminium),),
-                               volume(0.0225*4, 0, 'outer hydraulic cylinders', 0,
+                               volume(0.0225*4, 'outer hydraulic cylinders', 0, 0, -1,
                                       surface(0.721*4, 0.008, aluminium),
-                                      [volume(0.012*4, 0.8, 'inner hydraulic cylinders', 3, #hydraulic oil is ~0.8
+                                      [volume(0.012*4, 'inner hydraulic cylinders', 3, 0.8, -1,  #hydraulic oil is ~0.8
                                               surface(0.543*4, 0.003, steel))]),
-                               volume(0.002*8, 2.7, 'hinges', 8),
+                               volume(0.002*8, 'hinges', 8, 2.7),
                                ],
                      add_mass=0.04, #probe core
                      add_cost=200 + 480, #Light + probe core
@@ -99,41 +97,41 @@ if __name__ == '__main__':
 
     #ground hangars
     small     = ship('SmallHangar',
-                     volumes=[volume(13.82, 0.02, 'hull', 1,
+                     volumes=[volume(13.82, 'hull', 1, 0.02, -1,
                                      surface(145.7, 0.006, aluminium),
-                                     [volume(4.7, 0.321, 'machinery', 120,
-                                             subvolumes=[battery(V=-1, energy=4000)])]),
-                              volume(0.74, 0.02, 'doors', 1,
+                                     [volume(4.7, 'machinery', 350, -1, 0.938,
+                                             subvolumes=[battery(V=1.7, energy=4000)])]),
+                              volume(0.74, 'doors', 1, 0.02, -1,
                                      surface(14.43, 0.006, aluminium)),
-                              volume(0.18, 0.78,'clamp', 300)
+                              volume(0.18,'clamp', 300, 0.78)
                               ], 
                      add_mass=0.04, #probe core
                      add_cost=100 + 480) #Light + probe core
     
     big       = ship('BigHangar',
-                     volumes=[volume(527.4, 0.01, 'hull', 2,
+                     volumes=[volume(527.4, 'hull', 2, 0.01, -1,
                                      surface(1667.79, 0.01, composits),
-                                     [volume(218.99, 0.183, 'cabins', 150,
-                                             subvolumes=[volume(38.15, 0.331, 'machinery', 130,
+                                     [volume(218.99, 'cabins', 150, 0.183, -1,
+                                             subvolumes=[volume(38.15, 'machinery', 2460, -1, 6.25, 
                                                                 subvolumes=[battery(V=-1, energy=40000),
                                                                             generator(V=-1, energy=10)])])]),
-                              volume(17.89, 0.01,'doors', 2,
+                              volume(17.89, 'doors', 2, 0.01, -1,
                                      surface(124.08, 0.01, composits)),
-                              volume(4.34, 0.78,'clamp', 300),
+                              volume(4.34, 'clamp', 300, 0.78),
                               ],
                      add_mass=0.04, #probe core
                      add_cost=300 + 480) #Light + probe core
     
     inflatable1 = ship('InflatableHangar1',
-                     volumes=[volume(0.469, 0.02, 'hull', 1,
+                     volumes=[volume(0.469, 'hull', 1, 0.02, -1,
                                      surface(11.82, 0.01, aluminium)),
-                              volume(0.019*4, 0.02, 'doors', 1,
+                              volume(0.019*4, 'doors', 1, 0.02, -1,
                                      surface(1.32*4, 0.005, aluminium)),
-                              battery(V=0.02245*2),
-                              volume(0.00002*8, 2.7, 'hinges', 8),
-                              volume(6.96, 0.0012, 'hangar', 1,
+                              battery(V=0.02245*2, energy=200),
+                              volume(0.00002*8, 'hinges', 8, 2.7),
+                              volume(6.96, 'hangar', 1, 0.0012, -1,
                                      surface(136.24, 0.001, lavsan)),
-                              volume(0.67, 0.0012, 'hangar-door', 1,
+                              volume(0.67, 'hangar-door', 1, 0.0012, -1,
                                      surface(15.06, 0.001, lavsan)),
                               ], 
                      add_mass=0.04, #probe core
@@ -141,52 +139,52 @@ if __name__ == '__main__':
     
     #utilities
     adapter  = ship('Adapter', 
-                     volumes=[volume(2.845, 0.0, 'hull', 50,
+                     volumes=[volume(2.845, 'hull', 50, 0, -1,
                                      surface(13.02, 0.006, composits))], 
                      add_mass=0,
                      add_cost=0)
     
     r_adapter2 = ship('Radial Adapter 2', 
-                     volumes=[volume(2.09+0.163*2, 0.01, 'hull', 50,
+                     volumes=[volume(2.09+0.163*2, 'hull', 50, 0.01, -1,
                                      surface(10.01+1.86*2, 0.006, Al_Li))], 
                      add_mass=0,
                      add_cost=0)
     
     r_adapter1 = ship('Radial Adapter 1', 
-                     volumes=[volume(1.24+0.213+0.163, 0.01, 'hull', 50,
+                     volumes=[volume(1.24+0.213+0.163, 'hull', 50, 0.01, -1,
                                      surface(6.37+2.37+1.86, 0.006, Al_Li))], 
                      add_mass=0,
                      add_cost=0)
     
     station_hub = ship('Station Hub', 
-                     volumes=[volume(7.49, 0.0122, 'hull', 80,
+                     volumes=[volume(7.49, 'hull', 80, 0.0122, -1,
                                      surface(29.76, 0.018, Al_Li))], 
                      add_mass=0,
                      add_cost=0)
     
     docking_port = ship('Docking Port', 
-                     volumes=[volume(0.635, 0.1, 'hull', 1380,
+                     volumes=[volume(0.635, 'hull', 1380, 0.1, -1, 
                                      surface(13.89, 0.005, aluminium))], 
                      add_mass=0,
                      add_cost=0)
     
     rcs       = ship('SpaceportRCS', 
-                     volumes=[volume(0.36, 0.3, 'machinery', 4760,
+                     volumes=[volume(0.36, 'machinery', 4760, 0.3, -1, 
                                      surface(4.77, 0.007, composits))],
                      add_mass=0,
                      add_cost=0)
     
     heatshield = ship('Square Heatshield', 
-                     volumes=[volume(3.8, 0.01, 'hull', 20,
+                     volumes=[volume(3.8, 'hull', 20, 0.01, -1,
                                      surface(40.7, 0.005, aluminium))], 
                      add_mass=0,
                      add_cost=0)
     
     recycler   = ship('Recycler', 
-                     volumes=[volume(4.39, 0.001, 'hull', 10,
+                     volumes=[volume(4.39, 'hull', 10, 0.001, -1,
                                      surface(14.9, 0.005, aluminium),
-                                     [volume(2.3, 0.317, 'machinery', 1000)]),
-                              volume(0.18, 0.78,'clamp', 3000)], 
+                                     [volume(2.3, 'machinery', 1000, 0.317)]),
+                              volume(0.18,'clamp', 3000, 0.78)], 
                      add_mass=0,
                      add_cost=0,
                      res_cost=24920)
