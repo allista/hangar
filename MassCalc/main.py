@@ -135,6 +135,22 @@ if __name__ == '__main__':
                                      surface(15.06, 0.001, lavsan)),
                               ], 
                      add_mass=0.04, #probe core
+                     add_cost=480) #probe core
+    
+    inflatable2 = ship('InflatableHangar2',
+                     volumes=[volume(0.469, 'hull', 1, 0.02, -1,
+                                     surface(11.82, 0.01, aluminium)),
+                              volume(0.019*4, 'doors', 1, 0.02, -1,
+                                     surface(1.32*4, 0.005, aluminium)),
+                              battery(V=0.02245*2, energy=200),
+                              generator(V=0.00396*4),
+                              volume(0.00002*8, 'hinges', 8, 2.7),
+                              volume(6.96, 'hangar', 1, 0.0012, -1,
+                                     surface(136.24, 0.001, lavsan)),
+                              volume(0.67, 'hangar-door', 1, 0.0012, -1,
+                                     surface(15.06, 0.001, lavsan)),
+                              ], 
+                     add_mass=0.04, #probe core
                      add_cost=480) #Light + probe core
     
     #utilities
@@ -251,6 +267,7 @@ if __name__ == '__main__':
     print(format_data(scales, (big_m, big_sm, big_v, big_c), np.where(scales/3 >= 1)[0]))
     
     print(inflatable1);
+    print(inflatable2);
     
     print(adapter);
     print(format_data(scales, (adapter_m, adapter_sm, adapter_v, adapter_c)))
