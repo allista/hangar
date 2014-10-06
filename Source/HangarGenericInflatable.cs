@@ -16,6 +16,7 @@ namespace AtHangar
 		public const string NODE_NAME = "COMPRESSOR";
 		public float ConversionRate { get; set; }
 		public float ConsumptionRate { get; set; }
+		public float OutputFraction { get; private set; }
 		Part part;
 
 		public GasCompressor(Part p) { part = p; ConsumptionRate = 1.0f; ConversionRate = 0.05f; }
@@ -26,8 +27,9 @@ namespace AtHangar
 			if(!part.vessel.mainBody.atmosphere) return 0;
 			double pressure = FlightGlobals.getStaticPressure(part.vessel.altitude, part.vessel.mainBody);
 			if(pressure < 1e-6) return 0;
-			float consumed = ConsumptionRate*(TimeWarp.fixedDeltaTime);
-			consumed = part.RequestResource("ElectricCharge", consumed);
+			var request  = ConsumptionRate*(TimeWarp.fixedDeltaTime);
+			var consumed = part.RequestResource("ElectricCharge", request);
+			OutputFraction = consumed/request;
 			return (float)(pressure*ConversionRate*consumed);
 		}
 
@@ -42,30 +44,39 @@ namespace AtHangar
 
 	public class HangarGenericInflatable : HangarAnimator
 	{
+		//configuration
 		[KSPField(isPersistant = false)] public string ControlledModules;
 		[KSPField(isPersistant = false)] public string AnimatedNodes;
 		[KSPField(isPersistant = false)] public bool   PackedByDefault = true;
 		[KSPField(isPersistant = false)] public float  InflatableVolume;
 		[KSPField(isPersistant = true)]	 public float  CompressedGas = -1f;
-
+		[KSPField(isPersistant = false)] public string CompressorSound = "Hangar/Sounds/Compressor";
+		[KSPField(isPersistant = false)] public string InflationSound = "Hangar/Sounds/Inflate";
+		[KSPField(isPersistant = false)] public float  SoundVolume = 0.2f;
+		//GUI
 		[KSPField (guiName = "Compressed Gas", guiActive=true)] public string CompressedGasDisplay;
 
+		//modules and nodes
 		readonly List<IControllableModule> controlled_modules = new List<IControllableModule>();
 		readonly List<AnimatedNode> animated_nodes = new List<AnimatedNode>();
 
+		//compressor
 		public ConfigNode CompressorConfig = null;
 		public GasCompressor Compressor { get; protected set; }
 		bool has_compressed_gas { get { return CompressedGas >= InflatableVolume; } }
+		public FXGroup fxSndCompressor;
+		bool play_compressor;
 
+		//metric and scale
 		Part   prefab = null;
 		Metric prefab_metric = null;
 		Metric part_metric = null;
 		protected float volume_scale = 1;
 
+		//state
 		const int skip_fixed_frames = 5;
 		ModuleGUIState gui_state;
 		bool just_loaded = false;
-
 
 		#region Info
 		public override string GetInfo()
@@ -103,6 +114,9 @@ namespace AtHangar
 		{
 			base.OnStart(state);
 			if(state == StartState.None) return;
+			//get sound effects
+			Utils.createFXSound(part, fxSndCompressor, CompressorSound, true);
+			fxSndCompressor.audio.volume = GameSettings.SHIP_VOLUME * SoundVolume;
 			//get controlled modules
 			foreach(string module_name in ControlledModules.Split(' '))
 			{
@@ -207,17 +221,26 @@ namespace AtHangar
 			if(Compressor != null && !has_compressed_gas)
 			{
 				CompressedGas += Compressor.CompressGas();
-				if(has_compressed_gas) ToggleEvents();
+				if(has_compressed_gas) 
+				{ play_compressor = false; ToggleEvents(); }
+				else play_compressor = Compressor.OutputFraction > 0;
 			}
 		}
 
-		#if DEBUG
 		public override void Update()
 		{ 
 			base.Update();
+			if(play_compressor)
+			{
+				fxSndCompressor.audio.pitch = 0.5f + 0.5f*Compressor.OutputFraction;
+				if(!fxSndCompressor.audio.isPlaying)
+					fxSndCompressor.audio.Play();
+			}
+			else fxSndCompressor.audio.Stop();
+			#if DEBUG
 			animated_nodes.ForEach(n => n.DrawAnchor());
+			#endif
 		}
-		#endif
 
 		protected virtual void UpdatePart() 
 		{ 
