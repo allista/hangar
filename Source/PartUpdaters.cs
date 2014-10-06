@@ -239,12 +239,16 @@ namespace AtHangar
 
 	public class ReactionWheelUpdater : ModuleUpdater<ModuleReactionWheel>
 	{
+		readonly Dictionary<string,ModuleResource> input_resources = new Dictionary<string, ModuleResource>();
+		protected override void SaveDefaults()
+		{ base_module.inputResources.ForEach(r => input_resources.Add(r.name, r)); }
+
 		public override void OnRescale(Scale scale)
 		{
 			module.PitchTorque = base_module.PitchTorque * scale.absolute.cube * scale.absolute.aspect;
 			module.YawTorque   = base_module.YawTorque   * scale.absolute.cube * scale.absolute.aspect;
 			module.RollTorque  = base_module.RollTorque  * scale.absolute.cube * scale.absolute.aspect;
-			module.inputResources.ForEach(r => r.rate *= scale.relative.cube * scale.absolute.aspect);
+			module.inputResources.ForEach(r => r.rate = input_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
 		}
 	}
 
@@ -252,20 +256,27 @@ namespace AtHangar
 	{
 		public override void OnRescale(Scale scale)
 		{
-			module.InflatableVolume = base_module.InflatableVolume * scale.absolute.cube;
-			module.CompressedGas   *= scale.relative.cube;
+			module.InflatableVolume = base_module.InflatableVolume * scale.absolute.cube * scale.absolute.aspect;
+			module.CompressedGas   *= scale.relative.cube * scale.relative.aspect;
 			if(module.Compressor == null) return;
-			module.Compressor.ConversionRate  = base_module.Compressor.ConversionRate * scale.absolute.cube * scale.absolute.aspect;
 			module.Compressor.ConsumptionRate = base_module.Compressor.ConsumptionRate * scale.absolute.cube * scale.absolute.aspect;
 		}
 	}
 
 	public class GeneratorUpdater : ModuleUpdater<ModuleGenerator>
 	{
+		readonly Dictionary<string, ModuleGenerator.GeneratorResource> input_resources  = new Dictionary<string, ModuleGenerator.GeneratorResource>();
+		readonly Dictionary<string, ModuleGenerator.GeneratorResource> output_resources = new Dictionary<string, ModuleGenerator.GeneratorResource>();
+		protected override void SaveDefaults()
+		{ 
+			base_module.inputList.ForEach(r => input_resources.Add(r.name, r)); 
+			base_module.outputList.ForEach(r => output_resources.Add(r.name, r)); 
+		}
+
 		public override void OnRescale(Scale scale)
 		{
-			module.inputList.ForEach(r => r.rate *= scale.relative.cube * scale.relative.aspect);
-			module.outputList.ForEach(r => r.rate *= scale.relative.cube * scale.relative.aspect);
+			module.inputList.ForEach(r => r.rate = input_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
+			module.outputList.ForEach(r => r.rate = output_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
 		}
 	}
 }
