@@ -71,10 +71,11 @@ class battery(custom_volume):
 
 
 class generator(battery):
+    #PB-NUK: V=0.01227, M=0.08, d=0.08/0.01227=6.5199674
     _name = 'generator'
-    _density         = 0.72       #t/m^3
-    _energy_cost     = 29700/6.75 #Cr/(El.u/s)
-    _energy_density  = 6.75       #(El.u/s)/m^3
+    _density         = 6.5199674  #t/m^3
+    _energy_cost     = 4400       #Cr/(El.u/s)
+    _energy_density  = 61.124694  #(El.u/s)/m^3
 
     def _add_str(self):
         return '   energy rate = %.3f\n' % self.energy 
