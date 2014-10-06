@@ -10,10 +10,10 @@ FBXHeaderExtension:  {
 		Version: 1000
 		Year: 2014
 		Month: 10
-		Day: 05
-		Hour: 19
-		Minute: 39
-		Second: 31
+		Day: 06
+		Hour: 20
+		Minute: 57
+		Second: 07
 		Millisecond: 0
 	}
 	Creator: "FBX SDK/FBX Plugins build 20070228"
@@ -21,7 +21,7 @@ FBXHeaderExtension:  {
 		FlagPLE: 0
 	}
 }
-CreationTime: "2014-10-05 19:39:31:000"
+CreationTime: "2014-10-06 20:57:07:000"
 Creator: "Blender version 2.71 (sub 6)"
 
 ; Object definitions
@@ -29,21 +29,21 @@ Creator: "Blender version 2.71 (sub 6)"
 
 Definitions:  {
 	Version: 100
-	Count: 55
+	Count: 50
 	ObjectType: "Model" {
-		Count: 42
+		Count: 40
 	}
 	ObjectType: "Geometry" {
-		Count: 26
+		Count: 24
 	}
 	ObjectType: "Material" {
-		Count: 4
+		Count: 3
 	}
 	ObjectType: "Texture" {
-		Count: 3
+		Count: 2
 	}
 	ObjectType: "Video" {
-		Count: 3
+		Count: 2
 	}
 	ObjectType: "Deformer" {
 		Count: 3
@@ -312,7 +312,7 @@ Objects:  {
 		Properties60:  {
 			Property: "QuaternionInterpolate", "bool", "",0
 			Property: "Visibility", "Visibility", "A+",1
-			Property: "Lcl Translation", "Lcl Translation", "A+",0.513244211673737,0.155243337154388,0.118672803044319
+			Property: "Lcl Translation", "Lcl Translation", "A+",0.513239979743958,-0.000000000000000,-0.001088701188564
 			Property: "Lcl Rotation", "Lcl Rotation", "A+",0.000000000000000,-0.000000000000000,0.000000000000000
 			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
 			Property: "RotationOffset", "Vector3D", "",0,0,0
@@ -393,7 +393,7 @@ Objects:  {
 		Properties60:  {
 			Property: "QuaternionInterpolate", "bool", "",0
 			Property: "Visibility", "Visibility", "A+",1
-			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000000000000,-0.415518462657928,0.097900047898293
+			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000000000000,-0.398290008306503,0.090760000050068
 			Property: "Lcl Rotation", "Lcl Rotation", "A+",0.000000000000000,-0.000000000000000,0.000000000000000
 			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
 			Property: "RotationOffset", "Vector3D", "",0,0,0
@@ -726,12 +726,12 @@ Objects:  {
 		          0.410355,0.589645,0.714367,0.392627,0.563112,0.745028,0.325000,0.625000,0.714367,0.318775,0.593703,0.745028,
 		          0.325000,-0.625000,0.714367,0.318775,-0.593703,0.745028,0.410355,-0.589645,0.714367,0.392627,-0.563112,0.745028,
 		          0.589645,-0.410355,0.714367,0.563112,-0.392627,0.745028,0.625000,-0.325000,0.714367,0.593703,-0.318775,0.745028,
-		          -0.325037,-0.243423,-0.174226,-0.318811,-0.243421,-0.201802,-0.434232,-0.323521,-0.174226,-0.434229,-0.317324,-0.201802,
+		          -0.325037,-0.201414,-0.174226,-0.318811,-0.201412,-0.201802,-0.434232,-0.323521,-0.174226,-0.434229,-0.317324,-0.201802,
 		          -0.434232,0.323521,-0.174226,-0.434229,0.317324,-0.201802,-0.325971,-0.186810,-0.174226,-0.319727,-0.186810,-0.201802,
 		          0.325971,-0.186810,-0.174226,0.319727,-0.186810,-0.201802,0.434232,0.323521,-0.174226,0.434229,0.317324,-0.201802,
-		          0.434232,-0.323521,-0.174226,0.434229,-0.317324,-0.201802,0.325037,-0.243423,-0.174226,0.318811,-0.243421,-0.201802,
-		          -0.434232,-0.323521,0.713730,-0.325037,-0.243423,0.713730,-0.325971,-0.186810,0.713730,-0.434232,0.323521,0.713730,
-		          0.434232,0.323521,0.713730,0.325971,-0.186810,0.713730,0.325037,-0.243423,0.713730,0.434232,-0.323521,0.713730,
+		          0.434232,-0.323521,-0.174226,0.434229,-0.317324,-0.201802,0.325037,-0.201414,-0.174226,0.318811,-0.201412,-0.201802,
+		          -0.434232,-0.323521,0.713730,-0.325037,-0.201414,0.713730,-0.325971,-0.186810,0.713730,-0.434232,0.323521,0.713730,
+		          0.434232,0.323521,0.713730,0.325971,-0.186810,0.713730,0.325037,-0.201414,0.713730,0.434232,-0.323521,0.713730,
 		          -0.318775,-0.593703,-0.254972,-0.392627,-0.563112,-0.254972,-0.563112,-0.392627,-0.254972,-0.593703,-0.318775,-0.254972,
 		          -0.593703,0.318775,-0.254972,-0.563112,0.392627,-0.254972,-0.392627,0.563112,-0.254972,-0.318775,0.593703,-0.254972,
 		          0.318775,0.593703,-0.254972,0.392627,0.563112,-0.254972,0.563112,0.392627,-0.254972,0.593703,0.318775,-0.254972,
@@ -802,12 +802,12 @@ Objects:  {
 			         0.007754,-0.999970,-0.000000,0.007754,-0.999970,-0.000000,0.007754,-0.999970,-0.000000,0.007754,-0.999970,-0.000000,
 			         0.999999,-0.001197,-0.000000,0.999999,-0.001197,-0.000000,0.999999,-0.001197,-0.000000,0.999999,-0.001197,-0.000000,
 			         -0.007754,0.999970,-0.000000,-0.007754,0.999970,-0.000000,-0.007754,0.999970,-0.000000,-0.007754,0.999970,-0.000000,
-			         1.000000,0.000098,0.000000,1.000000,0.000098,0.000000,1.000000,0.000098,0.000000,1.000000,0.000098,0.000000,
+			         1.000000,0.000088,0.000000,1.000000,0.000088,0.000000,1.000000,0.000088,0.000000,1.000000,0.000088,0.000000,
 			         0.978568,0.006912,0.205808,0.978568,0.006912,0.205808,0.978568,0.006912,0.205808,0.978568,0.006912,0.205808,
 			         0.041644,-0.981482,0.186974,0.041644,-0.981482,0.186974,0.041644,-0.981482,0.186974,0.041644,-0.981482,0.186974,
 			         -0.041644,0.981482,0.186974,-0.041644,0.981482,0.186974,-0.041644,0.981482,0.186974,-0.041644,0.981482,0.186974,
-			         -0.979590,-0.017039,0.200283,-0.979590,-0.017039,0.200283,-0.979590,-0.017039,0.200283,-0.979590,-0.017039,0.200283,
-			         -0.000000,-0.093388,0.995630,-0.000000,-0.093388,0.995630,-0.000000,-0.093388,0.995630,-0.000000,-0.093388,0.995630,
+			         -0.979439,-0.015352,0.201158,-0.979439,-0.015352,0.201158,-0.979439,-0.015352,0.201158,-0.979439,-0.015352,0.201158,
+			         0.000000,-0.083461,0.996511,0.000000,-0.083461,0.996511,0.000000,-0.083461,0.996511,0.000000,-0.083461,0.996511,
 			         0.007754,0.999970,0.000000,0.007754,0.999970,0.000000,0.007754,0.999970,0.000000,0.007754,0.999970,0.000000,
 			         -0.999999,-0.001196,0.000000,-0.999999,-0.001196,0.000000,-0.999999,-0.001196,0.000000,-0.999999,-0.001196,0.000000,
 			         -0.007754,-0.999970,0.000000,-0.007754,-0.999970,0.000000,-0.007754,-0.999970,0.000000,-0.007754,-0.999970,0.000000,
@@ -815,14 +815,14 @@ Objects:  {
 			         -0.003339,-0.000000,-0.999994,-0.003339,-0.000000,-0.999994,-0.003339,-0.000000,-0.999994,-0.003339,-0.000000,-0.999994,
 			         0.201787,0.000000,0.979429,0.201787,0.000000,0.979429,0.201787,0.000000,0.979429,0.201787,0.000000,0.979429,
 			         0.003339,0.000000,-0.999994,0.003339,0.000000,-0.999994,0.003339,0.000000,-0.999994,0.003339,0.000000,-0.999994,
-			         -1.000000,0.000098,0.000000,-1.000000,0.000098,0.000000,-1.000000,0.000098,0.000000,-1.000000,0.000098,0.000000,
+			         -1.000000,0.000088,0.000000,-1.000000,0.000088,0.000000,-1.000000,0.000088,0.000000,-1.000000,0.000088,0.000000,
 			         -0.000000,0.042058,0.999115,-0.000000,0.042058,0.999115,-0.000000,0.042058,0.999115,-0.000000,0.042058,0.999115,
 			         -0.041644,-0.981482,0.186974,-0.041644,-0.981482,0.186974,-0.041644,-0.981482,0.186974,-0.041644,-0.981482,0.186974,
-			         0.979590,-0.017039,0.200283,0.979590,-0.017039,0.200283,0.979590,-0.017039,0.200283,0.979590,-0.017039,0.200283,
+			         0.979439,-0.015352,0.201158,0.979439,-0.015352,0.201158,0.979439,-0.015352,0.201158,0.979439,-0.015352,0.201158,
 			         -0.978568,0.006912,0.205808,-0.978568,0.006912,0.205808,-0.978568,0.006912,0.205808,-0.978568,0.006912,0.205808,
 			         0.041644,0.981482,0.186974,0.041644,0.981482,0.186974,0.041644,0.981482,0.186974,0.041644,0.981482,0.186974,
 			         -0.201787,-0.000000,0.979429,-0.201787,-0.000000,0.979429,-0.201787,-0.000000,0.979429,-0.201787,-0.000000,0.979429,
-			         -0.000000,-0.001669,-0.999999,-0.000000,-0.001669,-0.999999,-0.000000,-0.001669,-0.999999,-0.000000,-0.001669,-0.999999,
+			         0.000000,-0.001504,-0.999999,0.000000,-0.001504,-0.999999,0.000000,-0.001504,-0.999999,0.000000,-0.001504,-0.999999,
 			         0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,
 			         0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,1.000000,-0.000000,-0.000003,1.000000,-0.000000,-0.000003,
 			         1.000000,-0.000000,-0.000003,1.000000,-0.000000,-0.000003,1.000000,-0.000000,-0.000003,1.000000,-0.000000,-0.000003,
@@ -2632,180 +2632,6 @@ Objects:  {
 			}
 			LayerElement:  {
 				Type: "LayerElementSmoothing"
-				TypedIndex: 0
-			}
-			LayerElement:  {
-				Type: "LayerElementTexture"
-				TypedIndex: 0
-			}
-			LayerElement:  {
-				Type: "LayerElementMaterial"
-				TypedIndex: 0
-			}
-		}
-	}
-	Model: "Model::battery_001", "Mesh" {
-		Version: 232
-		Properties60:  {
-			Property: "QuaternionInterpolate", "bool", "",0
-			Property: "Visibility", "Visibility", "A+",1
-			Property: "Lcl Translation", "Lcl Translation", "A+",-0.501779973506927,-0.000002801418304,0.559765815734863
-			Property: "Lcl Rotation", "Lcl Rotation", "A+",0.000000000000000,-0.000000000000000,-179.999841084157623
-			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
-			Property: "RotationOffset", "Vector3D", "",0,0,0
-			Property: "RotationPivot", "Vector3D", "",0,0,0
-			Property: "ScalingOffset", "Vector3D", "",0,0,0
-			Property: "ScalingPivot", "Vector3D", "",0,0,0
-			Property: "TranslationActive", "bool", "",0
-			Property: "TranslationMin", "Vector3D", "",0,0,0
-			Property: "TranslationMax", "Vector3D", "",0,0,0
-			Property: "TranslationMinX", "bool", "",0
-			Property: "TranslationMinY", "bool", "",0
-			Property: "TranslationMinZ", "bool", "",0
-			Property: "TranslationMaxX", "bool", "",0
-			Property: "TranslationMaxY", "bool", "",0
-			Property: "TranslationMaxZ", "bool", "",0
-			Property: "RotationOrder", "enum", "",0
-			Property: "RotationSpaceForLimitOnly", "bool", "",0
-			Property: "AxisLen", "double", "",10
-			Property: "PreRotation", "Vector3D", "",0,0,0
-			Property: "PostRotation", "Vector3D", "",0,0,0
-			Property: "RotationActive", "bool", "",0
-			Property: "RotationMin", "Vector3D", "",0,0,0
-			Property: "RotationMax", "Vector3D", "",0,0,0
-			Property: "RotationMinX", "bool", "",0
-			Property: "RotationMinY", "bool", "",0
-			Property: "RotationMinZ", "bool", "",0
-			Property: "RotationMaxX", "bool", "",0
-			Property: "RotationMaxY", "bool", "",0
-			Property: "RotationMaxZ", "bool", "",0
-			Property: "RotationStiffnessX", "double", "",0
-			Property: "RotationStiffnessY", "double", "",0
-			Property: "RotationStiffnessZ", "double", "",0
-			Property: "MinDampRangeX", "double", "",0
-			Property: "MinDampRangeY", "double", "",0
-			Property: "MinDampRangeZ", "double", "",0
-			Property: "MaxDampRangeX", "double", "",0
-			Property: "MaxDampRangeY", "double", "",0
-			Property: "MaxDampRangeZ", "double", "",0
-			Property: "MinDampStrengthX", "double", "",0
-			Property: "MinDampStrengthY", "double", "",0
-			Property: "MinDampStrengthZ", "double", "",0
-			Property: "MaxDampStrengthX", "double", "",0
-			Property: "MaxDampStrengthY", "double", "",0
-			Property: "MaxDampStrengthZ", "double", "",0
-			Property: "PreferedAngleX", "double", "",0
-			Property: "PreferedAngleY", "double", "",0
-			Property: "PreferedAngleZ", "double", "",0
-			Property: "InheritType", "enum", "",0
-			Property: "ScalingActive", "bool", "",0
-			Property: "ScalingMin", "Vector3D", "",1,1,1
-			Property: "ScalingMax", "Vector3D", "",1,1,1
-			Property: "ScalingMinX", "bool", "",0
-			Property: "ScalingMinY", "bool", "",0
-			Property: "ScalingMinZ", "bool", "",0
-			Property: "ScalingMaxX", "bool", "",0
-			Property: "ScalingMaxY", "bool", "",0
-			Property: "ScalingMaxZ", "bool", "",0
-			Property: "GeometricTranslation", "Vector3D", "",0,0,0
-			Property: "GeometricRotation", "Vector3D", "",0,0,0
-			Property: "GeometricScaling", "Vector3D", "",1,1,1
-			Property: "LookAtProperty", "object", ""
-			Property: "UpVectorProperty", "object", ""
-			Property: "Show", "bool", "",1
-			Property: "NegativePercentShapeSupport", "bool", "",1
-			Property: "DefaultAttributeIndex", "int", "",0
-			Property: "Color", "Color", "A",0.8,0.8,0.8
-			Property: "Size", "double", "",100
-			Property: "Look", "enum", "",1
-		}
-		MultiLayer: 0
-		MultiTake: 1
-		Shading: Y
-		Culling: "CullingOff"
-		Vertices: -0.074035,-0.267702,-0.118025,-0.074035,-0.304847,-0.103644,-0.074035,0.304847,-0.103644,-0.074035,0.267702,-0.118025,
-		          0.074035,0.304847,-0.103644,0.084307,0.267702,-0.103644,0.074035,0.267702,-0.118025,0.084307,-0.267702,-0.103644,
-		          0.074035,-0.304847,-0.103644,0.074035,-0.267702,-0.118025,-0.074035,-0.304847,0.103644,-0.074035,-0.267702,0.118025,
-		          -0.074035,0.267702,0.118025,-0.074035,0.304847,0.103644,0.074035,0.304847,0.103644,0.074035,0.267702,0.118025,
-		          0.084307,0.267702,0.103644,0.084307,-0.267702,0.103644,0.074035,-0.267702,0.118025,0.074035,-0.304847,0.103644
-		PolygonVertexIndex: 0,3,6,-10,16,17,7,-6,18,15,12,-12,13,14,4,-3,19,10,1,-9,4,5,-7,7,8,-10,14,15,-17,17,18,-20,
-		                    12,15,14,-14,16,5,4,-15,6,3,2,-5,15,18,17,-17,19,8,7,-18,9,6,5,-8,18,11,10,-20,0,9,8,-2,
-		                    3,0,1,10,11,12,13,-3
-		GeometryVersion: 124
-		LayerElementNormal: 0 {
-			Version: 101
-			Name: ""
-			MappingInformationType: "ByPolygonVertex"
-			ReferenceInformationType: "Direct"
-			Normals: -0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,
-			         1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,
-			         0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,
-			         0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,
-			         0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,
-			         0.793869,0.219549,-0.567072,0.793869,0.219549,-0.567072,0.793869,0.219549,-0.567072,0.793869,-0.219549,-0.567072,
-			         0.793869,-0.219549,-0.567072,0.793869,-0.219549,-0.567072,0.793869,0.219549,0.567072,0.793869,0.219549,0.567072,
-			         0.793869,0.219549,0.567072,0.793869,-0.219549,0.567072,0.793869,-0.219549,0.567072,0.793869,-0.219549,0.567072,
-			         -0.000000,0.361047,0.932548,-0.000000,0.361047,0.932548,-0.000000,0.361047,0.932548,-0.000000,0.361047,0.932548,
-			         0.963821,0.266550,-0.000000,0.963821,0.266550,-0.000000,0.963821,0.266550,-0.000000,0.963821,0.266550,-0.000000,
-			         0.000000,0.361047,-0.932548,0.000000,0.361047,-0.932548,0.000000,0.361047,-0.932548,0.000000,0.361047,-0.932548,
-			         0.813722,-0.000000,0.581254,0.813722,-0.000000,0.581254,0.813722,-0.000000,0.581254,0.813722,-0.000000,0.581254,
-			         0.963821,-0.266550,-0.000000,0.963821,-0.266550,-0.000000,0.963821,-0.266550,-0.000000,0.963821,-0.266550,-0.000000,
-			         0.813722,0.000000,-0.581254,0.813722,0.000000,-0.581254,0.813722,0.000000,-0.581254,0.813722,0.000000,-0.581254,
-			         0.000000,-0.361047,0.932548,0.000000,-0.361047,0.932548,0.000000,-0.361047,0.932548,0.000000,-0.361047,0.932548,
-			         -0.000000,-0.361047,-0.932548,-0.000000,-0.361047,-0.932548,-0.000000,-0.361047,-0.932548,-0.000000,-0.361047,-0.932548,
-			         -1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,
-			         -1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000
-		}
-		LayerElementSmoothing: 0 {
-			Version: 102
-			Name: ""
-			MappingInformationType: "ByPolygon"
-			ReferenceInformationType: "Direct"
-			Smoothing: 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-		}
-		LayerElementUV: 0 {
-			Version: 101
-			Name: "UVMap"
-			MappingInformationType: "ByPolygonVertex"
-			ReferenceInformationType: "IndexToDirect"
-			UV: 0.010813,0.420258,0.245627,0.420258,0.754372,0.006999,0.245628,0.223291,0.245627,0.439583,0.754372,0.439583,
-			    0.207779,0.223291,0.245628,0.636550,0.792220,0.223291,0.790966,0.213629,0.761809,0.939599,0.792220,0.006999,
-			    0.207779,0.006999,0.792220,0.636550,0.245627,0.203966,0.989187,0.223292,0.205874,0.925635,0.205874,0.724362,
-			    0.207779,0.439583,0.797876,0.925636,0.797876,0.724362,0.754372,0.636550,0.245627,0.006999,0.754372,0.420258,
-			    0.754372,0.223291,0.989187,0.420259,0.209034,0.213629,0.792220,0.420258,0.207779,0.420258,0.790965,0.429921,
-			    0.792220,0.439583,0.761809,0.710399,0.754372,0.203966,0.010813,0.223291,0.792220,0.203966,0.241941,0.939599,
-			    0.241941,0.710398,0.207779,0.203966,0.209034,0.429921,0.207779,0.636550
-			UVIndex: 22,2,32,14,23,1,3,24,4,5,21,7,25,27,8,15,28,0,33,6,9,24,32,3,26,14,29,5,23,1,4,38,21,5,30,13,23,24,8,27,32,2,11,34,5,4,1,23,28,6,3,1,14,32,24,3,4,7,39,18,22,14,37,12,
-			         10,35,16,17,36,31,20,19
-		}
-		LayerElementTexture: 0 {
-			Version: 101
-			Name: "UVMap"
-			MappingInformationType: "AllSame"
-			ReferenceInformationType: "IndexToDirect"
-			BlendMode: "Translucent"
-			TextureAlpha: 1
-			TextureId: 0
-		}
-		LayerElementMaterial: 0 {
-			Version: 101
-			Name: ""
-			MappingInformationType: "AllSame"
-			ReferenceInformationType: "IndexToDirect"
-			Materials: 0
-		}
-		Layer: 0 {
-			Version: 100
-			LayerElement:  {
-				Type: "LayerElementNormal"
-				TypedIndex: 0
-			}
-			LayerElement:  {
-				Type: "LayerElementSmoothing"
-				TypedIndex: 0
-			}
-			LayerElement:  {
-				Type: "LayerElementUV"
 				TypedIndex: 0
 			}
 			LayerElement:  {
@@ -4884,180 +4710,6 @@ Objects:  {
 			}
 		}
 	}
-	Model: "Model::battery", "Mesh" {
-		Version: 232
-		Properties60:  {
-			Property: "QuaternionInterpolate", "bool", "",0
-			Property: "Visibility", "Visibility", "A+",1
-			Property: "Lcl Translation", "Lcl Translation", "A+",0.501780211925507,-0.000002801418304,0.559765815734863
-			Property: "Lcl Rotation", "Lcl Rotation", "A+",0.000000000000000,-0.000000000000000,0.000146621697290
-			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
-			Property: "RotationOffset", "Vector3D", "",0,0,0
-			Property: "RotationPivot", "Vector3D", "",0,0,0
-			Property: "ScalingOffset", "Vector3D", "",0,0,0
-			Property: "ScalingPivot", "Vector3D", "",0,0,0
-			Property: "TranslationActive", "bool", "",0
-			Property: "TranslationMin", "Vector3D", "",0,0,0
-			Property: "TranslationMax", "Vector3D", "",0,0,0
-			Property: "TranslationMinX", "bool", "",0
-			Property: "TranslationMinY", "bool", "",0
-			Property: "TranslationMinZ", "bool", "",0
-			Property: "TranslationMaxX", "bool", "",0
-			Property: "TranslationMaxY", "bool", "",0
-			Property: "TranslationMaxZ", "bool", "",0
-			Property: "RotationOrder", "enum", "",0
-			Property: "RotationSpaceForLimitOnly", "bool", "",0
-			Property: "AxisLen", "double", "",10
-			Property: "PreRotation", "Vector3D", "",0,0,0
-			Property: "PostRotation", "Vector3D", "",0,0,0
-			Property: "RotationActive", "bool", "",0
-			Property: "RotationMin", "Vector3D", "",0,0,0
-			Property: "RotationMax", "Vector3D", "",0,0,0
-			Property: "RotationMinX", "bool", "",0
-			Property: "RotationMinY", "bool", "",0
-			Property: "RotationMinZ", "bool", "",0
-			Property: "RotationMaxX", "bool", "",0
-			Property: "RotationMaxY", "bool", "",0
-			Property: "RotationMaxZ", "bool", "",0
-			Property: "RotationStiffnessX", "double", "",0
-			Property: "RotationStiffnessY", "double", "",0
-			Property: "RotationStiffnessZ", "double", "",0
-			Property: "MinDampRangeX", "double", "",0
-			Property: "MinDampRangeY", "double", "",0
-			Property: "MinDampRangeZ", "double", "",0
-			Property: "MaxDampRangeX", "double", "",0
-			Property: "MaxDampRangeY", "double", "",0
-			Property: "MaxDampRangeZ", "double", "",0
-			Property: "MinDampStrengthX", "double", "",0
-			Property: "MinDampStrengthY", "double", "",0
-			Property: "MinDampStrengthZ", "double", "",0
-			Property: "MaxDampStrengthX", "double", "",0
-			Property: "MaxDampStrengthY", "double", "",0
-			Property: "MaxDampStrengthZ", "double", "",0
-			Property: "PreferedAngleX", "double", "",0
-			Property: "PreferedAngleY", "double", "",0
-			Property: "PreferedAngleZ", "double", "",0
-			Property: "InheritType", "enum", "",0
-			Property: "ScalingActive", "bool", "",0
-			Property: "ScalingMin", "Vector3D", "",1,1,1
-			Property: "ScalingMax", "Vector3D", "",1,1,1
-			Property: "ScalingMinX", "bool", "",0
-			Property: "ScalingMinY", "bool", "",0
-			Property: "ScalingMinZ", "bool", "",0
-			Property: "ScalingMaxX", "bool", "",0
-			Property: "ScalingMaxY", "bool", "",0
-			Property: "ScalingMaxZ", "bool", "",0
-			Property: "GeometricTranslation", "Vector3D", "",0,0,0
-			Property: "GeometricRotation", "Vector3D", "",0,0,0
-			Property: "GeometricScaling", "Vector3D", "",1,1,1
-			Property: "LookAtProperty", "object", ""
-			Property: "UpVectorProperty", "object", ""
-			Property: "Show", "bool", "",1
-			Property: "NegativePercentShapeSupport", "bool", "",1
-			Property: "DefaultAttributeIndex", "int", "",0
-			Property: "Color", "Color", "A",0.8,0.8,0.8
-			Property: "Size", "double", "",100
-			Property: "Look", "enum", "",1
-		}
-		MultiLayer: 0
-		MultiTake: 1
-		Shading: Y
-		Culling: "CullingOff"
-		Vertices: -0.074035,-0.267702,-0.118025,-0.074035,-0.304847,-0.103644,-0.074035,0.304847,-0.103644,-0.074035,0.267702,-0.118025,
-		          0.074035,0.304847,-0.103644,0.084307,0.267702,-0.103644,0.074035,0.267702,-0.118025,0.084307,-0.267702,-0.103644,
-		          0.074035,-0.304847,-0.103644,0.074035,-0.267702,-0.118025,-0.074035,-0.304847,0.103644,-0.074035,-0.267702,0.118025,
-		          -0.074035,0.267702,0.118025,-0.074035,0.304847,0.103644,0.074035,0.304847,0.103644,0.074035,0.267702,0.118025,
-		          0.084307,0.267702,0.103644,0.084307,-0.267702,0.103644,0.074035,-0.267702,0.118025,0.074035,-0.304847,0.103644
-		PolygonVertexIndex: 0,3,6,-10,16,17,7,-6,18,15,12,-12,13,14,4,-3,19,10,1,-9,4,5,-7,7,8,-10,14,15,-17,17,18,-20,
-		                    12,15,14,-14,16,5,4,-15,6,3,2,-5,15,18,17,-17,19,8,7,-18,9,6,5,-8,18,11,10,-20,0,9,8,-2,
-		                    3,0,1,10,11,12,13,-3
-		GeometryVersion: 124
-		LayerElementNormal: 0 {
-			Version: 101
-			Name: ""
-			MappingInformationType: "ByPolygonVertex"
-			ReferenceInformationType: "Direct"
-			Normals: -0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,
-			         1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,
-			         0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,
-			         0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,
-			         0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,
-			         0.793869,0.219549,-0.567072,0.793869,0.219549,-0.567072,0.793869,0.219549,-0.567072,0.793869,-0.219549,-0.567072,
-			         0.793869,-0.219549,-0.567072,0.793869,-0.219549,-0.567072,0.793869,0.219549,0.567072,0.793869,0.219549,0.567072,
-			         0.793869,0.219549,0.567072,0.793869,-0.219549,0.567072,0.793869,-0.219549,0.567072,0.793869,-0.219549,0.567072,
-			         -0.000000,0.361047,0.932548,-0.000000,0.361047,0.932548,-0.000000,0.361047,0.932548,-0.000000,0.361047,0.932548,
-			         0.963821,0.266550,-0.000000,0.963821,0.266550,-0.000000,0.963821,0.266550,-0.000000,0.963821,0.266550,-0.000000,
-			         0.000000,0.361047,-0.932548,0.000000,0.361047,-0.932548,0.000000,0.361047,-0.932548,0.000000,0.361047,-0.932548,
-			         0.813722,-0.000000,0.581254,0.813722,-0.000000,0.581254,0.813722,-0.000000,0.581254,0.813722,-0.000000,0.581254,
-			         0.963821,-0.266550,-0.000000,0.963821,-0.266550,-0.000000,0.963821,-0.266550,-0.000000,0.963821,-0.266550,-0.000000,
-			         0.813722,0.000000,-0.581254,0.813722,0.000000,-0.581254,0.813722,0.000000,-0.581254,0.813722,0.000000,-0.581254,
-			         0.000000,-0.361047,0.932548,0.000000,-0.361047,0.932548,0.000000,-0.361047,0.932548,0.000000,-0.361047,0.932548,
-			         -0.000000,-0.361047,-0.932548,-0.000000,-0.361047,-0.932548,-0.000000,-0.361047,-0.932548,-0.000000,-0.361047,-0.932548,
-			         -1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,
-			         -1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000
-		}
-		LayerElementSmoothing: 0 {
-			Version: 102
-			Name: ""
-			MappingInformationType: "ByPolygon"
-			ReferenceInformationType: "Direct"
-			Smoothing: 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-		}
-		LayerElementUV: 0 {
-			Version: 101
-			Name: "UVMap"
-			MappingInformationType: "ByPolygonVertex"
-			ReferenceInformationType: "IndexToDirect"
-			UV: 0.010813,0.420258,0.245627,0.420258,0.754372,0.006999,0.245628,0.223291,0.245627,0.439583,0.754372,0.439583,
-			    0.207779,0.223291,0.245628,0.636550,0.792220,0.223291,0.790966,0.213629,0.761809,0.939599,0.792220,0.006999,
-			    0.207779,0.006999,0.792220,0.636550,0.245627,0.203966,0.989187,0.223292,0.205874,0.925635,0.205874,0.724362,
-			    0.207779,0.439583,0.797876,0.925636,0.797876,0.724362,0.754372,0.636550,0.245627,0.006999,0.754372,0.420258,
-			    0.754372,0.223291,0.989187,0.420259,0.209034,0.213629,0.792220,0.420258,0.207779,0.420258,0.790965,0.429921,
-			    0.792220,0.439583,0.761809,0.710399,0.754372,0.203966,0.010813,0.223291,0.792220,0.203966,0.241941,0.939599,
-			    0.241941,0.710398,0.207779,0.203966,0.209034,0.429921,0.207779,0.636550
-			UVIndex: 22,2,32,14,23,1,3,24,4,5,21,7,25,27,8,15,28,0,33,6,9,24,32,3,26,14,29,5,23,1,4,38,21,5,30,13,23,24,8,27,32,2,11,34,5,4,1,23,28,6,3,1,14,32,24,3,4,7,39,18,22,14,37,12,
-			         10,35,16,17,36,31,20,19
-		}
-		LayerElementTexture: 0 {
-			Version: 101
-			Name: "UVMap"
-			MappingInformationType: "AllSame"
-			ReferenceInformationType: "IndexToDirect"
-			BlendMode: "Translucent"
-			TextureAlpha: 1
-			TextureId: 0
-		}
-		LayerElementMaterial: 0 {
-			Version: 101
-			Name: ""
-			MappingInformationType: "AllSame"
-			ReferenceInformationType: "IndexToDirect"
-			Materials: 0
-		}
-		Layer: 0 {
-			Version: 100
-			LayerElement:  {
-				Type: "LayerElementNormal"
-				TypedIndex: 0
-			}
-			LayerElement:  {
-				Type: "LayerElementSmoothing"
-				TypedIndex: 0
-			}
-			LayerElement:  {
-				Type: "LayerElementUV"
-				TypedIndex: 0
-			}
-			LayerElement:  {
-				Type: "LayerElementTexture"
-				TypedIndex: 0
-			}
-			LayerElement:  {
-				Type: "LayerElementMaterial"
-				TypedIndex: 0
-			}
-		}
-	}
 	Model: "Model::1", "Limb" {
 		Version: 232
 		Properties60:  {
@@ -6300,36 +5952,6 @@ Objects:  {
 		AudioColor: 0,1,0
 		CameraOrthoZoom: 1
 	}
-	Material: "Material::battery__battery_png", "" {
-		Version: 102
-		ShadingModel: "lambert"
-		MultiLayer: 0
-		Properties60:  {
-			Property: "ShadingModel", "KString", "", "Lambert"
-			Property: "MultiLayer", "bool", "",0
-			Property: "EmissiveColor", "ColorRGB", "",0.8000,0.8000,0.8000
-			Property: "EmissiveFactor", "double", "",0.0000
-			Property: "AmbientColor", "ColorRGB", "",1.0000,1.0000,1.0000
-			Property: "AmbientFactor", "double", "",1.0000
-			Property: "DiffuseColor", "ColorRGB", "",0.8000,0.8000,0.8000
-			Property: "DiffuseFactor", "double", "",0.8000
-			Property: "Bump", "Vector3D", "",0,0,0
-			Property: "TransparentColor", "ColorRGB", "",1,1,1
-			Property: "TransparencyFactor", "double", "",0.0000
-			Property: "SpecularColor", "ColorRGB", "",1.0000,1.0000,1.0000
-			Property: "SpecularFactor", "double", "",0.5000
-			Property: "ShininessExponent", "double", "",12.3
-			Property: "ReflectionColor", "ColorRGB", "",0,0,0
-			Property: "ReflectionFactor", "double", "",1
-			Property: "Emissive", "ColorRGB", "",0,0,0
-			Property: "Ambient", "ColorRGB", "",1.0,1.0,1.0
-			Property: "Diffuse", "ColorRGB", "",0.8,0.8,0.8
-			Property: "Specular", "ColorRGB", "",1.0,1.0,1.0
-			Property: "Shininess", "double", "",12.3
-			Property: "Opacity", "double", "",1.0
-			Property: "Reflectivity", "double", "",0
-		}
-	}
 	Material: "Material::hangar-box__inflatable-hangar-box_png", "" {
 		Version: 102
 		ShadingModel: "lambert"
@@ -6420,27 +6042,6 @@ Objects:  {
 			Property: "Reflectivity", "double", "",0
 		}
 	}
-	Video: "Video::battery_png", "Clip" {
-		Type: "Clip"
-		Properties60:  {
-			Property: "FrameRate", "double", "",0
-			Property: "LastFrame", "int", "",0
-			Property: "Width", "int", "",0
-			Property: "Height", "int", "",0
-			Property: "Path", "charptr", "", "battery.png"
-			Property: "StartFrame", "int", "",0
-			Property: "StopFrame", "int", "",0
-			Property: "PlaySpeed", "double", "",1
-			Property: "Offset", "KTime", "",0
-			Property: "InterlaceMode", "enum", "",0
-			Property: "FreeRunning", "bool", "",0
-			Property: "Loop", "bool", "",0
-			Property: "AccessMode", "enum", "",0
-		}
-		UseMipMap: 0
-		Filename: "battery.png"
-		RelativeFilename: "Textures/battery.png"
-	}
 	Video: "Video::inflatable-hangar-box_png", "Clip" {
 		Type: "Clip"
 		Properties60:  {
@@ -6483,35 +6084,6 @@ Objects:  {
 		Filename: "inflatable-hangar-case.png"
 		RelativeFilename: "Textures/inflatable-hangar-case.png"
 	}
-	Texture: "Texture::battery_png", "TextureVideoClip" {
-		Type: "TextureVideoClip"
-		Version: 202
-		TextureName: "Texture::battery_png"
-		Properties60:  {
-			Property: "Translation", "Vector", "A+",0,0,0
-			Property: "Rotation", "Vector", "A+",0,0,0
-			Property: "Scaling", "Vector", "A+",1,1,1
-			Property: "Texture alpha", "Number", "A+",0
-			Property: "TextureTypeUse", "enum", "",0
-			Property: "CurrentTextureBlendMode", "enum", "",1
-			Property: "UseMaterial", "bool", "",0
-			Property: "UseMipMap", "bool", "",0
-			Property: "CurrentMappingType", "enum", "",0
-			Property: "UVSwap", "bool", "",0
-			Property: "WrapModeU", "enum", "",0
-			Property: "WrapModeV", "enum", "",0
-			Property: "TextureRotationPivot", "Vector3D", "",0,0,0
-			Property: "TextureScalingPivot", "Vector3D", "",0,0,0
-			Property: "VideoProperty", "object", ""
-		}
-		Media: "Video::battery_png"
-		FileName: "battery.png"
-		RelativeFilename: "Textures/battery.png"
-		ModelUVTranslation: 0,0
-		ModelUVScaling: 1,1
-		Texture_Alpha_Source: "None"
-		Cropping: 0,0,0,0
-	}
 	Texture: "Texture::inflatable-hangar-box_png", "TextureVideoClip" {
 		Type: "TextureVideoClip"
 		Version: 202
@@ -6520,7 +6092,7 @@ Objects:  {
 			Property: "Translation", "Vector", "A+",0,0,0
 			Property: "Rotation", "Vector", "A+",0,0,0
 			Property: "Scaling", "Vector", "A+",1,1,1
-			Property: "Texture alpha", "Number", "A+",1
+			Property: "Texture alpha", "Number", "A+",0
 			Property: "TextureTypeUse", "enum", "",0
 			Property: "CurrentTextureBlendMode", "enum", "",1
 			Property: "UseMaterial", "bool", "",0
@@ -6549,7 +6121,7 @@ Objects:  {
 			Property: "Translation", "Vector", "A+",0,0,0
 			Property: "Rotation", "Vector", "A+",0,0,0
 			Property: "Scaling", "Vector", "A+",1,1,1
-			Property: "Texture alpha", "Number", "A+",2
+			Property: "Texture alpha", "Number", "A+",1
 			Property: "TextureTypeUse", "enum", "",0
 			Property: "CurrentTextureBlendMode", "enum", "",1
 			Property: "UseMaterial", "bool", "",0
@@ -6621,7 +6193,7 @@ Objects:  {
 		Version: 100
 		Properties60:  {
 		}
-		NbPoseNodes: 34
+		NbPoseNodes: 32
 		PoseNode:  {
 			Node: "Model::hangar-transform"
 			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,-0.181640282273293,0.232075765728951,1.000000000000000
@@ -6632,11 +6204,11 @@ Objects:  {
 		}
 		PoseNode:  {
 			Node: "Model::reactor-position"
-			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.513244211673737,0.155243337154388,0.118672803044319,1.000000000000000
+			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.513239979743958,-0.000000000000000,-0.001088701188564,1.000000000000000
 		}
 		PoseNode:  {
 			Node: "Model::compressor-position"
-			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,-0.415518462657928,0.097900047898293,1.000000000000000
+			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,-0.398290008306503,0.090760000050068,1.000000000000000
 		}
 		PoseNode:  {
 			Node: "Model::doors"
@@ -6691,10 +6263,6 @@ Objects:  {
 			Matrix: 0.000000075497901,1.000000000000000,0.000000043711399,0.000000000000000,-1.000000000000000,0.000000075497908,-0.000000150995803,0.000000000000000,-0.000000150995803,-0.000000043711388,1.000000000000000,0.000000000000000,0.000000000000000,0.232075765728951,-0.181640282273293,1.000000000000000
 		}
 		PoseNode:  {
-			Node: "Model::battery_001"
-			Matrix: -0.000002809374791,0.000000000000000,-1.000000000000000,0.000000000000000,-1.000000000000000,0.000000000000000,0.000002809374791,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.501779973506927,0.559765815734863,-0.000002801418304,1.000000000000000
-		}
-		PoseNode:  {
 			Node: "Model::left-door"
 			Matrix: -0.000000075497901,0.000000000000000,1.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000075497901,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.593701481819153,-0.223499998450279,0.000001132488251,1.000000000000000
 		}
@@ -6745,10 +6313,6 @@ Objects:  {
 		PoseNode:  {
 			Node: "Model::collider"
 			Matrix: -0.000000075497901,0.000000000000000,1.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000075497901,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000
-		}
-		PoseNode:  {
-			Node: "Model::battery"
-			Matrix: 0.000002483533535,0.000000000000000,1.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,-0.000002483533535,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,-0.501780211925507,0.559765815734863,-0.000002801418304,1.000000000000000
 		}
 		PoseNode:  {
 			Node: "Model::1"
@@ -6811,8 +6375,6 @@ Relations:  {
 	}
 	Model: "Model::collider-back", "Mesh" {
 	}
-	Model: "Model::battery_001", "Mesh" {
-	}
 	Model: "Model::left-door", "Mesh" {
 	}
 	Model: "Model::hinge_006", "Mesh" {
@@ -6839,8 +6401,6 @@ Relations:  {
 	}
 	Model: "Model::collider", "Mesh" {
 	}
-	Model: "Model::battery", "Mesh" {
-	}
 	Model: "Model::1", "Limb" {
 	}
 	Model: "Model::2", "Limb" {
@@ -6861,21 +6421,15 @@ Relations:  {
 	}
 	Model: "Model::Camera Switcher", "CameraSwitcher" {
 	}
-	Material: "Material::battery__battery_png", "" {
-	}
 	Material: "Material::hangar-box__inflatable-hangar-box_png", "" {
 	}
 	Material: "Material::hangar-case__inflatable-hangar-case_png", "" {
 	}
 	Material: "Material::unnamed", "" {
 	}
-	Texture: "Texture::battery_png", "TextureVideoClip" {
-	}
 	Texture: "Texture::inflatable-hangar-box_png", "TextureVideoClip" {
 	}
 	Texture: "Texture::inflatable-hangar-case_png", "TextureVideoClip" {
-	}
-	Video: "Video::battery_png", "Clip" {
 	}
 	Video: "Video::inflatable-hangar-box_png", "Clip" {
 	}
@@ -6904,7 +6458,6 @@ Connections:  {
 	Connect: "OO", "Model::collider-left", "Model::hangar-transform"
 	Connect: "OO", "Model::collider-bottom", "Model::hangar-transform"
 	Connect: "OO", "Model::collider-back", "Model::hangar-transform"
-	Connect: "OO", "Model::battery_001", "Model::case"
 	Connect: "OO", "Model::left-door", "Model::doors"
 	Connect: "OO", "Model::hinge_006", "Model::left-door"
 	Connect: "OO", "Model::hinge_007", "Model::left-door"
@@ -6918,7 +6471,6 @@ Connections:  {
 	Connect: "OO", "Model::hinge_002", "Model::back-door"
 	Connect: "OO", "Model::hinge_003", "Model::back-door"
 	Connect: "OO", "Model::collider", "Model::case"
-	Connect: "OO", "Model::battery", "Model::case"
 	Connect: "OO", "Model::Armature", "Model::case"
 	Connect: "OO", "Model::hangar-transform", "Model::case"
 	Connect: "OO", "Model::launch-position", "Model::hangar-space"
@@ -6936,7 +6488,6 @@ Connections:  {
 	Connect: "OO", "Material::unnamed", "Model::collider-left"
 	Connect: "OO", "Material::unnamed", "Model::collider-bottom"
 	Connect: "OO", "Material::unnamed", "Model::collider-back"
-	Connect: "OO", "Material::battery__battery_png", "Model::battery_001"
 	Connect: "OO", "Material::hangar-case__inflatable-hangar-case_png", "Model::left-door"
 	Connect: "OO", "Material::unnamed", "Model::hinge_006"
 	Connect: "OO", "Material::unnamed", "Model::hinge_007"
@@ -6950,17 +6501,13 @@ Connections:  {
 	Connect: "OO", "Material::unnamed", "Model::hinge_002"
 	Connect: "OO", "Material::unnamed", "Model::hinge_003"
 	Connect: "OO", "Material::unnamed", "Model::collider"
-	Connect: "OO", "Material::battery__battery_png", "Model::battery"
 	Connect: "OO", "Texture::inflatable-hangar-case_png", "Model::case"
 	Connect: "OO", "Texture::inflatable-hangar-box_png", "Model::inflatable-hangar"
 	Connect: "OO", "Texture::inflatable-hangar-box_png", "Model::door"
-	Connect: "OO", "Texture::battery_png", "Model::battery_001"
 	Connect: "OO", "Texture::inflatable-hangar-case_png", "Model::left-door"
 	Connect: "OO", "Texture::inflatable-hangar-case_png", "Model::right-door"
 	Connect: "OO", "Texture::inflatable-hangar-case_png", "Model::front-door"
 	Connect: "OO", "Texture::inflatable-hangar-case_png", "Model::back-door"
-	Connect: "OO", "Texture::battery_png", "Model::battery"
-	Connect: "OO", "Video::battery_png", "Texture::battery_png"
 	Connect: "OO", "Video::inflatable-hangar-box_png", "Texture::inflatable-hangar-box_png"
 	Connect: "OO", "Video::inflatable-hangar-case_png", "Texture::inflatable-hangar-case_png"
 	Connect: "OO", "Deformer::Skin inflatable-hangar", "Model::inflatable-hangar"
@@ -8527,92 +8074,6 @@ Takes:  {
 				}
 			}
 		}
-		Model: "Model::battery_001" {
-			Version: 1.1
-			Channel: "Transform" {
-				Channel: "T" {
-					Channel: "X" {
-						Default: -0.501779973506927
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-0.501779973506927,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: -0.000002801418304
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-0.000002801418304,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: 0.559765815734863
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.559765815734863,L
-						Color: 0,0,1
-					}
-					LayerType: 1
-				}
-				Channel: "R" {
-					Channel: "X" {
-						Default: 0.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.000000000000000,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: -0.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-0.000000000000000,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: -179.999841084157623
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-179.999841084157623,L
-						Color: 0,0,1
-					}
-					LayerType: 2
-				}
-				Channel: "S" {
-					Channel: "X" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 0,0,1
-					}
-					LayerType: 3
-				}
-			}
-		}
 		Model: "Model::left-door" {
 			Version: 1.1
 			Channel: "Transform" {
@@ -10067,92 +9528,6 @@ Takes:  {
 				}
 			}
 		}
-		Model: "Model::battery" {
-			Version: 1.1
-			Channel: "Transform" {
-				Channel: "T" {
-					Channel: "X" {
-						Default: 0.501780211925507
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.501780211925507,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: -0.000002801418304
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-0.000002801418304,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: 0.559765815734863
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.559765815734863,L
-						Color: 0,0,1
-					}
-					LayerType: 1
-				}
-				Channel: "R" {
-					Channel: "X" {
-						Default: 0.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.000000000000000,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: -0.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-0.000000000000000,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: 0.000146621697290
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.000146621697290,L
-						Color: 0,0,1
-					}
-					LayerType: 2
-				}
-				Channel: "S" {
-					Channel: "X" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 0,0,1
-					}
-					LayerType: 3
-				}
-			}
-		}
 		Model: "Model::hangar-transform" {
 			Version: 1.1
 			Channel: "Transform" {
@@ -10900,27 +10275,27 @@ Takes:  {
 			Channel: "Transform" {
 				Channel: "T" {
 					Channel: "X" {
-						Default: 0.513244211673737
+						Default: 0.513239979743958
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.513244211673737,L
+							1924423250,0.513239979743958,L
 						Color: 1,0,0
 					}
 					Channel: "Y" {
-						Default: 0.155243337154388
+						Default: -0.000000000000000
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.155243337154388,L
+							1924423250,-0.000000000000000,L
 						Color: 0,1,0
 					}
 					Channel: "Z" {
-						Default: 0.118672803044319
+						Default: -0.001088701188564
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.118672803044319,L
+							1924423250,-0.001088701188564,L
 						Color: 0,0,1
 					}
 					LayerType: 1
@@ -10994,19 +10369,19 @@ Takes:  {
 						Color: 1,0,0
 					}
 					Channel: "Y" {
-						Default: -0.415518462657928
+						Default: -0.398290008306503
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,-0.415518462657928,L
+							1924423250,-0.398290008306503,L
 						Color: 0,1,0
 					}
 					Channel: "Z" {
-						Default: 0.097900047898293
+						Default: 0.090760000050068
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.097900047898293,L
+							1924423250,0.090760000050068,L
 						Color: 0,0,1
 					}
 					LayerType: 1
@@ -12787,92 +12162,6 @@ Takes:  {
 				}
 			}
 		}
-		Model: "Model::battery_001" {
-			Version: 1.1
-			Channel: "Transform" {
-				Channel: "T" {
-					Channel: "X" {
-						Default: -0.501779973506927
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-0.501779973506927,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: -0.000002801418304
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-0.000002801418304,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: 0.559765815734863
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.559765815734863,L
-						Color: 0,0,1
-					}
-					LayerType: 1
-				}
-				Channel: "R" {
-					Channel: "X" {
-						Default: 0.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.000000000000000,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: -0.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-0.000000000000000,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: -179.999841084157623
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-179.999841084157623,L
-						Color: 0,0,1
-					}
-					LayerType: 2
-				}
-				Channel: "S" {
-					Channel: "X" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 0,0,1
-					}
-					LayerType: 3
-				}
-			}
-		}
 		Model: "Model::left-door" {
 			Version: 1.1
 			Channel: "Transform" {
@@ -13991,92 +13280,6 @@ Takes:  {
 				}
 			}
 		}
-		Model: "Model::battery" {
-			Version: 1.1
-			Channel: "Transform" {
-				Channel: "T" {
-					Channel: "X" {
-						Default: 0.501780211925507
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.501780211925507,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: -0.000002801418304
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-0.000002801418304,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: 0.559765815734863
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.559765815734863,L
-						Color: 0,0,1
-					}
-					LayerType: 1
-				}
-				Channel: "R" {
-					Channel: "X" {
-						Default: 0.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.000000000000000,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: -0.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,-0.000000000000000,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: 0.000146621697290
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,0.000146621697290,L
-						Color: 0,0,1
-					}
-					LayerType: 2
-				}
-				Channel: "S" {
-					Channel: "X" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 1,0,0
-					}
-					Channel: "Y" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 0,1,0
-					}
-					Channel: "Z" {
-						Default: 1.000000000000000
-						KeyVer: 4005
-						KeyCount: 1
-						Key: 
-							1924423250,1.000000000000000,L
-						Color: 0,0,1
-					}
-					LayerType: 3
-				}
-			}
-		}
 		Model: "Model::hangar-transform" {
 			Version: 1.1
 			Channel: "Transform" {
@@ -14821,27 +14024,27 @@ Takes:  {
 			Channel: "Transform" {
 				Channel: "T" {
 					Channel: "X" {
-						Default: 0.513244211673737
+						Default: 0.513239979743958
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.513244211673737,L
+							1924423250,0.513239979743958,L
 						Color: 1,0,0
 					}
 					Channel: "Y" {
-						Default: 0.155243337154388
+						Default: -0.000000000000000
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.155243337154388,L
+							1924423250,-0.000000000000000,L
 						Color: 0,1,0
 					}
 					Channel: "Z" {
-						Default: 0.118672803044319
+						Default: -0.001088701188564
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.118672803044319,L
+							1924423250,-0.001088701188564,L
 						Color: 0,0,1
 					}
 					LayerType: 1
@@ -14915,19 +14118,19 @@ Takes:  {
 						Color: 1,0,0
 					}
 					Channel: "Y" {
-						Default: -0.415518462657928
+						Default: -0.398290008306503
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,-0.415518462657928,L
+							1924423250,-0.398290008306503,L
 						Color: 0,1,0
 					}
 					Channel: "Z" {
-						Default: 0.097900047898293
+						Default: 0.090760000050068
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.097900047898293,L
+							1924423250,0.090760000050068,L
 						Color: 0,0,1
 					}
 					LayerType: 1
