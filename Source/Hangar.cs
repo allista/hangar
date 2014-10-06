@@ -20,6 +20,7 @@ namespace AtHangar
 		[KSPField (isPersistant = false)] public float  EnergyConsumption = 0.75f;
 		[KSPField (isPersistant = false)] public float  VolumePerKerbal = 6.7f; // m^3
 		[KSPField (isPersistant = false)] public bool   StaticCrewCapacity = true;
+		[KSPField (isPersistant = false)] public bool   NoTransfers = false;
 		//vessel spawning
 		[KSPField (isPersistant = false)] public float  LaunchHeightOffset;
 		[KSPField (isPersistant = false)] public string LaunchTransform;
