@@ -6,7 +6,7 @@ using KSPAPIExtensions;
 namespace AtHangar
 {
 	// This code is based on Procedural Fairings plug-in by Alexey Volynskov, PMUtils class
-	public static partial class Utils
+	static partial class Utils
 	{
 		#region Techtree
 		public const string minSizeName   = "HANGAR_MINSCALE";
