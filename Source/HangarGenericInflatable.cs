@@ -53,8 +53,11 @@ namespace AtHangar
 		[KSPField(isPersistant = false)] public string CompressorSound = "Hangar/Sounds/Compressor";
 		[KSPField(isPersistant = false)] public string InflationSound = "Hangar/Sounds/Inflate";
 		[KSPField(isPersistant = false)] public float  SoundVolume = 0.2f;
+
 		//GUI
 		[KSPField (guiName = "Compressed Gas", guiActive=true)] public string CompressedGasDisplay;
+		readonly SimpleDialog warning = new SimpleDialog();
+		bool try_deflate;
 
 		//modules and nodes
 		readonly List<IControllableModule> controlled_modules = new List<IControllableModule>();
@@ -86,15 +89,6 @@ namespace AtHangar
 			info += string.Format("Rate: {0}/el.u.\n", Utils.formatVolume(Compressor.ConversionRate));
 			info += string.Format("Power Consumption: {0} el.u./sec\n", Compressor.ConsumptionRate);
 			return info;
-		}
-
-		IEnumerator<YieldInstruction> UpdateStatus()
-		{
-			while(true)
-			{
-				CompressedGasDisplay = string.Format("{0:F1}%", CompressedGas/InflatableVolume*100);
-				yield return new WaitForSeconds(0.5f);
-			}
 		}
 		#endregion
 		
@@ -179,7 +173,7 @@ namespace AtHangar
 			//update part, GUI and set the flag
 			UpdatePart();
 			ToggleEvents();
-			StartCoroutine(UpdateStatus());
+			StartCoroutine(SlowUpdate());
 			gui_state = this.DeactivateGUI();
 			just_loaded = true;
 		}
@@ -227,20 +221,13 @@ namespace AtHangar
 			}
 		}
 
+		#if DEBUG
 		public override void Update()
 		{ 
 			base.Update();
-			if(play_compressor)
-			{
-				fxSndCompressor.audio.pitch = 0.5f + 0.5f*Compressor.OutputFraction;
-				if(!fxSndCompressor.audio.isPlaying)
-					fxSndCompressor.audio.Play();
-			}
-			else fxSndCompressor.audio.Stop();
-			#if DEBUG
 			animated_nodes.ForEach(n => n.DrawAnchor());
-			#endif
 		}
+		#endif
 
 		protected virtual void UpdatePart() 
 		{ 
@@ -266,7 +253,48 @@ namespace AtHangar
 			this.ActivateGUI(gui_state);
 		}
 
+		IEnumerator<YieldInstruction> SlowUpdate()
+		{
+			while(true)
+			{
+				//update GUI
+				CompressedGasDisplay = string.Format("{0:F1}%", CompressedGas/InflatableVolume*100);
+				//update sounds
+				if(play_compressor)
+				{
+					fxSndCompressor.audio.pitch = 0.5f + 0.5f*Compressor.OutputFraction;
+					if(!fxSndCompressor.audio.isPlaying)
+						fxSndCompressor.audio.Play();
+				}
+				else fxSndCompressor.audio.Stop();
+				//wait
+				yield return new WaitForSeconds(0.5f);
+			}
+		}
+
 		public void UpdateGUI(ShipConstruct ship) { UpdatePart(); }
+
+		public void OnGUI() 
+		{ 
+			if(Event.current.type != EventType.Layout) return;
+			while(try_deflate)
+			{
+				if(has_compressed_gas) { deflate(); break; }
+				if(Compressor == null)
+					warning.Show("The hangar is not equipped with a compressor. " +
+						"You will not be able to inflate the hangar again. " +
+						"Are you sure you want to deflate the hangar?");
+				else if(!part.vessel.mainBody.atmosphere)
+					warning.Show("There's no atmosphere here. " +
+						"You will not be able to inflate the hangar again." +
+						"Are you sure you want to deflate the hangar?");
+				else { deflate(); break; }
+				if(warning.Result == SimpleDialog.Answer.None) break;
+				if(warning.Result == SimpleDialog.Answer.Yes) deflate();
+				try_deflate = false;
+				break;
+			}
+		}
 		#endregion
 
 		#region Modules Control
@@ -300,8 +328,7 @@ namespace AtHangar
 			if(!has_compressed_gas) return;
 			if(State != AnimatorState.Closed) return;
 			if(!CanEnableModules()) return;
-			if(HighLogic.LoadedScene == GameScenes.FLIGHT) 
-				CompressedGas = 0;
+			if(HighLogic.LoadedSceneIsFlight) CompressedGas = 0;
 			StartCoroutine(DelayedEnableModules(true));
 			Open(); ToggleEvents();
 		}
@@ -311,8 +338,14 @@ namespace AtHangar
 		{ 
 			if(State != AnimatorState.Opened) return;
 			if(!CanDisableModules()) return;
+			try_deflate = true;
+		}
+
+		void deflate()
+		{
 			StartCoroutine(DelayedEnableModules(false));
 			Close(); ToggleEvents();
+			try_deflate = false;
 		}
 
 		[KSPAction("Inflate")]
