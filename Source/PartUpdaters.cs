@@ -279,5 +279,11 @@ namespace AtHangar
 			module.outputList.ForEach(r => r.rate = output_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
 		}
 	}
+
+	public class SolarPanelUpdater : ModuleUpdater<ModuleDeployableSolarPanel>
+	{
+		public override void OnRescale(Scale scale)
+		{ module.chargeRate = base_module.chargeRate * scale.absolute.quad * scale.absolute.aspect; }
+	}
 }
 
