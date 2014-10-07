@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import sys
 
 from base_classes import material, surface, volume, ship
-from components import battery, generator, reaction_wheel
+from components import battery, generator, reaction_wheel, solar_panel
 
 
 def format_data(x, ys, w=None):
@@ -97,12 +97,13 @@ if __name__ == '__main__':
 
     #ground hangars
     small     = ship('SmallHangar',
-                     volumes=[volume(13.82, 'hull', 1, 0.02, -1,
-                                     surface(145.7, 0.006, aluminium),
+                     volumes=[volume(9.62, 'hull', 1, 0.02, -1,
+                                     surface(149.24, 0.004, aluminium),
                                      [volume(4.7, 'machinery', 350, -1, 0.938,
                                              subvolumes=[battery(V=1.7, energy=4000)])]),
-                              volume(0.74, 'doors', 1, 0.02, -1,
-                                     surface(14.43, 0.006, aluminium)),
+                              solar_panel(2.413),#4.825),
+                              volume(0.182, 'doors', 1, 0.02, -1,
+                                     surface(15.17, 0.004, aluminium)),
                               volume(0.18,'clamp', 300, 0.78)
                               ], 
                      add_mass=0.04, #probe core
@@ -115,8 +116,8 @@ if __name__ == '__main__':
                                              subvolumes=[volume(38.15, 'machinery', 2460, -1, 6.25, 
                                                                 subvolumes=[battery(V=-1, energy=40000),
                                                                             generator(V=-1, energy=10)])])]),
-                              volume(17.89, 'doors', 2, 0.01, -1,
-                                     surface(124.08, 0.01, composits)),
+                              volume(5.41, 'doors', 2, 0.01, -1,
+                                     surface(118.44, 0.01, composits)),
                               volume(4.34, 'clamp', 300, 0.78),
                               ],
                      add_mass=0.04, #probe core
