@@ -110,14 +110,14 @@ if __name__ == '__main__':
                      add_cost=100 + 480) #Light + probe core
     
     big       = ship('BigHangar',
-                     volumes=[volume(527.4, 'hull', 2, 0.01, -1,
-                                     surface(1667.79, 0.01, composits),
+                     volumes=[volume(377.84, 'hull', 2, 0.01, -1,
+                                     surface(1709.32, 0.01, composits),
                                      [volume(218.99, 'cabins', 150, 0.183, -1,
                                              subvolumes=[volume(38.15, 'machinery', 2460, -1, 6.25, 
                                                                 subvolumes=[battery(V=-1, energy=40000),
                                                                             generator(V=-1, energy=10)])])]),
-                              volume(5.41, 'doors', 2, 0.01, -1,
-                                     surface(118.44, 0.01, composits)),
+                              volume(6.07, 'doors', 2, 0.01, -1,
+                                     surface(132.66, 0.01, composits)),
                               volume(4.34, 'clamp', 300, 0.78),
                               ],
                      add_mass=0.04, #probe core
