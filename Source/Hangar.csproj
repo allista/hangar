@@ -89,6 +89,7 @@
     <Compile Include="DebugUtils.cs" />
     <Compile Include="GraphicsUtils.cs" />
     <Compile Include="Addons.cs" />
+    <Compile Include="SimpleDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
