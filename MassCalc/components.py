@@ -1,4 +1,4 @@
-from base_classes import volume
+from base_classes import volume, surface, material
 
 class custom_volume(volume):
     _name = 'custom volume'
@@ -29,6 +29,24 @@ class reaction_wheel(custom_volume):
         s  = '   torque = %.0f\n' % (self._spec_torque * m) 
         s += '   rate = %.3f\n' % (self._spec_energy * m)
         return s
+#end class
+
+class solar_panel(custom_volume):
+    _name = 'solar panels'
+    _density = 0
+    _cost_density = 0
+    
+    _thickness = 0.01
+    _surface_energy = 1.3479107
+    _material = material(2.5894795, 224.65179)
+    
+    def __init__(self, S):
+        self.energy = S*self._surface_energy
+        custom_volume.__init__(self, S*self._thickness)
+        self._surface = surface(S, self._thickness, self._material)
+        
+    def _add_str(self):
+        return '   chargeRate = %.3f\n' % self.energy
 #end class
 
 class battery(custom_volume):
