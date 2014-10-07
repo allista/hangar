@@ -200,18 +200,6 @@ namespace AtHangar
 		}
 		
 		//settings
-		public static void CheckRect(ref Rect R)
-		{
-			//check size
-			if(R.width > Screen.width) R.width = Screen.width;
-			if(R.height > Screen.height) R.height = Screen.height;
-			//check position
-			if(R.xMin < 0) R.x -= R.xMin;
-			else if(R.xMax > Screen.width) R.x -= R.xMax-Screen.width;
-			if(R.yMin < 0) R.y -= R.yMin;
-			else if(R.yMax > Screen.height) R.y -= R.yMax-Screen.height;
-		}
-
 		public static string mangleName(string name) { return typeof(T).Name+"-"+name; }
 		
 		virtual public void LoadSettings()

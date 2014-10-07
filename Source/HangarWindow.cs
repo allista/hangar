@@ -49,9 +49,8 @@ namespace AtHangar
 		Guid vessel_id;
 		
 		//vessel crew and resources
-		CrewTransferWindow crew_window = new CrewTransferWindow();
-		ResourceTransferWindow resources_window = new ResourceTransferWindow();
-		
+		readonly CrewTransferWindow crew_window = new CrewTransferWindow();
+		readonly ResourceTransferWindow resources_window = new ResourceTransferWindow();
 		
 		//vessel volume 
 		void updateVesselMetric(Vessel vsl = null)
@@ -483,20 +482,20 @@ namespace AtHangar
 											 String.Format("{0} {1}, Gates {2}", "Hangar", hstate, gstate),
 										 	 GUILayout.Width(320),
 											 GUILayout.Height(100));
-				CheckRect(ref fWindowPos);
+				Utils.CheckRect(ref fWindowPos);
 				//transfers
 				if(selected_vessel == null) selecting_crew = transfering_resources = false;
 				if(selecting_crew)
 				{
 					cWindowPos = crew_window.Draw(selected_hangar.vessel.GetVesselCrew(), 
 				    	                          selected_vessel.crew, selected_vessel.CrewCapacity, cWindowPos);
-					CheckRect(ref cWindowPos);
+					Utils.CheckRect(ref cWindowPos);
 				}
 				if(transfering_resources)
 				{
 					selected_hangar.prepareResourceList(selected_vessel);
 					rWindowPos = resources_window.Draw(selected_hangar.resourceTransferList, rWindowPos);
-					CheckRect(ref rWindowPos);
+					Utils.CheckRect(ref rWindowPos);
 					if(resources_window.transferNow)
 					{
 						selected_hangar.transferResources(selected_vessel);
@@ -513,7 +512,7 @@ namespace AtHangar
 											  "Vessel info",
 											  GUILayout.Width(300),
 											  GUILayout.Height(100));
-				CheckRect(ref eWindowPos);
+				Utils.CheckRect(ref eWindowPos);
 			}
 			UpdateGUIState();
 		}

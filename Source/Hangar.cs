@@ -80,21 +80,8 @@ namespace AtHangar
 		[KSPField (guiName = "Crew Capacity", guiActiveEditor=true)] public string crew_capacity;
 		[KSPField (guiName = "Stored Mass",   guiActiveEditor=true)] public string stored_mass;
 		[KSPField (guiName = "Stored Cost",   guiActiveEditor=true)] public string stored_cost;
-		[KSPField (guiName = "Hangar Doors",  guiActive = true)] public string doors;
-		[KSPField (guiName = "Hangar State",  guiActive = true)] public string state;
 		[KSPField (guiName = "Hangar Name",   guiActive = true, guiActiveEditor=true, isPersistant = true)]
 		public string HangarName = "_none_";
-
-		//update labels
-		IEnumerator<YieldInstruction> UpdateStatus()
-		{
-			while(true)
-			{
-				doors = hangar_gates.State.ToString();
-				state = hangar_state.ToString();
-				yield return new WaitForSeconds(0.5f);
-			}
-		}
 
 		public override string GetInfo()
 		{
@@ -192,9 +179,8 @@ namespace AtHangar
                 Events["Open"].guiActiveEditor = true;
                 Events["Close"].guiActiveEditor = true;
             }
-			//recalculate volume and mass, start updating labels
+			//recalculate volume and mass
 			Setup();
-			StartCoroutine(UpdateStatus());
 			//if there are multiple hangars in the vessel,
 			//coordinate with them before storing packed constructs
 			build_checklist();
@@ -1035,7 +1021,7 @@ namespace AtHangar
 								                  hangar_content_editor,
 								                  "Choose vessel type",
 								                  GUILayout.Width(400));
-					AddonWindowBase<HangarWindow>.CheckRect(ref eWindowPos);
+					Utils.CheckRect(ref eWindowPos);
 				}
 				else 
 				{
@@ -1051,7 +1037,7 @@ namespace AtHangar
 											   hangar_name_editor,
 											   "Rename Hangar",
 											   GUILayout.Width(400));
-				AddonWindowBase<HangarWindow>.CheckRect(ref neWindowPos);
+				Utils.CheckRect(ref neWindowPos);
 			}
 		}
 		#endregion
