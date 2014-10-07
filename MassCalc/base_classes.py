@@ -125,8 +125,9 @@ class volume:
         if not simple:
             if self._surface is not None: 
                 s += '   surface: %s\n' % self._surface
-            s += '   content: %sm^3, %st/m^3, %st, %sCr\n' % (self.V(), self.d, 
-                                                              self.V_mass(), self.V_cost())
+            if self.V_mass() > 0 or self.V_cost() > 0: 
+                s += '   content: %sm^3, %st/m^3, %st, %sCr\n' % (self.V(), self.d, 
+                                                                  self.V_mass(), self.V_cost())
             if len(self._subvolumes) > 0:
                 s += '   '+''.join(str(sv).replace('\n', '\n   ') for sv in self._subvolumes)
                 s = s[:-3]
