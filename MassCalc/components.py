@@ -62,9 +62,9 @@ class battery(custom_volume):
     #(100/0.033, 200/0.083, 400/0.1, 1000/0.3, 4000/1.6) = [3030.303, 2409.6386, 4000, 3333.3333, 2500]
     #batteries of RoverLander: 0.444m^3, 0.5t, 1000El.u
     _name = 'batteries'
-    _density        = 0.2   #t/m^3
-    _energy_cost    = 1.375 #Cr/El.u
-    _energy_density = 4000  #El.u/m^3
+    _density        = 0.2    #t/m^3
+    _energy_cost    = 1.375  #Cr/El.u
+    _energy_density = 4000.0 #El.u/m^3
     
     def __init__(self, V, energy=-1):
         if V < 0 and energy < 0: 
