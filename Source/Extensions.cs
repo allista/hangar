@@ -20,13 +20,22 @@ namespace AtHangar
 		}
 
 		public static void ForEach<TSource>(this TSource[] a, Action<TSource> action)
-		{ foreach(TSource e in a) action(e); }
+		{ for(int i = 0; i < a.Length; i++) action(a[i]); }
 
 		public static TSource Pop<TSource>(this LinkedList<TSource> l)
 		{
 			TSource e = l.Last.Value;
 			l.RemoveLast();
 			return e;
+		}
+
+		public static TSource Min<TSource>(params TSource[] args) where TSource : IComparable
+		{
+			if(args.Length == 0) throw new InvalidOperationException("Min: arguments list should not be empty");
+			TSource min = args[0];
+			foreach(var arg in args)
+			{ if(min.CompareTo(arg) < 0) min = arg; }
+			return min;
 		}
 
 		public static TSource Max<TSource>(params TSource[] args) where TSource : IComparable
