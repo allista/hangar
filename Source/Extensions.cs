@@ -28,6 +28,15 @@ namespace AtHangar
 			l.RemoveLast();
 			return e;
 		}
+
+		public static TSource Max<TSource>(params TSource[] args) where TSource : IComparable
+		{
+			if(args.Length == 0) throw new InvalidOperationException("Max: arguments list should not be empty");
+			TSource max = args[0];
+			foreach(var arg in args)
+			{ if(max.CompareTo(arg) > 0) max = arg; }
+			return max;
+		}
 	}
 
 	public static class PartExtension
