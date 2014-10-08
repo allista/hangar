@@ -32,8 +32,8 @@ if __name__ == '__main__':
     #inline
     inline1   = ship('InlineHangar',
                      volumes=[volume(9.4, 'hull', 1, 0.02, -1,
-                                     surface(66.444, 0.005, Al_Li),
-                                     [volume(3.93, 'machinery', 100, 0.227)]),
+                                     surface(66.444, 0.006, Al_Li),
+                                     [volume(3.93, 'machinery', 850, -1, 0.530)]),
                               volume(0.659*2, 'doors', 1, 0.02, -1,
                                      surface(9.32*2, 0.005, Al_Li)),
                               ],
@@ -43,8 +43,12 @@ if __name__ == '__main__':
     inline2   = ship('InlineHangar2',
                      volumes=[volume(98.08, 'hull', 1, 0.02, -1,
                                      surface(268.11, 0.006, Al_Li),
-                                     [volume(53.66, 'machinery', 80, 0.143, -1,
-                                             subvolumes=[volume(40.45, 'cabins', 220, 0.153)])]), #like Hitchhikers container
+                                     [volume(53.66, 'top compartment', 20, 0.05, -1,
+                                             subvolumes=[volume(7.34*2, 'cabins', 8000, -1, 0.35*6,
+                                                                surface(25.19*2, 0.006, Al_Li)),
+                                                         volume(15.5, 'coridor', 2, 0.0012, -1,
+                                                                surface(41.33, 0.006, Al_Li)),
+                                                         volume(9.17, 'machinery', 1900, -1, 2.1)])]),
                               volume(4.05*2, 'doors', 1, 0.02, -1,
                                      surface(35.94*2, 0.006, Al_Li)),
                               ], 
@@ -55,19 +59,26 @@ if __name__ == '__main__':
     spaceport = ship('Spaceport', 
                      volumes=[volume(366.046, 'hull', 2, 0.01, -1,
                                      surface(960.55, 0.007, composits),
-                                     [volume(46.92, 'machinery room', 15, 0.01, -1,
+                                     [volume(46.92, 'machinery room', 3500, -1, 6,
                                              subvolumes=[battery(V=-1, energy=20000),
                                                          reaction_wheel(0.95),
                                                          generator(V=-1, energy=6.75),
                                                          volume(2, 'monopropellent tank', 0, 0, -1,
                                                                 surface(11.04, 0.006, aluminium))]),
-                                      volume(112.64*2, 'cabins', 200, 0.168), #density of the SpaceX Dragon vessel
-                                      volume(1.5*2+8.7, 'coridors', 1, 0.001),
+                                      volume(112.64*2, 'side-space', 20, 0.05, -1,
+                                             subvolumes=[volume(2.88*10, 'cabins', 2000*10, -1, 0.35*10,
+                                                                surface(12.8, 0.01, composits)),
+                                                         volume(27.25*2, 'coridors', 1, 0.0012, -1,
+                                                                surface(93.66*2, 0.01, composits)),
+                                                         volume(8.79*2, 'doors machinery', 800*2, -1, 0.35*2,
+                                                                surface(26.44*2, 0.01, composits))]),
+                                      volume(1.5*2+8.7, 'coridors', 1, 0.0012)
+                                      
                                       ]),
                               volume(1.64*2, 'doors', 2, 0.01, -1,
                                      surface(28.94*2, 0.007, composits)),
                               ],
-                     add_mass=2+6+0.08,  #cockpit, machinery, probe core
+                     add_mass=4+0.08, #cockpit, probe core
                      add_cost=980 + 300 + 4000 + 600,  #DockPort + Light + Cockpit + probe core
                      res_cost=2400) #Monoprop
 
@@ -75,7 +86,7 @@ if __name__ == '__main__':
     lander     = ship('RoverLander', 
                       volumes=[volume(9.536, 'hull', 2, 0.01, -1,
                                       surface(92.1, 0.004, Al_Li),
-                                      [volume(3.498, 'machinery', 220, 0.12, -1,
+                                      [volume(3.498, 'machinery', 920, -1, 0.35,
                                               subvolumes=[reaction_wheel(0.17)]),
                                        volume(2.225, 'base', 40, 0.29)]),
                                volume(0.62*2+0.47*2+0.0138*4, 'doors', 1, 0.02, -1,
@@ -85,7 +96,7 @@ if __name__ == '__main__':
                                battery(V=0.444*2, energy=2000),
                                volume(0.186*6, 'fuel tanks', 0, 0, -1,
                                       surface(2.39*6, 0.006, aluminium),),
-                               volume(0.0225*4, 'outer hydraulic cylinders', 0, 0, -1,
+                               volume(0.0225*4, 'hydraulic cylinders', 0, 0, -1,
                                       surface(0.721*4, 0.008, aluminium),
                                       [volume(0.012*4, 'inner hydraulic cylinders', 3, 0.8, -1,  #hydraulic oil is ~0.8
                                               surface(0.543*4, 0.003, steel))]),
@@ -99,8 +110,8 @@ if __name__ == '__main__':
     small     = ship('SmallHangar',
                      volumes=[volume(9.62, 'hull', 1, 0.02, -1,
                                      surface(149.24, 0.004, aluminium),
-                                     [volume(4.7, 'machinery', 350, -1, 0.938,
-                                             subvolumes=[battery(V=1.7, energy=4000)])]),
+                                     [volume(4.7, 'machinery', 550, -1, 0.830,
+                                             subvolumes=[battery(V=-1, energy=2000)])]),
                               solar_panel(2.413),#4.825),
                               volume(0.182, 'doors', 1, 0.02, -1,
                                      surface(15.17, 0.004, aluminium)),
@@ -112,9 +123,13 @@ if __name__ == '__main__':
     big       = ship('BigHangar',
                      volumes=[volume(377.84, 'hull', 2, 0.01, -1,
                                      surface(1709.32, 0.01, composits),
-                                     [volume(218.99, 'cabins', 150, 0.183, -1,
-                                             subvolumes=[volume(38.15, 'machinery', 2460, -1, 6.25, 
-                                                                subvolumes=[battery(V=-1, energy=40000),
+                                     [volume(218.99, 'rear-compartment', 150, 0.02, -1,
+                                             subvolumes=[volume(12.126*6, 'cabins', 3000*6, -1, 6,
+                                                                surface(31.88*6, 0.01, composits)),
+                                                         volume(11.12*3, 'coridors', 150, 0.0012, -1,
+                                                                surface(40.6*3, 0.01, composits)),
+                                                         volume(67.57, 'machinery', 4260, -1, 7.4, 
+                                                                subvolumes=[battery(V=20, energy=40000),
                                                                             generator(V=-1, energy=10)])])]),
                               volume(6.07, 'doors', 2, 0.01, -1,
                                      surface(132.66, 0.01, composits)),
@@ -234,16 +249,16 @@ if __name__ == '__main__':
     lander_c    = np.fromiter((lander.cost(s/2, 1) for s in scales), float)
      
     lg1 = 1#.3981227
-    small_m  = np.fromiter((small.mass(s/2, lg1) for s in scales), float)
+    small_m  = np.fromiter((small.mass(s, lg1) for s in scales), float)
     big_m    = np.fromiter((big.mass(s/3, 1) for s in scales), float)
 
-    small_sm = np.fromiter((small.S_mass(s/2, lg1) for s in scales), float)
+    small_sm = np.fromiter((small.S_mass(s, lg1) for s in scales), float)
     big_sm   = np.fromiter((big.S_mass(s/3, 1) for s in scales), float)
     
-    small_v  = np.fromiter((small.volume(s/2, lg1) for s in scales), float)
+    small_v  = np.fromiter((small.volume(s, lg1) for s in scales), float)
     big_v    = np.fromiter((big.volume(s/3, 1) for s in scales), float)
     
-    small_c  = np.fromiter((small.cost(s/2, lg1) for s in scales), float)
+    small_c  = np.fromiter((small.cost(s, lg1) for s in scales), float)
     big_c    = np.fromiter((big.cost(s/3, 1) for s in scales), float)
     
     adapter_m  = np.fromiter((adapter.mass(s, lg1) for s in scales), float)
@@ -266,7 +281,7 @@ if __name__ == '__main__':
     print(format_data(scales, (lander_m, lander_sm, lander_v, lander_c)))
     
     print(small); print('length: %s' % lg1)
-    print(format_data(scales, (small_m, small_sm, small_v, small_c), np.where(scales/2 >= 1)[0]))
+    print(format_data(scales, (small_m, small_sm, small_v, small_c), np.where(scales >= 1)[0]))
 
     print(big);
     print(format_data(scales, (big_m, big_sm, big_v, big_c), np.where(scales/3 >= 1)[0]))
