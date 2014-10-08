@@ -76,7 +76,7 @@ namespace AtHangar
 
 		#region GUI
 		[KSPField (guiName = "Volume",        guiActiveEditor=true)] public string hangar_v;
-		[KSPField (guiName = "Dimensions",    guiActiveEditor=true)] public string hangar_d;
+		[KSPField (guiName = "Size",          guiActiveEditor=true)] public string hangar_d;
 		[KSPField (guiName = "Crew Capacity", guiActiveEditor=true)] public string crew_capacity;
 		[KSPField (guiName = "Stored Mass",   guiActiveEditor=true)] public string stored_mass;
 		[KSPField (guiName = "Stored Cost",   guiActiveEditor=true)] public string stored_cost;
@@ -251,7 +251,11 @@ namespace AtHangar
 			part.mass = base_mass+vessels_mass;
 			//calculate crew capacity from remaining volume
 			if(!StaticCrewCapacity)
+			{
 				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
+				Fields["crew_capacity"].guiActive = true;
+			}
+			else Fields["crew_capacity"].guiActive = false;
 			crew_capacity = part.CrewCapacity.ToString();
 			//update Editor counters and all other that listen
 			if(EditorLogic.fetch != null) GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);

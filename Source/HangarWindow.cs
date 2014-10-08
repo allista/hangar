@@ -308,8 +308,8 @@ namespace AtHangar
 		{
 			GUILayout.BeginVertical();
 			GUILayout.Label("Vessel Volume: "+Utils.formatVolume(vessel_metric.volume), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Vessel Dimensions: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Hangar Dimensions: "+Utils.formatDimensions(selected_hangar.hangar_metric.size), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Vessel Size: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Hangar Size: "+Utils.formatDimensions(selected_hangar.hangar_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Hangar volume: "+Utils.formatVolume(selected_hangar.hangar_metric.volume), GUILayout.ExpandWidth(true));
 			GUILayout.Label(string.Format("Used volume: {0}, {1:F1}%", Utils.formatVolume(selected_hangar.used_volume), selected_hangar.used_volume_frac*100), 
 			                Styles.fracStyle(1-selected_hangar.used_volume_frac), GUILayout.ExpandWidth(true));
@@ -409,7 +409,7 @@ namespace AtHangar
 			GUILayout.Label(string.Format("Mass: {0}   Volume: {1}", 
 			                              Utils.formatMass(vessel_metric.mass), 
 			                              Utils.formatVolume(vessel_metric.volume)), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Dimensions: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Size: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label(String.Format("Crew Capacity: {0}", vessel_metric.CrewCapacity), GUILayout.ExpandWidth(true));
 			if(HighLogic.LoadedScene == GameScenes.EDITOR ||
 			   HighLogic.LoadedScene == GameScenes.SPH)
