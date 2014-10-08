@@ -8,55 +8,7 @@ namespace AtHangar
 	// This code is based on Procedural Fairings plug-in by Alexey Volynskov, PMUtils class
 	static partial class Utils
 	{
-		#region Techtree
-		public const string minSizeName   = "HANGAR_MINSCALE";
-		public const string maxSizeName   = "HANGAR_MAXSCALE";
-		public const string minAspectName = "HANGAR_MINASPECT";
-		public const string maxAspectName = "HANGAR_MAXASPECT";
-
-		static bool haveTech(string name)
-		{
-			if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
-				return name == "sandbox";
-			return ResearchAndDevelopment.GetTechnologyState(name) == RDTech.State.Available;
-		}
-		
-		public static float getTechMinValue(string cfgname, float defVal)
-		{
-			float minVal  = 0;
-			bool hasValue = false;
-			foreach(var tech in GameDatabase.Instance.GetConfigNodes(cfgname))
-				foreach(ConfigNode.Value value in tech.values) 
-				{
-					if(!haveTech(value.name)) continue;
-					float v = float.Parse(value.value);
-					if(!hasValue || v < minVal) 
-					{
-						minVal = v;
-						hasValue = true;
-					}
-				}
-			return hasValue ? minVal : defVal;
-		}
-		
-		public static float getTechMaxValue(string cfgname, float defVal)
-		{
-			float maxVal = 0;
-			bool hasValue = false;
-			foreach(var tech in GameDatabase.Instance.GetConfigNodes(cfgname))
-				foreach(ConfigNode.Value value in tech.values)
-				{
-					if(!haveTech(value.name)) continue;
-					float v = float.Parse(value.value);
-					if(!hasValue || v > maxVal)
-					{
-						maxVal = v;
-						hasValue = true;
-					}
-				}
-			return hasValue? maxVal : defVal;
-		}
-		
+		#region Misc
 		public static void setFieldRange(BaseField field, float minval, float maxval)
 		{
 			var fr = field.uiControlEditor as UI_FloatRange;
@@ -65,7 +17,7 @@ namespace AtHangar
 				fr.minValue = minval;
 				fr.maxValue = maxval;
 			}
-		
+
 			var fe = field.uiControlEditor as UI_FloatEdit;
 			if (fe != null) 
 			{
@@ -73,9 +25,7 @@ namespace AtHangar
 				fe.maxValue = maxval;
 			}
 		}
-		#endregion
 
-		#region Misc
 		//sound (from the KAS mod; KAS_Shared class)
 		public static bool createFXSound(Part part, FXGroup group, string sndPath, bool loop, float maxDistance = 30f)
 		{
@@ -149,7 +99,7 @@ namespace AtHangar
 				return (volume * 1e3f).ToString ("n0") + " L";
 			return volume.ToString ("n1") + "m^3";
 		}
-		
+
 		public static string formatDimensions(Vector3 size)
 		{ return string.Format("{0:F2}m x {1:F2}m x {2:F2}m", size.x, size.y, size.z); }
 		

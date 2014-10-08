@@ -52,34 +52,65 @@ namespace AtHangar
 
 	public class HangarResizableBase : PartUpdaterBase, IPartCostModifier
 	{
+		public const string MIN_SIZE   = "HANGAR_MIN_SCALE";
+		public const string MAX_SIZE   = "HANGAR_MAX_SCALE";
+		public const string MIN_ASPECT = "HANGAR_MIN_ASPECT";
+		public const string MAX_ASPECT = "HANGAR_MAX_ASPECT";
+
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Aspect", guiFormat="S4")]
 		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f)]
 		public float aspect = 1.0f;
 
 		[KSPField(isPersistant=false, guiActiveEditor=true, guiName="Mass")] 
-		public string massDisplay;
+		public string MassDisplay;
 
 		//module config
 		[KSPField] public float minSize = -1;
 		[KSPField] public float maxSize = -1;
-
-		[KSPField] public float minAspect = -1;
-		[KSPField] public float maxAspect = -1;
-
 		[KSPField] public float sizeStepLarge = 1.0f;
 		[KSPField] public float sizeStepSmall = 0.1f;
 
+		[KSPField] public float minAspect = -1;
+		[KSPField] public float maxAspect = -1;
 		[KSPField] public float aspectStepLarge = 0.5f;
 		[KSPField] public float aspectStepSmall = 0.1f;
 
-		protected Transform model;
 		protected float old_aspect  = -1;
+		[KSPField(isPersistant=true)] public float orig_aspect = -1;
+
+		protected Transform model;
 		public    float delta_cost  = 0f;
 		protected bool  just_loaded = true;
 
-		//methods
+		#region TechTree
+		static bool have_tech(string name)
+		{
+			if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER) return name == "sandbox";
+			return ResearchAndDevelopment.GetTechnologyState(name) == RDTech.State.Available;
+		}
+
+		static float get_tech_value(string name, float orig, Func<float, float, bool> compare)
+		{
+			float val = orig;
+			foreach(var tech in GameDatabase.Instance.GetConfigNodes(name))
+				foreach(ConfigNode.Value value in tech.values) 
+				{
+					if(!have_tech(value.name)) continue;
+					float v = float.Parse(value.value);
+					if(compare(v, val)) val = v;
+				}
+			return val;
+		}
+
+		protected static void init_limit(string name, ref float val, float orig, Func<float, float, bool> compare)
+		{
+			float _val = get_tech_value(name, orig, compare);
+			if(val < 0 || compare(val, _val)) val = _val;
+		}
+		#endregion
+
 		public void UpdateGUI(ShipConstruct ship)
-		{ massDisplay = Utils.formatMass(part.TotalMass()); }
+		{ MassDisplay = Utils.formatMass(part.TotalMass()); }
 
 		public override void OnAwake()
 		{
@@ -90,6 +121,12 @@ namespace AtHangar
 
 		protected override void SaveDefaults()
 		{
+			base.SaveDefaults();
+			if(orig_aspect < 0 || HighLogic.LoadedSceneIsEditor)
+			{
+				var resizer = base_part.GetModule<HangarResizableBase>();
+				orig_aspect = resizer != null ? resizer.aspect : aspect;
+			}
 			old_aspect = aspect;
 			model = part.FindModelTransform("model");
 			if(model == null)
@@ -103,27 +140,11 @@ namespace AtHangar
 			SaveDefaults();
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
-				//calculate min and max sizes from tech tree
-				float min_Size   = Utils.getTechMinValue(Utils.minSizeName, 0.5f);
-				float max_Size   = Utils.getTechMaxValue(Utils.maxSizeName, 10);
-				float min_Aspect = Utils.getTechMinValue(Utils.minAspectName, 0.5f);
-				float max_Aspect = Utils.getTechMaxValue(Utils.maxAspectName, 10);
-				//and truncate min-max values at common limits; use common limits by default
-				if(minSize < 0   || minSize < min_Size) minSize = min_Size;
-				if(maxSize < 0   || maxSize > max_Size) maxSize = max_Size;
-				if(minAspect < 0 || minAspect < min_Aspect) minAspect = min_Aspect;
-				if(maxAspect < 0 || maxAspect > max_Aspect) maxAspect = max_Aspect;
+				init_limit(MIN_ASPECT, ref minAspect, aspect, (a, b) => a < b);
+				init_limit(MAX_ASPECT, ref maxAspect, aspect, (a, b) => a > b);
 			}
 			just_loaded = true;
 		}
-
-//		public override void OnInitialize()
-//		{
-//			base.OnInitialize();
-//			Utils.Log("HangarPartResizerBase.OnInitialize");
-//			Init();
-//			SaveDefaults();
-//		}
 
 		public float GetModuleCost() { return delta_cost; }
 	}
@@ -143,8 +164,8 @@ namespace AtHangar
 		[KSPField] public Vector4 specificCost = new Vector4(1.0f, 1.0f, 1.0f, 0f);
 
 		//state
-		float orig_size = -1;
 		float old_size  = -1;
+		[KSPField(isPersistant=true)] public float orig_size = -1;
 		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect, just_loaded); } }
 		
 		#region PartUpdaters
@@ -172,8 +193,11 @@ namespace AtHangar
 		protected override void SaveDefaults()
 		{
 			base.SaveDefaults();
-			HangarPartResizer resizer = base_part.GetModule<HangarPartResizer>();
-			if(resizer != null) orig_size  = resizer.size;
+			if(orig_size < 0 || HighLogic.LoadedSceneIsEditor)
+			{
+				var resizer = base_part.GetModule<HangarPartResizer>();
+				orig_size = resizer != null ? resizer.size : size;
+			}
 			old_size = size;
 			create_updaters();
 		}
@@ -183,16 +207,18 @@ namespace AtHangar
 			base.OnStart(state);
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
+				init_limit(MIN_SIZE, ref minSize, size, (a, b) => a < b);
+				init_limit(MAX_SIZE, ref maxSize, size, (a, b) => a > b);
 				//setup sliders
 				if(sizeOnly && aspectOnly) aspectOnly = false;
-				if(aspectOnly) Fields["size"].guiActiveEditor=false;
+				if(aspectOnly || minSize == maxSize) Fields["size"].guiActiveEditor=false;
 				else
 				{
 					Utils.setFieldRange(Fields["size"], minSize, maxSize);
 					((UI_FloatEdit)Fields["size"].uiControlEditor).incrementLarge = sizeStepLarge;
 					((UI_FloatEdit)Fields["size"].uiControlEditor).incrementSmall = sizeStepSmall;
 				}
-				if(sizeOnly) Fields["aspect"].guiActiveEditor=false;
+				if(sizeOnly || minAspect == maxAspect) Fields["aspect"].guiActiveEditor=false;
 				else
 				{
 					Utils.setFieldRange(Fields["aspect"], minAspect, maxAspect);
@@ -201,12 +227,6 @@ namespace AtHangar
 				}
 			}
 		}
-
-//		public override void OnInitialize()
-//		{
-//			base.OnInitialize();
-//			Rescale();
-//		}
 
 		public void FixedUpdate() 
 		{ 

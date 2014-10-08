@@ -69,6 +69,8 @@ namespace AtHangar
 			base.OnStart(state);
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
+				init_limit(MIN_SIZE, ref minSize, Mathf.Min(topSize, bottomSize), (a, b) => a < b);
+				init_limit(MAX_SIZE, ref maxSize, Mathf.Max(topSize, bottomSize), (a, b) => a > b);
 				//setup sliders
 				Utils.setFieldRange(Fields["topSize"], minSize, maxSize);
 				((UI_FloatEdit)Fields["topSize"].uiControlEditor).incrementLarge = sizeStepLarge;
@@ -83,12 +85,6 @@ namespace AtHangar
 			get_part_components();
 			update_body();
 		}
-
-//		public override void OnInitialize()
-//		{
-//			base.OnInitialize();
-//			UpdateMesh();
-//		}
 
 		public void FixedUpdate() 
 		{ 
