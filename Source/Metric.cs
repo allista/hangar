@@ -8,6 +8,7 @@ namespace AtHangar
 	public class Metric
 	{
 		//ignore list
+		public const string MESHES_TO_SKIP = "MeshesToSkip";
 		public static readonly List<string> MeshesToSkip = new List<string>();
 		//convex hull
 		public ConvexHull3D hull { get; private set; }
