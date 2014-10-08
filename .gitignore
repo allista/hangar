@@ -9,7 +9,6 @@
 /Releases/*
 /Screenshots/**
 /DesaturatedTexturePack/GameData/**
-/DeprecatedParts/GameData/**
 *obj*
 *cache*
 *bin*
