@@ -254,9 +254,9 @@ namespace AtHangar
 			{
 				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
 				crew_capacity = part.CrewCapacity.ToString();
-				Fields["crew_capacity"].guiActive = true;
+				Fields["crew_capacity"].guiActiveEditor = true;
 			}
-			else Fields["crew_capacity"].guiActive = false;
+			else Fields["crew_capacity"].guiActiveEditor = false;
 			//update Editor counters and all other that listen
 			if(EditorLogic.fetch != null) GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
 		}
