@@ -289,5 +289,11 @@ namespace AtHangar
 		public override void OnRescale(Scale scale)
 		{ module.chargeRate = base_module.chargeRate * scale.absolute.quad * scale.absolute.aspect; }
 	}
+
+	public class DecoupleUpdater : ModuleUpdater<ModuleDecouple>
+	{
+		public override void OnRescale(Scale scale)
+		{ module.ejectionForce = base_module.ejectionForce * scale.absolute; }
+	}
 }
 
