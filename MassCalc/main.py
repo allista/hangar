@@ -209,8 +209,14 @@ if __name__ == '__main__':
                                      surface(4.77, 0.007, composits))],
                      add_mass=0,
                      add_cost=0)
+
+    small_heatshield = ship('SquareHeatshield2', 
+                     volumes=[volume(0.0627, 'hull', 500, 0.75, -1,
+                                     surface(3.44, 0.005, aluminium))], 
+                     add_mass=0,
+                     add_cost=0)
     
-    heatshield = ship('Square Heatshield', 
+    heatshield = ship('SquareHeatshield', 
                      volumes=[volume(3.8, 'hull', 20, 0.01, -1,
                                      surface(40.7, 0.005, aluminium))], 
                      add_mass=0,
@@ -300,6 +306,7 @@ if __name__ == '__main__':
     print(rcs);
     print(format_data(scales, (rcs_m, rcs_sm, rcs_v, rcs_c)))#, np.where(scales/3 >= 1)[0]))
     
+    print(small_heatshield)
     print(heatshield)
     
     print(recycler)
