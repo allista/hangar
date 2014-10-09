@@ -177,8 +177,10 @@ namespace AtHangar
 		{
 			foreach(PartResource r in part.Resources)
 			{
-				r.amount *= scale.relative.cube * scale.relative.aspect;
-				r.maxAmount *= scale.relative.cube * scale.relative.aspect;
+				var s = r.resourceName == "AblativeShielding"? 
+					scale.relative.quad : scale.relative.cube;
+				s *= scale.relative.aspect;
+				r.amount *= s; r.maxAmount *= s;
 			}
 		}
 	}
