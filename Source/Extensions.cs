@@ -100,7 +100,7 @@ namespace AtHangar
 
 		public static List<Part> AllChildren(this Part p)
 		{
-			List<Part> all_children = new List<Part>{};
+			var all_children = new List<Part>{};
 			foreach(Part ch in p.children) 
 			{
 				all_children.Add(ch);
@@ -112,7 +112,7 @@ namespace AtHangar
 		public static List<Part> AllConnectedParts(this Part p)
 		{
 			if(p.parent != null) return p.parent.AllConnectedParts();
-			List<Part> all_parts = new List<Part>{p};
+			var all_parts = new List<Part>{p};
 			all_parts.AddRange(p.AllChildren());
 			return all_parts;
 		}
@@ -122,7 +122,7 @@ namespace AtHangar
 			//break strut connectors
 			foreach(Part part in p.AllConnectedParts())
 			{
-				StrutConnector s = part as StrutConnector;
+				var s = part as StrutConnector;
 				if(s == null || s.target == null) continue;
 				if(s.parent == p || s.target == p)
 				{
@@ -165,7 +165,7 @@ namespace AtHangar
 	{
 		public static ModuleGUIState SaveGUIState(this PartModule pm)
 		{
-			ModuleGUIState state = new ModuleGUIState();
+			var state = new ModuleGUIState();
 			foreach(BaseField f in pm.Fields)
 			{
 				if(f.guiActive) state.GUIFields.Add(f.name);
@@ -180,7 +180,7 @@ namespace AtHangar
 
 		public static ModuleGUIState DeactivateGUI(this PartModule pm)
 		{
-			ModuleGUIState state = new ModuleGUIState();
+			var state = new ModuleGUIState();
 			foreach(BaseField f in pm.Fields)
 			{
 				if(f.guiActive) state.GUIFields.Add(f.name);

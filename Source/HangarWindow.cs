@@ -59,7 +59,7 @@ namespace AtHangar
 			if(vsl != null) vessel_metric = new Metric(vsl);
 			else if(EditorLogic.fetch != null)
 			{
-				List<Part> parts = new List<Part>();
+				var parts = new List<Part>();
 				try { parts = EditorLogic.SortedShipList; }
 				catch (NullReferenceException) { return; }
 				#if !DEBUG
