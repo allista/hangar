@@ -817,7 +817,7 @@ namespace AtHangar
 					return false;
 				}
 			}
-			if(vessel.angularVelocity.magnitude > 0.003)
+			if(vessel.angularVelocity.magnitude > 0.01)
 			{
 				ScreenMessager.showMessage("Cannot launch a vessel while rotating");
 				return false;
