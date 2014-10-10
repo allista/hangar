@@ -10,7 +10,7 @@ namespace AtHangar
 	//this module adds the ability to store a vessel in a packed state inside
 	public class Hangar : PartModule, IPartCostModifier, IControllableModule
 	{
-		public enum HangarState { Active, Inactive }
+		public enum HangarState { Inactive, Active }
 
 		#region Configuration
 		//hangar properties
