@@ -110,11 +110,11 @@ namespace AtHangar
 
 	public class NodesUpdater : PartUpdater
 	{
-		readonly Dictionary<string,int> orig_sizes = new Dictionary<string, int>();
+		readonly Dictionary<string, AttachNode> orig_nodes = new Dictionary<string, AttachNode>();
 
 		public override void Init() { base.Init(); SaveDefaults(); }
 		protected override void SaveDefaults()
-		{ foreach(AttachNode node in base_part.attachNodes) orig_sizes[node.id] = node.size; }
+		{ foreach(AttachNode node in base_part.attachNodes) orig_nodes[node.id] = node; }
 
 		public override void OnRescale(Scale scale)
 		{
@@ -125,9 +125,12 @@ namespace AtHangar
 				node.position = ScaleVector(node.originalPosition, scale, scale.aspect);
 				part.UpdateAttachedPartPos(node);
 				//update node size
-				int new_size = orig_sizes[node.id] + Mathf.RoundToInt(scale.size-scale.orig_size);
+				int new_size = orig_nodes[node.id].size + Mathf.RoundToInt(scale.size-scale.orig_size);
 				if(new_size < 0) new_size = 0;
 				node.size = new_size;
+				//update node breaking forces
+				node.breakingForce  = orig_nodes[node.id].breakingForce  * scale.absolute.quad;
+				node.breakingTorque = orig_nodes[node.id].breakingTorque * scale.absolute.quad;
 			}
 			//update this surface attach node
 			if(part.srfAttachNode != null)
@@ -140,6 +143,7 @@ namespace AtHangar
 					part.transform.position -= d_pos;
 				}
 			}
+			//no need to update surface attached parts for the first time
 			if(scale.FirstTime) return;
 			//update parts that are surface attached to this
 			foreach(Part child in part.children)
@@ -166,8 +170,8 @@ namespace AtHangar
 			else part.breakingTorque = base_part.breakingTorque * scale.absolute.quad;
 			if(part.breakingTorque < 22f) part.breakingTorque = 22f;
 			//change other properties
-			part.buoyancy = base_part.buoyancy * scale.absolute.cube;
-			part.explosionPotential = base_part.explosionPotential * scale.absolute.cube;
+			part.buoyancy = base_part.buoyancy * scale.absolute.cube * scale.absolute.aspect;
+			part.explosionPotential = base_part.explosionPotential * scale.absolute.cube * scale.absolute.aspect;
 		}
 	}
 
@@ -178,8 +182,7 @@ namespace AtHangar
 			foreach(PartResource r in part.Resources)
 			{
 				var s = r.resourceName == "AblativeShielding"? 
-					scale.relative.quad : scale.relative.cube;
-				s *= scale.relative.aspect;
+					scale.relative.quad : scale.relative.cube * scale.relative.aspect;
 				r.amount *= s; r.maxAmount *= s;
 			}
 		}
@@ -279,7 +282,7 @@ namespace AtHangar
 
 		public override void OnRescale(Scale scale)
 		{
-			module.inputList.ForEach(r => r.rate = input_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
+			module.inputList.ForEach(r =>  r.rate = input_resources[r.name].rate  * scale.absolute.cube * scale.absolute.aspect);
 			module.outputList.ForEach(r => r.rate = output_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
 		}
 	}
@@ -287,7 +290,10 @@ namespace AtHangar
 	public class SolarPanelUpdater : ModuleUpdater<ModuleDeployableSolarPanel>
 	{
 		public override void OnRescale(Scale scale)
-		{ module.chargeRate = base_module.chargeRate * scale.absolute.quad * scale.absolute.aspect; }
+		{ 
+			module.chargeRate = base_module.chargeRate * scale.absolute.quad * scale.absolute.aspect; 
+			module.flowRate   = base_module.flowRate   * scale.absolute.quad * scale.absolute.aspect; 
+		}
 	}
 
 	public class DecoupleUpdater : ModuleUpdater<ModuleDecouple>
