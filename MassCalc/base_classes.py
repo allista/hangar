@@ -203,8 +203,8 @@ class ship:
         s += '//Additional mass: %.6f t\n' % self._add_mass
         s += '//Additional cost: %.3f Cr\n' % self._add_cost
         s += '//Resources cost:  %.3f Cr\n' % self._res_cost
-        s += 'entryCost = %.3f\n' % self.entry_cost(self._cost)
-        s += 'cost = %.3f\n' % self._cost
+        s += 'entryCost = %d\n' % np.ceil(self.entry_cost(self._cost-self._res_cost))
+        s += 'cost = %d\n' % np.ceil(self._cost)
         s += 'mass = %.6f\n' % self._init_mass
         s += 'specificMass = %s //weights: [ %s ]\n' % (', '.join(str(m) for m in self._spec_mass), 
                                                         ', '.join(str(w) for w in self._weights))
