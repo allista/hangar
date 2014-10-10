@@ -78,7 +78,7 @@ namespace AtHangar
 		protected float old_aspect  = -1;
 		[KSPField(isPersistant=true)] public float orig_aspect = -1;
 
-		protected Transform model;
+		protected Transform model { get { return part.transform.GetChild(0); } }
 		public    float delta_cost  = 0f;
 		protected bool  just_loaded = true;
 
@@ -109,6 +109,10 @@ namespace AtHangar
 		}
 		#endregion
 
+		protected const float eps = 1e-5f;
+		protected static bool unequal(float f1, float f2)
+		{ return Mathf.Abs(f1-f2) > eps; }
+
 		public void UpdateGUI(ShipConstruct ship)
 		{ MassDisplay = Utils.formatMass(part.TotalMass()); }
 
@@ -128,9 +132,6 @@ namespace AtHangar
 				orig_aspect = resizer != null ? resizer.aspect : aspect;
 			}
 			old_aspect = aspect;
-			model = part.FindModelTransform("model");
-			if(model == null)
-				Utils.Log("HangarPartResizer: no 'model' transform in the part", this);
 		}
 
 		public override void OnStart(StartState state)
@@ -165,6 +166,7 @@ namespace AtHangar
 
 		//state
 		float old_size  = -1;
+		Vector3 old_local_scale;
 		[KSPField(isPersistant=true)] public float orig_size = -1;
 		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect, just_loaded); } }
 		
@@ -226,14 +228,15 @@ namespace AtHangar
 					((UI_FloatEdit)Fields["aspect"].uiControlEditor).incrementSmall = aspectStepSmall;
 				}
 			}
+			Rescale();
 		}
 
-		public void FixedUpdate() 
-		{ 
-			if(size != old_size || aspect != old_aspect) 
-				{ Rescale(); part.BreakConnectedStruts(); }
-			else if(just_loaded) 
-				{ Rescale(); just_loaded = false; } 
+		public void Update()
+		{
+			if(!HighLogic.LoadedSceneIsEditor) return;
+			if(old_local_scale != model.localScale) Rescale();
+			else if(unequal(old_size, size) || unequal(old_aspect, aspect))
+			{ Rescale(); part.BreakConnectedStruts(); }
 		}
 
 		public void Rescale()
@@ -242,16 +245,20 @@ namespace AtHangar
 			Scale _scale = scale;
 			//change model scale
 			model.localScale = ScaleVector(Vector3.one, _scale, _scale.aspect);
+			model.hasChanged = true;
+			part.transform.hasChanged = true;
 			//recalculate mass
 			part.mass  = ((specificMass.x * _scale + specificMass.y) * _scale + specificMass.z) * _scale * _scale.aspect + specificMass.w;
 			//update nodes and modules
 			foreach(PartUpdater updater in updaters) updater.OnRescale(_scale);
-			//recalculate cost after all updaters
+			//recalculate cost
 			delta_cost = ((specificCost.x * _scale + specificCost.y) * _scale + specificCost.z) * _scale * _scale.aspect + specificCost.w - part.DryCost();
 			//save size and aspect
 			old_size   = size;
 			old_aspect = aspect;
+			old_local_scale = model.localScale;
 			Utils.UpdateEditorGUI();
+			just_loaded = false;
 		}
 	}
 }
