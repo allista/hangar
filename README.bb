@@ -20,7 +20,9 @@ While fixing them and implementing new features I'll try as hard as I can to mai
 [*]install the [url=https://github.com/allista/hangar/releases/download/v1.3.0/DeprecatedParts-v1.1.1.1_to_v1.3.zip][b]Deprecated Parts Addon[/b][/url], then recover those ships.
 [/list]
 [*]After that, [b]if[/b] you have installed the [b]Deprecated Parts Addon[/b], uninstall it.
-[/list]
+[/list][HR][/HR]
+[SIZE=3][b]Delete the old version of the mod before installing the new one.[/b][/SIZE]
+[i]You may keep the config.xml to save positions of GUI windows.[/i]
 [HR][/HR]
 [SIZE=3][b][url=https://github.com/allista/hangar/blob/development/ChangeLog.md]ChangeLog[/url] - [b]read it carefully every time before installing a new version![/b][/b][/SIZE]
 

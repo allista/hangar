@@ -3,10 +3,12 @@
 ##_store your vessels until they are needed_##
 
 ***
+
 ###WARNING: this is still BETA. There should be bugs. 
 While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, _but I can't guarantee it_. So if you plan to use it in your main game, **backup your saves**.
 
 ***
+
 ###If you're upgrading _from v1.1.1.1 or below_, follow these instructions:
 
 1. **If** your savegame contains *landed* **Rover Lander** *with opened doors*,
@@ -23,6 +25,12 @@ _You may keep the config.xml to save positions of GUI windows._
 5. After that, **if** you have installed the **Deprecated Parts Addon**, uninstall it.
 
 ***
+
+###Delete the old version of the mod before installing the new one.
+_You may keep the config.xml to save positions of GUI windows._
+
+***
+
 ###[ChangeLog](https://github.com/allista/hangar/blob/development/ChangeLog.md) - **read it carefully every time before installing a new version!**###
 
 ###Known Issues###
@@ -35,6 +43,7 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###NOTE:###
 **Before using a hangar, study the list of modules that are integrated into it _(RMB on part's icon)_.** Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating.
+
 ***
 
 ##Introduction##
