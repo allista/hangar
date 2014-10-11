@@ -12,6 +12,12 @@ _You may keep the config.xml to save positions of GUI windows._
         * *small* **Ground Hangar**:
     * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/releases/download/v1.3.0/DeprecatedParts-v1.1.1.1_to_v1.3.zip), then recover these ships.
 5. After that, **if** you have installed the **Deprecated Parts Addon**, uninstall it.
+
+***
+
+###Delete the old version of the mod before installing the new one.
+_You may keep the config.xml to save positions of GUI windows._
+
 ***
 
 ###ChangeLog###
