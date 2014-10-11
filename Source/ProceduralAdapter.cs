@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using KSPAPIExtensions;
+using KSPAPIExtensions.PartMessage;
 
 namespace AtHangar
 {
@@ -25,12 +26,17 @@ namespace AtHangar
 		[KSPField] public string TopNodeName    = "top";
 		[KSPField] public string BottomNodeName = "bottom";
 
+		//KAE stuff
+		[PartMessageEvent] public event PartModelChanged ModelChanged;
+		[PartMessageEvent] public event PartColliderChanged ColliderChanged;
+		void RaiseModelAndColliderChanged() { ModelChanged(); ColliderChanged(); }
+
 		//state
 		public  State<TruncatedCone> body;
 		Vector2 size { get { return new Vector2(topSize, bottomSize); } }
-		Vector2 orig_size  = new Vector2(-1, -1);
 		Vector2 old_size   = new Vector2(-1, -1);
-		Vector2 nodes_size = new Vector2(-1, -1);
+		Vector2 orig_size  = new Vector2(-1, -1);
+		readonly AttachNode[] orig_nodes = new AttachNode[2];
 		float   orig_area;
 		public float SurfaceArea 
 		{ get { return TruncatedCone.SurfaceArea(bottomSize*UnitDiameter/2, topSize*UnitDiameter/2, Length*aspect); } }
@@ -47,6 +53,12 @@ namespace AtHangar
 			return base.GetInfo();
 		}
 
+		public override void OnAwake()
+		{
+			base.OnAwake();
+			PartMessageService.Register(this);
+		}
+
 		protected override void SaveDefaults()
 		{
 			base.SaveDefaults();
@@ -58,10 +70,8 @@ namespace AtHangar
 			}
 			else Utils.Log("Can't find base ProceduralAdapter module");
 			old_size = size;
-			AttachNode top_node = base_part.findAttachNode(TopNodeName);
-			if(top_node != null) nodes_size.x = top_node.size;
-			AttachNode bottom_node = base_part.findAttachNode(BottomNodeName);
-			if(bottom_node != null) nodes_size.y = bottom_node.size;
+			orig_nodes[0] = base_part.findAttachNode(TopNodeName);
+			orig_nodes[1] = base_part.findAttachNode(BottomNodeName);
 		}
 
 		public override void OnStart(StartState state)
@@ -69,6 +79,8 @@ namespace AtHangar
 			base.OnStart(state);
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
+				init_limit(MIN_SIZE, ref minSize, Mathf.Min(topSize, bottomSize), (a, b) => a < b);
+				init_limit(MAX_SIZE, ref maxSize, Mathf.Max(topSize, bottomSize), (a, b) => a > b);
 				//setup sliders
 				Utils.setFieldRange(Fields["topSize"], minSize, maxSize);
 				((UI_FloatEdit)Fields["topSize"].uiControlEditor).incrementLarge = sizeStepLarge;
@@ -84,18 +96,11 @@ namespace AtHangar
 			update_body();
 		}
 
-//		public override void OnInitialize()
-//		{
-//			base.OnInitialize();
-//			UpdateMesh();
-//		}
-
-		public void FixedUpdate() 
+		public void Update() 
 		{ 
-			if(size != old_size || aspect != old_aspect) 
+			if(old_size != size || unequal(old_aspect, aspect))
 				{ UpdateMesh(); part.BreakConnectedStruts(); }
-			else if(just_loaded) 
-				{ UpdateMesh(); just_loaded = false; }
+			else if(just_loaded) UpdateMesh();
 		}
 
 		void get_part_components()
@@ -139,37 +144,48 @@ namespace AtHangar
 			int sides = Mathf.RoundToInt(24+6*(Mathf.Max(topSize, bottomSize)-1));
 			sides += sides%2; // make sides even
 			//update meshes
-			Mesh collider_mesh = new Mesh();
+			var collider_mesh = new Mesh();
 			body.current.WriteTo(sides, body_mesh);
 			body.current.WriteTo(sides/2, collider_mesh, for_collider: true);
 			Destroy(body_collider.sharedMesh);
 			body_collider.sharedMesh = collider_mesh;
 			body_collider.enabled = false;
 			body_collider.enabled = true;
+			RaiseModelAndColliderChanged();
 		}
 
 		void update_nodes()
 		{
 			//update stack nodes
 			AttachNode top_node = part.findAttachNode(TopNodeName);
-			if(top_node != null)
+			if(top_node != null && orig_nodes[0] != null)
 			{
 				top_node.position = new Vector3(0, body.current.H/2, 0);
 				part.UpdateAttachedPartPos(top_node);
-				int new_size = (int)nodes_size.x + Mathf.RoundToInt(topSize - orig_size.x);
+				int new_size = orig_nodes[0].size + Mathf.RoundToInt(topSize - orig_size.x);
 				if(new_size < 0) new_size = 0;
 				top_node.size = new_size;
+				//update node breaking forces
+				var s = topSize/orig_size.x;
+				top_node.breakingForce  = orig_nodes[0].breakingForce  * s;
+				top_node.breakingTorque = orig_nodes[0].breakingTorque * s;
 			}
 			AttachNode bottom_node = part.findAttachNode(BottomNodeName);
-			if(bottom_node != null)
+			if(bottom_node != null && orig_nodes[1] != null)
 			{
 				bottom_node.position = new Vector3(0, -body.current.H/2, 0);
 				part.UpdateAttachedPartPos(bottom_node);
-				int new_size = (int)nodes_size.y + Mathf.RoundToInt(bottomSize - orig_size.y);
+				int new_size = orig_nodes[1].size + Mathf.RoundToInt(bottomSize - orig_size.y);
 				if(new_size < 0) new_size = 0;
 				bottom_node.size = new_size;
+				//update node breaking forces
+				var s = bottomSize/orig_size.y;
+				bottom_node.breakingForce  = orig_nodes[1].breakingForce  * s;
+				bottom_node.breakingTorque = orig_nodes[1].breakingTorque * s;
 			}
-			//update attach nodes
+			//no need to update surface attached parts for the first time
+			if(just_loaded) return;
+			//update surface attached parts
 			foreach(Part child in part.children)
 			{
 				if (child.srfAttachNode != null && child.srfAttachNode.attachedPart == part) // part is attached to us, but not on a node
@@ -203,6 +219,7 @@ namespace AtHangar
 			old_size   = size;
 			old_aspect = aspect;
 			Utils.UpdateEditorGUI();
+			just_loaded = false;
 		}
 	}
 }

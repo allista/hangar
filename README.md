@@ -7,27 +7,23 @@
 While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, _but I can't guarantee it_. So if you plan to use it in your main game, **backup your saves**.
 
 ***
-###!!! WARNING WARNING WARNING !!!
-
-**If you're upgrading from v1.1.1.1 or below, this update *may* break your saves, BUT all breaks are easily fixable.**
-
-To **safely** install the update, do the following:
+###If you're upgrading _from v1.1.1.1 or below_, follow these instructions:
 
 1. **If** your savegame contains *landed* **Rover Lander** *with opened doors*,
     * switch to it **before** upgrading and **close the doors**.
 2. Delete the old version of the mod before installing this one.
-_You may keep the config.xml to save positions of GUI windows, though._
+_You may keep the config.xml to save positions of GUI windows._
 3. Install the new version.
 4. **If** your savegame contains:
-    * Any ship that includes **S4-S3 or S4-S2 adapters**:
-        * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/raw/master/DeprecatedParts/DeprecatedPartsAddon.zip), then recover such ship and rebuild it in editor using new Universal Stack Adapter
-    * Any ship that includes *small* **Inline Hangar** or *small* **Ground Hangar**, you should either:
-        * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/raw/master/DeprecatedParts/DeprecatedPartsAddon.zip), then recover such ship and rebuild it in editor,
-        * or open the savegame file in any text editor, find the corresponding part (**InlineHangar1** or **Hangar1**), find the **HangarPartResizer** module and multiply the value of the **size** parameter by 2 ([see the HOWTO](http://imgur.com/crqY6jM) for details).
+    * Any ship that includes:
+        * **S4-S3 or S4-S2 adapters**
+        * *small* **Inline Hangar**
+        * *small* **Ground Hangar**:
+    * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/releases/download/v1.3.0/DeprecatedParts-v1.1.1.1_to_v1.3.zip), then recover these ships.
 5. After that, **if** you have installed the **Deprecated Parts Addon**, uninstall it.
 
-***
 
+***
 ###[ChangeLog](https://github.com/allista/hangar/blob/development/ChangeLog.md) - **read it carefully every time before installing a new version!**###
 
 ###Known Issues###
@@ -57,15 +53,16 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
     * small light and cheap as well as huge, packed with all needed modules
     * **most may be rescaled** to the needed size and proportions **via tweakables** (mass, volume and cost are changed accordingly)
 * There are several types of hangars:
-    * **In-line hangars** (simple and habitable) for spaceships 
-    * **Ground hangars** (simple and habitable) for colonies
+    * **In-line Hangars** (simple and habitable) for spaceships
+    * **Inflatable Ground Hangars** that may be easily dropped off from the orbit
+    * **Stationary Ground Hangars** (simple and habitable) for colonies
     * **Rover Lander** hangar that has all needed modules and fuel to autonomously land on a planet or moon, bringing some rovers along the way
     * **Spaceport** that combines a huge hangar with a cockpit; the Spaceport has only a single stack node at its bottom and meant to be used instead of a cockpit
 * In-line hangars are equipped with internal docking port for easy targeting. If the hangar is inactive, this port may be used for normal docking
 * Ground hangars have anchoring modules for comfort use on low-gravity worlds and integrated probe cores with antennas for autonomous operation
-* Crew and resources can be transferred between a vessel with a hangar and stored vessels
+* Crew and resources can be transferred between a vessel with a non-inflatable hangar and stored vessels
 * Smart internal machinery ensures optimal filling of a hangar and mass distribution, while preventing attempts to store objects that do not fit in
-* A hangar can be filled with vessels at construction time (NOTE: a vessel with a filled hangar will stutter for a second or two upon launch; that's normal)
+* A non-inflatable hangar can be filled with vessels at construction time (NOTE: a vessel with a filled hangar will stutter for a second or two upon launch; that's normal)
 * An asteroid can also be stored in a hangar. If it fits, of course.
 * Interface:
     * Hangars are controlled with a dedicated GUI
@@ -73,7 +70,7 @@ Our hangars is the answer to all these questions and to many more! Using a hanga
     * A vessel can have multiple hangars. Provided GUI allows easy switching between them by highlighting the hangar that is currently selected
 * In addition, several other parts are provided:
     * Powerfull 5-way RCS thrusters for Spaceport,
-    * Square Heatshild with space for engines for Rover Lander. Especially helpful if you're playing with DeadlyReentry,
+    * Big Square Heatshild with space for engines for Rover Lander and Small Square Heatshield for Inflatable Hangars. Helpful if you're playing with DeadlyReentry,
     * Two resizable Radial-to-Stack adapters, one with a single stack node and an aerodynamic cap, the other with two symmetrical stack nodes,
     * Resizable Station Hub which is analogous to the HubMax Multi-Point Connector, except that its radial nodes are placed more apart to accommodate parts that are wider than their attach nodes. 
     * Universal Stack Adapter, which has separate tweakable sizes of all stack nodes and thus may be used to join any two stack parts, rescaled or not.
@@ -95,31 +92,32 @@ Hangar supports [KSP Addon Version Checker](http://forum.kerbalspaceprogram.com/
 
 And some functionality and parts are added if the following mods are installed:
 
-* [TAC Life Support **beta**](http://forum.kerbalspaceprogram.com/threads/40667?p=1281444&viewfull=1#post1281444) adds life support resources and systems to inhabitable hangars,
-* [RemoteTech2](http://forum.kerbalspaceprogram.com/threads/83305) adds RT antennas and SPUs to controllable hangars,
-* [Deadly Reentry](http://forum.kerbalspaceprogram.com/threads/54954) adds ablative coating resource to the Square Heatshield for Rover Lander,
+* [TAC Life Support **v0.10.+**](http://forum.kerbalspaceprogram.com/threads/40667-0-25-TAC-Life-Support-v0-10-1-10Oct-No-Win64-Support) adds life support resources and systems to inhabitable hangars,
+* [RemoteTech](http://forum.kerbalspaceprogram.com/threads/83305) adds RT antennas and SPUs to controllable hangars,
+* [Deadly Reentry](http://forum.kerbalspaceprogram.com/threads/54954) adds Ablative Shielding resource to the Heatshields,
 * [Extraplanetary Launchpads](http://forum.kerbalspaceprogram.com/threads/59545) adds a new Heavy Recycler model that fits the style of hangars.
 
 ##Usage details##
 
 ###Hangars in general###
 
-All hangars are parts and thus may be added to the vessel at construction. Hangars have gate(s) which may be open or closed; in addition, internal machinery of a hangar may be deactivated or activated again.
+All hangars are parts and thus may be added to the vessel at construction. Hangars have gate(s) which may be open or closed; in addition, internal machinery of a hangar may be deactivated or activated again. Note, that active hangar and moving gates consume electric charge.
+
 All controls and information about a hangar are located in the dedicated GUI window that may be summoned through the context menu of any hangar (menu entry "Show Controls") or through the Toolbar button.
 
 ####Storing a vessel###
 
 #####Normal operation###
-Inside a hangar near the docking port there is a region of space controlled by the machinery. Every object intersecting with that region is automatically proccessed by the hangar and is stored if:
+Inside a hangar (usually far from the gates) there is a region of space controlled by the machinery. Every object intersecting with that region is automatically processed by the hangar and is stored if:
 
-* the hangar is activated and its gates are opened
+* the hangar is active and its gates are opened
 * a vessel fits into the hangar and the hangar has enough free space inside
 * the relative speed of the hangar and the vessel is less than 1 m/s and the vessel is not accelerated
 
 Otherwise an on-screen message is displayed explaining the conditions that were not met.
 
 #####Store a vessel during ship construction###
-Select "Edit contents" entry in hangar's context menu to summon vessel selection window. There you select the type of a vessels to choose from (VAB, SPH or Subassemblies) and push the "Select Vessel" button. All stored vessels appear in the same window in a list below. To remove stored vessel from the hangar push the "X" button corresponding the that vessel. To completely clear the hangar push "Clear" button. The vessel should also fit into the hangar which should also have enough free space. If a hangar with some vessels already stored is resized and there's not enough room for all the vessels anymore, some vessels are removed from the hangar to free enough space while maintaining optimal filling.
+Select "Edit contents" entry in hangar's context menu to summon vessel selection window. There you select the type of a vessels to choose from (VAB, SPH or Subassemblies) and push the "Select Vessel" button. All stored vessels appear in the same window in a list below. To add another copy of the already stored vessel push the "+1" button corresponding to that vessel. To remove stored vessel from the hangar push the "X" button corresponding the that vessel. To completely clear the hangar push "Clear" button. The vessel should also fit into the hangar which should also have enough free space. If a hangar with some vessels already stored is resized and there's not enough room for all the vessels anymore, some vessels are removed from the hangar to free enough space while maintaining optimal filling.
 
 Mass and cost of stored vessels are added to that of the hangar.
 
@@ -127,17 +125,25 @@ Mass and cost of stored vessels are added to that of the hangar.
 
 A vessel can be launched from a hangar if:
 
-* the hangar is activated and its gates are opened
+* the hangar is active and its gates are opened
 * the hangar is not accelerated, does not rotate, move over the surface or fly in atmosphere
 * nothing is docked to the internal docking port of the hangar
 
 Otherwise an on-screen message is displayed explaining the conditions that were not met.
 
-To launch storred vessel first select a hagar (if the vessel has several) and a vessel in that hangar from corresponding dropdown lists in the plugin's window. After that resources and/or crew may be transferred. Then perform the launch by pressing "Launch Vessel" button.
+To launch storred vessel first select a hagar (if the vessel has several) and a vessel in that hangar from corresponding dropdown lists in the plugin's window. After that resources and/or crew may be transferred. Then perform the launch by pressing "Launch Vessel" button. Space hangars also equipped with a special launching machinery that allows to push launched vessel slightly out of the hangar without the need to use thrusters. To activate this feature, select the "Push Vessel Out" checkbox near the "Launch Vessel" button before launching.
 
-###Ground hangars###
+###Ground Hangars###
 
 Despite being parts, ground hangars are meant to be used as separate self-sufficient colony buildings. They have an additional context menu entry "Attach anchor". It allows to pin the hangar to the ground, provided it is landed and not moving faster than 1 m/s.
+
+###Inflatable Hangars###
+
+These hangars are very light, cheap and tough. You can drop them off from orbit using smallest thrusters and parachutes, then fix them to the ground with the anchor, inflate them and store some rovers inside. If they're not needed anymore, you may empty them, deflate and pack back. 
+
+The simple inflatable hangar may be inflated only once, and if you deflate it, it becomes useless. The advanced inflatable hangar, however, is equipped with a gas compressor. So if it is landed on a planet with an atmosphere it automatically refills its gas tanks and may be reinflated.
+
+The main downside of Inflatable Hangars is that you can't use resource or crew transfer.
 
 ###Spaceport###
 
@@ -198,14 +204,14 @@ When establishing a colony rovers are often needed. They help to find a good spo
 
 #Acknowledgements#
 
-First of, I want to thank my beloved wife for her support and understanding. This work takes much time...
+**First of, I want to thank my beloved wife for her support, understanding and help. This work takes much time...**
 
 I also want to thank:
 
 * [Taniwha](https://github.com/taniwha-qf) for inspiration and advice.
 * [DragonEG](http://forum.kerbalspaceprogram.com/members/20077-DragonEG) for helping me to fix the friction problem.
 
-And here're the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
+And here are the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
 
 * [Extraplanetary Launchpads](http://forum.kerbalspaceprogram.com/threads/59545)
 * [Kerbal Attach System](http://forum.kerbalspaceprogram.com/threads/53134-Kerbal-Attachment-System-%28KAS%29-0-4-7-Pipes-as-fuel-lines-and-even-fewer-explosions!)
@@ -217,8 +223,9 @@ And here're the mods which sources provided me with an understanding of how KSP 
 * [TweakScale](http://forum.kerbalspaceprogram.com/threads/80234)
 * [Kerbal Alarm Clock](http://forum.kerbalspaceprogram.com/threads/24786)
 * [RealChutes](http://forum.kerbalspaceprogram.com/threads/57988)
-* [RemoteTech2](http://forum.kerbalspaceprogram.com/threads/83305)
+* [RemoteTech](http://forum.kerbalspaceprogram.com/threads/83305)
 * [ProceduralParts](http://forum.kerbalspaceprogram.com/threads/70676-WIP-Procedural-Parts-The-next-phase-of-Stretchy-SRBs)
+* [RCS Sounds](http://forum.kerbalspaceprogram.com/threads/52896)
 
 ***
 

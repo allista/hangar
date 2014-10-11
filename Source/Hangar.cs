@@ -10,7 +10,7 @@ namespace AtHangar
 	//this module adds the ability to store a vessel in a packed state inside
 	public class Hangar : PartModule, IPartCostModifier, IControllableModule
 	{
-		public enum HangarState { Active, Inactive }
+		public enum HangarState { Inactive, Active }
 
 		#region Configuration
 		//hangar properties
@@ -20,6 +20,7 @@ namespace AtHangar
 		[KSPField (isPersistant = false)] public float  EnergyConsumption = 0.75f;
 		[KSPField (isPersistant = false)] public float  VolumePerKerbal = 6.7f; // m^3
 		[KSPField (isPersistant = false)] public bool   StaticCrewCapacity = true;
+		[KSPField (isPersistant = false)] public bool   NoTransfers = false;
 		//vessel spawning
 		[KSPField (isPersistant = false)] public float  LaunchHeightOffset;
 		[KSPField (isPersistant = false)] public string LaunchTransform;
@@ -75,25 +76,12 @@ namespace AtHangar
 
 		#region GUI
 		[KSPField (guiName = "Volume",        guiActiveEditor=true)] public string hangar_v;
-		[KSPField (guiName = "Dimensions",    guiActiveEditor=true)] public string hangar_d;
+		[KSPField (guiName = "Size",          guiActiveEditor=true)] public string hangar_d;
 		[KSPField (guiName = "Crew Capacity", guiActiveEditor=true)] public string crew_capacity;
 		[KSPField (guiName = "Stored Mass",   guiActiveEditor=true)] public string stored_mass;
 		[KSPField (guiName = "Stored Cost",   guiActiveEditor=true)] public string stored_cost;
-		[KSPField (guiName = "Hangar Doors",  guiActive = true)] public string doors;
-		[KSPField (guiName = "Hangar State",  guiActive = true)] public string state;
 		[KSPField (guiName = "Hangar Name",   guiActive = true, guiActiveEditor=true, isPersistant = true)]
 		public string HangarName = "_none_";
-
-		//update labels
-		IEnumerator<YieldInstruction> UpdateStatus()
-		{
-			while(true)
-			{
-				doors = hangar_gates.State.ToString();
-				state = hangar_state.ToString();
-				yield return new WaitForSeconds(0.5f);
-			}
-		}
 
 		public override string GetInfo()
 		{
@@ -191,9 +179,8 @@ namespace AtHangar
                 Events["Open"].guiActiveEditor = true;
                 Events["Close"].guiActiveEditor = true;
             }
-			//recalculate volume and mass, start updating labels
+			//recalculate volume and mass
 			Setup();
-			StartCoroutine(UpdateStatus());
 			//if there are multiple hangars in the vessel,
 			//coordinate with them before storing packed constructs
 			build_checklist();
@@ -264,8 +251,12 @@ namespace AtHangar
 			part.mass = base_mass+vessels_mass;
 			//calculate crew capacity from remaining volume
 			if(!StaticCrewCapacity)
+			{
 				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
-			crew_capacity = part.CrewCapacity.ToString();
+				crew_capacity = part.CrewCapacity.ToString();
+				Fields["crew_capacity"].guiActiveEditor = true;
+			}
+			else Fields["crew_capacity"].guiActiveEditor = false;
 			//update Editor counters and all other that listen
 			if(EditorLogic.fetch != null) GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
 		}
@@ -826,7 +817,7 @@ namespace AtHangar
 					return false;
 				}
 			}
-			if(vessel.angularVelocity.magnitude > 0.003)
+			if(vessel.angularVelocity.magnitude > 0.01)
 			{
 				ScreenMessager.showMessage("Cannot launch a vessel while rotating");
 				return false;
@@ -1034,7 +1025,7 @@ namespace AtHangar
 								                  hangar_content_editor,
 								                  "Choose vessel type",
 								                  GUILayout.Width(400));
-					AddonWindowBase<HangarWindow>.CheckRect(ref eWindowPos);
+					Utils.CheckRect(ref eWindowPos);
 				}
 				else 
 				{
@@ -1050,7 +1041,7 @@ namespace AtHangar
 											   hangar_name_editor,
 											   "Rename Hangar",
 											   GUILayout.Width(400));
-				AddonWindowBase<HangarWindow>.CheckRect(ref neWindowPos);
+				Utils.CheckRect(ref neWindowPos);
 			}
 		}
 		#endregion

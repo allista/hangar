@@ -8,6 +8,7 @@ namespace AtHangar
 	public class Metric
 	{
 		//ignore list
+		public const string MESHES_TO_SKIP = "MeshesToSkip";
 		public static readonly List<string> MeshesToSkip = new List<string>();
 		//convex hull
 		public ConvexHull3D hull { get; private set; }
@@ -92,11 +93,14 @@ namespace AtHangar
 
 		Bounds partsBounds(List<Part> parts, Transform vT, bool compute_hull=false)
 		{
+			//reset metric
 			mass = 0;
 			cost = 0;
 			CrewCapacity = 0;
 			Bounds b = default(Bounds);
-			if(parts == null) return b;
+			if(parts == null || parts.Count == 0)
+			{ Utils.Log("Metric.partsBounds: WARNING! No parts were provided."); return b; }
+			//calculate bounds and convex hull
 			float b_size = 0;
 			List<Vector3> hull_points = compute_hull ? new List<Vector3>() : null;
 			foreach(Part p in parts)
@@ -110,6 +114,7 @@ namespace AtHangar
 					bool skip_mesh = false;
 					foreach(string mesh_name in MeshesToSkip)
 					{
+						if(mesh_name == "") continue;
 						skip_mesh = m.name.IndexOf(mesh_name, StringComparison.OrdinalIgnoreCase) >= 0;
 						if(skip_mesh) break;
 					} if(skip_mesh) continue;
@@ -130,7 +135,8 @@ namespace AtHangar
 				if(p.IsPhysicallySignificant())	mass += p.TotalMass();
 				cost += p.TotalCost();
 			}
-			if(compute_hull) hull = new ConvexHull3D(hull_points); 
+			if(compute_hull && hull_points.Count >= 4) 
+				hull = new ConvexHull3D(hull_points); 
 			return b;
 		}
 

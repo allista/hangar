@@ -9,7 +9,6 @@
 /Releases/*
 /Screenshots/**
 /DesaturatedTexturePack/GameData/**
-/DeprecatedParts/GameData/**
 *obj*
 *cache*
 *bin*
@@ -18,9 +17,11 @@
 *.log
 *.meta
 *.mdb
+*.pyc
 /vessel_positioning.txt
 /Source/Hangar.userprefs
 /Library/CurrentLayout.dwlt
-/Library/ScriptMapper
 /Library/expandedItems
-/Library/guidmapper
+/Library/ScriptAssemblies
+/Assets/Textures/sources
+/Library/FailedAssetImports.txt

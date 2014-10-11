@@ -110,11 +110,11 @@ namespace AtHangar
 
 	public class NodesUpdater : PartUpdater
 	{
-		readonly Dictionary<string,int> orig_sizes = new Dictionary<string, int>();
+		readonly Dictionary<string, AttachNode> orig_nodes = new Dictionary<string, AttachNode>();
 
 		public override void Init() { base.Init(); SaveDefaults(); }
 		protected override void SaveDefaults()
-		{ foreach(AttachNode node in base_part.attachNodes) orig_sizes[node.id] = node.size; }
+		{ foreach(AttachNode node in base_part.attachNodes) orig_nodes[node.id] = node; }
 
 		public override void OnRescale(Scale scale)
 		{
@@ -125,9 +125,12 @@ namespace AtHangar
 				node.position = ScaleVector(node.originalPosition, scale, scale.aspect);
 				part.UpdateAttachedPartPos(node);
 				//update node size
-				int new_size = orig_sizes[node.id] + Mathf.RoundToInt(scale.size-scale.orig_size);
+				int new_size = orig_nodes[node.id].size + Mathf.RoundToInt(scale.size-scale.orig_size);
 				if(new_size < 0) new_size = 0;
 				node.size = new_size;
+				//update node breaking forces
+				node.breakingForce  = orig_nodes[node.id].breakingForce  * scale.absolute.quad;
+				node.breakingTorque = orig_nodes[node.id].breakingTorque * scale.absolute.quad;
 			}
 			//update this surface attach node
 			if(part.srfAttachNode != null)
@@ -140,6 +143,7 @@ namespace AtHangar
 					part.transform.position -= d_pos;
 				}
 			}
+			//no need to update surface attached parts for the first time
 			if(scale.FirstTime) return;
 			//update parts that are surface attached to this
 			foreach(Part child in part.children)
@@ -166,8 +170,8 @@ namespace AtHangar
 			else part.breakingTorque = base_part.breakingTorque * scale.absolute.quad;
 			if(part.breakingTorque < 22f) part.breakingTorque = 22f;
 			//change other properties
-			part.buoyancy = base_part.buoyancy * scale.absolute.cube;
-			part.explosionPotential = base_part.explosionPotential * scale.absolute.cube;
+			part.buoyancy = base_part.buoyancy * scale.absolute.cube * scale.absolute.aspect;
+			part.explosionPotential = base_part.explosionPotential * scale.absolute.cube * scale.absolute.aspect;
 		}
 	}
 
@@ -177,8 +181,9 @@ namespace AtHangar
 		{
 			foreach(PartResource r in part.Resources)
 			{
-				r.amount *= scale.relative.cube * scale.relative.aspect;
-				r.maxAmount *= scale.relative.cube * scale.relative.aspect;
+				var s = r.resourceName == "AblativeShielding"? 
+					scale.relative.quad : scale.relative.cube * scale.relative.aspect;
+				r.amount *= s; r.maxAmount *= s;
 			}
 		}
 	}
@@ -239,13 +244,16 @@ namespace AtHangar
 
 	public class ReactionWheelUpdater : ModuleUpdater<ModuleReactionWheel>
 	{
+		readonly Dictionary<string,ModuleResource> input_resources = new Dictionary<string, ModuleResource>();
+		protected override void SaveDefaults()
+		{ base_module.inputResources.ForEach(r => input_resources.Add(r.name, r)); }
+
 		public override void OnRescale(Scale scale)
 		{
 			module.PitchTorque = base_module.PitchTorque * scale.absolute.cube * scale.absolute.aspect;
 			module.YawTorque   = base_module.YawTorque   * scale.absolute.cube * scale.absolute.aspect;
 			module.RollTorque  = base_module.RollTorque  * scale.absolute.cube * scale.absolute.aspect;
-			foreach(ModuleResource r in	module.inputResources)
-				r.rate *= scale.relative.cube * scale.absolute.aspect;
+			module.inputResources.ForEach(r => r.rate = input_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
 		}
 	}
 
@@ -253,22 +261,45 @@ namespace AtHangar
 	{
 		public override void OnRescale(Scale scale)
 		{
-			module.InflatableVolume = base_module.InflatableVolume * scale.absolute.cube;
-			module.CompressedGas   *= scale.relative.cube;
-			module.Compressor.ConversionRate  = base_module.Compressor.ConversionRate * scale.absolute.cube * scale.absolute.aspect;
+			module.InflatableVolume = base_module.InflatableVolume * scale.absolute.cube * scale.absolute.aspect;
+			module.CompressedGas   *= scale.relative.cube * scale.relative.aspect;
+			module.ForwardSpeed     = base_module.ForwardSpeed / (scale.absolute * scale.aspect);
+			module.ReverseSpeed     = base_module.ReverseSpeed / (scale.absolute * scale.aspect);
+			if(module.Compressor == null) return;
 			module.Compressor.ConsumptionRate = base_module.Compressor.ConsumptionRate * scale.absolute.cube * scale.absolute.aspect;
 		}
 	}
 
 	public class GeneratorUpdater : ModuleUpdater<ModuleGenerator>
 	{
+		readonly Dictionary<string, ModuleGenerator.GeneratorResource> input_resources  = new Dictionary<string, ModuleGenerator.GeneratorResource>();
+		readonly Dictionary<string, ModuleGenerator.GeneratorResource> output_resources = new Dictionary<string, ModuleGenerator.GeneratorResource>();
+		protected override void SaveDefaults()
+		{ 
+			base_module.inputList.ForEach(r => input_resources.Add(r.name, r)); 
+			base_module.outputList.ForEach(r => output_resources.Add(r.name, r)); 
+		}
+
 		public override void OnRescale(Scale scale)
 		{
-			foreach(var res in module.inputList)
-				res.rate *= scale.relative.cube * scale.relative.aspect;
-			foreach(var res in module.outputList)
-				res.rate *= scale.relative.cube * scale.relative.aspect;
+			module.inputList.ForEach(r =>  r.rate = input_resources[r.name].rate  * scale.absolute.cube * scale.absolute.aspect);
+			module.outputList.ForEach(r => r.rate = output_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
 		}
+	}
+
+	public class SolarPanelUpdater : ModuleUpdater<ModuleDeployableSolarPanel>
+	{
+		public override void OnRescale(Scale scale)
+		{ 
+			module.chargeRate = base_module.chargeRate * scale.absolute.quad * scale.absolute.aspect; 
+			module.flowRate   = base_module.flowRate   * scale.absolute.quad * scale.absolute.aspect; 
+		}
+	}
+
+	public class DecoupleUpdater : ModuleUpdater<ModuleDecouple>
+	{
+		public override void OnRescale(Scale scale)
+		{ module.ejectionForce = base_module.ejectionForce * scale.absolute; }
 	}
 }
 

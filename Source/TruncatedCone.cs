@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace AtHangar
@@ -29,7 +28,7 @@ namespace AtHangar
 		public Basis GetTangentalBasis(Vector3 pos) 
 		{ 
 			pos = new Vector3(pos.x, 0, pos.z).normalized;
-			Vector3 n = new Vector3(pos.x*nk, ny, pos.z*nk);
+			var n = new Vector3(pos.x*nk, ny, pos.z*nk);
 			Vector3 f = new Vector3(pos.x*dR, H,  pos.z*dR).normalized;
 			Vector3 t = new Vector3(pos.z, 0, -pos.x).normalized;
 			return new Basis(t, n, f);
@@ -50,10 +49,10 @@ namespace AtHangar
 			//build the cone
 			int loop = sides+1;
 			int num_vertices = loop*(for_collider? 2: 4);
-			Vector3[] vertices = new Vector3[num_vertices];
-			Vector3[] normals  = new Vector3[num_vertices];
-			Vector2[] uvs      = new Vector2[num_vertices];
-			Vector4[] tangents = new Vector4[num_vertices];
+			var vertices = new Vector3[num_vertices];
+			var normals  = new Vector3[num_vertices];
+			var uvs      = new Vector2[num_vertices];
+			var tangents = new Vector4[num_vertices];
 			//offsets
 			int bottom_base = loop*2;
 			int top_base    = loop*3;
@@ -61,19 +60,19 @@ namespace AtHangar
 			float fi = Mathf.PI*2f/sides;
 			float du = 1f/sides;
 			//top-bottom normals and tangents
-			Vector3 bn = new Vector3( 0, -1, 0);
-			Vector4 bt = new Vector4(-1,  0, 0, -1);
-			Vector3 tn = new Vector3( 0,  1, 0);
-			Vector4 tt = new Vector4( 1,  0, 0,  1);
+			var bn = new Vector3( 0, -1, 0);
+			var bt = new Vector4(-1,  0, 0, -1);
+			var tn = new Vector3( 0,  1, 0);
+			var tt = new Vector4( 1,  0, 0,  1);
 			//vertices
 			for(uint i = 0; i < loop; i++)
 			{
-				float a   = fi*i;
-				float x   = Mathf.Sin(a);
-				float z   = Mathf.Cos(a);
-				float u   = du*i;
-				Vector3 n = new Vector3(x*nk, ny, z*nk);
-				Vector4 t = new Vector4(z, 0, -x, 1);
+				float a = fi*i;
+				float x = Mathf.Sin(a);
+				float z = Mathf.Cos(a);
+				float u = du*i;
+				var n   = new Vector3(x*nk, ny, z*nk);
+				var t   = new Vector4(z, 0, -x, 1);
 				//sides
 				//bottom
 				vertices[i] = new Vector3(R1*x, -h2, R1*z);
@@ -104,7 +103,7 @@ namespace AtHangar
 			vertices[loop-1]   = vertices[0];
 			vertices[loop*2-1] = vertices[loop];
 			//faces
-			List<Triangle> faces = new List<Triangle>();
+			var faces = new List<Triangle>();
 			//sides
 			for(int i = 1; i < loop; i++)
 				faces.Add(new Quad(i, loop+i, loop-1+i, i-1));
@@ -118,7 +117,7 @@ namespace AtHangar
 				}
 			}
 			//write to the mesh
-			List<int> triangles = new List<int>();
+			var triangles = new List<int>();
 			faces.ForEach(triangles.AddRange);
 			mesh.Clear();
 			mesh.vertices  = vertices;

@@ -20,13 +20,31 @@ namespace AtHangar
 		}
 
 		public static void ForEach<TSource>(this TSource[] a, Action<TSource> action)
-		{ foreach(TSource e in a) action(e); }
+		{ for(int i = 0; i < a.Length; i++) action(a[i]); }
 
 		public static TSource Pop<TSource>(this LinkedList<TSource> l)
 		{
 			TSource e = l.Last.Value;
 			l.RemoveLast();
 			return e;
+		}
+
+		public static TSource Min<TSource>(params TSource[] args) where TSource : IComparable
+		{
+			if(args.Length == 0) throw new InvalidOperationException("Min: arguments list should not be empty");
+			TSource min = args[0];
+			foreach(var arg in args)
+			{ if(min.CompareTo(arg) < 0) min = arg; }
+			return min;
+		}
+
+		public static TSource Max<TSource>(params TSource[] args) where TSource : IComparable
+		{
+			if(args.Length == 0) throw new InvalidOperationException("Max: arguments list should not be empty");
+			TSource max = args[0];
+			foreach(var arg in args)
+			{ if(max.CompareTo(arg) > 0) max = arg; }
+			return max;
 		}
 	}
 
@@ -82,7 +100,7 @@ namespace AtHangar
 
 		public static List<Part> AllChildren(this Part p)
 		{
-			List<Part> all_children = new List<Part>{};
+			var all_children = new List<Part>{};
 			foreach(Part ch in p.children) 
 			{
 				all_children.Add(ch);
@@ -94,7 +112,7 @@ namespace AtHangar
 		public static List<Part> AllConnectedParts(this Part p)
 		{
 			if(p.parent != null) return p.parent.AllConnectedParts();
-			List<Part> all_parts = new List<Part>{p};
+			var all_parts = new List<Part>{p};
 			all_parts.AddRange(p.AllChildren());
 			return all_parts;
 		}
@@ -104,7 +122,7 @@ namespace AtHangar
 			//break strut connectors
 			foreach(Part part in p.AllConnectedParts())
 			{
-				StrutConnector s = part as StrutConnector;
+				var s = part as StrutConnector;
 				if(s == null || s.target == null) continue;
 				if(s.parent == p || s.target == p)
 				{
@@ -147,7 +165,7 @@ namespace AtHangar
 	{
 		public static ModuleGUIState SaveGUIState(this PartModule pm)
 		{
-			ModuleGUIState state = new ModuleGUIState();
+			var state = new ModuleGUIState();
 			foreach(BaseField f in pm.Fields)
 			{
 				if(f.guiActive) state.GUIFields.Add(f.name);
@@ -162,7 +180,7 @@ namespace AtHangar
 
 		public static ModuleGUIState DeactivateGUI(this PartModule pm)
 		{
-			ModuleGUIState state = new ModuleGUIState();
+			var state = new ModuleGUIState();
 			foreach(BaseField f in pm.Fields)
 			{
 				if(f.guiActive) state.GUIFields.Add(f.name);

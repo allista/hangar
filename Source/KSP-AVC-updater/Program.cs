@@ -7,7 +7,7 @@ namespace KSPAVCupdater
 	{
 		public static void Main(string[] args)
 		{
-			using(StreamWriter file = new StreamWriter(KSP_AVC_Info.VersionFile))
+			using(var file = new StreamWriter(KSP_AVC_Info.VersionFile))
 			{
 			file.WriteLine(
 @"{{ 
@@ -24,16 +24,16 @@ namespace KSPAVCupdater
 @"     }
     ""KSP_VERSION_MIN"":
      {");
-			file.WriteLine("         \"MAJOR\":{0}", KSP_AVC_Info.MinKSPVersion.major);
-			file.WriteLine("         \"MINOR\":{0}", KSP_AVC_Info.MinKSPVersion.minor);
-			file.WriteLine("         \"PATCH\":{0}", KSP_AVC_Info.MinKSPVersion.revision);
+			file.WriteLine("         \"MAJOR\":{0}", KSP_AVC_Info.MinKSPVersion.Major);
+			file.WriteLine("         \"MINOR\":{0}", KSP_AVC_Info.MinKSPVersion.Minor);
+			file.WriteLine("         \"PATCH\":{0}", KSP_AVC_Info.MinKSPVersion.Build);
 			file.WriteLine(
 @"     }
     ""KSP_VERSION_MAX"":
      {");
-			file.WriteLine("         \"MAJOR\":{0}", KSP_AVC_Info.MaxKSPVersion.major);
-			file.WriteLine("         \"MINOR\":{0}", KSP_AVC_Info.MaxKSPVersion.minor);
-			file.WriteLine("         \"PATCH\":{0}", KSP_AVC_Info.MaxKSPVersion.revision);
+			file.WriteLine("         \"MAJOR\":{0}", KSP_AVC_Info.MaxKSPVersion.Major);
+			file.WriteLine("         \"MINOR\":{0}", KSP_AVC_Info.MaxKSPVersion.Minor);
+			file.WriteLine("         \"PATCH\":{0}", KSP_AVC_Info.MaxKSPVersion.Build);
 			file.WriteLine(
 @"     }
 }");

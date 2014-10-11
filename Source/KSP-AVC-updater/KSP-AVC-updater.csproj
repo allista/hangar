@@ -42,12 +42,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\KSP_test\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\KSP_test\KSP_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

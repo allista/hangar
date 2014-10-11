@@ -6,7 +6,6 @@ namespace AtHangar
 	public class HangarConfigLoader : MonoBehaviour
 	{
 		public const string HANGAR_CONFIG  = "HANGAR_CONFIG";
-		public const string MESHES_TO_SKIP = "MeshesToSkip";
 
 		public static string GetConfigValue(string cfg_name, string separator = " ")
 		{
@@ -15,7 +14,7 @@ namespace AtHangar
 				if(n.HasValue(cfg_name)) 
 				{
 					if(val != "") val += separator;
-					foreach(string v in n.GetValues(cfg_name)) val += v;
+					n.GetValues(cfg_name).ForEach(v => val += v);
 				}
 			return val;
 		}
@@ -23,7 +22,7 @@ namespace AtHangar
 		public void Start()
 		{
 			//init meshes names
-			string meshes = GetConfigValue(MESHES_TO_SKIP);
+			string meshes = GetConfigValue(Metric.MESHES_TO_SKIP);
 			Metric.MeshesToSkip.Clear();
 			Metric.MeshesToSkip.AddRange(meshes.Split(' '));
 		}

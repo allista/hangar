@@ -13,8 +13,10 @@ namespace AtHangar
 
 	public class GasCompressor
 	{
+		public const string NODE_NAME = "COMPRESSOR";
 		public float ConversionRate { get; set; }
 		public float ConsumptionRate { get; set; }
+		public float OutputFraction { get; private set; }
 		Part part;
 
 		public GasCompressor(Part p) { part = p; ConsumptionRate = 1.0f; ConversionRate = 0.05f; }
@@ -25,8 +27,9 @@ namespace AtHangar
 			if(!part.vessel.mainBody.atmosphere) return 0;
 			double pressure = FlightGlobals.getStaticPressure(part.vessel.altitude, part.vessel.mainBody);
 			if(pressure < 1e-6) return 0;
-			float consumed = ConsumptionRate*(TimeWarp.fixedDeltaTime);
-			consumed = part.RequestResource("ElectricCharge", consumed);
+			var request  = ConsumptionRate*(TimeWarp.fixedDeltaTime);
+			var consumed = part.RequestResource("ElectricCharge", request);
+			OutputFraction = consumed/request;
 			return (float)(pressure*ConversionRate*consumed);
 		}
 
@@ -41,39 +44,42 @@ namespace AtHangar
 
 	public class HangarGenericInflatable : HangarAnimator
 	{
-		[KSPField(isPersistant = false)]
-		public string ControlledModules;
+		//configuration
+		[KSPField(isPersistant = false)] public string ControlledModules;
+		[KSPField(isPersistant = false)] public string AnimatedNodes;
+		[KSPField(isPersistant = false)] public bool   PackedByDefault = true;
+		[KSPField(isPersistant = false)] public float  InflatableVolume;
+		[KSPField(isPersistant = true)]	 public float  CompressedGas = -1f;
+		[KSPField(isPersistant = false)] public string CompressorSound = "Hangar/Sounds/Compressor";
+		[KSPField(isPersistant = false)] public string InflationSound = "Hangar/Sounds/Inflate";
+		[KSPField(isPersistant = false)] public float  SoundVolume = 0.2f;
 
-		[KSPField(isPersistant = false)]
-		public string AnimatedNodes;
-
-		[KSPField(isPersistant = false)]
-		public bool PackedByDefault = true;
-
-		[KSPField(isPersistant = false)]
-		public float InflatableVolume;
-
-		[KSPField(isPersistant = true)]
-		public float CompressedGas = -1f;
-
+		//GUI
 		[KSPField (guiName = "Compressed Gas", guiActive=true)] public string CompressedGasDisplay;
+		readonly SimpleDialog warning = new SimpleDialog();
+		bool try_deflate;
 
+		//modules and nodes
 		readonly List<IControllableModule> controlled_modules = new List<IControllableModule>();
 		readonly List<AnimatedNode> animated_nodes = new List<AnimatedNode>();
 
+		//compressor
 		public ConfigNode CompressorConfig = null;
 		public GasCompressor Compressor { get; protected set; }
 		bool has_compressed_gas { get { return CompressedGas >= InflatableVolume; } }
+		public FXGroup fxSndCompressor;
+		bool play_compressor;
 
+		//metric and scale
 		Part   prefab = null;
 		Metric prefab_metric = null;
 		Metric part_metric = null;
 		protected float volume_scale = 1;
 
+		//state
 		const int skip_fixed_frames = 5;
 		ModuleGUIState gui_state;
 		bool just_loaded = false;
-
 
 		#region Info
 		public override string GetInfo()
@@ -84,15 +90,6 @@ namespace AtHangar
 			info += string.Format("Power Consumption: {0} el.u./sec\n", Compressor.ConsumptionRate);
 			return info;
 		}
-
-		IEnumerator<YieldInstruction> UpdateStatus()
-		{
-			while(true)
-			{
-				CompressedGasDisplay = string.Format("{0:F1}%", CompressedGas/InflatableVolume*100);
-				yield return new WaitForSeconds(0.5f);
-			}
-		}
 		#endregion
 		
 		#region Startup
@@ -100,6 +97,10 @@ namespace AtHangar
 		{
 			base.OnAwake();
 			GameEvents.onEditorShipModified.Add(UpdateGUI);
+			//this is nesessary as KSP initializes the node with an empty ConfigNode() somewhere
+			if(CompressorConfig != null && 
+				CompressorConfig.name != GasCompressor.NODE_NAME)
+				CompressorConfig = null;
 		}
 		void OnDestroy() { GameEvents.onEditorShipModified.Remove(UpdateGUI); }
 
@@ -107,9 +108,13 @@ namespace AtHangar
 		{
 			base.OnStart(state);
 			if(state == StartState.None) return;
+			//get sound effects
+			Utils.createFXSound(part, fxSndCompressor, CompressorSound, true);
+			fxSndCompressor.audio.volume = GameSettings.SHIP_VOLUME * SoundVolume;
 			//get controlled modules
 			foreach(string module_name in ControlledModules.Split(' '))
 			{
+				if(module_name == "") continue;
 				if(!part.Modules.Contains(module_name))
 				{
 					Utils.Log("HangarGenericInflatable.OnStart: {0} does not contain {1} module.", part.name, module_name);
@@ -135,6 +140,7 @@ namespace AtHangar
 			//get animated nodes
 			foreach(string node_name in AnimatedNodes.Split(' '))
 			{
+				if(node_name == "") continue;
 				Transform node_transform = part.FindModelTransform(node_name);
 				if(node_transform == null) 
 				{
@@ -162,14 +168,12 @@ namespace AtHangar
 				Compressor = new GasCompressor(part);
 				Compressor.Load(CompressorConfig);
 			}
-			//forbid surface attachment for the inflatable
-			part.attachRules.allowSrfAttach = false;
 			//ignore DragMultiplier as Drag is changed with volume
 			DragMultiplier = 1f;
 			//update part, GUI and set the flag
 			UpdatePart();
 			ToggleEvents();
-			StartCoroutine(UpdateStatus());
+			StartCoroutine(SlowUpdate());
 			gui_state = this.DeactivateGUI();
 			just_loaded = true;
 		}
@@ -177,9 +181,9 @@ namespace AtHangar
 		public override void OnLoad(ConfigNode node)
 		{
 			base.OnLoad(node);
-			if(node.HasNode("COMPRESSOR")) 
+			if(node.HasNode(GasCompressor.NODE_NAME)) 
 			{
-				CompressorConfig = node.GetNode("COMPRESSOR");
+				CompressorConfig = node.GetNode(GasCompressor.NODE_NAME);
 				//for part info only
 				Compressor = new GasCompressor(part);
 				Compressor.Load(CompressorConfig);
@@ -211,7 +215,9 @@ namespace AtHangar
 			if(Compressor != null && !has_compressed_gas)
 			{
 				CompressedGas += Compressor.CompressGas();
-				if(has_compressed_gas) ToggleEvents();
+				if(has_compressed_gas) 
+				{ play_compressor = false; ToggleEvents(); }
+				else play_compressor = Compressor.OutputFraction > 0;
 			}
 		}
 
@@ -247,7 +253,48 @@ namespace AtHangar
 			this.ActivateGUI(gui_state);
 		}
 
+		IEnumerator<YieldInstruction> SlowUpdate()
+		{
+			while(true)
+			{
+				//update GUI
+				CompressedGasDisplay = string.Format("{0:F1}%", CompressedGas/InflatableVolume*100);
+				//update sounds
+				if(play_compressor)
+				{
+					fxSndCompressor.audio.pitch = 0.5f + 0.5f*Compressor.OutputFraction;
+					if(!fxSndCompressor.audio.isPlaying)
+						fxSndCompressor.audio.Play();
+				}
+				else fxSndCompressor.audio.Stop();
+				//wait
+				yield return new WaitForSeconds(0.5f);
+			}
+		}
+
 		public void UpdateGUI(ShipConstruct ship) { UpdatePart(); }
+
+		public void OnGUI() 
+		{ 
+			if(Event.current.type != EventType.Layout) return;
+			while(try_deflate)
+			{
+				if(has_compressed_gas) { deflate(); break; }
+				if(Compressor == null)
+					warning.Show("The hangar is not equipped with a compressor. " +
+						"You will not be able to inflate the hangar again. " +
+						"Are you sure you want to deflate the hangar?");
+				else if(!part.vessel.mainBody.atmosphere)
+					warning.Show("There's no atmosphere here. " +
+						"You will not be able to inflate the hangar again." +
+						"Are you sure you want to deflate the hangar?");
+				else { deflate(); break; }
+				if(warning.Result == SimpleDialog.Answer.None) break;
+				if(warning.Result == SimpleDialog.Answer.Yes) deflate();
+				try_deflate = false;
+				break;
+			}
+		}
 		#endregion
 
 		#region Modules Control
@@ -281,8 +328,7 @@ namespace AtHangar
 			if(!has_compressed_gas) return;
 			if(State != AnimatorState.Closed) return;
 			if(!CanEnableModules()) return;
-			if(HighLogic.LoadedScene == GameScenes.FLIGHT) 
-				CompressedGas = 0;
+			if(HighLogic.LoadedSceneIsFlight) CompressedGas = 0;
 			StartCoroutine(DelayedEnableModules(true));
 			Open(); ToggleEvents();
 		}
@@ -292,8 +338,14 @@ namespace AtHangar
 		{ 
 			if(State != AnimatorState.Opened) return;
 			if(!CanDisableModules()) return;
+			try_deflate = true;
+		}
+
+		void deflate()
+		{
 			StartCoroutine(DelayedEnableModules(false));
 			Close(); ToggleEvents();
+			try_deflate = false;
 		}
 
 		[KSPAction("Inflate")]
