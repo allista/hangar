@@ -1,26 +1,44 @@
-###!!! WARNING WARNING WARNING !!!
-
-**If you're upgrading from v1.1.1.1 or below, this update *may* break your saves, BUT all breaks are easily fixable.**
-
-To **safely** install the update, do the following:
+###If you're upgrading _from v1.1.1.1 or below_, follow these instructions:
 
 1. **If** your savegame contains *landed* **Rover Lander** *with opened doors*,
     * switch to it **before** upgrading and **close the doors**.
 2. Delete the old version of the mod before installing this one.
-_You may keep the config.xml to save positions of GUI windows, though._
+_You may keep the config.xml to save positions of GUI windows._
 3. Install the new version.
 4. **If** your savegame contains:
-    * Any ship that includes **S4-S3 or S4-S2 adapters**:
-        * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/raw/master/DeprecatedParts/DeprecatedPartsAddon.zip), then recover such ship and rebuild it in editor using new Universal Stack Adapter
-    * Any ship that includes *small* **Inline Hangar** or *small* **Ground Hangar**, you should either:
-        * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/raw/master/DeprecatedParts/DeprecatedPartsAddon.zip), then recover such ship and rebuild it in editor,
-        * or open the savegame file in any text editor, find the corresponding part (**InlineHangar1** or **Hangar1**), find the **HangarPartResizer** module and multiply the value of the **size** parameter by 2 ([see the HOWTO](http://imgur.com/crqY6jM) for details).
+    * Any ship that includes:
+        * **S4-S3 or S4-S2 adapters**
+        * *small* **Inline Hangar**
+        * *small* **Ground Hangar**:
+    * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/releases/download/v1.3.0/DeprecatedParts-v1.1.1.1_to_v1.3.zip), then recover these ships.
 5. After that, **if** you have installed the **Deprecated Parts Addon**, uninstall it.
 ***
 
 ###ChangeLog###
 
-* **v1.2.1** - **_IF you are upgrading from v1.1.1.1 or below_, READ THE INSTALLATION INSTRUCTIONS CAREFULLY**
+* **1.3.0** - _IF you are upgrading **from v1.1.1.1 or below**_, READ THE INSTALLATION INSTRUCTIONS CAREFULLY
+    * **Recompiled for KSP 0.25.0**
+    * Added **Inflatable Ground Hangars**. They are very light, cheap and tough. You can drop them from orbit using smallest thrusters and parachutes, then fix them to the ground with the anchor, inflate them and store rovers inside. If they're not needed you may deflate them and pack again. The downside, though, is that you can't use resource or crew transfer inside of these.
+    * Added **Small Square Heatshield** for Inflatable Hangars.
+    * Added a **solar panel on the roof** of the Small Ground Hangar.
+    * Rearranged size limits, hangars and other parts on the Tech Tree. [**See the corresponding picture**](http://i.imgur.com/oYhZyHG.png). Unfortunately, introduction of new hangars often requires this to maintain in-game balance.
+    * Added **dummy parts to TechTree nodes** corresponding to resize limits changes and RemoteTech upgrades (if you have it installed).
+    * **Fixed entry costs of all parts**. Now they cost, and cost a lot.
+    * Fixed Heavy Recycler not appearing on the TechTree.
+    * Heavily reworked mass and cost calculations. As a result, **most hangars are much lighter** now.
+    * Made some remodeling:
+        * Standard ground hangars now have much thinner walls and doors,
+        * Rover Lander has a better looking top node and additional set of reinforcement ribs on the side doors. These prevent the door from sometimes passing through the ground.
+    * The drag of cube-shaped hangars and heatshields was increased.
+    * The **maximum temperatures of all parts were decreased drastically** and are closer to the values from DeadlyReentry. Honestly, how can aluminum can endure 3400C when Al melts at 660C?!
+    * If you use DeadlyReentry: the amount of Ablative Shielding on heatshields is now increases only as area, ignoring aspect changes.
+    * Updated support of **TAC LS to version 0.10**. Note, that this version is not compatible with version 0.9.*, so you have to update TAC LS if you use it with the Hangar.
+    * Made all **hangars Inactive by default**.
+    * Fixed the strength of the stack nodes of resizable part not being updated on resize.
+    * Fixed one of the rare occurring bugs with Procedural Adapter which caused some attached parts to be missing and the whole ship-construct to break the game.
+    * [**See the list of changes and bugfixes**](https://github.com/allista/hangar/issues?q=milestone%3A%22Inflatable+Ground+Hangars%22+is%3Aclosed) and [commit history](https://github.com/allista/hangar/commits/master) for more...
+
+* v1.2.1
     * Added an option to launch vessels from a hangar **in orbit** with a slight push. Launching small probes that don't have RCS is much simpler now.
         * _When a vessel is pushed out of the hangar or is stored at non-zero relative velocity, **the hangar itself receives a push** to conserve impulse of the system._
     * Added **+1** button to Hangar Contents Editor window to easily add multiple identical vessels in Editor.
