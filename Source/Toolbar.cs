@@ -12,7 +12,7 @@ namespace AtHangar {
 			if(ToolbarManager.ToolbarAvailable)
 			{
 				HangarToolbarButton = ToolbarManager.Instance.add ("Hangar", "HangarButton");
-				HangarToolbarButton.TexturePath = "Hangar/Textures/icon_button";
+				HangarToolbarButton.TexturePath = "Hangar/Icons/icon_button";
 				HangarToolbarButton.ToolTip = "Hangar controls and info";
 				HangarToolbarButton.OnClick += e => HangarWindow.ToggleGUI();
 			}
@@ -38,7 +38,7 @@ namespace AtHangar {
 					onAppLaunchToggleOff,
 					DummyVoid, DummyVoid, DummyVoid, DummyVoid,
 					ApplicationLauncher.AppScenes.SPH|ApplicationLauncher.AppScenes.VAB|ApplicationLauncher.AppScenes.FLIGHT,
-					GameDatabase.Instance.GetTexture("Hangar/Textures/icon_button", false));
+					GameDatabase.Instance.GetTexture("Hangar/Icons/icon_button", false));
 			}
 		}
 
