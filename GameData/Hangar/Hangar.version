@@ -2,6 +2,7 @@
     "NAME":"Hangar",
     "URL":"https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version",
     "DOWNLOAD":"https://github.com/allista/hangar/releases",
+    "CHANGE_LOG_URL":"https://github.com/allista/hangar/blob/master/ChangeLog.md",
     "VERSION":
      {
          "MAJOR":1

@@ -34,6 +34,7 @@ namespace AtHangar
 		public static readonly Version MaxKSPVersion = new Version(0,25,0);
 		public static readonly string  VersionURL    = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
 		public static readonly string  UpgradeURL    = "https://github.com/allista/hangar/releases";
+		public static readonly string  ChangeLogURL  = "https://github.com/allista/hangar/blob/master/ChangeLog.md";
 		public static readonly string  VersionFile   = "Hangar.version";
 	}
 }

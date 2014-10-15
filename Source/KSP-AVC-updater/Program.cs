@@ -14,8 +14,9 @@ namespace KSPAVCupdater
     ""NAME"":""Hangar"",
     ""URL"":""{0}"",
     ""DOWNLOAD"":""{1}"",
+    ""CHANGE_LOG_URL"":""{2}"",
     ""VERSION"":
-     {{", KSP_AVC_Info.VersionURL, KSP_AVC_Info.UpgradeURL);
+     {{", KSP_AVC_Info.VersionURL, KSP_AVC_Info.UpgradeURL, KSP_AVC_Info.ChangeLogURL);
 			file.WriteLine("         \"MAJOR\":{0}", KSP_AVC_Info.HangarVersion.Major);
 			file.WriteLine("         \"MINOR\":{0}", KSP_AVC_Info.HangarVersion.Minor);
 			file.WriteLine("         \"PATCH\":{0}", KSP_AVC_Info.HangarVersion.Build);
