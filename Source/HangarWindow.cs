@@ -227,8 +227,8 @@ namespace AtHangar
 		{
 			GUILayout.BeginHorizontal();
 			if(selected_hangar != null 
-				&& selected_hangar.launchVelocity != Vector3.zero 
-				&& selected_hangar.vessel.situation == Vessel.Situations.ORBITING)
+				&&  selected_hangar.launchVelocity != Vector3.zero 
+				&& !selected_hangar.vessel.LandedOrSplashed)
 				selected_hangar.LaunchWithPunch = GUILayout.Toggle(selected_hangar.LaunchWithPunch, "Push Vessel Out");
 			if(GUILayout.Button("Launch Vessel", Styles.yellow_button, GUILayout.ExpandWidth(true)))
 				selected_hangar.TryRestoreVessel(selected_vessel);
