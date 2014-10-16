@@ -54,6 +54,8 @@ All releases, addons and packs, as well as the source code are published on [b]G
 [URL="https://github.com/allista/hangar/raw/master/DesaturatedTexturePack/DesaturatedTexturePack.zip"][b]Desaturated Texture Pack[/b][/URL] [i]is now officially maintained[/i].
 [URL="https://github.com/allista/hangar/tree/master"][b]Source code[/b][/URL].
 
+The latest version may also be downloaded from [URL="https://kerbalstuff.com/mod/270/Hangar"][B]Kerbal Stuff[/B][/URL].
+
 [SIZE=3][B]Features[/B][/SIZE]
 [LIST]
 [*]Hangars are fit for any application:
