@@ -11,15 +11,15 @@ namespace AtHangar
 		void Enable(bool enable);
 	}
 
-	public class GasCompressor
+	public class GasCompressor : ConfigNodeObject
 	{
-		public const string NODE_NAME = "COMPRESSOR";
-		public float ConversionRate { get; set; }
-		public float ConsumptionRate { get; set; }
+		new public const string NODE_NAME = "COMPRESSOR";
+		[Persistent] public float ConversionRate = 0.05f;
+		[Persistent] public float ConsumptionRate = 1.0f;
 		public float OutputFraction { get; private set; }
-		Part part;
+		readonly Part part;
 
-		public GasCompressor(Part p) { part = p; ConsumptionRate = 1.0f; ConversionRate = 0.05f; }
+		public GasCompressor(Part p) { part = p; }
 
 		public float CompressGas()
 		{
@@ -31,14 +31,6 @@ namespace AtHangar
 			var consumed = part.RequestResource("ElectricCharge", request);
 			OutputFraction = consumed/request;
 			return (float)(pressure*ConversionRate*consumed);
-		}
-
-		public void Load(ConfigNode node)
-		{ 
-			if(node.HasValue("ConversionRate"))
-				ConversionRate = float.Parse(node.GetValue("ConversionRate"));
-			if(node.HasValue("ConsumptionRate"))
-				ConsumptionRate = float.Parse(node.GetValue("ConsumptionRate"));
 		}
 	}
 
@@ -64,7 +56,7 @@ namespace AtHangar
 		readonly List<AnimatedNode> animated_nodes = new List<AnimatedNode>();
 
 		//compressor
-		public ConfigNode CompressorConfig = null;
+		public ConfigNode ModuleConfig;
 		public GasCompressor Compressor { get; protected set; }
 		bool has_compressed_gas { get { return CompressedGas >= InflatableVolume; } }
 		public FXGroup fxSndCompressor;
@@ -84,7 +76,7 @@ namespace AtHangar
 		#region Info
 		public override string GetInfo()
 		{ 
-			if(Compressor == null) return "";
+			if(!init_compressor()) return "";
 			string info = "Compressor:\n";
 			info += string.Format("Rate: {0}/el.u.\n", Utils.formatVolume(Compressor.ConversionRate));
 			info += string.Format("Power Consumption: {0} el.u./sec\n", Compressor.ConsumptionRate);
@@ -97,10 +89,6 @@ namespace AtHangar
 		{
 			base.OnAwake();
 			GameEvents.onEditorShipModified.Add(UpdateGUI);
-			//this is nesessary as KSP initializes the node with an empty ConfigNode() somewhere
-			if(CompressorConfig != null && 
-				CompressorConfig.name != GasCompressor.NODE_NAME)
-				CompressorConfig = null;
 		}
 		void OnDestroy() { GameEvents.onEditorShipModified.Remove(UpdateGUI); }
 
@@ -117,10 +105,10 @@ namespace AtHangar
 				if(module_name == "") continue;
 				if(!part.Modules.Contains(module_name))
 				{
-					Utils.Log("HangarGenericInflatable.OnStart: {0} does not contain {1} module.", part.name, module_name);
+					this.Log("OnStart: {0} does not contain {1} module.", part.name, module_name);
 					continue;
 				}
-				List<IControllableModule> modules = new List<IControllableModule>();
+				var modules = new List<IControllableModule>();
 				foreach(PartModule pm in part.Modules) 
 				{ 
 					if(pm.moduleName == module_name) 
@@ -132,7 +120,7 @@ namespace AtHangar
 							if(State != AnimatorState.Opened)
 								controllableModule.Enable(false);
 						}
-						else Utils.Log("HangarGenericInflatable.OnStart: {0} is not a ControllableModule. Skipping it.", pm.moduleName);
+						else this.Log("OnStart: {0} is not a ControllableModule. Skipping it.", pm.moduleName);
 					}
 				}
 				controlled_modules.AddRange(modules);
@@ -144,14 +132,14 @@ namespace AtHangar
 				Transform node_transform = part.FindModelTransform(node_name);
 				if(node_transform == null) 
 				{
-					Utils.Log("HangarGenericInflatable.OnStart: no transform '{0}' in {1}", node_name, part.name);
+					this.Log("OnStart: no transform '{0}' in {1}", node_name, part.name);
 					continue;
 				}
 				AttachNode node = part.findAttachNode(node_name);
 				if(node == null) node = part.srfAttachNode.id == node_name? part.srfAttachNode : null;
 				if(node == null)
 				{
-					Utils.Log("HangarGenericInflatable.OnStart: no node '{0}' in {1}", node_name, part.name);
+					this.Log("OnStart: no node '{0}' in {1}", node_name, part.name);
 					continue;
 				}
 				var a_node = new AnimatedNode(node, node_transform, part);
@@ -162,12 +150,7 @@ namespace AtHangar
 			prefab_metric = new Metric(prefab);
 			//get compressed gas for the first time
 			if(CompressedGas < 0) CompressedGas = InflatableVolume;
-			//load compressor
-			if(CompressorConfig != null)
-			{
-				Compressor = new GasCompressor(part);
-				Compressor.Load(CompressorConfig);
-			}
+			init_compressor();
 			//ignore DragMultiplier as Drag is changed with volume
 			DragMultiplier = 1f;
 			//update part, GUI and set the flag
@@ -178,16 +161,23 @@ namespace AtHangar
 			just_loaded = true;
 		}
 
+		bool init_compressor()
+		{
+			Compressor = null;
+			if(ModuleConfig.HasNode(GasCompressor.NODE_NAME)) 
+			{
+				Compressor = new GasCompressor(part);
+				Compressor.Load(ModuleConfig.GetNode(GasCompressor.NODE_NAME));
+				return true;
+			}
+			return false;
+		}
+
 		public override void OnLoad(ConfigNode node)
 		{
 			base.OnLoad(node);
-			if(node.HasNode(GasCompressor.NODE_NAME)) 
-			{
-				CompressorConfig = node.GetNode(GasCompressor.NODE_NAME);
-				//for part info only
-				Compressor = new GasCompressor(part);
-				Compressor.Load(CompressorConfig);
-			}
+			//only save config for the first time
+			if(ModuleConfig == null) ModuleConfig = node;
 			if(!node.HasValue("SavedState"))
 				State = PackedByDefault? AnimatorState.Closed : AnimatorState.Opened;
 		}
