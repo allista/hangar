@@ -128,7 +128,7 @@ namespace AtHangar
 		
 		//update parameters
 		float next_update = 0;
-		const float update_interval = 0.2f;
+		const float update_interval = 0.5f;
 		
 		
 		//GUI toggles
