@@ -309,13 +309,13 @@ namespace AtHangar
 			GUILayout.BeginVertical();
 			GUILayout.Label("Vessel Volume: "+Utils.formatVolume(vessel_metric.volume), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Vessel Size: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Hangar Size: "+Utils.formatDimensions(selected_hangar.hangar_metric.size), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Hangar volume: "+Utils.formatVolume(selected_hangar.hangar_metric.volume), GUILayout.ExpandWidth(true));
-			GUILayout.Label(string.Format("Used volume: {0}, {1:F1}%", Utils.formatVolume(selected_hangar.used_volume), selected_hangar.used_volume_frac*100), 
-			                Styles.fracStyle(1-selected_hangar.used_volume_frac), GUILayout.ExpandWidth(true));
-			GUILayout.Label(string.Format("Mass: {0} stored, {1} total", Utils.formatMass(selected_hangar.vessels_mass), 
+			GUILayout.Label("Dock Size: "+Utils.formatDimensions(selected_hangar.HangarMetric.size), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Hangar volume: "+Utils.formatVolume(selected_hangar.TotalVolume), GUILayout.ExpandWidth(true));
+			GUILayout.Label(string.Format("Used volume: {0}, {1:F1}%", Utils.formatVolume(selected_hangar.TotalUsedVolume), selected_hangar.TotalUsedVolumeFrac*100), 
+				Styles.fracStyle(1-selected_hangar.TotalUsedVolumeFrac), GUILayout.ExpandWidth(true));
+			GUILayout.Label(string.Format("Mass: {0} stored, {1} total", Utils.formatMass(selected_hangar.TotalStoredMass), 
 			                              Utils.formatMass(selected_hangar.vessel.GetTotalMass())), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Vessels docked: "+selected_hangar.numVessels(), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Vessels docked: "+selected_hangar.TotalVesselsDocked, GUILayout.ExpandWidth(true));
 			GUILayout.Label(string.Format("Vessel crew: {0}/{1}", selected_hangar.vessel.GetCrewCount(), 
 			                              selected_hangar.vessel.GetCrewCapacity()), GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
@@ -533,7 +533,7 @@ namespace AtHangar
 				{
 					Hangar h = p.GetComponent<Hangar>();
 					if(h != null)
-						Utils.DrawYZ(h.part_metric, h.GetLaunchTransform());
+						Utils.DrawYZ(h.PartMetric, h.GetLaunchTransform());
 				}
 			}
 			#if DEBUG

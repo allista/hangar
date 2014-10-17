@@ -176,7 +176,7 @@ namespace AtHangar
 		bool pack(List<V> vessels)
 		{
 			sort_vessels(vessels);
-			Node root = new Node(space);
+			var root = new Node(space);
 			foreach(V vsl in vessels)
 			{ if(!add_vessel(root, vsl.size, vsl.id)) return false; }
 			return true;
@@ -185,28 +185,33 @@ namespace AtHangar
 		List<V> pack_some(List<V> vessels)
 		{
 			sort_vessels(vessels);
-			Node root = new Node(space);
-			List<V> rem = new List<V>();
-			foreach(V vsl in vessels) { if(!add_vessel(root, vsl.size, vsl.id)) rem.Add(vsl); }
+			var root = new Node(space);
+			var rem  = new List<V>();
+			foreach(V vsl in vessels) 
+			{ if(!add_vessel(root, vsl.size, vsl.id)) rem.Add(vsl); }
 			return rem;
 		}
-		
-		public bool Add(V vsl)
+
+		public bool CanAdd(V vsl)
 		{
-			List<V> vessels = Values;
+			var vessels = Values;
 			vessels.Add(vsl);
-			if(!pack(vessels)) return false;
+			return pack(vessels);
+		}
+
+		public bool TryAdd(V vsl)
+		{
+			if(!CanAdd(vsl)) return false;
 			stored_vessels.Add(vsl.id, vsl);
 			return true;
 		}
 
-		public void ForceAdd(V vsl)	{ stored_vessels.Add(vsl.id, vsl); }
+		public void ForceAdd(V vsl) { stored_vessels.Add(vsl.id, vsl); }
 
 		public void Set(List<V> vessels)
 		{
 			stored_vessels.Clear();
-			foreach(V sv in vessels) 
-				stored_vessels.Add(sv.id, sv);
+			vessels.ForEach(v => stored_vessels.Add(v.id, v));
 		}
 
 		public List<V> Repack() { return pack_some(Values); }
@@ -237,10 +242,10 @@ namespace AtHangar
 
 		public void Load(ConfigNode node)
 		{
-			List<V> vessels = new List<V>();
+			var vessels = new List<V>();
 			foreach(ConfigNode vn in node.nodes)
 			{
-				V vsl = new V();
+				var vsl = new V();
 				vsl.Load(vn);
 				vessels.Add(vsl);
 			}

@@ -8,13 +8,12 @@ using UnityEngine;
 namespace AtHangar
 {
 	//this module adds the ability to store a vessel in a packed state inside
-	public class Hangar : PartModule, IPartCostModifier, IControllableModule
+	public class Hangar : HangarStorage
 	{
 		public enum HangarState { Inactive, Active }
 
 		#region Configuration
 		//hangar properties
-		[KSPField (isPersistant = false)] public string HangarSpace;
 		[KSPField (isPersistant = false)] public bool   UseHangarSpaceMesh = false;
 		[KSPField (isPersistant = false)] public string AnimatorID;
 		[KSPField (isPersistant = false)] public float  EnergyConsumption = 0.75f;
@@ -30,28 +29,27 @@ namespace AtHangar
 
 		#region Internals
 		//physical properties
-		[KSPField (isPersistant = true)]  
-		public float base_mass = -1f;
-		const float  crew_volume_ratio = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
-		float usefull_volume_ratio     = 0.7f; //only 70% of the volume may be used by docking vessels
-		public float vessels_mass      = -1f;
-		public float vessels_cost      = -1f;
-		public float used_volume       = -1f;
+		const float crew_volume_ratio = 0.3f; //only 30% of the remaining volume may be used for crew (i.e. V*(1-usefull_r)*crew_r)
 
 		//hangar machinery
 		BaseHangarAnimator hangar_gates;
+		MeshFilter hangar_space = null;
 		public AnimatorState gates_state { get { return hangar_gates.State; } }
 		public HangarState hangar_state { get; private set; }
-		public Metric part_metric { get; private set; }
-		public Metric hangar_metric { get; private set; }
-		public MeshFilter hangar_space { get; private set; }
-		public float used_volume_frac { get { if(hangar_metric.Empty) return 0; return used_volume/hangar_metric.volume; } }
 		public VesselResources<Vessel, Part, PartResource> hangarResources { get; private set; }
-		public List<ResourceManifest> resourceTransferList = new List<ResourceManifest>();
+		readonly public List<ResourceManifest> resourceTransferList = new List<ResourceManifest>();
+		readonly Dictionary<Guid, MemoryTimer> probed_vessels = new Dictionary<Guid, MemoryTimer>();
 
 		//vessels storage
-		VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
-		Dictionary<Guid, MemoryTimer> probed_vessels = new Dictionary<Guid, MemoryTimer>();
+		readonly protected List<HangarPassage> passage_checklist = new List<HangarPassage>();
+		readonly protected List<HangarStorage> connected_storage = new List<HangarStorage>();
+		public int   TotalVesselsDocked;
+		public float TotalVolume;
+		public float TotalUsedVolume;
+		public float TotalStoredMass;
+		public float TotalCostMass;
+		public float TotalUsedVolumeFrac
+		{ get { return TotalUsedVolume/TotalVolume; } }
 
 		//vessel spawn
 		public Vector3 launchVelocity;
@@ -67,19 +65,14 @@ namespace AtHangar
 		Rect eWindowPos     = new Rect(Screen.width/2-200, 100, 400, 100);
 		Rect neWindowPos    = new Rect(Screen.width/2-200, 100, 400, 50);
 		Vector2 scroll_view = Vector2.zero;
-		VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>();
 		CraftBrowser vessel_selector;
 		VesselType   vessel_type;
-		readonly List<Hangar> ready_cecklist = new List<Hangar>();
+		readonly List<Hangar> hangar_cecklist = new List<Hangar>();
 		public bool Ready;
 		#endregion
 
 		#region GUI
-		[KSPField (guiName = "Volume",        guiActiveEditor=true)] public string hangar_v;
-		[KSPField (guiName = "Size",          guiActiveEditor=true)] public string hangar_d;
 		[KSPField (guiName = "Crew Capacity", guiActiveEditor=true)] public string crew_capacity;
-		[KSPField (guiName = "Stored Mass",   guiActiveEditor=true)] public string stored_mass;
-		[KSPField (guiName = "Stored Cost",   guiActiveEditor=true)] public string stored_cost;
 		[KSPField (guiName = "Hangar Name",   guiActive = true, guiActiveEditor=true, isPersistant = true)]
 		public string HangarName = "_none_";
 
@@ -121,18 +114,30 @@ namespace AtHangar
 		
 		
 		#region Setup
-		//all initialization goes here instead of the constructor as documented in Unity API
+		public override void OnAwake()
+		{
+			base.OnAwake();
+			GameEvents.onVesselWasModified.Add(update_connected_storage);
+			GameEvents.onEditorShipModified.Add(update_connected_storage);
+		}
+
+		void OnDestroy() 
+		{ 
+			GameEvents.onVesselWasModified.Remove(update_connected_storage);
+			GameEvents.onEditorShipModified.Remove(update_connected_storage);
+		}
+
 		void update_resources()
 		{ hangarResources = new VesselResources<Vessel, Part, PartResource>(vessel); }
 
-		void build_checklist()
+		void build_hangar_checklist()
 		{
 			if(HighLogic.LoadedScene != GameScenes.FLIGHT) return;
-			ready_cecklist.Clear();
+			hangar_cecklist.Clear();
 			foreach(Part p in vessel.parts)
 			{
 				if(p == part) break;
-				ready_cecklist.AddRange(p.Modules.OfType<Hangar>());
+				hangar_cecklist.AddRange(p.Modules.OfType<Hangar>());
 			}
 		}
 
@@ -140,25 +145,95 @@ namespace AtHangar
 		{
 			get
 			{
-				if(ready_cecklist.Count == 0) return true;
+				if(hangar_cecklist.Count == 0) return true;
 				bool ready = true;
-				foreach(Hangar h in ready_cecklist)
+				foreach(var h in hangar_cecklist)
 				{ ready &= h.Ready; if(!ready) break; }
 				return ready;
 			}
 		}
-		
-		public override void OnAwake()
+
+		void build_passage_checklist()
 		{
-			base.OnAwake ();
-			usefull_volume_ratio = (float)Math.Pow(usefull_volume_ratio, 1/3f);
+			passage_checklist.Clear();
+			foreach(Part p in part.AllConnectedParts())
+			{ if(p != part) passage_checklist.AddRange(p.Modules.OfType<HangarPassage>()); }
 		}
-		
+
+		bool all_passages_loaded
+		{
+			get
+			{
+				if(passage_checklist.Count == 0) return true;
+				bool loaded = true;
+				foreach(var p in passage_checklist)
+				{ loaded &= p.Loaded; if(!loaded) break; }
+				return loaded;
+			}
+		}
+
+		void build_connected_storage()
+		{
+			connected_storage.Clear();
+			var connected_passages = GetConnectedPassages();
+			foreach(var p in connected_passages)
+			{
+				var storage = p as HangarStorage;
+				if(storage != null) connected_storage.Add(storage);
+			}
+			this.Log("Number of passage nodes: {0}", Nodes.Count);//debug
+			this.Log("Number of connected passages: {0}", connected_passages.Count);//debug
+			this.Log("Number of connected storage spaces: {0}", connected_storage.Count);//debug
+		}
+
+		void update_total_values()
+		{
+			TotalVesselsDocked = 0;
+			TotalVolume        = 0;
+			TotalUsedVolume    = 0;
+			TotalStoredMass    = 0;
+			TotalCostMass      = 0;
+			foreach(var s in connected_storage)
+			{
+				TotalVesselsDocked += s.VesselsDocked;
+				if(s.HangarMetric != null)
+					TotalVolume    += s.HangarMetric.volume;
+				TotalUsedVolume    += s.UsedVolume;
+				TotalStoredMass    += s.VesselsMass;
+				TotalCostMass      += s.VesselsCost;
+			}
+			this.Log("Totals: V {0}, UV {1}, UVf {2}", TotalVolume, TotalUsedVolume, TotalUsedVolumeFrac);//debug
+		}
+
+		void update_connected_storage()
+		{
+			build_connected_storage();
+			update_total_values();
+		}
+
+		void update_connected_storage(Vessel vsl)
+		{ if(vsl == part.vessel) 
+			{ this.Log("Hangar.onVesselWasModified");//debug
+				update_connected_storage(); } }
+
+		void update_connected_storage(ShipConstruct ship)
+		{ update_connected_storage(); 
+			this.Log("Hangar.onEditorShipModified");//debug
+		}
+
+		IEnumerator<YieldInstruction> delayed_setup()
+		{
+			while(!all_passages_loaded) yield return null;
+			this.Log("All HangarPassages are loaded");
+			update_connected_storage();
+			//store packed constructs if any
+			yield return StartCoroutine(convert_constructs_to_vessels());
+		}
+
 		public override void OnStart(StartState state)
 		{
-			//base OnStart
-			base.OnStart(state);
-			if(state == StartState.None) return;
+			base.OnStart(state); Loaded = false;
+			this.Log("Hangar.OnStart");//debug
 			//set vessel type
 			EditorLogic el = EditorLogic.fetch;
 			if(el != null) vessel_type = el.editorType == EditorLogic.EditorMode.SPH ? VesselType.SPH : VesselType.VAB;
@@ -172,133 +247,70 @@ namespace AtHangar
 			if(hangar_gates == null)
 			{
                 hangar_gates = new BaseHangarAnimator();
-				Utils.Log("Using BaseHangarAnimator");
+				this.Log("Using BaseHangarAnimator");
 			}
 			else
             {
                 Events["Open"].guiActiveEditor = true;
                 Events["Close"].guiActiveEditor = true;
             }
-			//recalculate volume and mass
-			Setup();
 			//if there are multiple hangars in the vessel,
 			//coordinate with them before storing packed constructs
-			build_checklist();
-			//store packed constructs if any
-			StartCoroutine(convert_constructs_to_vessels());
+			build_hangar_checklist();
+			//build checklist of HangarPassages
+			build_passage_checklist();
+			Loaded = true;
+			//start delayed setup
+			StartCoroutine(delayed_setup());
 		}
 		
-		public void Setup(bool reset = false)	
+		public override void Setup(bool reset = false)	
 		{
+			//build the list of connected storage spaces
+			base.Setup(reset);
+			this.Log("Hangar.Setup");//debug
 			//get launch speed if it's defined
 			try { launchVelocity = LaunchVelocity != "" ? ConfigNode.ParseVector3(LaunchVelocity) : Vector3.zero; }
 			catch(Exception ex)
 			{
-				Utils.Log("Unable to parse LaunchVelocity '{0}'", LaunchVelocity);
+				this.Log("Unable to parse LaunchVelocity '{0}'", LaunchVelocity);
 				Debug.LogException(ex);
 			}
-			//recalculate part and hangar metrics
-			part_metric = new Metric(part);
-			hangar_metric = HangarSpace != "" ? new Metric(part, HangarSpace) : null;
-			//if hangar metric is not provided, derive it from part metric
-			if(hangar_metric == null || hangar_metric.Empty)
-				hangar_metric = part_metric*usefull_volume_ratio;
-			//else if mesh should be used to calculate fits, get it as well
-			else if(UseHangarSpaceMesh)
-				hangar_space = part.FindModelComponent<MeshFilter>(HangarSpace);
-			//setup vessels pack
-			stored_vessels.space = hangar_metric;
-			packed_constructs.space = hangar_metric;
-			//display recalculated values
-			hangar_v = Utils.formatVolume(hangar_metric.volume);
-			hangar_d = Utils.formatDimensions(hangar_metric.size);
-			//now recalculate used volume
-			if(reset)
-			{   //if resetting, try to repack vessels on resize
-				List<PackedConstruct> constructs = packed_constructs.Values;
-				packed_constructs.Clear();
-				foreach(PackedConstruct pc in constructs)
-					try_store_construct(pc);
-				//no need to change_part_params as set_params is called later
-			}
-			//calculate used_volume
-			used_volume = 0;
-			foreach(StoredVessel sv in stored_vessels.Values) used_volume += sv.volume;
-			foreach(PackedConstruct pc in packed_constructs.Values) used_volume += pc.volume;
-			//then set other part parameters
-			set_part_params(reset);
 		}
 
-		void set_part_params(bool reset = false) 
+		protected override void on_set_part_params()
 		{
-			//reset values if needed
-			if(base_mass < 0 || reset) base_mass = part.mass;
-			if(vessels_mass < 0 || reset)
-			{
-				vessels_mass = 0;
-				foreach(StoredVessel sv in stored_vessels.Values) vessels_mass += sv.mass;
-				foreach(PackedConstruct pc in packed_constructs.Values) vessels_mass += pc.mass;
-				stored_mass = Utils.formatMass(vessels_mass);
-			}
-			if(vessels_cost < 0 || reset)
-			{
-				vessels_cost = 0;
-				foreach(StoredVessel sv in stored_vessels.Values) vessels_cost += sv.cost;
-				foreach(PackedConstruct pc in packed_constructs.Values) vessels_cost += pc.cost;
-				stored_cost = vessels_cost.ToString();
-			}
-			//set part mass
-			part.mass = base_mass+vessels_mass;
+			var el = EditorLogic.fetch;
+			if(el != null) GameEvents.onEditorShipModified.Fire(el.ship);
+			else if(part.vessel != null) GameEvents.onVesselWasModified.Fire(part.vessel);
+		}
+
+		protected override void set_part_params(bool reset = false)
+		{
+			base.set_part_params(reset);
 			//calculate crew capacity from remaining volume
 			if(!StaticCrewCapacity)
 			{
-				part.CrewCapacity = (int)((part_metric.volume-hangar_metric.volume)*crew_volume_ratio/VolumePerKerbal);
+				part.CrewCapacity = (int)((PartMetric.volume-HangarMetric.volume)*crew_volume_ratio/VolumePerKerbal);
 				crew_capacity = part.CrewCapacity.ToString();
 				Fields["crew_capacity"].guiActiveEditor = true;
 			}
 			else Fields["crew_capacity"].guiActiveEditor = false;
-			//update Editor counters and all other that listen
-			if(EditorLogic.fetch != null) GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
 		}
-
-		void change_part_params(Metric delta, float k = 1f)
-		{
-			vessels_mass += k*delta.mass;
-			vessels_cost += k*delta.cost;
-			used_volume  += k*delta.volume;
-			if(used_volume < 0) used_volume = 0;
-			if(vessels_mass < 0) vessels_mass = 0;
-			if(vessels_cost < 0) vessels_cost = 0;
-			stored_mass = Utils.formatMass(vessels_mass);
-			stored_cost = vessels_cost.ToString();
-			set_part_params();
-		}
-
-		public float GetModuleCost() { return vessels_cost; }
 		#endregion
 
 		#region Save-Load
 		public override void OnSave(ConfigNode node)
 		{
-			//hangar state
+			base.OnSave(node);
 			node.AddValue("hangarState", hangar_state.ToString());
-			//save stored vessels
-			if(stored_vessels.Count > 0)
-				stored_vessels.Save(node.AddNode("STORED_VESSELS"));
-			if(packed_constructs.Count > 0)
-				packed_constructs.Save(node.AddNode("PACKED_CONSTRUCTS"));
 		}
 
 		public override void OnLoad(ConfigNode node)
 		{ 
-			//hangar state
+			base.OnLoad(node);
 			if(node.HasValue("hangarState"))
 				hangar_state = (HangarState)Enum.Parse(typeof(HangarState), node.GetValue("hangarState"));
-			//restore stored vessels
-			if(node.HasNode("STORED_VESSELS"))
-				stored_vessels.Load(node.GetNode("STORED_VESSELS"));
-			if(node.HasNode("PACKED_CONSTRUCTS"))
-				packed_constructs.Load(node.GetNode("PACKED_CONSTRUCTS"));
 		}
 		#endregion
 
@@ -329,6 +341,12 @@ namespace AtHangar
 		#endregion
 		
 		#region Store
+		struct DeepStorage
+		{
+			HangarStorage storage;
+			int depth;
+		}
+
 		/// <summary>
 		/// Checks if a vessel can be stored in the hangar right now.
 		/// </summary>
@@ -371,13 +389,18 @@ namespace AtHangar
 		{
 			GetLaunchTransform();
 			return hangar_space == null ? 
-				m.FitsAligned(launch_transform, part.partTransform, hangar_metric) : 
+				m.FitsAligned(launch_transform, part.partTransform, HangarMetric) : 
 				m.FitsAligned(launch_transform, hangar_space.transform, hangar_space.sharedMesh);
 		}
 
 		bool compute_hull { get { return hangar_space != null; } }
 
-		StoredVessel try_store(Vessel vsl)
+//		DeepStorage get_deepest_storage(PassageNode node, PackedVessel vsl, int depth=0)
+//		{
+//
+//		}
+
+		StoredVessel try_store_vessel(Vessel vsl)
 		{
 			//check vessel crew
 			if(vsl.GetCrewCount() > vessel.GetCrewCapacity()-vessel.GetCrewCount())
@@ -393,11 +416,7 @@ namespace AtHangar
 					"The vessel cannot be stored in this hangar");
 				return null;
 			}
-			if(!stored_vessels.Add(sv))
-			{
-				ScreenMessager.showMessage("There's no room in the hangar for this vessel");
-				return null;
-			}
+			if(!base.try_store_vessel(sv)) return null;
 			return sv;
 		}
 		
@@ -415,7 +434,7 @@ namespace AtHangar
 				//if the vessel is new, check momentary states
 				if(!can_store(vsl))	return;
 				//if the state is OK, try to store the vessel
-				stored_vessel = try_store(vsl);
+				stored_vessel = try_store_vessel(vsl);
 				//if failed, remember it
 				if(stored_vessel == null)
 				{
@@ -490,7 +509,7 @@ namespace AtHangar
 					"\"{0}\" cannot be stored in this hangar", pc.name);
 				return false;
 			}
-			if(!packed_constructs.Add(pc))
+			if(!packed_constructs.TryAdd(pc))
 			{
 				ScreenMessager.showMessage("There's no room in the hangar for \"{0}\"", pc.name);
 				return false;
@@ -593,7 +612,7 @@ namespace AtHangar
 				yield return new WaitForSeconds(0.1f); 
 
 			}
-			stored_mass = Utils.formatMass(vessels_mass);
+			stored_mass = Utils.formatMass(VesselsMass);
 			if(cur_state == HangarState.Active) Activate();
 			//save game afterwards
 			FlightGlobals.ForceSetActiveVessel(vessel);
@@ -623,7 +642,7 @@ namespace AtHangar
 				restorePos.transform.position += t.TransformDirection (offset);
 				restorePos.transform.rotation = t.rotation;
 				launch_transform = restorePos.transform;
-				Utils.Log("LaunchTransform not found. Using offset.");
+				this.Log("LaunchTransform not found. Using offset.");
 			}
 			return launch_transform;
 		}
@@ -763,8 +782,8 @@ namespace AtHangar
 				if(res_def.density == 0) continue;
 				float dM = (float)a*res_def.density;
 				float dC = (float)a*res_def.unitCost;
-				vessels_mass += dM;
-				vessels_cost += dC;
+				VesselsMass += dM;
+				VesselsCost += dC;
 				sv.mass += dM;
 				sv.cost += dC;
 				set_part_params();
@@ -959,10 +978,10 @@ namespace AtHangar
 			}
 			GUILayout.EndHorizontal();
 			//hangar info
-			float used_frac = used_volume/hangar_metric.volume;
+			var used_frac = TotalUsedVolumeFrac;
 			GUILayout.Label(string.Format("Used Volume: {0}   {1:F1}%", 
-			                              Utils.formatVolume(used_volume), used_frac*100f), 
-			                Styles.fracStyle(1-used_frac), GUILayout.ExpandWidth(true));
+				Utils.formatVolume(TotalUsedVolume), used_frac*100f), 
+				Styles.fracStyle(1-used_frac), GUILayout.ExpandWidth(true));
 			//hangar contents
 			List<PackedConstruct> constructs = packed_constructs.Values;
 			constructs.Sort((a, b) => a.name.CompareTo(b.name));
@@ -1047,15 +1066,9 @@ namespace AtHangar
 		#endregion
 
 		#region ControllableModule
-		ModuleGUIState gui_state;
-		public bool CanEnable() { return true; }
-		public bool CanDisable() 
+		public override bool CanDisable() 
 		{ 
-			if(stored_vessels.Count > 0 || packed_constructs.Count > 0)
-			{
-				ScreenMessager.showMessage("Empty the hangar before deflating it");
-				return false;
-			}
+			if(!base.CanDisable()) return false;
 			if(EditorLogic.fetch == null && hangar_state == HangarState.Active)
 			{
 				ScreenMessager.showMessage("Deactivate the hangar before deflating it");
@@ -1067,22 +1080,6 @@ namespace AtHangar
 				return false;
 			}
 			return true;
-		}
-
-		public void Enable(bool enable) 
-		{ 
-			if(enable) 
-			{
-				if(gui_state == null) gui_state = this.SaveGUIState();
-				this.ActivateGUI(gui_state);
-				Setup();
-				enabled = true;
-			}
-			else
-			{
-				gui_state = this.DeactivateGUI();
-				enabled = false;
-			}
 		}
 		#endregion
 	}
