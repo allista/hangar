@@ -276,26 +276,35 @@ namespace AtHangar
 		}
 
 		#region Fitting
-		public bool FitsSomehow(Metric other)
+		bool fits_somehow(List<float> _D)
 		{
 			var  D = new List<float>{size.x, size.y, size.z};
-			var _D = new List<float>{other.size.x, other.size.y, other.size.z};
 			D.Sort(); _D.Sort();
 			foreach(float d in D)
 			{
-				float ud = -1;
-				foreach(float _d in _D)
-				{
-					if(d <= _d)
-					{
-						ud = _d;
-						break;
-					}
+				if(_D.Count == 0) break;
+				int ud = -1;
+				for(int i = 0; i < _D.Count; i++)
+				{ 
+					if(d <= _D[i]) 
+					{ ud = i; break; } 
 				}
 				if(ud < 0) return false;
-				_D.Remove(ud);
+				_D.RemoveAt(ud);
 			}
 			return true;
+		}
+
+		public bool FitsSomehow(Metric other)
+		{
+			var _D = new List<float>{other.size.x, other.size.y, other.size.z};
+			return fits_somehow(_D);
+		}
+
+		public bool FitsSomehow(Vector2 node)
+		{
+			var _D = new List<float>{node.x, node.y};
+			return fits_somehow(_D);
 		}
 
 		/// <summary>
