@@ -175,5 +175,16 @@ namespace AtHangar
 
 		public static implicit operator T(State<T> s) { return s._current; }
 	}
+
+	public class ConfigNodeObject : IConfigNode
+	{
+		public const string NODE_NAME = "NODE";
+
+		virtual public void Load(ConfigNode node)
+		{ ConfigNode.LoadObjectFromConfig(this, node); }
+
+		virtual public void Save(ConfigNode node)
+		{ ConfigNode.LoadObjectFromConfig(this, node); }
+	}
 }
 
