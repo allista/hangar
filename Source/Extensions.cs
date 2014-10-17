@@ -218,6 +218,13 @@ namespace AtHangar
 				a.active = true;
 			}
 		}
+
+		public static void Log(this PartModule pm, string msg, params object[] args)
+		{
+			var vname = pm.part.vessel == null? "" : pm.part.vessel.vesselName;
+			var _msg = string.Format("{0}.{1}.{2}: {3}", vname, pm.part.name, pm.GetType().Name, msg);
+			Utils.Log(_msg, args);
+		}
 	}
 }
 

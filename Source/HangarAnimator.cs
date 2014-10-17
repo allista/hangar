@@ -26,7 +26,7 @@ namespace AtHangar
 			Animation[] animations = part.FindModelAnimators(AnimationName);
 			if(animations == null)
 			{
-				Utils.Log("HangarAnimator.setup_animation: there's no '{0}' animation in {1}", 
+				this.Log("setup_animation: there's no '{0}' animation in {1}", 
 						  AnimationName, part.name);
 				return;
 			}

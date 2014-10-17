@@ -68,7 +68,7 @@ namespace AtHangar
 				orig_size = adapter.size;
 				orig_area = adapter.SurfaceArea;
 			}
-			else Utils.Log("Can't find base ProceduralAdapter module");
+			else this.Log("Can't find base ProceduralAdapter module");
 			old_size = size;
 			orig_nodes[0] = base_part.findAttachNode(TopNodeName);
 			orig_nodes[1] = base_part.findAttachNode(BottomNodeName);
@@ -110,20 +110,20 @@ namespace AtHangar
 				//get transforms and meshes
 				Transform bodyT = part.FindModelTransform(BodyName);
 				if(bodyT == null)
-					Utils.Log("ProceduralAdapter: '{0}' transform does not exists in the {1}", 
+					this.Log("'{0}' transform does not exists in the {1}", 
 						BodyName, part.name);
 				Transform colliderT = part.FindModelTransform(ColliderName);
 				if(colliderT == null)
-					Utils.Log("ProceduralAdapter: '{0}' transform does not exists in the {1}", 
+					this.Log("'{0}' transform does not exists in the {1}", 
 						ColliderName, part.name);
 				//The mesh method unshares any shared meshes
 				MeshFilter body_mesh_filter = bodyT.GetComponent<MeshFilter>();
 				if(body_mesh_filter == null)
-					Utils.Log("ProceduralAdapter: '{0}' does not have MeshFilter component", BodyName);
+					this.Log("'{0}' does not have MeshFilter component", BodyName);
 				body_mesh = body_mesh_filter.mesh;
 				body_collider = colliderT.GetComponent<MeshCollider>();
 				if(body_collider == null)
-					Utils.Log("ProceduralAdapter: '{0}' does not have MeshCollider component", ColliderName);
+					this.Log("'{0}' does not have MeshCollider component", ColliderName);
 			}
 			catch(Exception ex)
 			{
