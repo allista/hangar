@@ -89,14 +89,18 @@ namespace AtHangar
 		public abstract void Load(ConfigNode node);
 	}
 
+
 	public class VesselsPack<V> where V : PackedVessel, new()
 	{
 		Dictionary<Guid, V> stored_vessels = new Dictionary<Guid, V>();
 		public Metric space = new Metric();
+
+		public float VesselsMass;
+		public float VesselsCost;
+		public float UsedVolume;
 		
 		public VesselsPack() {}
 		public VesselsPack(Metric space) { this.space = space; }
-
 
 		/// <summary>
 		/// Chooses the best rotation of a size vector "s" to store it inside the box with the size vector "box_size".
@@ -192,6 +196,23 @@ namespace AtHangar
 			return rem;
 		}
 
+		void change_params(V vsl, int k=1)
+		{
+			VesselsMass += k*vsl.mass;
+			VesselsCost += k*vsl.cost;
+			UsedVolume  += k*vsl.volume;
+			if(UsedVolume  < 0) UsedVolume  = 0;
+			if(VesselsMass < 0) VesselsMass = 0;
+			if(VesselsCost < 0) VesselsCost = 0;
+		}
+
+		public void UpdateParams()
+		{
+			VesselsMass = 0; VesselsCost = 0; UsedVolume  = 0;
+			foreach(V vsl in stored_vessels.Values)
+				change_params(vsl);
+		}
+
 		public bool CanAdd(V vsl)
 		{
 			var vessels = Values;
@@ -203,24 +224,40 @@ namespace AtHangar
 		{
 			if(!CanAdd(vsl)) return false;
 			stored_vessels.Add(vsl.id, vsl);
+			change_params(vsl);
 			return true;
 		}
 
-		public void ForceAdd(V vsl) { stored_vessels.Add(vsl.id, vsl); }
+		public void ForceAdd(V vsl) 
+		{ 
+			stored_vessels.Add(vsl.id, vsl);
+			change_params(vsl);
+		}
 
 		public void Set(List<V> vessels)
 		{
 			stored_vessels.Clear();
-			vessels.ForEach(v => stored_vessels.Add(v.id, v));
+			vessels.ForEach(ForceAdd);
 		}
 
 		public List<V> Repack() { return pack_some(Values); }
 		
 		//mimic Dictionary
-		public bool Remove(V vsl) { return stored_vessels.Remove(vsl.id); }
+		public bool Remove(V vsl) 
+		{ 
+			if(stored_vessels.Remove(vsl.id))
+			{ change_params(vsl, -1); return true; }
+			return false;
+		}
 
-		public void Clear() { stored_vessels.Clear(); }
-		
+		public void Clear() 
+		{ 
+			stored_vessels.Clear();
+			VesselsMass = 0;
+			VesselsCost = 0;
+			UsedVolume  = 0;
+		}
+
 		public bool ContainsKey(Guid vid) { return stored_vessels.ContainsKey(vid); }
 		
 		public bool TryGetValue(Guid vid, out V vessel)
