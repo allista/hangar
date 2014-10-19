@@ -86,19 +86,22 @@ namespace AtHangar
 		#endregion
 		
 		#region Formatting
-		public static string formatMass (float mass)
+		public static string formatMass(float mass)
 		{
 			if(mass < 0.01f)
 				return (mass * 1e3f).ToString("n3") + "kg";
 			return mass.ToString("n3") + "t";
 		}
 		
-		public static string formatVolume (double volume)
+		public static string formatVolume(double volume)
 		{
 			if(volume < 0.1f)
 				return (volume * 1e3f).ToString ("n0") + " L";
-			return volume.ToString ("n1") + "m^3";
+			return volume.ToString("n1") + "m^3";
 		}
+
+		public static string formatPercent(float fraction)
+		{ return string.Format("{0:F1}%", fraction*100); }
 
 		public static string formatDimensions(Vector3 size)
 		{ return string.Format("{0:F2}m x {1:F2}m x {2:F2}m", size.x, size.y, size.z); }
