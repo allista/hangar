@@ -1,5 +1,6 @@
 //Packing algorithm based on <http://www.blackpawn.com/texts/lightmaps/default.html>  
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -90,7 +91,7 @@ namespace AtHangar
 	}
 
 
-	public class VesselsPack<V> where V : PackedVessel, new()
+	public class VesselsPack<V> : IEnumerable<PackedVessel> where V : PackedVessel, new()
 	{
 		Dictionary<Guid, V> stored_vessels = new Dictionary<Guid, V>();
 		public Metric space = new Metric();
@@ -102,6 +103,7 @@ namespace AtHangar
 		public VesselsPack() {}
 		public VesselsPack(Metric space) { this.space = space; }
 
+		#region Packing
 		/// <summary>
 		/// Chooses the best rotation of a size vector "s" to store it inside the box with the size vector "box_size".
 		/// The rotation is considered optimal if it gives the absolute maximum remainder in one of the dimensions,
@@ -195,7 +197,9 @@ namespace AtHangar
 			{ if(!add_vessel(root, vsl.size, vsl.id)) rem.Add(vsl); }
 			return rem;
 		}
+		#endregion
 
+		#region Main Interface
 		void change_params(V vsl, int k=1)
 		{
 			VesselsMass += k*vsl.mass;
@@ -242,7 +246,6 @@ namespace AtHangar
 
 		public List<V> Repack() { return pack_some(Values); }
 		
-		//mimic Dictionary
 		public bool Remove(V vsl) 
 		{ 
 			if(stored_vessels.Remove(vsl.id))
@@ -257,17 +260,19 @@ namespace AtHangar
 			VesselsCost = 0;
 			UsedVolume  = 0;
 		}
-
-		public bool ContainsKey(Guid vid) { return stored_vessels.ContainsKey(vid); }
-		
-		public bool TryGetValue(Guid vid, out V vessel)
-		{ return stored_vessels.TryGetValue(vid, out vessel); }
 		
 		public int Count { get { return stored_vessels.Count; } }
-		public List<Guid> Keys { get { return new List<Guid>(stored_vessels.Keys); } }
 		public List<V> Values { get { return new List<V>(stored_vessels.Values); } }
-		public V this[Guid vid] { get { return stored_vessels[vid]; } }
 
+		#region IEnumerable
+		public IEnumerator<PackedVessel> GetEnumerator()
+		{ foreach(var v in stored_vessels.Values) yield return v; }
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{ return GetEnumerator(); }
+		#endregion
+
+		#region Save Load
 		public void Save(ConfigNode node)
 		{
 			foreach(V vsl in stored_vessels.Values)
@@ -288,6 +293,8 @@ namespace AtHangar
 			}
 			Set(vessels);
 		}
+		#endregion
+		#endregion
 	}
 }
 
