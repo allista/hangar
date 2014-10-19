@@ -57,17 +57,16 @@ namespace AtHangar
 			PartNode = part.findAttachNode(NodeID);
 		}
 
-		public bool CanPassThrough(PackedVessel vsl)
+		public HangarPassage CanPassThrough(PackedVessel vsl)
 		{
 			var other_passage = get_other_passage();
-			if(other_passage == null) return false;
+			if(other_passage == null) return null;
 			var other_node = other_passage.GetNodeByPart(part);
-			if(other_node == null) return false;
+			if(other_node == null) return null;
 			var size = new Vector2(Mathf.Min(Size.x, other_node.Size.x), 
 								   Mathf.Min(Size.y, other_node.Size.y));
-			return 
-				vsl.metric.FitsSomehow(size) &&
-				other_passage.CanHold(vsl);
+			if(!vsl.metric.FitsSomehow(size)) return null;
+			return other_passage;
 		}
 	}
 
@@ -76,8 +75,9 @@ namespace AtHangar
 	{
 		public readonly Dictionary<string, PassageNode> Nodes = new Dictionary<string, PassageNode>();
 		public ConfigNode ModuleConfig;
-		public bool Loaded;
+		public bool Ready { get; protected set; }
 
+		#region Setup
 		public override void OnLoad(ConfigNode node)
 		{
 			base.OnLoad(node);
@@ -88,6 +88,13 @@ namespace AtHangar
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
+			early_setup(state);
+			Setup();
+			start_coroutines();
+		}
+
+		protected virtual void early_setup(StartState state) 
+		{
 			if(part.HasModule<ModuleDockingNode>())
 				this.Log("WARNING: this part also has ModuleDockingNode. " +
 					"HangarPassage will not work properly upon docking.");
@@ -99,35 +106,16 @@ namespace AtHangar
 				pn.Load(n);
 				Nodes.Add(pn.NodeID, pn);
 			}
-			this.Log("ModuleConfig:\n{0}", ModuleConfig);
-			this.Log("Nodes: {0}", Nodes.Count);
-			Setup();
-			Loaded = true;
+			this.Log("ModuleConfig:\n{0}", ModuleConfig);//debug
+			this.Log("Nodes: {0}", Nodes.Count);//debug
 		}
 
-		virtual public void Setup(bool reset = false)
-		{ 
-			this.Log("HangarPassage.Setup");//debug 
-		}
+		virtual public void Setup(bool reset = false) {}
 
-		public List<HangarPassage> GetConnectedPassages(PassageNode requesting_node = null)
-		{
-			var this_node = requesting_node != null? requesting_node.OtherNode : null;
-			var C = new List<HangarPassage>{this};
-			this.Log("Passages: {0}", C.Count);//debug
-			foreach(var pn in Nodes.Values)
-			{
-				this.Log("Node: {0}", pn.NodeID);//debug
-				if(pn == this_node) continue;
-				var other_passage = pn.OtherPassage;
-				this.Log("Other Passage: {0}", other_passage);//debug
-				if(other_passage != null)
-					C.AddRange(other_passage.GetConnectedPassages(pn));
-				this.Log("Passages: {0}", C.Count);//debug
-			}
-			return C;
-		}
+		protected virtual void start_coroutines() { Ready = true; }
+		#endregion
 
+		#region Logistics
 		public PassageNode GetNodeByPart(Part p)
 		{
 			PassageNode node = null;
@@ -136,7 +124,38 @@ namespace AtHangar
 			return node;
 		}
 
+		public List<HangarPassage> GetConnectedPassages(PassageNode requesting_node = null)
+		{
+			var this_node = requesting_node != null? requesting_node.OtherNode : null;
+			var C = new List<HangarPassage>{this};
+			foreach(var pn in Nodes.Values)
+			{
+				if(pn == this_node) continue;
+				var other_passage = pn.OtherPassage;
+				if(other_passage != null)
+					C.AddRange(other_passage.GetConnectedPassages(pn));
+			}
+			return C;
+		}
+
 		virtual public bool CanHold(PackedVessel vsl) { return true; }
+
+		public bool CanTransferTo(PackedVessel vsl, HangarPassage other, PassageNode requesting_node = null)
+		{
+			if(this == other) return CanHold(vsl);
+			var this_node = requesting_node != null? requesting_node.OtherNode : null;
+			bool can_transfer = false;
+			foreach(var pn in Nodes.Values)
+			{
+				if(pn == this_node) continue;
+				var other_passage = pn.CanPassThrough(vsl);
+				if(other_passage != null) 
+					can_transfer = other_passage.CanTransferTo(vsl, other, pn);
+				if(can_transfer) break;
+			}
+			return can_transfer;
+		}
+		#endregion
 	}
 }
 

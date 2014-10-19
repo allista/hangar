@@ -59,16 +59,14 @@ namespace AtHangar
 		bool change_velocity = false;
 
 		//in-editor vessel docking
-		static readonly string eLock  = "Hangar.EditHangar";
-		static readonly string scLock = "Hangar.LoadShipConstruct";
+		const string eLock  = "Hangar.EditHangar";
+		const string scLock = "Hangar.LoadShipConstruct";
 		static readonly List<string> vessel_dirs = new List<string>{"VAB", "SPH", "../Subassemblies"};
 		Rect eWindowPos     = new Rect(Screen.width/2-200, 100, 400, 100);
 		Rect neWindowPos    = new Rect(Screen.width/2-200, 100, 400, 50);
 		Vector2 scroll_view = Vector2.zero;
 		CraftBrowser vessel_selector;
 		VesselType   vessel_type;
-		readonly List<Hangar> hangar_cecklist = new List<Hangar>();
-		public bool Ready;
 		#endregion
 
 		#region GUI
@@ -87,14 +85,6 @@ namespace AtHangar
 		#endregion
 		
 		#region For HangarWindow
-		public List<StoredVessel> GetVessels() { return stored_vessels.Values; }
-		
-		public StoredVessel GetVessel(Guid vid)
-		{
-			StoredVessel sv;
-			return stored_vessels.TryGetValue(vid, out sv)? sv : null;
-		}
-		
 		public void UpdateMenus(bool visible)
 		{
 			Events["HideUI"].active = visible;
@@ -130,29 +120,6 @@ namespace AtHangar
 		void update_resources()
 		{ hangarResources = new VesselResources<Vessel, Part, PartResource>(vessel); }
 
-		void build_hangar_checklist()
-		{
-			if(HighLogic.LoadedScene != GameScenes.FLIGHT) return;
-			hangar_cecklist.Clear();
-			foreach(Part p in vessel.parts)
-			{
-				if(p == part) break;
-				hangar_cecklist.AddRange(p.Modules.OfType<Hangar>());
-			}
-		}
-
-		bool other_hangars_ready
-		{
-			get
-			{
-				if(hangar_cecklist.Count == 0) return true;
-				bool ready = true;
-				foreach(var h in hangar_cecklist)
-				{ ready &= h.Ready; if(!ready) break; }
-				return ready;
-			}
-		}
-
 		void build_passage_checklist()
 		{
 			passage_checklist.Clear();
@@ -160,14 +127,14 @@ namespace AtHangar
 			{ if(p != part) passage_checklist.AddRange(p.Modules.OfType<HangarPassage>()); }
 		}
 
-		bool all_passages_loaded
+		bool all_passages_ready
 		{
 			get
 			{
 				if(passage_checklist.Count == 0) return true;
 				bool loaded = true;
 				foreach(var p in passage_checklist)
-				{ loaded &= p.Loaded; if(!loaded) break; }
+				{ loaded &= p.Ready; if(!loaded) break; }
 				return loaded;
 			}
 		}
@@ -221,18 +188,16 @@ namespace AtHangar
 			this.Log("Hangar.onEditorShipModified");//debug
 		}
 
-		IEnumerator<YieldInstruction> delayed_setup()
+		IEnumerator<YieldInstruction> delayed_update_connected_storage()
 		{
-			while(!all_passages_loaded) yield return null;
-			this.Log("All HangarPassages are loaded");
+			while(!all_passages_ready) yield return null;
+			this.Log("All HangarPassages are loaded");//debug
 			update_connected_storage();
-			//store packed constructs if any
-			yield return StartCoroutine(convert_constructs_to_vessels());
 		}
 
-		public override void OnStart(StartState state)
+		protected override void early_setup(StartState state)
 		{
-			base.OnStart(state); Loaded = false;
+			base.early_setup(state);
 			this.Log("Hangar.OnStart");//debug
 			//set vessel type
 			EditorLogic el = EditorLogic.fetch;
@@ -246,27 +211,25 @@ namespace AtHangar
 			hangar_gates = part.Modules.OfType<BaseHangarAnimator>().FirstOrDefault(m => m.AnimatorID == AnimatorID);
 			if(hangar_gates == null)
 			{
-                hangar_gates = new BaseHangarAnimator();
+				hangar_gates = new BaseHangarAnimator();
 				this.Log("Using BaseHangarAnimator");
 			}
 			else
-            {
-                Events["Open"].guiActiveEditor = true;
-                Events["Close"].guiActiveEditor = true;
-            }
-			//if there are multiple hangars in the vessel,
-			//coordinate with them before storing packed constructs
-			build_hangar_checklist();
-			//build checklist of HangarPassages
+			{
+				Events["Open"].guiActiveEditor = true;
+				Events["Close"].guiActiveEditor = true;
+			}
 			build_passage_checklist();
-			Loaded = true;
-			//start delayed setup
-			StartCoroutine(delayed_setup());
 		}
-		
+
+		protected override void start_coroutines()
+		{
+			base.start_coroutines();
+			StartCoroutine(delayed_update_connected_storage());
+		}
+
 		public override void Setup(bool reset = false)	
 		{
-			//build the list of connected storage spaces
 			base.Setup(reset);
 			this.Log("Hangar.Setup");//debug
 			//get launch speed if it's defined
@@ -276,18 +239,6 @@ namespace AtHangar
 				this.Log("Unable to parse LaunchVelocity '{0}'", LaunchVelocity);
 				Debug.LogException(ex);
 			}
-		}
-
-		protected override void on_set_part_params()
-		{
-			var el = EditorLogic.fetch;
-			if(el != null) GameEvents.onEditorShipModified.Fire(el.ship);
-			else if(part.vessel != null) GameEvents.onVesselWasModified.Fire(part.vessel);
-		}
-
-		protected override void set_part_params(bool reset = false)
-		{
-			base.set_part_params(reset);
 			//calculate crew capacity from remaining volume
 			if(!StaticCrewCapacity)
 			{
@@ -296,6 +247,13 @@ namespace AtHangar
 				Fields["crew_capacity"].guiActiveEditor = true;
 			}
 			else Fields["crew_capacity"].guiActiveEditor = false;
+		}
+
+		protected override void on_set_part_params()
+		{
+			var el = EditorLogic.fetch;
+			if(el != null) GameEvents.onEditorShipModified.Fire(el.ship);
+			else if(part.vessel != null) GameEvents.onVesselWasModified.Fire(part.vessel);
 		}
 		#endregion
 
@@ -341,12 +299,6 @@ namespace AtHangar
 		#endregion
 		
 		#region Store
-		struct DeepStorage
-		{
-			HangarStorage storage;
-			int depth;
-		}
-
 		/// <summary>
 		/// Checks if a vessel can be stored in the hangar right now.
 		/// </summary>
@@ -393,12 +345,19 @@ namespace AtHangar
 				m.FitsAligned(launch_transform, hangar_space.transform, hangar_space.sharedMesh);
 		}
 
-		bool compute_hull { get { return hangar_space != null; } }
+		protected override bool try_store_vessel(PackedVessel v)
+		{
+			GetLaunchTransform();
+			if(!metric_fits_into_hangar_space(v.metric))
+			{
+				ScreenMessager.showMessage(5, "Insufficient vessel clearance for safe docking\n" +
+					"\"{0}\" cannot be stored in this hangar", v.name);
+				return false;
+			}
+			return base.try_store_vessel(v);
+		}
 
-//		DeepStorage get_deepest_storage(PassageNode node, PackedVessel vsl, int depth=0)
-//		{
-//
-//		}
+		bool compute_hull { get { return hangar_space != null; } }
 
 		StoredVessel try_store_vessel(Vessel vsl)
 		{
@@ -410,48 +369,33 @@ namespace AtHangar
 			}
 			//check vessel metrics
 			var sv = new StoredVessel(vsl, compute_hull);
-			if(!metric_fits_into_hangar_space(sv.metric))
-			{
-				ScreenMessager.showMessage("Insufficient vessel clearance for safe docking\n" +
-					"The vessel cannot be stored in this hangar");
-				return null;
-			}
-			if(!base.try_store_vessel(sv)) return null;
-			return sv;
+			return try_store_vessel(sv)? sv : null;
 		}
 		
-		//store vessel
-		void store_vessel(Vessel vsl, bool perform_checks = true)
+		/// <summary>
+		/// Process a vessel that triggered the hangar.
+		/// </summary>
+		/// <param name="vsl">Vessel</param>
+		void process_vessel(Vessel vsl)
 		{
-			StoredVessel stored_vessel;
-			if(perform_checks) //for normal operation
+			//check if this vessel was encountered before;
+			//if so, reset the timer and return
+			MemoryTimer timer;
+			if(probed_vessels.TryGetValue(vsl.id, out timer))
+			{ timer.Reset(); return; }
+			//if the vessel is new, check momentary states
+			if(!can_store(vsl))	return;
+			//if the state is OK, try to store the vessel
+		    StoredVessel stored_vessel = try_store_vessel(vsl);
+			//if failed, remember it
+			if(stored_vessel == null)
 			{
-				//check if this vessel was encountered before;
-				//if so, reset the timer and return
-				MemoryTimer timer;
-				if(probed_vessels.TryGetValue(vsl.id, out timer))
-				{ timer.Reset(); return; }
-				//if the vessel is new, check momentary states
-				if(!can_store(vsl))	return;
-				//if the state is OK, try to store the vessel
-				stored_vessel = try_store_vessel(vsl);
-				//if failed, remember it
-				if(stored_vessel == null)
-				{
-					timer = new MemoryTimer();
-					timer.EndAction += () => { if(probed_vessels.ContainsKey(vsl.id)) probed_vessels.Remove(vsl.id); };
-					probed_vessels.Add(vsl.id, timer);
-					StartCoroutine(timer);
-					return;
-				}
+				timer = new MemoryTimer();
+				timer.EndAction += () => { if(probed_vessels.ContainsKey(vsl.id)) probed_vessels.Remove(vsl.id); };
+				probed_vessels.Add(vsl.id, timer);
+				StartCoroutine(timer);
+				return;
 			}
-			else //for storing packed constructs upon hangar launch
-			{
-				stored_vessel = new StoredVessel(vsl);
-				stored_vessels.ForceAdd(stored_vessel);
-			}
-			//recalculate volume and mass
-			change_part_params(stored_vessel.metric);
 			//calculate velocity change to conserve impulse
 			deltaV = (vsl.orbit.vel-vessel.orbit.vel)*stored_vessel.mass/vessel.GetTotalMass();
 			change_velocity = true;
@@ -468,7 +412,7 @@ namespace AtHangar
 				FlightGlobals.ForceSetActiveVessel(vessel);
 			//destroy vessel
 			vsl.Die();
-			ScreenMessager.showMessage("Vessel has been docked inside the hangar");
+			ScreenMessager.showMessage("\"{0}\" has been docked inside the hangar", stored_vessel.name);
 		}
 		
 		//called every frame while part collider is touching the trigger
@@ -483,7 +427,7 @@ namespace AtHangar
 			//get part and try to store vessel
 			Part p = col.attachedRigidbody.GetComponent<Part>();
 			if(p == null || p.vessel == null) return;
-			store_vessel(p.vessel);
+			process_vessel(p.vessel);
 		}
 		
 		//called when part collider exits the trigger
@@ -500,23 +444,6 @@ namespace AtHangar
 		#endregion
 
 		#region EditHangarContents
-		bool try_store_construct(PackedConstruct pc)
-		{
-			GetLaunchTransform();
-			if(!metric_fits_into_hangar_space(pc.metric))
-			{
-				ScreenMessager.showMessage(5, "Insufficient vessel clearance for safe docking\n" +
-					"\"{0}\" cannot be stored in this hangar", pc.name);
-				return false;
-			}
-			if(!packed_constructs.TryAdd(pc))
-			{
-				ScreenMessager.showMessage("There's no room in the hangar for \"{0}\"", pc.name);
-				return false;
-			}
-			return true;
-		}
-
 		IEnumerator<YieldInstruction> delayed_try_store_construct(PackedConstruct pc)
 		{
 			if(pc.construct == null) yield break;
@@ -524,8 +451,7 @@ namespace AtHangar
 			for(int i = 0; i < 3; i++)
 				yield return new WaitForEndOfFrame();
 			pc.UpdateMetric(compute_hull);
-			if(try_store_construct(pc)) 
-				change_part_params(pc.metric);
+			try_store_vessel(pc);
 			pc.UnloadConstruct();
 			Utils.LockEditor(scLock, false);
 		}
@@ -562,65 +488,6 @@ namespace AtHangar
 			else StartCoroutine(delayed_try_store_construct(pc));
 		}
 		void selection_canceled() { vessel_selector = null; }
-
-		void remove_construct(PackedConstruct pc)
-		{
-			change_part_params(pc.metric, -1f);
-			packed_constructs.Remove(pc);
-		}
-
-		void clear_constructs() 
-		{ foreach(PackedConstruct pc in packed_constructs.Values) remove_construct(pc); }
-
-		IEnumerator<YieldInstruction> convert_constructs_to_vessels()
-		{
-			if(HighLogic.LoadedScene != GameScenes.FLIGHT ||
-				packed_constructs.Count == 0) 
-			{ Ready = true;	yield break; }
-			//temporarely deactivate the hangar
-			HangarState cur_state = hangar_state; Deactivate();
-			//wait for hangar.vessel to be loaded
-			var self = new VesselWaiter(vessel);
-			while(!self.loaded) yield return null;
-			while(!enabled) yield return null;
-			//wait for other hangars to be ready
-			while(!other_hangars_ready) yield return null;
-			//create vessels from constructs and store them
-			foreach(PackedConstruct pc in packed_constructs.Values)
-			{
-				remove_construct(pc);
-				if(!pc.LoadConstruct()) 
-				{
-					Utils.Log("PackedConstruct: unable to load ShipConstruct {0}. " +
-						"This usually means that some parts are missing " +
-						"or some modules failed to initialize.", pc.name);
-					ScreenMessager.showMessage("Unable to load {0}", pc.name);
-					continue;
-				}
-				ShipConstruction.PutShipToGround(pc.construct, get_transform_for_construct(pc));
-				ShipConstruction.AssembleForLaunch(pc.construct, 
-					vessel.vesselName+":"+HangarName, pc.flag, 
-					FlightDriver.FlightStateCache,
-					new VesselCrewManifest());
-				var vsl = new VesselWaiter(FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1]);
-				FlightGlobals.ForceSetActiveVessel(vsl.vessel);
-				Staging.beginFlight();
-				//wait for vsl to be launched
-				while(!vsl.loaded) yield return null;
-				store_vessel(vsl.vessel, false);
-				//wait a 0.1 sec, otherwise the vessel may not be destroyed properly
-				yield return new WaitForSeconds(0.1f); 
-
-			}
-			stored_mass = Utils.formatMass(VesselsMass);
-			if(cur_state == HangarState.Active) Activate();
-			//save game afterwards
-			FlightGlobals.ForceSetActiveVessel(vessel);
-			while(!self.loaded) yield return null;
-			yield return new WaitForSeconds(0.5f);
-			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
-			Ready = true;
-		}
 		#endregion
 
 		#region Restore
@@ -688,8 +555,8 @@ namespace AtHangar
 			{
 				//honor the impulse conservation law
 				//:calculate launched vessel velocity
-				float tM = vessel.GetTotalMass();
-				float hM = tM - sv.mass;
+				float hM = vessel.GetTotalMass();
+				float tM = hM + sv.mass;
 				Vector3 d_vel = launch_transform.TransformDirection(launchVelocity);
 				vvel += (Vector3d.zero + d_vel*hM/tM).xzy;
 				//:calculate hangar's vessel velocity
@@ -782,10 +649,8 @@ namespace AtHangar
 				if(res_def.density == 0) continue;
 				float dM = (float)a*res_def.density;
 				float dC = (float)a*res_def.unitCost;
-				VesselsMass += dM;
-				VesselsCost += dC;
-				sv.mass += dM;
-				sv.cost += dC;
+				sv.mass += dM; sv.cost += dC;
+				stored_vessels.UpdateParams();
 				set_part_params();
 			}
 			resourceTransferList.Clear();
@@ -850,7 +715,7 @@ namespace AtHangar
 			//clean up
 			if(!stored_vessels.Remove(stored_vessel))
 			{
-				ScreenMessager.showMessage("WARNING: restored vessel ID is not found in the Stored Vessels: {0}\n" +
+				ScreenMessager.showMessage("WARNING: restored vessel is not found in the Stored Vessels: {0}\n" +
 					"This should never happen!", stored_vessel.id);
 				return;
 			}
@@ -859,6 +724,8 @@ namespace AtHangar
 			hangar_state = HangarState.Inactive;
 			//transfer resources
 			transferResources(stored_vessel);
+			//change part mass
+			set_part_params();
 			//set restored vessel orbit
 			GetLaunchTransform();
 			position_vessel(stored_vessel);
@@ -868,8 +735,6 @@ namespace AtHangar
 			launched_vessel = stored_vessel.launched_vessel;
 			//transfer crew back to the launched vessel
 			List<ProtoCrewMember> crew_to_transfer = CrewTransfer.delCrew(vessel, stored_vessel.crew);
-			//change volume and mass
-			change_part_params(stored_vessel.metric, -1f);
 			//switch to restored vessel
 			//:set launched vessel's state to flight
 			// otherwise launched rovers are sometimes stuck to the ground despite of the launch_transform
@@ -994,13 +859,14 @@ namespace AtHangar
 				                              pc.name, Utils.formatMass(pc.metric.mass), pc.metric.cost), 
 				                Styles.label, GUILayout.ExpandWidth(true));
 				if(GUILayout.Button("+1", Styles.green_button, GUILayout.Width(25))) 
-				{ if(try_store_construct(pc.Clone())) change_part_params(pc.metric); }
-				if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) remove_construct(pc);
+					try_store_vessel(pc.Clone());
+				if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) RemoveVessel(pc);
 				GUILayout.EndHorizontal();
 			}
 			GUILayout.EndVertical();
 			GUILayout.EndScrollView();
-			if(GUILayout.Button("Clear", Styles.red_button, GUILayout.ExpandWidth(true))) clear_constructs();
+			if(GUILayout.Button("Clear", Styles.red_button, GUILayout.ExpandWidth(true)))
+			{ packed_constructs.Clear(); set_part_params();}
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
 				Utils.LockEditor(eLock, false);
