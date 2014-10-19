@@ -391,12 +391,12 @@ namespace AtHangar
 		public static float Volume(Part part) { return (new Metric(part)).volume; }
 		public static float Volume(Vessel vessel) { return (new Metric(vessel)).volume; }
 		#endregion
-		
-		#region Graphics
-		public void DrawBox(Transform vT) { Utils.DrawBounds(bounds, vT, Color.white); }
 
-		public void DrawCenter(Transform vT) { Utils.DrawPoint(center, vT); }
-		#endregion
+		#if DEBUG
+		public void DrawBox(Transform vT) { HangarGUI.DrawBounds(bounds, vT, Color.white); }
+
+		public void DrawCenter(Transform vT) { HangarGUI.DrawPoint(center, vT); }
+		#endif
 	}
 }
 

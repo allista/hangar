@@ -33,7 +33,7 @@ namespace AtHangar
 				windowPos, DialogWindow,
 				title,
 				GUILayout.Width(width));
-			Utils.CheckRect(ref windowPos);
+			HangarGUI.CheckRect(ref windowPos);
 			return windowPos;
 		}
 	}
