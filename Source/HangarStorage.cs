@@ -85,6 +85,7 @@ namespace AtHangar
 				HangarMetric = PartMetric*usefull_volume_ratio;
 			//setup vessels packs
 			stored_vessels.space = HangarMetric;
+			packed_constructs.space = HangarMetric;
 			//display recalculated values
 			hangar_v = Utils.formatVolume(HangarMetric.volume);
 			hangar_d = Utils.formatDimensions(HangarMetric.size);
@@ -121,6 +122,15 @@ namespace AtHangar
 		#region For HangarWindow
 		public List<StoredVessel> GetVessels() { return stored_vessels.Values; }
 		public List<PackedConstruct> GetConstructs() { return packed_constructs.Values; }
+		public List<PackedVessel> GetVesselsBase() { return new List<PackedVessel>(stored_vessels); }
+		public List<PackedVessel> GetConstructsBase() { return new List<PackedVessel>(packed_constructs); }
+		public List<PackedVessel> GetAllVesselsBase() 
+		{ 
+			var vessels = new List<PackedVessel>(stored_vessels.Count+packed_constructs.Count);
+			vessels.AddRange(packed_constructs);
+			vessels.AddRange(stored_vessels);
+			return vessels;
+		}
 		#endregion
 
 		#region Logistics
@@ -132,6 +142,23 @@ namespace AtHangar
 			if(sv != null) return stored_vessels.CanAdd(sv);
 			return false;
 		}
+
+		public bool TryTransferTo(PackedVessel vsl, HangarStorage other)
+		{
+			if(!CanTransferTo(vsl, other)) 
+			{
+				ScreenMessager.showMessage("Unable to move \"{0}\" from {1} to {2}",
+					vsl.name, name, other.name);
+				return false;
+			}
+			if(!RemoveVessel(vsl))
+			{ 
+				this.Log("TryTransferTo: trying to remove a PackedVessel that is not present."); 
+				return false; 
+			}
+			other.StoreVessel(vsl);
+			return true;
+		}
 		#endregion
 
 		#region Storage
@@ -141,16 +168,20 @@ namespace AtHangar
 			var sv = v as StoredVessel;
 			if(pc != null) packed_constructs.ForceAdd(pc); 
 			else if(sv != null) stored_vessels.ForceAdd(sv);
+			else this.Log("Unknown PackedVessel type: {0}", v);
 			set_part_params(); 
 		}
 
-		public void RemoveVessel(PackedVessel v)
+		public bool RemoveVessel(PackedVessel v)
 		{ 
 			var pc = v as PackedConstruct;
 			var sv = v as StoredVessel;
-			if(pc != null) packed_constructs.Remove(pc); 
-			else if(sv != null) stored_vessels.Remove(sv);
+			bool result = false;
+			if(pc != null) result = packed_constructs.Remove(pc); 
+			else if(sv != null) result = stored_vessels.Remove(sv);
+			else this.Log("Unknown PackedVessel type: {0}", v);
 			set_part_params(); 
+			return result;
 		}
 
 		protected virtual bool try_store_vessel(PackedVessel v)
@@ -160,6 +191,7 @@ namespace AtHangar
 			var sv = v as StoredVessel;
 			if(pc != null) stored = packed_constructs.TryAdd(pc);
 			else if(sv != null) stored = stored_vessels.TryAdd(sv);
+			else this.Log("Unknown PackedVessel type: {0}", v);
 			if(!stored)
 			{
 				ScreenMessager.showMessage("There's no room for \"{0}\"", v.name);
