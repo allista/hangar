@@ -3,16 +3,16 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public class CrewTransferWindow : MonoBehaviour
+	class CrewTransferWindow : MonoBehaviour
 	{
 		int CrewCapacity;
 		List<ProtoCrewMember> crew;
 		List<ProtoCrewMember> selected;
 		
-        Vector2 crew_scroll_view = Vector2.zero;
+		Vector2 scroll_view = Vector2.zero;
         void TransferWindow(int windowId)
         {
-            crew_scroll_view = GUILayout.BeginScrollView(crew_scroll_view, GUILayout.Height(200), GUILayout.Width(300));
+            scroll_view = GUILayout.BeginScrollView(scroll_view, GUILayout.Height(200), GUILayout.Width(300));
             GUILayout.BeginVertical();
             foreach(ProtoCrewMember kerbal in crew)
             {

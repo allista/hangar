@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public class ResourceTransferWindow : MonoBehaviour
+	class ResourceTransferWindow : MonoBehaviour
 	{
 		List<ResourceManifest> transfer_list;
 		bool link_lfo_sliders = true;
