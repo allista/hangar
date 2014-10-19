@@ -55,7 +55,7 @@ for full_name in full_names:
         myobj = r.json()
  
         total_downloads = 0
-        for p in myobj:
+        for p in myobj[::-1]:
             if "assets" in p:
                 for asset in p['assets']:
                     total_downloads += asset['download_count']
