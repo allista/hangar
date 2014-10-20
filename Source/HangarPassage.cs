@@ -83,6 +83,7 @@ namespace AtHangar
 			base.OnLoad(node);
 			//only save config for the first time
 			if(ModuleConfig == null) ModuleConfig = node;
+			init_nodes(); //for PartPrefab
 		}
 
 		public override void OnStart(StartState state)
@@ -99,15 +100,20 @@ namespace AtHangar
 				this.Log("WARNING: this part also has ModuleDockingNode. " +
 					"HangarPassage will not work properly upon docking.");
 			this.Log("HangarPassage.OnStart");//debug
-			//initialize passage nodes
+			init_nodes();
+			this.Log("ModuleConfig:\n{0}", ModuleConfig);//debug
+			this.Log("Nodes: {0}", Nodes.Count);//debug
+		}
+
+		void init_nodes()
+		{
+			Nodes.Clear();
 			foreach(ConfigNode n in ModuleConfig.GetNodes(PassageNode.NODE_NAME))
 			{
 				var pn = new PassageNode(part);
 				pn.Load(n);
 				Nodes.Add(pn.NodeID, pn);
 			}
-			this.Log("ModuleConfig:\n{0}", ModuleConfig);//debug
-			this.Log("Nodes: {0}", Nodes.Count);//debug
 		}
 
 		virtual public void Setup(bool reset = false) {}
