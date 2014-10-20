@@ -41,8 +41,10 @@ namespace AtHangar
 		public float SurfaceArea 
 		{ get { return TruncatedCone.SurfaceArea(bottomSize*UnitDiameter/2, topSize*UnitDiameter/2, Length*aspect); } }
 
+		//part components
 		Mesh body_mesh;
 		MeshCollider body_collider;
+		HangarPassage passage;
 
 		//methods
 		public override string GetInfo() 
@@ -105,6 +107,7 @@ namespace AtHangar
 
 		void get_part_components()
 		{
+			passage = part.GetModule<HangarPassage>();
 			try
 			{
 				//get transforms and meshes
@@ -156,6 +159,12 @@ namespace AtHangar
 
 		void update_nodes()
 		{
+			//update passage nodes
+			if(passage != null)
+			{
+				passage.Nodes[TopNodeName].Size = new Vector3(size.x, size.x, 0)*UnitDiameter*0.9f;
+				passage.Nodes[BottomNodeName].Size = new Vector3(size.y, size.y, 0)*UnitDiameter*0.9f;
+			}
 			//update stack nodes
 			AttachNode top_node = part.findAttachNode(TopNodeName);
 			if(top_node != null && orig_nodes[0] != null)
