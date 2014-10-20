@@ -10,14 +10,27 @@ namespace AtHangar
 		[Persistent] public Vector3 Size; //ConfigNode'bug: can't LoadObjectFromConfig if I use Vector2
 
 		readonly Part part;
-		public AttachNode PartNode { get; private set; }
+		AttachNode part_node;
+		ModuleDockingNode docking_node;
 
 		public PassageNode(Part part) { this.part = part; }
 
+		public Part OtherPart
+		{
+			get
+			{
+				if(part_node != null && part_node.attachedPart != null) 
+					return part_node.attachedPart;
+				if(docking_node != null && part.vessel != null) 
+					return part.vessel[docking_node.dockedPartUId];
+				return null;
+			}
+		}
+
 		HangarPassage get_other_passage()
 		{
-			if(PartNode == null || PartNode.attachedPart == null) return null;
-			return PartNode.attachedPart.GetModule<HangarPassage>();
+			var other_part = OtherPart;
+			return other_part != null ? other_part.GetModule<HangarPassage>() : null;
 		}
 
 		public HangarPassage OtherPassage 
@@ -25,9 +38,10 @@ namespace AtHangar
 			get 
 			{
 				var other_passage = get_other_passage();
-				if(other_passage == null) return null;
-				var other_node = other_passage.GetNodeByPart(part);
-				return other_node != null? other_passage : null;
+				if(other_passage != null && 
+					other_passage.GetNodeByPart(part) != null)
+					return other_passage;
+				return null;
 			}
 		}
 
@@ -54,7 +68,9 @@ namespace AtHangar
 		public override void Load(ConfigNode node)
 		{
 			base.Load(node);
-			PartNode = part.findAttachNode(NodeID);
+			part_node = part.findAttachNode(NodeID);
+			docking_node = part.GetModule<ModuleDockingNode>();
+			if(docking_node != null && docking_node.referenceAttachNode != NodeID) docking_node = null;
 		}
 
 		public HangarPassage CanPassThrough(PackedVessel vsl)
@@ -65,8 +81,7 @@ namespace AtHangar
 			if(other_node == null) return null;
 			var size = new Vector2(Mathf.Min(Size.x, other_node.Size.x), 
 								   Mathf.Min(Size.y, other_node.Size.y));
-			if(!vsl.metric.FitsSomehow(size)) return null;
-			return other_passage;
+			return vsl.metric.FitsSomehow(size)? other_passage : null;
 		}
 	}
 
@@ -94,16 +109,7 @@ namespace AtHangar
 			start_coroutines();
 		}
 
-		protected virtual void early_setup(StartState state) 
-		{
-			if(part.HasModule<ModuleDockingNode>())
-				this.Log("WARNING: this part also has ModuleDockingNode. " +
-					"HangarPassage will not work properly upon docking.");
-			this.Log("HangarPassage.OnStart");//debug
-			init_nodes();
-			this.Log("ModuleConfig:\n{0}", ModuleConfig);//debug
-			this.Log("Nodes: {0}", Nodes.Count);//debug
-		}
+		protected virtual void early_setup(StartState state) { init_nodes(); }
 
 		void init_nodes()
 		{
@@ -124,10 +130,9 @@ namespace AtHangar
 		#region Logistics
 		public PassageNode GetNodeByPart(Part p)
 		{
-			PassageNode node = null;
-			var an = part.findAttachNodeByPart(p);
-			if(an != null) Nodes.TryGetValue(an.id, out node);
-			return node;
+			foreach(var n in Nodes.Values)
+			{ if(n.OtherPart == p) return n; }
+			return null;
 		}
 
 		public List<HangarPassage> GetConnectedPassages(PassageNode requesting_node = null)
