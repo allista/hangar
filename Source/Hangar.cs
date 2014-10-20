@@ -42,7 +42,7 @@ namespace AtHangar
 
 		//vessels storage
 		readonly protected List<HangarPassage> passage_checklist = new List<HangarPassage>();
-		readonly protected List<HangarStorage> connected_storage = new List<HangarStorage>();
+		readonly public List<HangarStorage> ConnectedStorage = new List<HangarStorage>();
 		public int   TotalVesselsDocked;
 		public float TotalVolume;
 		public float TotalUsedVolume;
@@ -50,6 +50,8 @@ namespace AtHangar
 		public float TotalCostMass;
 		public float TotalUsedVolumeFrac
 		{ get { return TotalUsedVolume/TotalVolume; } }
+		public bool CanRelocate
+		{ get { return ConnectedStorage.Count > 1 && TotalVesselsDocked > 0; } }
 
 		//vessel spawn
 		public Vector3 launchVelocity;
@@ -62,8 +64,13 @@ namespace AtHangar
 		const string eLock  = "Hangar.EditHangar";
 		const string scLock = "Hangar.LoadShipConstruct";
 		static readonly List<string> vessel_dirs = new List<string>{"VAB", "SPH", "../Subassemblies"};
-		Rect eWindowPos     = new Rect(Screen.width/2-200, 100, 400, 100);
-		Rect neWindowPos    = new Rect(Screen.width/2-200, 100, 400, 50);
+		enum EditorWindows { EditContent, EditName, RelocateVessels }
+		readonly Multiplexer<EditorWindows> selected_window = new Multiplexer<EditorWindows>();
+		const int windows_width = 400;
+		Rect eWindowPos  = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
+		Rect neWindowPos = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 50);
+		Rect vWindowPos  = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
+		VesselTransferWindow vessels_window = new VesselTransferWindow();
 		Vector2 scroll_view = Vector2.zero;
 		CraftBrowser vessel_selector;
 		VesselType   vessel_type;
@@ -141,16 +148,17 @@ namespace AtHangar
 
 		void build_connected_storage()
 		{
-			connected_storage.Clear();
+			ConnectedStorage.Clear();
 			var connected_passages = GetConnectedPassages();
 			foreach(var p in connected_passages)
 			{
 				var storage = p as HangarStorage;
-				if(storage != null) connected_storage.Add(storage);
+				if(storage != null) ConnectedStorage.Add(storage);
 			}
+			Events["RelocateVessels"].guiActiveEditor = CanRelocate;
 			this.Log("Number of passage nodes: {0}", Nodes.Count);//debug
 			this.Log("Number of connected passages: {0}", connected_passages.Count);//debug
-			this.Log("Number of connected storage spaces: {0}", connected_storage.Count);//debug
+			this.Log("Number of connected storage spaces: {0}", ConnectedStorage.Count);//debug
 		}
 
 		void update_total_values()
@@ -160,7 +168,7 @@ namespace AtHangar
 			TotalUsedVolume    = 0;
 			TotalStoredMass    = 0;
 			TotalCostMass      = 0;
-			foreach(var s in connected_storage)
+			foreach(var s in ConnectedStorage)
 			{
 				TotalVesselsDocked += s.VesselsDocked;
 				if(s.HangarMetric != null)
@@ -765,10 +773,9 @@ namespace AtHangar
 		[KSPEvent (guiActive = true, guiActiveEditor = true, guiName = "Rename Hangar", active = true)]
 		public void EditName() 
 		{ 
-			editing_hangar_name = !editing_hangar_name; 
-			Utils.LockIfMouseOver(eLock, neWindowPos, editing_hangar_name);
+			selected_window.Toggle(EditorWindows.EditName);
+			Utils.LockIfMouseOver(eLock, neWindowPos, selected_window[EditorWindows.EditName]);
 		}
-		bool editing_hangar_name = false;
 		
 		public void Activate() { hangar_state = HangarState.Active;	}
 		
@@ -789,10 +796,17 @@ namespace AtHangar
 		[KSPEvent (guiActiveEditor = true, guiName = "Edit contents", active = true)]
 		public void EditHangar() 
 		{ 
-			editing_hangar = !editing_hangar; 
-			Utils.LockIfMouseOver(eLock, eWindowPos, editing_hangar);
+			selected_window.Toggle(EditorWindows.EditContent);
+			Utils.LockIfMouseOver(eLock, eWindowPos, selected_window[EditorWindows.EditContent]);
 		}
-		bool editing_hangar = false;
+
+		[KSPEvent (guiActiveEditor = true, guiName = "Relocate vessels", active = true)]
+		public void RelocateVessels() 
+		{ 
+			selected_window.Toggle(EditorWindows.RelocateVessels);
+			Utils.LockIfMouseOver(eLock, vWindowPos, selected_window[EditorWindows.RelocateVessels]);
+			if(!selected_window[EditorWindows.RelocateVessels]) vessels_window.ClearSelection();
+		}
 
 		//actions
 		[KSPAction("Open gates")]
@@ -843,21 +857,17 @@ namespace AtHangar
 			}
 			GUILayout.EndHorizontal();
 			//hangar info
-			var used_frac = TotalUsedVolumeFrac;
-			GUILayout.Label(string.Format("Used Volume: {0}   {1:F1}%", 
-				Utils.formatVolume(TotalUsedVolume), used_frac*100f), 
-				Styles.fracStyle(1-used_frac), GUILayout.ExpandWidth(true));
+			HangarGUI.UsedVolumeLabel(TotalUsedVolume, TotalUsedVolumeFrac, "Total Used Volume");
+			HangarGUI.UsedVolumeLabel(UsedVolume, UsedVolumeFrac);
 			//hangar contents
 			List<PackedConstruct> constructs = packed_constructs.Values;
 			constructs.Sort((a, b) => a.name.CompareTo(b.name));
-			scroll_view = GUILayout.BeginScrollView(scroll_view, GUILayout.Height(200), GUILayout.Width(400));
+			scroll_view = GUILayout.BeginScrollView(scroll_view, GUILayout.Height(200), GUILayout.Width(windows_width));
 			GUILayout.BeginVertical();
 			foreach(PackedConstruct pc in constructs)
 			{
 				GUILayout.BeginHorizontal();
-				GUILayout.Label(string.Format("{0}: {1}   Cost: {2:F1}", 
-				                              pc.name, Utils.formatMass(pc.metric.mass), pc.metric.cost), 
-				                Styles.label, GUILayout.ExpandWidth(true));
+				HangarGUI.PackedVesselLabel(pc);
 				if(GUILayout.Button("+1", Styles.green_button, GUILayout.Width(25))) 
 					try_store_vessel(pc.Clone());
 				if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) RemoveVessel(pc);
@@ -870,7 +880,7 @@ namespace AtHangar
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
 				Utils.LockEditor(eLock, false);
-				editing_hangar = false;
+				selected_window[EditorWindows.EditContent] = false;
 			}
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 500, 20));
@@ -883,7 +893,7 @@ namespace AtHangar
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
 				Utils.LockEditor(eLock, false);
-				editing_hangar_name = false;
+				selected_window[EditorWindows.EditName] = false;
 			}
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 500, 20));
@@ -892,16 +902,14 @@ namespace AtHangar
 		public void OnGUI() 
 		{ 
 			if(Event.current.type != EventType.Layout) return;
-			if(!editing_hangar && !editing_hangar_name) return;
-			if(editing_hangar && 
-				(HighLogic.LoadedScene != GameScenes.EDITOR &&
-				 HighLogic.LoadedScene != GameScenes.SPH)) return;
+			if(!selected_window.Any()) return;
+			if(!selected_window[EditorWindows.EditName] && !HighLogic.LoadedSceneIsEditor) return;
 			//init skin
 			Styles.InitSkin();
 			GUI.skin = Styles.skin;
 			Styles.InitGUI();
 			//edit hangar
-			if(editing_hangar)
+			if(selected_window[EditorWindows.EditContent])
 			{
 				if(vessel_selector == null) 
 				{
@@ -909,8 +917,8 @@ namespace AtHangar
 					eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
 								                  hangar_content_editor,
 								                  "Choose vessel type",
-								                  GUILayout.Width(400));
-					Utils.CheckRect(ref eWindowPos);
+											 	  GUILayout.Width(windows_width));
+					HangarGUI.CheckRect(ref eWindowPos);
 				}
 				else 
 				{
@@ -919,14 +927,22 @@ namespace AtHangar
 				}
 			}
 			//edit name
-			else if(editing_hangar_name)
+			else if(selected_window[EditorWindows.EditName])
 			{
 				Utils.LockIfMouseOver(eLock, neWindowPos);
 				neWindowPos = GUILayout.Window(GetInstanceID(), neWindowPos,
 											   hangar_name_editor,
 											   "Rename Hangar",
-											   GUILayout.Width(400));
-				Utils.CheckRect(ref neWindowPos);
+											   GUILayout.Width(windows_width));
+				HangarGUI.CheckRect(ref neWindowPos);
+			}
+			else if(selected_window[EditorWindows.RelocateVessels])
+			{
+				Utils.LockIfMouseOver(eLock, vWindowPos);
+				vWindowPos = vessels_window.Draw(ConnectedStorage, vWindowPos, GetInstanceID());
+				HangarGUI.CheckRect(ref vWindowPos);
+				vessels_window.TransferVessel();
+				if(vessels_window.Closed) RelocateVessels();
 			}
 		}
 		#endregion
