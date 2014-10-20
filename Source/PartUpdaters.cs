@@ -227,13 +227,21 @@ namespace AtHangar
 		}
 	}
 
-	public class HangarUpdater : ModuleUpdater<Hangar>
+	public class PassageUpdater : ModuleUpdater<HangarPassage>
 	{ 
 		public override void OnRescale(Scale scale) 
 		{ 
 			module.Setup(true);
-			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect;
+			foreach(var key in new List<string>(module.Nodes.Keys))
+				module.Nodes[key].Size = Vector3.Scale(base_module.Nodes[key].Size, 
+													   new Vector3(scale, scale, 1));
 		}
+	}
+
+	public class HangarUpdater : ModuleUpdater<Hangar>
+	{ 
+		public override void OnRescale(Scale scale) 
+		{ module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect; }
 	}
 
 	public class AnimatorUpdater : ModuleUpdater<HangarAnimator>
