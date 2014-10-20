@@ -11,6 +11,8 @@ namespace AtHangar
 		public static GUIStyle red_button;
 		public static GUIStyle green_button;
 		public static GUIStyle yellow_button;
+		public static GUIStyle cyan_button;
+		public static GUIStyle magenta_button;
 		public static GUIStyle red;
 		public static GUIStyle yellow;
 		public static GUIStyle green;
@@ -37,49 +39,44 @@ namespace AtHangar
 			if (initialized) return;
 			initialized = true;
 			
-			normal_button = new GUIStyle (GUI.skin.button);
+			normal_button = new GUIStyle(GUI.skin.button);
 			normal_button.normal.textColor = normal_button.focused.textColor = Color.white;
 			normal_button.hover.textColor = normal_button.active.textColor = Color.yellow;
 			normal_button.onNormal.textColor = normal_button.onFocused.textColor = normal_button.onHover.textColor = normal_button.onActive.textColor = Color.yellow;
 			normal_button.padding = new RectOffset (4, 4, 4, 4);
 			
-			red_button = new GUIStyle (GUI.skin.button);
+			red_button = new GUIStyle(normal_button);
 			red_button.normal.textColor = red_button.focused.textColor = Color.red;
-			red_button.hover.textColor = red_button.active.textColor = Color.yellow;
-			red_button.onNormal.textColor = red_button.onFocused.textColor = red_button.onHover.textColor = red_button.onActive.textColor = Color.yellow;
-			red_button.padding = new RectOffset (4, 4, 4, 4);
 			
-			green_button = new GUIStyle (GUI.skin.button);
+			green_button = new GUIStyle(normal_button);
 			green_button.normal.textColor = green_button.focused.textColor = Color.green;
-			green_button.hover.textColor = green_button.active.textColor = Color.yellow;
-			green_button.onNormal.textColor = green_button.onFocused.textColor = green_button.onHover.textColor = green_button.onActive.textColor = Color.yellow;
-			green_button.padding = new RectOffset (4, 4, 4, 4);
 			
-			yellow_button = new GUIStyle (GUI.skin.button);
+			yellow_button = new GUIStyle(normal_button);
 			yellow_button.normal.textColor = yellow_button.focused.textColor = Color.yellow;
 			yellow_button.hover.textColor = yellow_button.active.textColor = Color.green;
 			yellow_button.onNormal.textColor = yellow_button.onFocused.textColor = yellow_button.onHover.textColor = yellow_button.onActive.textColor = Color.green;
-			yellow_button.padding = new RectOffset (4, 4, 4, 4);
 
-			red = new GUIStyle (GUI.skin.box);
-			red.padding = new RectOffset (4, 4, 4, 4);
-			red.normal.textColor = red.focused.textColor = Color.red;
+			cyan_button = new GUIStyle (normal_button);
+			cyan_button.normal.textColor = cyan_button.focused.textColor = Color.cyan;
 
-			yellow = new GUIStyle (GUI.skin.box);
-			yellow.padding = new RectOffset (4, 4, 4, 4);
-			yellow.normal.textColor = yellow.focused.textColor = Color.yellow;
+			magenta_button = new GUIStyle (normal_button);
+			magenta_button.normal.textColor = magenta_button.focused.textColor = Color.magenta;
 
-			green = new GUIStyle (GUI.skin.box);
-			green.padding = new RectOffset (4, 4, 4, 4);
-			green.normal.textColor = green.focused.textColor = Color.green;
-
-			blue = new GUIStyle (GUI.skin.box);
-			blue.padding = new RectOffset (4, 4, 4, 4);
-			blue.normal.textColor = blue.focused.textColor = new Color(0.6f, 0.6f, 1f, 1f);
-
-			white = new GUIStyle (GUI.skin.box);
+			white = new GUIStyle(GUI.skin.box);
 			white.padding = new RectOffset (4, 4, 4, 4);
 			white.normal.textColor = white.focused.textColor = Color.white;
+
+			red = new GUIStyle(white);
+			red.normal.textColor = red.focused.textColor = Color.red;
+
+			yellow = new GUIStyle(white);
+			yellow.normal.textColor = yellow.focused.textColor = Color.yellow;
+
+			green = new GUIStyle(white);
+			green.normal.textColor = green.focused.textColor = Color.green;
+
+			blue = new GUIStyle(white);
+			blue.normal.textColor = blue.focused.textColor = new Color(0.6f, 0.6f, 1f, 1f);
 
 			label = new GUIStyle (GUI.skin.label);
 			label.normal.textColor = label.focused.textColor = Color.white;
@@ -93,7 +90,7 @@ namespace AtHangar
 			slider_text.margin = new RectOffset (0, 0, 0, 0);
 
 			list_item = new GUIStyle(GUI.skin.box);
-			Texture2D texInit = new Texture2D(1, 1);
+			var texInit = new Texture2D(1, 1);
 			texInit.SetPixel(0, 0, new Color(0.05f, 0.05f, 0.05f, 1f));
 			texInit.Apply();
 			list_item.normal.background = list_item.onNormal.background = list_item.hover.background = list_item.onHover.background = texInit;
