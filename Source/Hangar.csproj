@@ -90,6 +90,10 @@
     <Compile Include="GraphicsUtils.cs" />
     <Compile Include="Addons.cs" />
     <Compile Include="SimpleDialog.cs" />
+    <Compile Include="HangarPassage.cs" />
+    <Compile Include="HangarStorage.cs" />
+    <Compile Include="HangarGUI.cs" />
+    <Compile Include="VesselTransferWindow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
