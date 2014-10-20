@@ -5,7 +5,7 @@
 ***
 
 ###WARNING: this is  a WIP. There may be bugs and some parts and configurations may be changed in the process.
-While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, _but I can't guarantee it_. So if you plan to use it in your main game, **backup your saves**.
+While fixing bugs and implementing new features I'll try as hard as I can to maintain backward compatibility, _but I can't guarantee it_. So if you plan to use it in your main game, **backup your saves**.
 
 ***
 

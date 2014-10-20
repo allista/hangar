@@ -1,7 +1,7 @@
 [CENTER][SIZE=5][B]Hangar[/B] - [B][I]store your vessels until they are needed[/I][/B][/SIZE][/CENTER]
 [HR][/HR]
 [CENTER][COLOR=#FF0000][SIZE=4][B]WARNING: this is  a WIP. There may be bugs and some parts and configurations may be changed in the process.[/B][/SIZE][/COLOR]
-While fixing them and implementing new features I'll try as hard as I can to maintain backward compatibility, [I]but I can't guarantee it[/I]. So if you plan to use it in your main game, [SIZE=5][COLOR=#FF0000][B]backup your saves[/B][/COLOR][/SIZE].[/CENTER]
+While fixing bugs and implementing new features I'll try as hard as I can to maintain backward compatibility, [I]but I can't guarantee it[/I]. So if you plan to use it in your main game, [SIZE=5][COLOR=#FF0000][B]backup your saves[/B][/COLOR][/SIZE].[/CENTER]
 [HR][/HR]
 [COLOR=#FF0000][SIZE=3][b]If you're upgrading from v1.1.1.1 or below, follow these instructions:[/b][/COLOR][/SIZE]
 
