@@ -168,6 +168,23 @@ namespace AtHangar
 			if(!enabled) Utils.LockIfMouseOver(eLock, eWindowPos, false);
 			if(selected_hangar != null) 
 			{
+				//first highlight storage
+				if(selected_hangar.ConnectedStorage.Count > 1)
+				{
+					if(enabled && highlight_storage == HighlightState.Enable) 
+						foreach(var s in selected_hangar.ConnectedStorage)
+						{
+							s.part.SetHighlightColor(HangarGUI.UsedVolumeColor(s));
+							s.part.SetHighlight(true);
+						}
+					else if(highlight_storage == HighlightState.Disable)
+					{
+						foreach(var s in selected_hangar.ConnectedStorage)
+							s.part.SetHighlightDefault();
+						highlight_storage = HighlightState.None;
+					}
+				}
+				//then highlight hangar
 				if(enabled && highlight_hangar == HighlightState.Enable) 
 				{
 					selected_hangar.part.SetHighlightColor(XKCDColors.LightSeaGreen);
@@ -275,7 +292,7 @@ namespace AtHangar
 		{
 			if(selected_vessel == null) return;
 			if(selected_hangar.NoTransfers) return;
-			if(GUILayout.Button("Change vessel crew", GUILayout.ExpandWidth(true)))
+			if(GUILayout.Button("Change Vessel Crew", GUILayout.ExpandWidth(true)))
 				selected_window.Toggle(TransferWindows.SelectCrew);
 		}
 		
@@ -283,7 +300,7 @@ namespace AtHangar
 		{
 			if(selected_vessel == null) return;
 			if(selected_hangar.NoTransfers) return;
-			if(GUILayout.Button("Transfer resources", GUILayout.ExpandWidth(true)))
+			if(GUILayout.Button("Transfer Resources", GUILayout.ExpandWidth(true)))
 				selected_window.Toggle(TransferWindows.TransferResources);
 		}
 
@@ -291,7 +308,7 @@ namespace AtHangar
 		{
 			if(selected_hangar == null) return;
 			if(!selected_hangar.CanRelocate) return;
-			if(GUILayout.Button("Relocate vessels", GUILayout.ExpandWidth(true)))
+			if(GUILayout.Button("<< Relocate Vessels >>", Styles.yellow_button, GUILayout.ExpandWidth(true)))
 			{
 				selected_window.Toggle(TransferWindows.RelocateVessels);
 				if(!selected_window[TransferWindows.RelocateVessels]) vessels_window.ClearSelection();
@@ -309,7 +326,7 @@ namespace AtHangar
 		//info labels
 		void HangarVesselInfo()
 		{
-			GUILayout.BeginVertical();
+			GUILayout.BeginVertical(Styles.white);
 			GUILayout.Label(string.Format("Vessel crew: {0}/{1}", selected_hangar.vessel.GetCrewCount(), 
 				selected_hangar.vessel.GetCrewCapacity()), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Vessel Volume: "+Utils.formatVolume(vessel_metric.volume), GUILayout.ExpandWidth(true));
@@ -321,24 +338,26 @@ namespace AtHangar
 
 		void StorageInfo()
 		{
-			if(!selected_hangar.CanRelocate) return;
-			GUILayout.BeginVertical();
+			if(selected_hangar.ConnectedStorage.Count < 2) return;
+			GUILayout.BeginVertical(Styles.white);
 			GUILayout.Label("Total Vessels Docked: "+selected_hangar.TotalVesselsDocked, GUILayout.ExpandWidth(true));
 			GUILayout.Label("Total Storage Volume: "+Utils.formatVolume(selected_hangar.TotalVolume), GUILayout.ExpandWidth(true));
+			if(GUILayout.Toggle(highlight_storage == HighlightState.Enable, "Highlight Storage Parts")) highlight_storage = HighlightState.Enable;
+			else if(highlight_storage == HighlightState.Enable) highlight_storage = HighlightState.Disable;
 			HangarGUI.UsedVolumeLabel(selected_hangar.TotalUsedVolume, selected_hangar.TotalUsedVolumeFrac, "Total Used Volume");
 			GUILayout.EndVertical();
 		}
 
 		void HangarInfo()
 		{
-			GUILayout.BeginVertical();
+			GUILayout.BeginVertical(Styles.white);
 			GUILayout.Label("Dock Size: "+Utils.formatDimensions(selected_hangar.HangarMetric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Dock Volume: "+Utils.formatVolume(selected_hangar.HangarMetric.volume), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Vessels Docked: "+selected_hangar.VesselsDocked, GUILayout.ExpandWidth(true));
 			HangarGUI.UsedVolumeLabel(selected_hangar.UsedVolume, selected_hangar.UsedVolumeFrac);
 			GUILayout.EndVertical();
 		}
-		
+
 		//Hangar selection list
 		void SelectHangar_start() 
 		{ 
@@ -371,7 +390,7 @@ namespace AtHangar
 			if(hangars.Count < 2) return;
 			GUILayout.BeginHorizontal();
 			hangar_list.DrawButton();
-			if(GUILayout.Toggle(highlight_hangar == HighlightState.Enable, "Highlight hangar")) highlight_hangar = HighlightState.Enable;
+			if(GUILayout.Toggle(highlight_hangar == HighlightState.Enable, "Highlight Hangar")) highlight_hangar = HighlightState.Enable;
 			else if(highlight_hangar == HighlightState.Enable) highlight_hangar = HighlightState.Disable;
 			Select_Hangar(hangars[hangar_list.SelectedIndex]);
 			GUILayout.EndHorizontal();
@@ -428,8 +447,7 @@ namespace AtHangar
 			                              Utils.formatVolume(vessel_metric.volume)), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Size: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
 			GUILayout.Label(String.Format("Crew Capacity: {0}", vessel_metric.CrewCapacity), GUILayout.ExpandWidth(true));
-			if(HighLogic.LoadedScene == GameScenes.EDITOR ||
-			   HighLogic.LoadedScene == GameScenes.SPH)
+			if(HighLogic.LoadedSceneIsEditor)
 			{
 				if(GUILayout.Toggle(draw_directions, "Show Directions")) 
 				{

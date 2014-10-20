@@ -22,6 +22,12 @@ namespace AtHangar
 				Styles.label, GUILayout.ExpandWidth(true));
 		}
 
+		public static Color UsedVolumeColor(HangarStorage s)
+		{
+			var frac = s.UsedVolumeFrac;
+			return new Color(frac, 1f-frac, 0);
+		}
+
 		public static void CheckRect(ref Rect R)
 		{
 			//check size
