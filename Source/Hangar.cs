@@ -857,7 +857,8 @@ namespace AtHangar
 			}
 			GUILayout.EndHorizontal();
 			//hangar info
-			HangarGUI.UsedVolumeLabel(TotalUsedVolume, TotalUsedVolumeFrac, "Total Used Volume");
+			if(ConnectedStorage.Count > 1)
+				HangarGUI.UsedVolumeLabel(TotalUsedVolume, TotalUsedVolumeFrac, "Total Used Volume");
 			HangarGUI.UsedVolumeLabel(UsedVolume, UsedVolumeFrac);
 			//hangar contents
 			List<PackedConstruct> constructs = packed_constructs.Values;
