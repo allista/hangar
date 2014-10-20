@@ -6,7 +6,7 @@ namespace AtHangar
 {
 	public class HangarStorage : HangarPassage, IPartCostModifier, IControllableModule
 	{
-		const float usefull_volume_ratio = 0.888f; //only 70% of the volume (0.7^(1/3)) may be used by docking vessels
+		const float usefull_size_ratio = 0.9f;
 
 		[KSPField(isPersistant = false)] public string HangarSpace;
 
@@ -44,7 +44,7 @@ namespace AtHangar
 		#region Setup
 		void build_storage_checklist()
 		{
-			if(HighLogic.LoadedScene != GameScenes.FLIGHT) return;
+			if(!HighLogic.LoadedSceneIsFlight) return;
 			storage_cecklist.Clear();
 			foreach(Part p in vessel.parts)
 			{
@@ -82,7 +82,7 @@ namespace AtHangar
 			HangarMetric = HangarSpace != string.Empty ? new Metric(part, HangarSpace) : null;
 			//if hangar metric is not provided, derive it from part metric
 			if(HangarMetric == null || HangarMetric.Empty)
-				HangarMetric = PartMetric*usefull_volume_ratio;
+				HangarMetric = PartMetric*usefull_size_ratio;
 			//setup vessels packs
 			stored_vessels.space = HangarMetric;
 			packed_constructs.space = HangarMetric;
@@ -203,8 +203,7 @@ namespace AtHangar
 
 		IEnumerator<YieldInstruction> convert_constructs_to_vessels()
 		{
-			if(HighLogic.LoadedScene != GameScenes.FLIGHT ||
-				packed_constructs.Count == 0) 
+			if(!HighLogic.LoadedSceneIsFlight || packed_constructs.Count == 0) 
 			{ Ready = true;	yield break; }
 			//wait for storage.vessel to be loaded
 			var self = new VesselWaiter(vessel);
