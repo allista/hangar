@@ -156,9 +156,6 @@ namespace AtHangar
 				if(storage != null) ConnectedStorage.Add(storage);
 			}
 			Events["RelocateVessels"].guiActiveEditor = CanRelocate;
-			this.Log("Number of passage nodes: {0}", Nodes.Count);//debug
-			this.Log("Number of connected passages: {0}", connected_passages.Count);//debug
-			this.Log("Number of connected storage spaces: {0}", ConnectedStorage.Count);//debug
 		}
 
 		void update_total_values()
@@ -177,7 +174,6 @@ namespace AtHangar
 				TotalStoredMass    += s.VesselsMass;
 				TotalCostMass      += s.VesselsCost;
 			}
-			this.Log("Totals: V {0}, UV {1}, UVf {2}", TotalVolume, TotalUsedVolume, TotalUsedVolumeFrac);//debug
 		}
 
 		void update_connected_storage()
@@ -187,26 +183,20 @@ namespace AtHangar
 		}
 
 		void update_connected_storage(Vessel vsl)
-		{ if(vsl == part.vessel) 
-			{ this.Log("Hangar.onVesselWasModified");//debug
-				update_connected_storage(); } }
+		{ if(vsl == part.vessel) update_connected_storage(); }
 
 		void update_connected_storage(ShipConstruct ship)
-		{ update_connected_storage(); 
-			this.Log("Hangar.onEditorShipModified");//debug
-		}
+		{ update_connected_storage(); }
 
 		IEnumerator<YieldInstruction> delayed_update_connected_storage()
 		{
 			while(!all_passages_ready) yield return null;
-			this.Log("All HangarPassages are loaded");//debug
 			update_connected_storage();
 		}
 
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
-			this.Log("Hangar.OnStart");//debug
 			//set vessel type
 			EditorLogic el = EditorLogic.fetch;
 			if(el != null) vessel_type = el.editorType == EditorLogic.EditorMode.SPH ? VesselType.SPH : VesselType.VAB;
@@ -239,7 +229,6 @@ namespace AtHangar
 		public override void Setup(bool reset = false)	
 		{
 			base.Setup(reset);
-			this.Log("Hangar.Setup");//debug
 			//get launch speed if it's defined
 			try { launchVelocity = LaunchVelocity != "" ? ConfigNode.ParseVector3(LaunchVelocity) : Vector3.zero; }
 			catch(Exception ex)
