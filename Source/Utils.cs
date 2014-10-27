@@ -8,6 +8,23 @@ namespace AtHangar
 	// This code is based on Procedural Fairings plug-in by Alexey Volynskov, PMUtils class
 	static partial class Utils
 	{
+		const string ElectricChargeName = "ElectricCharge";
+		static int _electric_charge_id = -1;
+		public static int ElectricChargeID
+		{ 
+			get 
+			{ 
+				if(_electric_charge_id < 0)
+				{
+					var _electric_charge = PartResourceLibrary.Instance.GetDefinition(ElectricChargeName);
+					if(_electric_charge == null) Log("WARNING: Cannot find '{0}' in the resource library.");
+					else _electric_charge_id = _electric_charge.id;
+				}
+				return _electric_charge_id;
+			} 
+		}
+
+
 		#region Misc
 		public static void setFieldRange(BaseField field, float minval, float maxval)
 		{
