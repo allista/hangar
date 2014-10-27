@@ -109,7 +109,14 @@ namespace AtHangar
 			list_box.onNormal.textColor = list_box.onFocused.textColor = list_box.onHover.textColor = list_box.onActive.textColor = Color.green;
 			list_box.padding = new RectOffset (4, 4, 4, 4);
 		}
-		
+
+		public static void Init()
+		{
+			Styles.InitSkin();
+			GUI.skin = Styles.skin;
+			Styles.InitGUI();
+		}
+
 		public static GUIStyle fracStyle(float frac)
 		{
 			if(frac < 0.1) return Styles.red;
@@ -217,9 +224,7 @@ namespace AtHangar
 		
 		virtual public void OnGUI()
 		{
-			Styles.InitSkin();
-			GUI.skin = Styles.skin;
-			Styles.InitGUI();
+			Styles.Init();
 		}
 	}
 }
