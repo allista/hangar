@@ -37,8 +37,8 @@ namespace AtHangar
 			{
 				GUIStyle style = (s == selected)? selected_style : Styles.normal_button;
 				if(!is_lhs && s == lhs || is_lhs && s == rhs) 
-					GUILayout.Label(s.name, Styles.grey, GUILayout.ExpandWidth(true));
-				else if(GUILayout.Button(s.name, style, GUILayout.ExpandWidth(true))) 
+					GUILayout.Label(s.Title(), Styles.grey, GUILayout.ExpandWidth(true));
+				else if(GUILayout.Button(s.Title(), style, GUILayout.ExpandWidth(true))) 
 				{
 					if(selected != null) reset_highlight(selected);
 					selected = s == selected ? null : s;
