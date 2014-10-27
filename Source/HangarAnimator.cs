@@ -11,9 +11,11 @@ namespace AtHangar
 		[KSPField(isPersistant = false)] public string AnimationName;
 		[KSPField(isPersistant = false)] public float  ForwardSpeed = 1f;
 		[KSPField(isPersistant = false)] public float  ReverseSpeed = 1f;
+		[KSPField(isPersistant = false)] public bool   Loop = false;
 		[KSPField(isPersistant = false)] public float  EnergyConsumption = 0f;
 		[KSPField(isPersistant = false)] public float  DragMultiplier = 1f;
 		[KSPField(isPersistant = true)]  public float  progress = 0f;
+
 		float last_progress    = 0f;
 		float speed_multiplier = 1f;
 		
@@ -24,7 +26,7 @@ namespace AtHangar
 		void setup_animation()
 		{
 			Animation[] animations = part.FindModelAnimators(AnimationName);
-			if(animations == null)
+			if(animations == null || animations.Length == 0)
 			{
 				this.Log("setup_animation: there's no '{0}' animation in {1}", 
 						  AnimationName, part.name);
@@ -33,6 +35,7 @@ namespace AtHangar
 			animation_states = new List<AnimationState>();
 			foreach(Animation anim in animations)
 			{
+				if(anim[AnimationName] == null) continue;
 				AnimationState animationState = anim[AnimationName];
 				animationState.speed = 0;
 				animationState.enabled = true;
@@ -53,31 +56,26 @@ namespace AtHangar
 
 		protected void seek(float norm_time = 0f)
 		{
+			norm_time = Mathf.Clamp01(norm_time);
 			foreach(var state in animation_states)
-				state.normalizedTime = Mathf.Clamp01(norm_time);
+				state.normalizedTime = norm_time;
 		}
 
         override public void Open()
-        {
-            if(State != AnimatorState.Closed) return;
-            State = AnimatorState.Opening;
-        }
+		{ State = AnimatorState.Opening; }
 
         override public void Close()
-        {
-            if(State != AnimatorState.Opened) return;
-            State = AnimatorState.Closing;
-        }
+		{ State = AnimatorState.Closing; }
 
 		public virtual void Update()
         {
-            if (State == AnimatorState.Opening && animation_states.TrueForAll(s => s.normalizedTime >= 1))
-                State = AnimatorState.Opened;
-            else if (State == AnimatorState.Closing && animation_states.TrueForAll(s => s.normalizedTime <= 0))
-            	State = AnimatorState.Closed;
+			if(State == AnimatorState.Opening && progress >= 1)
+			{ if(Loop) seek(0); else State = AnimatorState.Opened; }
+			else if(State == AnimatorState.Closing && progress <= 0) 
+				State = AnimatorState.Closed;
    
 			float _progress = 1;
-			foreach (var state in animation_states)
+			foreach(var state in animation_states)
             {
 				float time = Mathf.Clamp01(state.normalizedTime);
                 state.normalizedTime = time;
