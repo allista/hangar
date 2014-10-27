@@ -60,7 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Hangar.cs" />
     <Compile Include="HangarAnimator.cs" />
     <Compile Include="HangarWindow.cs" />
     <Compile Include="DropDownList.cs" />
@@ -94,6 +93,14 @@
     <Compile Include="HangarStorage.cs" />
     <Compile Include="HangarGUI.cs" />
     <Compile Include="VesselTransferWindow.cs" />
+    <Compile Include="HangarGateway.cs" />
+    <Compile Include="HangarMachinery.cs" />
+    <Compile Include="HangarMachineryEditor.cs" />
+    <Compile Include="Hangar.cs" />
+    <Compile Include="AsteroidInfo.cs" />
+    <Compile Include="SingleUseGrappleNode.cs" />
+    <Compile Include="HangarStorageDynamic.cs" />
+    <Compile Include="AsteroidMassConverter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
