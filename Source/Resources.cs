@@ -91,7 +91,7 @@ namespace AtHangar
 		
 		public List<Resource<R>> Resources<R>() 
 		{ 
-			List<Resource<R>> Rs = new List<Resource<R>>();
+			var Rs = new List<Resource<R>>();
 			if(is_part)
 			{
 				foreach(PartResource pr in part.Resources) 
@@ -129,7 +129,7 @@ namespace AtHangar
 		
 		public List<Part<P>> parts<P>() 
 		{ 
-			List<Part<P>> Ps = new List<Part<P>>();
+			var Ps = new List<Part<P>>();
 			if(is_vessel)
 			{
 				foreach(Part p in vessel.parts) 
@@ -220,7 +220,7 @@ namespace AtHangar
 		public VesselResources(V vessel)
 		{
 			resources = new Dictionary<string, ResourceInfo<P, R>>();
-			Vessel<V> vsl = new Vessel<V>(vessel);
+			var vsl = new Vessel<V>(vessel);
 			foreach (Part<P> part in vsl.parts<P>()) AddPart(part);
 		}
 
