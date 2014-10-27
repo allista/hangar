@@ -1,11 +1,10 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace AtHangar
 {
-	public class Metric
+	public struct Metric
 	{
 		//ignore list
 		public const string MESHES_TO_SKIP = "MeshesToSkip";
@@ -141,18 +140,8 @@ namespace AtHangar
 		}
 
 		#region Constructors
-		//empty metric
-		public Metric()
-		{
-			bounds = new Bounds();
-			volume = 0f;
-			area   = 0f;
-			mass   = 0f;
-			CrewCapacity = 0;
-		}
-		
 		//metric copy
-		public Metric(Metric m)
+		public Metric(Metric m) : this()
 		{
 			hull   = m.hull;
 			bounds = new Bounds(m.bounds.center, m.bounds.size);
@@ -163,7 +152,7 @@ namespace AtHangar
 		}
 		
 		//metric from bounds
-		public Metric(Bounds b, float m = 0f, int crew_capacity = 0)
+		public Metric(Bounds b, float m = 0f, int crew_capacity = 0) : this()
 		{
 			bounds = new Bounds(b.center, b.size);
 			volume = boundsVolume(bounds);
@@ -173,7 +162,7 @@ namespace AtHangar
 		}
 		
 		//metric from size
-		public Metric(Vector3 center, Vector3 size, float m = 0f, int crew_capacity = 0)
+		public Metric(Vector3 center, Vector3 size, float m = 0f, int crew_capacity = 0) : this()
 		{
 			bounds = new Bounds(center, size);
 			volume = boundsVolume(bounds);
@@ -181,9 +170,20 @@ namespace AtHangar
 			mass   = m;
 			CrewCapacity = crew_capacity;
 		}
+
+		//metric from volume
+		public Metric(float V, float m = 0f, int crew_capacity = 0) : this()
+		{
+			var a = Mathf.Pow(V, 1/3f);
+			bounds = new Bounds(Vector3.zero, new Vector3(a,a,a));
+			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
+			mass   = m;
+			CrewCapacity = crew_capacity;
+		}
 		
 		//metric form edges
-		public Metric(Vector3[] edges, float m = 0f, int crew_capacity = 0, bool compute_hull=false)
+		public Metric(Vector3[] edges, float m = 0f, int crew_capacity = 0, bool compute_hull=false) : this()
 		{
 			if(compute_hull) hull = new ConvexHull3D(edges);
 			bounds = initBounds(edges);
@@ -194,11 +194,12 @@ namespace AtHangar
 		}
 		
 		//metric from config node
-		public Metric(ConfigNode node) { Load(node); }
+		public Metric(ConfigNode node) : this() { Load(node); }
 		
 		//mesh metric
-		public Metric(Part part, string mesh_name, bool compute_hull=false)
+		public Metric(Part part, string mesh_name, bool compute_hull=false) : this()
 		{
+			if(mesh_name == string.Empty) return;
 			MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
 			if(m == null) { Utils.Log("[Metric] {0} does not have '{1}' mesh", part.name, mesh_name); return; }
 			if(compute_hull) hull = new ConvexHull3D(uniqueVertices(m.sharedMesh));
@@ -211,7 +212,7 @@ namespace AtHangar
 		}
 		
 		//part metric
-		public Metric(Part part, bool compute_hull=false)
+		public Metric(Part part, bool compute_hull=false) : this()
 		{
 			bounds = partsBounds(new List<Part>{part}, part.partTransform, compute_hull);
 			volume = boundsVolume(bounds);
@@ -219,7 +220,7 @@ namespace AtHangar
 		}
 		
 		//vessel metric
-		public Metric(Vessel vessel, bool compute_hull=false)
+		public Metric(Vessel vessel, bool compute_hull=false) : this()
 		{
 			bounds = partsBounds(vessel.parts, vessel.vesselTransform, compute_hull);
 			volume = boundsVolume(bounds);
@@ -227,7 +228,7 @@ namespace AtHangar
 		}
 		
 		//in-editor vessel metric
-		public Metric(List<Part> vessel, bool compute_hull=false)
+		public Metric(List<Part> vessel, bool compute_hull=false) : this()
 		{
 			bounds = partsBounds(vessel, vessel[0].partTransform, compute_hull);
 			volume = boundsVolume(bounds);
@@ -236,6 +237,14 @@ namespace AtHangar
 		#endregion
 		
 		//public methods
+		public void Clear() 
+		{ 
+			bounds = default(Bounds);
+			volume = area = mass = cost = 0;
+			CrewCapacity = 0;
+			hull   = null;
+		}
+
 		public Bounds GetBounds() { return new Bounds(bounds.center, bounds.size); }
 
 		public void Scale(float s)

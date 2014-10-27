@@ -35,9 +35,9 @@ namespace AtHangar
 		Metric vessel_metric;
 		
 		//hangars
-		readonly List<Hangar> hangars = new List<Hangar>();
+		readonly List<HangarMachinery> hangars = new List<HangarMachinery>();
 		readonly DropDownList hangar_list = new DropDownList();
-		Hangar selected_hangar;
+		HangarMachinery selected_hangar;
 		uint hangar_id;
 		
 		//vessels
@@ -54,7 +54,7 @@ namespace AtHangar
 		//vessel volume 
 		void updateVesselMetric(Vessel vsl = null)
 		{
-			vessel_metric = null;
+			vessel_metric.Clear();
 			if(vsl != null) vessel_metric = new Metric(vsl);
 			else if(EditorLogic.fetch != null)
 			{
@@ -75,7 +75,7 @@ namespace AtHangar
 		void BuildHangarList(Vessel vsl)
 		{
 			//save selected hangar
-			Hangar prev_selected = selected_hangar;
+			HangarMachinery prev_selected = selected_hangar;
 			//reset state
 			hangars.Clear();
 			hangar_list.Items = new List<string>();
@@ -84,7 +84,7 @@ namespace AtHangar
 			if(vsl == null) return;
 			//build new list
 			foreach(var p in vsl.Parts)
-				hangars.AddRange(p.Modules.OfType<Hangar>().Where(h => h.enabled));
+				hangars.AddRange(p.Modules.OfType<HangarMachinery>().Where(h => h.enabled));
 			if(hangars.Count > 0) 
 			{
 				selected_hangar = hangars.Find(h => h.part.flightID == hangar_id);
@@ -92,7 +92,7 @@ namespace AtHangar
 				var hangar_names = new List<string>();
 				for(int i = 0; i < hangars.Count; i++)
 				{
-					string h_name = hangars[i].HangarName == default(string) ? "Unnamed Hangar" : hangars[i].HangarName;
+					var h_name = hangars[i].HangarName == string.Empty ? "Unnamed Hangar" : hangars[i].HangarName;
 					hangar_names.Add(string.Format("{0} {1}", i+1, h_name));
 				}
 				hangar_list.Items = hangar_names;
@@ -104,7 +104,7 @@ namespace AtHangar
 		}
 		
 		//build dropdown list of stored vessels
-		void BuildVesselList(Hangar hangar)
+		void BuildVesselList(HangarMachinery hangar)
 		{
 			//reset stat
 			vessels.Clear();
@@ -114,16 +114,14 @@ namespace AtHangar
 			if(hangar == null) return;
 			//build new list
 			vessels = hangar.GetVessels();
-			if(vessels.Count > 0) 
-			{
-				selected_vessel = vessels.Find(v => v.id == vessel_id);
-				if(selected_vessel == null) selected_vessel = vessels[0];
-				var vessel_names = new List<string>();
-				for(int i = 0; i < vessels.Count; i++)
-					vessel_names.Add(string.Format("{0} {1}", i+1, vessels[i].name));
-				vessel_list.Items = vessel_names;
-				vessel_list.SelectItem(vessels.IndexOf(selected_vessel));
-			}
+			if(vessels.Count == 0) return ;
+			selected_vessel = vessels.Find(v => v.id == vessel_id);
+			if(selected_vessel == null) selected_vessel = vessels[0];
+			var vessel_names = new List<string>();
+			for(int i = 0; i < vessels.Count; i++)
+				vessel_names.Add(string.Format("{0} {1}", i+1, vessels[i].name));
+			vessel_list.Items = vessel_names;
+			vessel_list.SelectItem(vessels.IndexOf(selected_vessel));
 		}
 		
 		//update-init-destroy
@@ -155,7 +153,7 @@ namespace AtHangar
 			if(selected_hangar != null)
 			{
 				//vessel list
-				if(vessels.Count != selected_hangar.numVessels())
+				if(vessels.Count != selected_hangar.VesselsDocked)
 					BuildVesselList(selected_hangar);
 				if(selected_vessel != null && selected_window[TransferWindows.TransferResources])
 					selected_hangar.updateResourceList();
@@ -196,8 +194,6 @@ namespace AtHangar
 					highlight_hangar = HighlightState.None;
 				}
 			}
-			foreach(var p in hangars)
-				p.UpdateMenus(enabled && p == selected_hangar);
 		}
 		
 		new void Awake()
@@ -258,25 +254,21 @@ namespace AtHangar
 			switch(selected_hangar.gates_state)
 			{
 			case AnimatorState.Closed:
+			case AnimatorState.Closing:
 				if(GUILayout.Button("Open Gates", Styles.green_button, GUILayout.ExpandWidth(true)))
 					selected_hangar.Open();
 				break;
 			case AnimatorState.Opened:
+			case AnimatorState.Opening:
 				if(GUILayout.Button("Close Gates", Styles.red_button, GUILayout.ExpandWidth(true)))
 					selected_hangar.Close();
-				break;
-			case AnimatorState.Closing:
-				GUILayout.Label("Closing", Styles.white, GUILayout.ExpandWidth(true));
-				break;
-			case AnimatorState.Opening:
-				GUILayout.Label("Opening", Styles.white, GUILayout.ExpandWidth(true));
 				break;
 			}
 		}
 		
 		void ToggleStateButton()
 		{
-			if(selected_hangar.hangar_state == Hangar.HangarState.Inactive)
+			if(selected_hangar.hangar_state == HangarMachinery.HangarState.Inactive)
 			{
 				if(GUILayout.Button("Activate Hangar", Styles.green_button, GUILayout.ExpandWidth(true)))
 					selected_hangar.Activate();
@@ -351,8 +343,8 @@ namespace AtHangar
 		void HangarInfo()
 		{
 			GUILayout.BeginVertical(Styles.white);
-			GUILayout.Label("Dock Size: "+Utils.formatDimensions(selected_hangar.HangarMetric.size), GUILayout.ExpandWidth(true));
-			GUILayout.Label("Dock Volume: "+Utils.formatVolume(selected_hangar.HangarMetric.volume), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Volume: "+Utils.formatVolume(selected_hangar.Volume), GUILayout.ExpandWidth(true));
+			GUILayout.Label("Dock Size: "+Utils.formatDimensions(selected_hangar.DockSize), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Vessels Docked: "+selected_hangar.VesselsDocked, GUILayout.ExpandWidth(true));
 			HangarGUI.UsedVolumeLabel(selected_hangar.UsedVolume, selected_hangar.UsedVolumeFrac);
 			GUILayout.EndVertical();
@@ -368,7 +360,7 @@ namespace AtHangar
 			hangar_list.DrawBlockingSelector(); 
 		}
 
-		void Select_Hangar(Hangar hangar)
+		void Select_Hangar(HangarMachinery hangar)
 		{
 			if(selected_hangar != hangar)
 			{
@@ -395,7 +387,7 @@ namespace AtHangar
 			Select_Hangar(hangars[hangar_list.SelectedIndex]);
 			GUILayout.EndHorizontal();
 		}
-		public static void SelectHangar(Hangar hangar) { instance.Select_Hangar(hangar); }
+		public static void SelectHangar(HangarMachinery hangar) { instance.Select_Hangar(hangar); }
 
 		void SelectHangar_end()
 		{
@@ -480,8 +472,8 @@ namespace AtHangar
 			HangarVesselInfo();
 			StorageInfo();
 			VesselsRelocationButton();
-			HangarInfo();
 			SelectHangar();
+			HangarInfo();
 			GUILayout.EndVertical();
 			GUILayout.BeginHorizontal();
 			ToggleGatesButton();
@@ -506,7 +498,7 @@ namespace AtHangar
 	
 		override public void OnGUI()
 		{
-			if(vessel_metric == null) return;
+			if(vessel_metric.Empty) return;
 			if(Event.current.type != EventType.Layout) return;
 			base.OnGUI();
 			if(hangars.Count > 0 && selected_hangar.IsControllable)
@@ -572,16 +564,16 @@ namespace AtHangar
 		public override void Update()
 		{
 			base.Update();
-			if(HighLogic.LoadedSceneIsEditor && draw_directions && vessel_metric != null)
+			if(HighLogic.LoadedSceneIsEditor && draw_directions && !vessel_metric.Empty)
 			{
 				List<Part> parts;
 				try { parts = EditorLogic.SortedShipList; }
 				catch (NullReferenceException) { parts = null; }
 				if(parts != null && parts.Count > 0 && parts[0] != null)
 					HangarGUI.DrawYZ(vessel_metric, parts[0].partTransform);
-				foreach(Part p in parts.Where(p => p.HasModule<Hangar>()))
+				foreach(Part p in parts.Where(p => p.HasModule<HangarMachinery>()))
 				{
-					Hangar h = p.GetComponent<Hangar>();
+					var h = p.GetComponent<HangarMachinery>();
 					if(h != null)
 						HangarGUI.DrawYZ(h.PartMetric, h.GetLaunchTransform());
 				}
@@ -594,7 +586,7 @@ namespace AtHangar
 		#if DEBUG
 		void DrawPoints()
 		{
-			if(vessel_metric == null) return;
+			if(vessel_metric.Empty) return;
 			if(EditorLogic.fetch != null)
 			{
 				List<Part> parts;

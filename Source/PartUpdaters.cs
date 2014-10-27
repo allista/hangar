@@ -223,7 +223,8 @@ namespace AtHangar
 		{
 			AttachNode node = part.findAttachNode(module.referenceAttachNode);
 			if(node == null) return;
-			module.nodeType = string.Format("size{0}", node.size);
+			if(module.nodeType.StartsWith("size"))
+				module.nodeType = string.Format("size{0}", node.size);
 		}
 	}
 
@@ -241,7 +242,10 @@ namespace AtHangar
 	public class HangarUpdater : ModuleUpdater<Hangar>
 	{ 
 		public override void OnRescale(Scale scale) 
-		{ module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect; }
+		{ 
+			module.Setup(true);
+			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect; 
+		}
 	}
 
 	public class AnimatorUpdater : ModuleUpdater<HangarAnimator>

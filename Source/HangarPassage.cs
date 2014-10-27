@@ -86,13 +86,24 @@ namespace AtHangar
 	}
 
 
-	public class HangarPassage : PartModule
+	public class HangarPassage : ControllableModuleBase
 	{
 		public readonly Dictionary<string, PassageNode> Nodes = new Dictionary<string, PassageNode>();
 		public ConfigNode ModuleConfig;
 		public bool Ready { get; protected set; }
 
 		#region Setup
+		public override string GetInfo()
+		{
+			if(Nodes.Count == 0) return "";
+			var info = "Vessels can pass through:";
+			var nodes = new List<string>(Nodes.Keys);
+			nodes.Sort(); 
+			nodes.ForEach(n => info += string.Format("\n- {0}: {1:F2}m x {2:F2}m", 
+				n, Nodes[n].Size.x, Nodes[n].Size.y));
+			return info;
+		}
+
 		public override void OnLoad(ConfigNode node)
 		{
 			base.OnLoad(node);
@@ -153,6 +164,7 @@ namespace AtHangar
 
 		public bool CanTransferTo(PackedVessel vsl, HangarPassage other, PassageNode requesting_node = null)
 		{
+			if(!enabled) return false;
 			if(this == other) return CanHold(vsl);
 			var this_node = requesting_node != null? requesting_node.OtherNode : null;
 			bool can_transfer = false;

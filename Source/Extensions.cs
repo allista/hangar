@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public static class CollectionsExtension
+	public static class CollectionsExtensions
 	{
 		public static TSource SelectMax<TSource>(this IEnumerable<TSource> s, Func<TSource, float> metric)
 		{
@@ -48,7 +48,7 @@ namespace AtHangar
 		}
 	}
 
-	public static class PartExtension
+	public static class PartExtensions
 	{
 		#region from MechJeb2 PartExtensions
 		public static bool HasModule<T>(this Part p) where T : PartModule
@@ -72,7 +72,9 @@ namespace AtHangar
 		public static float TotalMass(this Part p) { return p.mass+p.GetResourceMass(); }
 		#endregion
 
-		public static float TotalCost(this Part p) { return p.partInfo.cost; }
+		public static string Title(this Part p) { return p.partInfo != null? p.partInfo.title : p.name; }
+
+		public static float TotalCost(this Part p) { return p.partInfo != null? p.partInfo.cost : 0; }
 
 		public static float ResourcesCost(this Part p) 
 		{ 
@@ -153,71 +155,13 @@ namespace AtHangar
 		}
 	}
 
-	public class ModuleGUIState
+	public static class PartModuleExtensions
 	{
-		readonly public List<string> EditorFields    = new List<string>();
-		readonly public List<string> GUIFields       = new List<string>();
-		readonly public List<string> InactiveEvents  = new List<string>();
-		readonly public List<string> InactiveActions = new List<string>();
-	}
+		public static string Title(this PartModule p) 
+		{ return p.part.partInfo != null? p.part.partInfo.title : p.part.name; }
 
-	public static class PartModuleExtension
-	{
-		public static ModuleGUIState SaveGUIState(this PartModule pm)
-		{
-			var state = new ModuleGUIState();
-			foreach(BaseField f in pm.Fields)
-			{
-				if(f.guiActive) state.GUIFields.Add(f.name);
-				if(f.guiActiveEditor) state.EditorFields.Add(f.name);
-			}
-			foreach(BaseEvent e in pm.Events)
-				if(!e.active) state.InactiveEvents.Add(e.name);
-			foreach(BaseAction a in pm.Actions)
-				if(!a.active) state.InactiveActions.Add(a.name);
-			return state;
-		}
-
-		public static ModuleGUIState DeactivateGUI(this PartModule pm)
-		{
-			var state = new ModuleGUIState();
-			foreach(BaseField f in pm.Fields)
-			{
-				if(f.guiActive) state.GUIFields.Add(f.name);
-				if(f.guiActiveEditor) state.EditorFields.Add(f.name);
-				f.guiActive = f.guiActiveEditor = false;
-			}
-			foreach(BaseEvent e in pm.Events)
-			{
-				if(!e.active) state.InactiveEvents.Add(e.name);
-				e.active = false;
-			}
-			foreach(BaseAction a in pm.Actions)
-			{
-				if(!a.active) state.InactiveActions.Add(a.name);
-				a.active = false;
-			}
-			return state;
-		}
-
-		public static void ActivateGUI(this PartModule pm, ModuleGUIState state = null)
-		{
-			foreach(BaseField f in pm.Fields)
-			{
-				if(state.GUIFields.Contains(f.name)) f.guiActive = true;
-				if(state.EditorFields.Contains(f.name)) f.guiActiveEditor = true;
-			}
-			foreach(BaseEvent e in pm.Events)
-			{
-				if(state.InactiveEvents.Contains(e.name)) continue;
-				e.active = true;
-			}
-			foreach(BaseAction a in pm.Actions)
-			{
-				if(state.InactiveActions.Contains(a.name)) continue;
-				a.active = true;
-			}
-		}
+		public static void EnableModule(this PartModule pm, bool enable)
+		{ pm.enabled = pm.isEnabled = enable; }
 
 		public static void Log(this PartModule pm, string msg, params object[] args)
 		{
@@ -225,6 +169,12 @@ namespace AtHangar
 			var _msg = string.Format("{0}.{1}.{2}: {3}", vname, pm.part.name, pm.GetType().Name, msg);
 			Utils.Log(_msg, args);
 		}
+	}
+
+	public static class VesselExtensions
+	{
+		public static Part GetPart<T>(this Vessel v) where T : PartModule
+		{ return v.parts.FirstOrDefault(p => p.HasModule<T>()); }
 	}
 }
 

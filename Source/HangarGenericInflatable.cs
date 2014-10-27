@@ -11,6 +11,15 @@ namespace AtHangar
 		void Enable(bool enable);
 	}
 
+	public class ControllableModuleBase : PartModule, IControllableModule
+	{
+		virtual public bool CanEnable() { return true; }
+		virtual public bool CanDisable() { return true; }
+
+		virtual public void Enable(bool enable) 
+		{ enabled = isEnabled = enable; }
+	}
+
 	public class GasCompressor : ConfigNodeObject
 	{
 		new public const string NODE_NAME = "COMPRESSOR";
@@ -28,7 +37,7 @@ namespace AtHangar
 			double pressure = FlightGlobals.getStaticPressure(part.vessel.altitude, part.vessel.mainBody);
 			if(pressure < 1e-6) return 0;
 			var request  = ConsumptionRate*(TimeWarp.fixedDeltaTime);
-			var consumed = part.RequestResource("ElectricCharge", request);
+			var consumed = part.RequestResource(Utils.ElectricChargeID, request);
 			OutputFraction = consumed/request;
 			return (float)(pressure*ConversionRate*consumed);
 		}
@@ -64,13 +73,12 @@ namespace AtHangar
 
 		//metric and scale
 		Part   prefab = null;
-		Metric prefab_metric = null;
-		Metric part_metric = null;
+		Metric prefab_metric;
+		Metric part_metric;
 		protected float volume_scale = 1;
 
 		//state
 		const int skip_fixed_frames = 5;
-		ModuleGUIState gui_state;
 		bool just_loaded = false;
 
 		#region Info
@@ -153,11 +161,13 @@ namespace AtHangar
 			init_compressor();
 			//ignore DragMultiplier as Drag is changed with volume
 			DragMultiplier = 1f;
+			//prevent accidental looping of animation
+			Loop = false;
 			//update part, GUI and set the flag
 			UpdatePart();
 			ToggleEvents();
 			StartCoroutine(SlowUpdate());
-			gui_state = this.DeactivateGUI();
+			isEnabled = false;
 			just_loaded = true;
 		}
 
@@ -222,7 +232,7 @@ namespace AtHangar
 		protected virtual void UpdatePart() 
 		{ 
 			animated_nodes.ForEach(n => n.UpdateNode());
-			if(prefab_metric == null) return;
+			if(prefab_metric.Empty) return;
 			part_metric  = new Metric(part);
 			volume_scale = part_metric.volume/prefab_metric.volume;
 			part.buoyancy       = prefab.buoyancy*volume_scale;
@@ -239,8 +249,7 @@ namespace AtHangar
 				UpdatePart();
 			}
 			if(State == AnimatorState.Opened) EnableModules(true);
-			if(gui_state == null) gui_state = this.SaveGUIState();
-			this.ActivateGUI(gui_state);
+			isEnabled = true;
 		}
 
 		IEnumerator<YieldInstruction> SlowUpdate()
@@ -267,6 +276,7 @@ namespace AtHangar
 		public void OnGUI() 
 		{ 
 			if(Event.current.type != EventType.Layout) return;
+			Styles.Init();
 			while(try_deflate)
 			{
 				if(has_compressed_gas) { deflate(); break; }
