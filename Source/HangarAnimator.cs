@@ -8,6 +8,10 @@ namespace AtHangar
 	public class HangarAnimator : BaseHangarAnimator
 	{
 		//fields
+		[KSPField(isPersistant = false)] public string OpenEventGUIName;
+		[KSPField(isPersistant = false)] public string CloseEventGUIName;
+		[KSPField(isPersistant = false)] public string ActionGUIName;
+
 		[KSPField(isPersistant = false)] public string AnimationName;
 		[KSPField(isPersistant = false)] public float  ForwardSpeed = 1f;
 		[KSPField(isPersistant = false)] public float  ReverseSpeed = 1f;
@@ -52,6 +56,11 @@ namespace AtHangar
 			if(State == AnimatorState.Opened) progress = 1f;
 			setup_animation();
 			seek(progress);
+			//GUI
+			Events["OpenEvent"].guiName     = OpenEventGUIName;
+			Events["CloseEvent"].guiName    = CloseEventGUIName;
+			Actions["ToggleAction"].guiName = ActionGUIName;
+			update_events();
         }
 
 		protected void seek(float norm_time = 0f)
@@ -112,6 +121,47 @@ namespace AtHangar
 				part.angularDrag  = part.partInfo.partPrefab.angularDrag  * mult;
 			}
 		}
+
+		#region Events & Actions
+		void update_events()
+		{
+			switch(State)
+			{
+			case AnimatorState.Closed:
+			case AnimatorState.Closing:
+				Events["OpenEvent"].active = OpenEventGUIName != string.Empty;
+				Events["CloseEvent"].active = false;
+				break;
+			case AnimatorState.Opened:
+			case AnimatorState.Opening:
+				Events["OpenEvent"].active = false;
+				Events["CloseEvent"].active = CloseEventGUIName != string.Empty;
+				break;
+			}
+			Actions["ToggleAction"].active = ActionGUIName != string.Empty;
+		}
+
+		[KSPEvent (guiActiveEditor = true, guiActive = true, guiName = "Open", active = false)]
+		public void OpenEvent() 
+		{ 
+			Open(); 
+			update_events();
+		}
+
+		[KSPEvent (guiActiveEditor = true, guiActive = true, guiName = "Close", active = false)]
+		public void CloseEvent()
+		{ 
+			Close(); 
+			update_events();
+		}
+
+		[KSPAction("Toggle")]
+		public void ToggleAction(KSPActionParam param) 
+		{ 
+			Toggle();
+			update_events();
+		}
+		#endregion
 	}
 }
 
