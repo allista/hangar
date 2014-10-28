@@ -101,6 +101,7 @@
     <Compile Include="SingleUseGrappleNode.cs" />
     <Compile Include="HangarStorageDynamic.cs" />
     <Compile Include="AsteroidMassConverter.cs" />
+    <Compile Include="HangarLight.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

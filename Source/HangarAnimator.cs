@@ -20,8 +20,8 @@ namespace AtHangar
 		[KSPField(isPersistant = false)] public float  DragMultiplier = 1f;
 		[KSPField(isPersistant = true)]  public float  progress = 0f;
 
-		float last_progress    = 0f;
-		float speed_multiplier = 1f;
+		protected float last_progress    = 0f;
+		protected float speed_multiplier = 1f;
 		
 		//animation
 		List<AnimationState> animation_states = new List<AnimationState>();
@@ -68,6 +68,7 @@ namespace AtHangar
 			norm_time = Mathf.Clamp01(norm_time);
 			foreach(var state in animation_states)
 				state.normalizedTime = norm_time;
+			progress = norm_time;
 		}
 
         override public void Open()
@@ -100,14 +101,14 @@ namespace AtHangar
 
 		public virtual void FixedUpdate()
 		{
-			//consume energy if doors are mooving
+			//consume energy if playing
 			if(HighLogic.LoadedSceneIsFlight)
 			{
 				if(EnergyConsumption > 0 && 
 					(State == AnimatorState.Closing || State == AnimatorState.Opening))
 				{
 					float request = EnergyConsumption*TimeWarp.fixedDeltaTime;
-					float consumed = part.RequestResource("ElectricCharge", request);
+					float consumed = part.RequestResource(Utils.ElectricChargeID, request);
 					speed_multiplier = consumed/request;
 					if(speed_multiplier < 0.01f) speed_multiplier = 0f;
 				}
@@ -123,7 +124,7 @@ namespace AtHangar
 		}
 
 		#region Events & Actions
-		void update_events()
+		protected void update_events()
 		{
 			switch(State)
 			{
