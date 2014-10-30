@@ -20,6 +20,7 @@ namespace AtHangar
 		[KSPField(isPersistant = false)] public float  DragMultiplier = 1f;
 		[KSPField(isPersistant = true)]  public float  progress = 0f;
 
+		protected ResourcePump socket;
 		protected float last_progress    = 0f;
 		protected float speed_multiplier = 1f;
 		
@@ -56,6 +57,8 @@ namespace AtHangar
 			if(State == AnimatorState.Opened) progress = 1f;
 			setup_animation();
 			seek(progress);
+			if(EnergyConsumption > 0) 
+				socket = part.CreateSocket();
 			//GUI
 			Events["OpenEvent"].guiName     = OpenEventGUIName;
 			Events["CloseEvent"].guiName    = CloseEventGUIName;
@@ -99,20 +102,20 @@ namespace AtHangar
 			progress = _progress;
         }
 
+		protected virtual void consume_energy()
+		{
+			if(State != AnimatorState.Closing && State != AnimatorState.Opening) return;
+			socket.RequestTransfer(EnergyConsumption*TimeWarp.fixedDeltaTime);
+			if(!socket.TransferResource()) return;
+			speed_multiplier = socket.Ratio;
+			if(speed_multiplier < 0.01f) 
+				speed_multiplier = 0;
+		}
+
 		public virtual void FixedUpdate()
 		{
 			//consume energy if playing
-			if(HighLogic.LoadedSceneIsFlight)
-			{
-				if(EnergyConsumption > 0 && 
-					(State == AnimatorState.Closing || State == AnimatorState.Opening))
-				{
-					float request = EnergyConsumption*TimeWarp.fixedDeltaTime;
-					float consumed = part.RequestResource(Utils.ElectricChargeID, request);
-					speed_multiplier = consumed/request;
-					if(speed_multiplier < 0.01f) speed_multiplier = 0f;
-				}
-			}
+			if(HighLogic.LoadedSceneIsFlight && socket != null)	consume_energy();
 			//change Drag according to the animation progress
 			if(DragMultiplier != 1 && last_progress != progress)
 			{
