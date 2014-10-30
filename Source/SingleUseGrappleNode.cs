@@ -20,13 +20,9 @@ namespace AtHangar
 			base.OnStart(st);
 			//initialize Animator
 			part.force_activate();
+			animator = part.GetAnimator(AnimatorID);
 			animator = part.Modules.OfType<BaseHangarAnimator>().FirstOrDefault(m => m.AnimatorID == AnimatorID);
-			if(animator == null)
-			{
-				this.Log("Using BaseHangarAnimator");
-				animator = new BaseHangarAnimator();
-				if(Fixed) animator.Open();
-			}
+			if(Fixed && animator as HangarAnimator == null) animator.Open();
 			//initialize Fixed state
 			StartCoroutine(delayed_disable_decoupling());
 		}
