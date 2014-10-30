@@ -82,6 +82,8 @@ namespace AtHangar
 		bool change_velocity;
 
 		public bool IsControllable { get { return vessel.IsControllable || part.protoModuleCrew.Count > 0; } }
+
+		protected ResourcePump socket;
 		#endregion
 
 		#region GUI
@@ -204,17 +206,14 @@ namespace AtHangar
 			}
 			//initialize Animator
 			part.force_activate();
-			hangar_gates = part.Modules.OfType<BaseHangarAnimator>().FirstOrDefault(m => m.AnimatorID == AnimatorID);
-			if(hangar_gates == null)
-			{
-				hangar_gates = new BaseHangarAnimator();
-				this.Log("Using BaseHangarAnimator");
-			}
-			else
+			hangar_gates = part.GetAnimator(AnimatorID);
+			if(hangar_gates as HangarAnimator != null)
 			{
 				Events["Open"].guiActiveEditor = true;
 				Events["Close"].guiActiveEditor = true;
 			}
+			if(EnergyConsumption > 0) 
+				socket = part.CreateSocket();
 			build_passage_checklist();
 		}
 
@@ -269,10 +268,10 @@ namespace AtHangar
 					deltaV = Vector3.zero;
 				}
 				//consume energy if hangar is operational
-				if(hangar_state == HangarState.Active)
+				if(socket != null && hangar_state == HangarState.Active)
 				{
-					float request = EnergyConsumption*TimeWarp.fixedDeltaTime;
-					if(part.RequestResource("ElectricCharge", request) < request)
+					socket.RequestTransfer(EnergyConsumption*TimeWarp.fixedDeltaTime);
+					if(socket.TransferResource() && socket.PartialTransfer)
 					{
 						ScreenMessager.showMessage("Not enough energy. The hangar has deactivated.");
 						Deactivate();
