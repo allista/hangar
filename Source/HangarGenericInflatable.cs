@@ -26,20 +26,22 @@ namespace AtHangar
 		[Persistent] public float ConversionRate = 0.05f;
 		[Persistent] public float ConsumptionRate = 1.0f;
 		public float OutputFraction { get; private set; }
+		readonly ResourcePump socket;
 		readonly Part part;
 
-		public GasCompressor(Part p) { part = p; }
+		public GasCompressor(Part p) 
+		{ part = p; socket = p.CreateSocket(); }
 
 		public float CompressGas()
 		{
 			if(part.vessel == null || part.vessel.mainBody == null) return 0;
 			if(!part.vessel.mainBody.atmosphere) return 0;
-			double pressure = FlightGlobals.getStaticPressure(part.vessel.altitude, part.vessel.mainBody);
+			var pressure = FlightGlobals.getStaticPressure(part.vessel.altitude, part.vessel.mainBody);
 			if(pressure < 1e-6) return 0;
-			var request  = ConsumptionRate*(TimeWarp.fixedDeltaTime);
-			var consumed = part.RequestResource(Utils.ElectricChargeID, request);
-			OutputFraction = consumed/request;
-			return (float)(pressure*ConversionRate*consumed);
+			socket.RequestTransfer(ConsumptionRate*TimeWarp.fixedDeltaTime);
+			if(!socket.TransferResource()) return 0 ;
+			OutputFraction = socket.Ratio;
+			return (float)(pressure * ConversionRate * socket.Result);
 		}
 	}
 
@@ -86,8 +88,9 @@ namespace AtHangar
 		{ 
 			if(!init_compressor()) return "";
 			string info = "Compressor:\n";
-			info += string.Format("Rate: {0}/el.u.\n", Utils.formatVolume(Compressor.ConversionRate));
-			info += string.Format("Power Consumption: {0} el.u./sec\n", Compressor.ConsumptionRate);
+			info += string.Format("Pump Rate: {0}/sec\n", 
+				Utils.formatVolume(Compressor.ConversionRate*Compressor.ConsumptionRate));
+			info += string.Format("Energy Consumption: {0}/sec\n", Compressor.ConsumptionRate);
 			return info;
 		}
 		#endregion
