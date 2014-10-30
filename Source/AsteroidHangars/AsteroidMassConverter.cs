@@ -1,26 +1,24 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace AtHangar
 {
-	public class AsteroidMassConverter : PartModule
+	public class AsteroidMassConverter : AnimatedConverterBase
 	{
+		const string USI_PotatoInfoName = "USI_PotatoInfo";
+
 		[KSPField] public string OutputResource;
-		[KSPField] public float  Efficiency = 0.92f; // 3%
+		[KSPField] public float  Efficiency = 0.92f; // 8% of mass is lost
 		[KSPField] public float  ConversionRate = 0.01f; // tons per electric charge
-		[KSPField] public float  EnergyConsumption = 50f; // electric charge per second
 		[KSPField] public float  RateThreshold = 0.1f; // relative rate threshold
 
-		[KSPField(isPersistant = true)] public bool Converting;
-		float dM_buffer;
-
-		[KSPField] public string AnimatorID = "_none_";
-		BaseHangarAnimator animator;
-
 		[KSPField(guiActive = true, guiName = "Mining Rate", guiFormat = "n1", guiUnits = "%")]
-		public float RelativeRate;
+		public float RateDisplay;
+		float rate, last_rate;
+
+		ResourcePump pump;
+		float dM_buffer;
 
 		#region Parts & Modules
 		Part asteroid;
@@ -28,11 +26,21 @@ namespace AtHangar
 		SingleUseGrappleNode grapple_node;
 		HangarStorageDynamic storage;
 		PartResourceDefinition resource;
-		KSPParticleEmitter emitter;
 		#endregion
 
-
 		#region Setup
+		public override string GetInfo()
+		{
+			var info = base.GetInfo();
+			var mass_flow = ConversionRate*EnergyConsumption;
+			info += string.Format("Mass Conversion: {0}/sec\n", Utils.formatMass(mass_flow));
+			resource = PartResourceLibrary.Instance.GetDefinition(OutputResource);
+			if(resource != null)
+				info += string.Format("Produces {0}: {1}/sec", 
+					OutputResource, mass_flow*Efficiency/resource.density);
+			return info;
+		}
+
 		public override void OnAwake()
 		{
 			base.OnAwake();
@@ -45,26 +53,35 @@ namespace AtHangar
 		void update_state(Vessel vsl)
 		{ if(vsl == part.vessel) update_state(); }
 
+		IEnumerator<YieldInstruction> slow_update()
+		{
+			while(true)
+			{
+				if(rate != last_rate)
+				{
+					RateDisplay = rate*100f;
+					if(emitter != null)
+					{
+						emitter.minEmission = (int)Mathf.Ceil(base_emission[0]*rate);
+						emitter.maxEmission = (int)Mathf.Ceil(base_emission[1]*rate);
+					}
+					last_rate = rate;
+				}
+				yield return new WaitForSeconds(0.5f);
+			}
+		}
+
 		public override void OnStart(StartState state)
 		{
+			StartEventGUIName = "Start Mining";
+			StopEventGUIName = "Stop Mining";
+			ActionGUIName = "Toggle Mining";
 			base.OnStart(state);
-			resource = PartResourceLibrary.Instance.GetDefinition(OutputResource);
-			if(resource == null)
-			{
-				this.Log("WARNING: no '{0}' resource in the library. Part config is INVALID.", OutputResource);
-				enabled = isEnabled = false;
-				return;
-			}
-			//initialize Animator
-			part.force_activate();
-			emitter = part.GetComponentsInChildren<KSPParticleEmitter>().FirstOrDefault();
-			animator = part.Modules.OfType<BaseHangarAnimator>().FirstOrDefault(m => m.AnimatorID == AnimatorID);
-			if(animator == null)
-			{
-				this.Log("Using BaseHangarAnimator");
-				animator = new BaseHangarAnimator();
-			}
+			resource = this.GetResourceDef(OutputResource);
+			if(resource == null) return;
+			pump = new ResourcePump(part, resource.id);
 			update_state();
+			StartCoroutine(slow_update());
 		}
 		#endregion
 
@@ -75,7 +92,7 @@ namespace AtHangar
 			{
 				//get asteroid
 				asteroid = vessel.GetPart<ModuleAsteroid>();
-				if(!asteroid_is_usable(asteroid)) throw new Exception();
+				if(!asteroid_is_usable) throw new Exception();
 				asteroid_info = asteroid.GetModule<AsteroidInfo>();
 				if(asteroid_info == null) throw new Exception();
 				//get asteroid hatch
@@ -91,32 +108,43 @@ namespace AtHangar
 				grapple_node = null;
 				storage = null;
 				dM_buffer = 0;
+				if(pump != null)
+					pump.Clear();
 			}
 			Converting &= can_convert();
 			update_events();
-
 		}
 
-		bool asteroid_is_usable(Part ast)
+		bool asteroid_is_usable
 		{
-			if(asteroid == null) return false;
-			try
+			get
 			{
-				var USI_PotatoInfo = ast.Modules["USI_PotatoInfo"];
-				var explored = USI_PotatoInfo.Fields["Explored"];
-				if((bool)explored.host) 
+				if(asteroid == null) return false;
+				try
 				{
-					ScreenMessager.showMessage(6, "This asteroid is used by Asteroid Recycling machinery.\n" +
-						"Mining it is prohibited for safety reasons.");
-					return false;
-				}
-			} catch {}
-			return true;
+					var USI_PotatoInfo = asteroid.Modules[USI_PotatoInfoName];
+					var explored = USI_PotatoInfo.Fields["Explored"];
+					if((bool)explored.host) 
+					{
+						ScreenMessager.showMessage(6, "This asteroid is used by Asteroid Recycling machinery.\n" +
+							"Mining it is prohibited for safety reasons.");
+						return false;
+					}
+				} catch {}
+				return true;
+			}
+		}
+
+		void lock_asteroid()
+		{
+			if(asteroid == null) return;
+			try { asteroid.Modules.Remove(asteroid.Modules[USI_PotatoInfoName]); }
+			catch {}
 		}
 		#endregion
 
 		#region Mining
-		bool can_convert(bool report = false)
+		protected override bool can_convert(bool report = false)
 		{
 			if(!report)
 				return asteroid != null
@@ -162,41 +190,38 @@ namespace AtHangar
 			dM_buffer -= Mathf.Min(consumed*ConversionRate, asteroid.mass-asteroid_info.MinMass);
 			var new_mass = asteroid.mass+dM_buffer;
 			if(asteroid.mass == new_mass) return true;
-			//if it seems possible, produce resource
-			var request = dM_buffer/resource.density*Efficiency;
-			var produced = part.RequestResource(resource.id, request);
-			var dM = produced*resource.density/Efficiency;
+			//if it seems possible, try to produce resource
+			pump.RequestTransfer(dM_buffer/resource.density*Efficiency);
+			dM_buffer = 0;
+			if(!pump.TransferResource()) return true;
+			var dM = pump.Result*resource.density/Efficiency;
 			new_mass = asteroid.mass+dM;
-			//if produced is less then is required to change asteroid mass, revert
+			//if what produced is still less then is required to change asteroid mass, revert
 			if(asteroid.mass == new_mass) 
-			{
-				part.RequestResource(resource.id, -produced);
-				return false;
-			}
+			{ pump.Revert(); return false; }
 			storage.AddVolume(-dM/asteroid_info.Density);
 			asteroid.mass = new_mass;
-			dM_buffer = 0;
 			return true;
 		}
 
-		bool convert_asteroid_mass()
+		protected override bool convert()
 		{
 			//get energy
-			var request  = EnergyConsumption*TimeWarp.fixedDeltaTime;
-			var consumed = part.RequestResource(Utils.ElectricChargeID, request);
-			var rate = consumed/request; RelativeRate = rate*100f;
+			socket.RequestTransfer(EnergyConsumption*TimeWarp.fixedDeltaTime);
+			if(!socket.TransferResource()) return true;
+			rate = socket.Ratio;
 			if(rate < RateThreshold) 
 			{
 				ScreenMessager.showMessage("Not enough energy");
 				return false;
 			}
 			//try to produce resource
-			var produced = produce(consumed);
+			var produced = produce(socket.Result);
 			//check results
 			if(asteroid.mass <= asteroid_info.MinMass)
 			{
 				ScreenMessager.showMessage("Asteroid is depleted");
-				dM_buffer = 0;
+				dM_buffer = 0; pump.Clear();
 				return false;
 			}
 			if(!produced)
@@ -207,49 +232,13 @@ namespace AtHangar
 			return true;
 		}
 
-		public void FixedUpdate()
-		{ if(Converting && !convert_asteroid_mass()) StopConversion(); }
-		#endregion
+		protected override void on_start_conversion()
+		{ lock_asteroid(); }
 
-		#region Events & Actions
-		void update_events()
+		protected override void on_stop_conversion()
 		{
-			Events["StartConversion"].active = !Converting;
-			Events["StopConversion"].active  =  Converting;
-			if(emitter != null)
-			{
-				emitter.emit = Converting;
-				emitter.enabled = Converting;
-			}
-			if(Converting) animator.Open();
-			else animator.Close();
-		}
-
-		[KSPEvent (guiActive = true, guiName = "Start Mining", active = true)]
-		public void StartConversion()
-		{
-			if(!can_convert(true)) return;
-			Converting = true;
-			animator.Open();
-			update_events();
-		}
-
-		[KSPEvent (guiActive = true, guiName = "Stop Mining", active = true)]
-		public void StopConversion()
-		{
-
-			Converting = false;
-			RelativeRate = 0;
+			RateDisplay = 0;
 			storage.UpdateMetric();
-			animator.Close();
-			update_events();
-		}
-
-		[KSPAction("Toggle Mining")]
-		public void ToggleConversionAction(KSPActionParam param)
-		{
-			if(Converting) StopConversion();
-			else StartConversion();
 		}
 		#endregion
 	}
