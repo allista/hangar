@@ -62,7 +62,7 @@ namespace AtHangar
 			foreach (var updater in all_updaters)
 			{
 				MethodInfo register = typeof(PartUpdater).GetMethod("RegisterUpdater");
-				register = register.MakeGenericMethod(new Type[] { updater });
+				register = register.MakeGenericMethod(new [] { updater });
 				register.Invoke(null, null);
 			}
 		}
