@@ -153,6 +153,27 @@ namespace AtHangar
 			} 
 			else ap.transform.position += dp;
 		}
+
+		public static ResourcePump CreateSocket(this Part p)
+		{ return new ResourcePump(p, Utils.ElectricChargeID); }
+
+		public static BaseHangarAnimator GetAnimator(this Part p, string ID)
+		{
+			var animator = p.Modules.OfType<BaseHangarAnimator>().FirstOrDefault(m => m.AnimatorID == ID);
+			if(animator == null)
+			{
+				p.Log("Using BaseHangarAnimator");
+				animator = new BaseHangarAnimator();
+			}
+			return animator;
+		}
+
+		public static void Log(this Part p, string msg, params object[] args)
+		{
+			var vname = p.vessel == null? "" : p.vessel.vesselName;
+			var _msg = string.Format("{0}.{1}: {2}", vname, p.name, msg);
+			Utils.Log(_msg, args);
+		}
 	}
 
 	public static class PartModuleExtensions
@@ -168,6 +189,18 @@ namespace AtHangar
 			var vname = pm.part.vessel == null? "" : pm.part.vessel.vesselName;
 			var _msg = string.Format("{0}.{1}.{2}: {3}", vname, pm.part.name, pm.GetType().Name, msg);
 			Utils.Log(_msg, args);
+		}
+
+		public static PartResourceDefinition GetResourceDef(this PartModule pm, string name)
+		{
+			var res = PartResourceLibrary.Instance.GetDefinition(name);
+			if(res == null)
+			{
+				ScreenMessager.showMessage(6, "WARNING: no '{0}' resource in the library.\n" +
+					"Configuration of \"{1}\" is INVALID.", name, pm.Title());
+				pm.enabled = pm.isEnabled = false;
+			}
+			return res;
 		}
 	}
 
