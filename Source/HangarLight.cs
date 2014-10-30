@@ -4,35 +4,41 @@ namespace AtHangar
 {
 	public class HangarLight : HangarAnimator
 	{
-		[KSPField(isPersistant = false)] public float ShutdownRateThreshold = 0.1f;
-		[KSPField(isPersistant = false)] public float DownclockRateThreshold = 0.99f;
+		public override string GetInfo()
+		{
+			var info = base.GetInfo();
+			if(info != string.Empty) info += "\n";
+			info += string.Format("Energy Consumption: {0}/sec", EnergyConsumption);
+			return info;
+		}
+
+		public override void OnLoad(ConfigNode node)
+		{
+			base.OnLoad(node);
+			if(EnergyConsumption <= 0f) 
+				EnergyConsumption = 0.01f;
+		}
 
 		public override void OnStart (StartState state)
 		{
+			//default labels
+			if(OpenEventGUIName  == string.Empty) OpenEventGUIName  = "Lights On";
+			if(CloseEventGUIName == string.Empty) CloseEventGUIName = "Lights Off";
+			if(ActionGUIName     == string.Empty) ActionGUIName     = "Toggle Lights";
+			Actions["ToggleAction"].actionGroup = KSPActionGroup.Light;
 			base.OnStart (state);
-			DragMultiplier = 1f;
+		}
+
+		protected override void consume_energy()
+		{
+			if(State != AnimatorState.Opened && State != AnimatorState.Opening) return;
+			socket.RequestTransfer(EnergyConsumption*TimeWarp.fixedDeltaTime);
+			if(!socket.TransferResource()) return;
+			if(socket.PartialTransfer) { Close(); update_events(); socket.Clear(); }
 		}
 
 		public override void FixedUpdate()
-		{
-			if(HighLogic.LoadedSceneIsFlight)
-			{
-				if(EnergyConsumption > 0 && 
-					State != AnimatorState.Closing && 
-					State != AnimatorState.Closed)
-				{
-					float request  = progress*EnergyConsumption*TimeWarp.fixedDeltaTime;
-					float consumed = part.RequestResource(Utils.ElectricChargeID, request);
-					var rate = consumed/request;
-					if(rate < DownclockRateThreshold)
-					{
-						if(rate < ShutdownRateThreshold) 
-						{ Close(); update_events(); }
-						else seek(progress*rate);
-					}
-				}
-			}
-		}
+		{ if(HighLogic.LoadedSceneIsFlight) consume_energy(); }
 	}
 }
 
