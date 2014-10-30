@@ -105,15 +105,17 @@ namespace AtHangar
 		#region Formatting
 		public static string formatMass(float mass)
 		{
-			if(mass < 0.01f)
-				return (mass * 1e3f).ToString("n3") + "kg";
-			return mass.ToString("n3") + "t";
+			if(mass > 0.1f)
+				return mass.ToString("n2") + "t";
+			if(mass > 0.001f)
+				return (mass * 1e3f).ToString("n1") + "kg";
+			return (mass * 1e6f).ToString("n0") + "g";
 		}
 		
 		public static string formatVolume(double volume)
 		{
 			if(volume < 0.1f)
-				return (volume * 1e3f).ToString ("n0") + " L";
+				return (volume * 1e3f).ToString ("n0") + "L";
 			return volume.ToString("n1") + "m^3";
 		}
 
@@ -207,4 +209,3 @@ namespace AtHangar
 		{ ConfigNode.LoadObjectFromConfig(this, node); }
 	}
 }
-
