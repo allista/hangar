@@ -8,6 +8,7 @@ namespace AtHangar
 	// This code is based on Procedural Fairings plug-in by Alexey Volynskov, PMUtils class
 	static partial class Utils
 	{
+		#region Resources
 		const string ElectricChargeName = "ElectricCharge";
 		static int _electric_charge_id = -1;
 		public static int ElectricChargeID
@@ -23,26 +24,9 @@ namespace AtHangar
 				return _electric_charge_id;
 			} 
 		}
-
+		#endregion
 
 		#region Misc
-		public static void setFieldRange(BaseField field, float minval, float maxval)
-		{
-			var fr = field.uiControlEditor as UI_FloatRange;
-			if (fr != null) 
-			{
-				fr.minValue = minval;
-				fr.maxValue = maxval;
-			}
-
-			var fe = field.uiControlEditor as UI_FloatEdit;
-			if (fe != null) 
-			{
-				fe.minValue = minval;
-				fe.maxValue = maxval;
-			}
-		}
-
 		//sound (from the KAS mod; KAS_Shared class)
 		public static bool createFXSound(Part part, FXGroup group, string sndPath, bool loop, float maxDistance = 30f)
 		{
@@ -206,6 +190,6 @@ namespace AtHangar
 		{ ConfigNode.LoadObjectFromConfig(this, node); }
 
 		virtual public void Save(ConfigNode node)
-		{ ConfigNode.LoadObjectFromConfig(this, node); }
+		{ ConfigNode.CreateConfigFromObject(this, node); }
 	}
 }

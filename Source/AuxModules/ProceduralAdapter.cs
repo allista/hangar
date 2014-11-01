@@ -84,15 +84,9 @@ namespace AtHangar
 				init_limit(MIN_SIZE, ref minSize, Mathf.Min(topSize, bottomSize), (a, b) => a < b);
 				init_limit(MAX_SIZE, ref maxSize, Mathf.Max(topSize, bottomSize), (a, b) => a > b);
 				//setup sliders
-				Utils.setFieldRange(Fields["topSize"], minSize, maxSize);
-				((UI_FloatEdit)Fields["topSize"].uiControlEditor).incrementLarge = sizeStepLarge;
-				((UI_FloatEdit)Fields["topSize"].uiControlEditor).incrementSmall = sizeStepSmall;
-				Utils.setFieldRange(Fields["bottomSize"], minSize, maxSize);
-				((UI_FloatEdit)Fields["bottomSize"].uiControlEditor).incrementLarge = sizeStepLarge;
-				((UI_FloatEdit)Fields["bottomSize"].uiControlEditor).incrementSmall = sizeStepSmall;
-				Utils.setFieldRange (Fields ["aspect"], minAspect, maxAspect);
-				((UI_FloatEdit)Fields["aspect"].uiControlEditor).incrementLarge = aspectStepLarge;
-				((UI_FloatEdit)Fields["aspect"].uiControlEditor).incrementSmall = aspectStepSmall;
+				setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
+				setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
+				setup_field(Fields["aspect"], minAspect, maxAspect, aspectStepLarge, aspectStepSmall);
 			}
 			get_part_components();
 			update_body();

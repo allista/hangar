@@ -12,7 +12,7 @@ namespace AtHangar
 	public class HangarConfig : MonoBehaviour
 	{
 		//root config node name and value
-		public const string HANGAR_CONFIG  = "HANGAR_CONFIG";
+		public const string HANGAR_CONFIG  = "HANGARCONFIG";
 		static ConfigNode root;
 
 		#region Configuration
