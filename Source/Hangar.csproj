@@ -104,6 +104,8 @@
     <Compile Include="AuxModules\GroundAnchor.cs" />
     <Compile Include="AuxModules\ProceduralAdapter.cs" />
     <Compile Include="AuxModules\TruncatedCone.cs" />
+    <Compile Include="AsteroidHangars\HangarSwitchableTank.cs" />
+    <Compile Include="AsteroidHangars\SwitchableTankType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
