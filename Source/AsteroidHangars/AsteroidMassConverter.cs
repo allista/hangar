@@ -32,7 +32,7 @@ namespace AtHangar
 		public override string GetInfo()
 		{
 			var info = base.GetInfo();
-			var mass_flow = ConversionRate*EnergyConsumption;
+			var mass_flow = ConversionRate*EnergyConsumption*RatesMultiplier;
 			info += string.Format("Mass Conversion: {0}/sec\n", Utils.formatMass(mass_flow));
 			resource = PartResourceLibrary.Instance.GetDefinition(OutputResource);
 			if(resource != null)
@@ -207,7 +207,7 @@ namespace AtHangar
 		protected override bool convert()
 		{
 			//get energy
-			socket.RequestTransfer(EnergyConsumption*TimeWarp.fixedDeltaTime);
+			socket.RequestTransfer(RatesMultiplier*EnergyConsumption*TimeWarp.fixedDeltaTime);
 			if(!socket.TransferResource()) return true;
 			rate = socket.Ratio;
 			if(rate < RateThreshold) 

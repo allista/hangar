@@ -4,10 +4,11 @@ namespace AtHangar
 {
 	public abstract class AnimatedConverterBase : PartModule
 	{
-		[KSPField(isPersistant = false)] public string Title;
-		[KSPField(isPersistant = false)] public string StartEventGUIName = "Start Conversion";
-		[KSPField(isPersistant = false)] public string StopEventGUIName = "Stop Conversion";
-		[KSPField(isPersistant = false)] public string ActionGUIName = "Toggle Conversion";
+		[KSPField] public string Title = "";
+		[KSPField] public string StartEventGUIName = "Start Conversion";
+		[KSPField] public string StopEventGUIName = "Stop Conversion";
+		[KSPField] public string ActionGUIName = "Toggle Conversion";
+		[KSPField] public float  RatesMultiplier = 1f;
 
 		[KSPField(isPersistant = true)] public bool Converting;
 		[KSPField] public float EnergyConsumption = 50f; // electric charge per second
@@ -23,7 +24,7 @@ namespace AtHangar
 		{ 
 			var info = "";
 			if(Title != string.Empty) info += Title+" Converter:\n";
-			info += string.Format("Energy Consumption: {0} el.u/sec\n", EnergyConsumption); 
+			info += string.Format("Energy Consumption: {0}/sec\n", EnergyConsumption*RatesMultiplier); 
 			return info;
 		}
 
@@ -46,6 +47,9 @@ namespace AtHangar
 			Events["StopConversion"].guiName    = title+StopEventGUIName;
 			Actions["ToggleConversion"].guiName = title+ActionGUIName;
 		}
+
+		public virtual void SetRatesMultiplier(float mult)
+		{ RatesMultiplier = mult; }
 
 		protected abstract bool can_convert(bool report = false);
 		protected abstract bool convert();
