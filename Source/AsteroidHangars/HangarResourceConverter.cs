@@ -37,9 +37,13 @@ namespace AtHangar
 			return info;
 		}
 
+		string configuration_is_invalid 
+		{ get { return string.Format("Configuration of \"{0}\" is INVALID.", this.Title()); } }
+
 		ResourceLine parse_resource(string res, bool _in = true)
 		{
-			var name_and_rate = res.Split(' ');
+			var name_and_rate = res.Split(new []{' '}, 
+				StringSplitOptions.RemoveEmptyEntries);
 			if(name_and_rate.Length != 2) 
 			{
 				this.Log("Invalid format of resource usage definition. " +
@@ -47,11 +51,13 @@ namespace AtHangar
 				return default(ResourceLine);
 			}
 			float rate;
-			if(!float.TryParse(name_and_rate[1], out rate))
+			if(!float.TryParse(name_and_rate[1], out rate) || rate <= 0)
 			{
-				this.Log("Invalid format of resource usage rate: {0}", name_and_rate[1]);
+				this.Log("Invalid format of resource usage rate. " +
+					"Should be positive float value, got: {0}", name_and_rate[1]);
 				return default(ResourceLine);
 			}
+			rate *= RatesMultiplier;
 			var res_def = this.GetResourceDef(name_and_rate[0]);
 			if(res_def == null) 
 			{
@@ -64,8 +70,9 @@ namespace AtHangar
 		List<ResourceLine> parse_resources(string resources, bool _in = true)
 		{
 			var res_list = new List<ResourceLine>();
-			foreach(var res_str in resources.Split(';'))
+			foreach(var _res_str in resources.Split(';'))
 			{
+				var res_str = _res_str.Trim();
 				if(res_str == string.Empty) continue;
 				var res = parse_resource(res_str, _in);
 				if(!res.Valid) return null;
@@ -79,8 +86,6 @@ namespace AtHangar
 			if(resources == null || resources.Count == 0) return 0;
 			return resources.Aggregate(0f, (f, r) => f+r.Rate);
 		}
-
-		string configuration_is_invalid { get { return string.Format("Configuration of \"{0}\" is INVALID.", this.Title()); } }
 
 		void setup_resources()
 		{
@@ -126,6 +131,12 @@ namespace AtHangar
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
+			setup_resources();
+		}
+
+		public override void SetRatesMultiplier(float mult)
+		{
+			base.SetRatesMultiplier(mult);
 			setup_resources();
 		}
 
@@ -229,9 +240,9 @@ namespace AtHangar
 			}
 		}
 
-		public bool TransferResource()
+		public bool TransferResource(float rate = 1f)
 		{
-			Pump.RequestTransfer(URate*TimeWarp.fixedDeltaTime);
+			Pump.RequestTransfer(rate*URate*TimeWarp.fixedDeltaTime);
 			return Pump.TransferResource();
 		}
 
