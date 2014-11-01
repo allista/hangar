@@ -137,13 +137,15 @@ namespace AtHangar
 			{
 				Vector3 old_position = part.srfAttachNode.position;
 				part.srfAttachNode.position = ScaleVector(part.srfAttachNode.originalPosition, scale, scale.aspect);
+				//don't move the part at start, its position is persistant
 				if(!scale.FirstTime)
 				{
 					Vector3 d_pos = part.transform.TransformDirection(part.srfAttachNode.position - old_position);
 					part.transform.position -= d_pos;
 				}
 			}
-			//no need to update surface attached parts for the first time
+			//no need to update surface attached parts on start
+			//as their positions are persistant; less calculations
 			if(scale.FirstTime) return;
 			//update parts that are surface attached to this
 			foreach(Part child in part.children)
@@ -179,6 +181,9 @@ namespace AtHangar
 	{
 		public override void OnRescale(Scale scale)
 		{
+			//no need to update resources on start
+			//as they are persistant; less calculations
+			if(scale.FirstTime) return;
 			foreach(PartResource r in part.Resources)
 			{
 				var s = r.resourceName == "AblativeShielding"? 
@@ -312,6 +317,18 @@ namespace AtHangar
 	{
 		public override void OnRescale(Scale scale)
 		{ module.ejectionForce = base_module.ejectionForce * scale.absolute; }
+	}
+
+	public class SwitchableTankUpdater : ModuleUpdater<HangarSwitchableTank>
+	{
+		public override void OnRescale(Scale scale)
+		{ module.Volume *= scale.relative.cube * scale.relative.aspect; }
+	}
+
+	public class ResourceConverterUpdater : ModuleUpdater<AnimatedConverterBase>
+	{
+		public override void OnRescale(Scale scale)
+		{ module.SetRatesMultiplier(base_module.RatesMultiplier * scale.absolute.cube * scale.absolute.aspect); }
 	}
 }
 
