@@ -6,9 +6,6 @@ namespace AtHangar
 {
 	public struct Metric
 	{
-		//ignore list
-		public const string MESHES_TO_SKIP = "MeshesToSkip";
-		public static readonly List<string> MeshesToSkip = new List<string>();
 		//convex hull
 		public ConvexHull3D hull { get; private set; }
 		//bounds
@@ -111,7 +108,7 @@ namespace AtHangar
 					if(m.renderer == null || !m.renderer.enabled) continue;
 					//skip meshes from the blacklist
 					bool skip_mesh = false;
-					foreach(string mesh_name in MeshesToSkip)
+					foreach(string mesh_name in HangarConfig.MeshesToSkip)
 					{
 						if(mesh_name == "") continue;
 						skip_mesh = m.name.IndexOf(mesh_name, StringComparison.OrdinalIgnoreCase) >= 0;
