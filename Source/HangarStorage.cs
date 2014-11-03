@@ -6,7 +6,7 @@ namespace AtHangar
 {
 	public class HangarStorage : HangarPassage, IPartCostModifier, IControllableModule
 	{
-		[KSPField] public string HangarSpace;
+		[KSPField] public string HangarSpace = string.Empty;
 		[KSPField] public float UsefulSizeRatio = 0.9f; //in case no HangarSpace is provided and the part metric is used
 
 		#region Internals
