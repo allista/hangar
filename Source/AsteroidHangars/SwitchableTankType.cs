@@ -40,6 +40,20 @@ namespace AtHangar
 		}
 		static Dictionary<string, SwitchableTankType> _tank_types;
 
+		/// <summary>
+		/// Gets the sorted list of tank type names.
+		/// </summary>
+		public static List<string> TankTypeNames
+		{
+			get
+			{
+				var types = TankTypes;
+				var names = new List<string>(types.Keys);
+				names.Sort();
+				return names;
+			}
+		}
+
 		new public const string NODE_NAME = "TANKTYPE";
 		/// <summary>
 		/// The name of the tank type.
