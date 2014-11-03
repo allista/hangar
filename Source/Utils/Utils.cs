@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using KSPAPIExtensions;
 
 namespace AtHangar
 {
@@ -98,9 +97,25 @@ namespace AtHangar
 		
 		public static string formatVolume(double volume)
 		{
-			if(volume < 0.1f)
+			if(volume < 1f)
 				return (volume * 1e3f).ToString ("n0") + "L";
 			return volume.ToString("n1") + "m^3";
+		}
+
+		public static string formatUnits(float units)
+		{
+			units = Mathf.Abs(units);
+			if(units > 1f)
+				return units.ToString ("n2") + "u";
+			if(units > 1e-3f)
+				return (units * 1e3f).ToString ("n1") + "mu";
+			if(units > 1e-6f)
+				return (units * 1e6f).ToString ("n1") + "mku";
+			if(units > 1e-9f)
+				return (units * 1e9f).ToString ("n1") + "nu";
+			if(units > 1e-13f) //to fully use the last digit 
+				return (units * 1e12f).ToString ("n1") + "pu";
+			return "0.0u"; //effectivly zero
 		}
 
 		public static string formatPercent(float fraction)

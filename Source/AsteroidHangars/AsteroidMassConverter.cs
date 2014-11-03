@@ -33,11 +33,11 @@ namespace AtHangar
 		{
 			var info = base.GetInfo();
 			var mass_flow = ConversionRate*EnergyConsumption*RatesMultiplier;
-			info += string.Format("Mass Conversion: {0}/sec\n", Utils.formatMass(mass_flow));
+			info += string.Format("Mass Extraction: {0}/sec\n", Utils.formatMass(mass_flow));
 			resource = PartResourceLibrary.Instance.GetDefinition(OutputResource);
 			if(resource != null)
 				info += string.Format("Produces {0}: {1}/sec", 
-					OutputResource, mass_flow*Efficiency/resource.density);
+					OutputResource, Utils.formatUnits(mass_flow*Efficiency/resource.density));
 			return info;
 		}
 
@@ -73,15 +73,18 @@ namespace AtHangar
 
 		public override void OnStart(StartState state)
 		{
-			StartEventGUIName = "Start Mining";
-			StopEventGUIName = "Stop Mining";
-			ActionGUIName = "Toggle Mining";
 			base.OnStart(state);
 			resource = this.GetResourceDef(OutputResource);
 			if(resource == null) return;
 			pump = new ResourcePump(part, resource.id);
 			update_state();
 			StartCoroutine(slow_update());
+		}
+
+		public override void OnLoad(ConfigNode node)
+		{
+			base.OnLoad(node);
+			Title = "Mining";
 		}
 		#endregion
 

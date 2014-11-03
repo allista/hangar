@@ -1,17 +1,19 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace AtHangar
 {
 	public abstract class AnimatedConverterBase : PartModule
 	{
-		[KSPField] public string Title = "";
-		[KSPField] public string StartEventGUIName = "Start Conversion";
-		[KSPField] public string StopEventGUIName = "Stop Conversion";
-		[KSPField] public string ActionGUIName = "Toggle Conversion";
-		[KSPField] public float  RatesMultiplier = 1f;
+		[KSPField] public string Title             = "Converter";
+		[KSPField] public string StartEventGUIName = "Start";
+		[KSPField] public string StopEventGUIName  = "Stop";
+		[KSPField] public string ActionGUIName     = "Toggle";
+		[KSPField] public float  RatesMultiplier   = 1f;
 
 		[KSPField(isPersistant = true)] public bool Converting;
-		[KSPField] public float EnergyConsumption = 50f; // electric charge per second
+		[KSPField(guiActive = true, guiActiveEditor = true, guiName = "Energy Consumption", guiUnits = "ec/sec")] 
+		public float EnergyConsumption = 50f;
 
 		[KSPField] public string AnimatorID = "_none_";
 		protected BaseHangarAnimator animator;
@@ -23,7 +25,7 @@ namespace AtHangar
 		public override string GetInfo()
 		{ 
 			var info = "";
-			if(Title != string.Empty) info += Title+" Converter:\n";
+			info += Title+":\n";
 			info += string.Format("Energy Consumption: {0}/sec\n", EnergyConsumption*RatesMultiplier); 
 			return info;
 		}
@@ -42,10 +44,10 @@ namespace AtHangar
 				base_emission[1] = emitter.maxEmission;
 			}
 			//setup GUI fields
-			var title = Title != string.Empty? Title+": " : "";
-			Events["StartConversion"].guiName   = title+StartEventGUIName;
-			Events["StopConversion"].guiName    = title+StopEventGUIName;
-			Actions["ToggleConversion"].guiName = title+ActionGUIName;
+			Events["StartConversion"].guiName   = StartEventGUIName+" "+Title;
+			Events["StopConversion"].guiName    = StopEventGUIName+" "+Title;
+			Actions["ToggleConversion"].guiName = ActionGUIName+" "+Title;
+			update_events();
 		}
 
 		public virtual void SetRatesMultiplier(float mult)
