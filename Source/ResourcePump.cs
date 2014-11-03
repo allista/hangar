@@ -4,6 +4,7 @@ namespace AtHangar
 {
 	public class ResourcePump
 	{
+		const float eps = 1e-7f;
 		const float min_request = 1e-5f;
 		float request;
 
@@ -13,7 +14,7 @@ namespace AtHangar
 		public float Requested { get; private set; }
 		public float Result    { get; private set; }
 		public float Ratio     { get { return Result/Requested; } }
-		public bool  PartialTransfer { get { return Mathf.Abs(Result) < Mathf.Abs(Requested); } }
+		public bool  PartialTransfer { get { return Mathf.Abs(Requested)-Mathf.Abs(Result) > eps; } }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="AtHangar.ResourcePump"/> class.
