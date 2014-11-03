@@ -328,7 +328,10 @@ namespace AtHangar
 	public class ResourceConverterUpdater : ModuleUpdater<AnimatedConverterBase>
 	{
 		public override void OnRescale(Scale scale)
-		{ module.SetRatesMultiplier(base_module.RatesMultiplier * scale.absolute.cube * scale.absolute.aspect); }
+		{ 
+			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.cube * scale.absolute.aspect;
+			module.SetRatesMultiplier(base_module.RatesMultiplier * scale.absolute.cube * scale.absolute.aspect); 
+		}
 	}
 }
 
