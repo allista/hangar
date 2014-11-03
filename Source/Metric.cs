@@ -196,7 +196,7 @@ namespace AtHangar
 		//mesh metric
 		public Metric(Part part, string mesh_name, bool compute_hull=false) : this()
 		{
-			if(mesh_name == string.Empty) return;
+			if(string.IsNullOrEmpty(mesh_name)) return;
 			MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
 			if(m == null) { Utils.Log("[Metric] {0} does not have '{1}' mesh", part.name, mesh_name); return; }
 			if(compute_hull) hull = new ConvexHull3D(uniqueVertices(m.sharedMesh));
