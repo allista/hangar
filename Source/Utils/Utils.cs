@@ -88,9 +88,9 @@ namespace AtHangar
 		#region Formatting
 		public static string formatMass(float mass)
 		{
-			if(mass > 0.1f)
+			if(mass >= 0.1f)
 				return mass.ToString("n2") + "t";
-			if(mass > 0.001f)
+			if(mass >= 0.001f)
 				return (mass * 1e3f).ToString("n1") + "kg";
 			return (mass * 1e6f).ToString("n0") + "g";
 		}
@@ -105,15 +105,15 @@ namespace AtHangar
 		public static string formatUnits(float units)
 		{
 			units = Mathf.Abs(units);
-			if(units > 1f)
+			if(units >= 1f)
 				return units.ToString ("n2") + "u";
-			if(units > 1e-3f)
+			if(units >= 1e-3f)
 				return (units * 1e3f).ToString ("n1") + "mu";
-			if(units > 1e-6f)
+			if(units >= 1e-6f)
 				return (units * 1e6f).ToString ("n1") + "mku";
-			if(units > 1e-9f)
+			if(units >= 1e-9f)
 				return (units * 1e9f).ToString ("n1") + "nu";
-			if(units > 1e-13f) //to fully use the last digit 
+			if(units >= 1e-13f) //to fully use the last digit 
 				return (units * 1e12f).ToString ("n1") + "pu";
 			return "0.0u"; //effectivly zero
 		}
