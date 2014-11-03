@@ -1,4 +1,5 @@
 import numpy as np
+import collections
 
 def hr(text='', ch='-', width=80):
     tl = len(text)
@@ -22,9 +23,11 @@ class surface:
         self._S   = S
         self.h    = h
         self.m    = m
+
+    def set_pcs(self, n): self._S *= n
     
     def S(self, scale=1, length=1):
-        return self._S*scale**2*length    
+        return self._S*scale**2*length  
     
     def mass(self, scale=1, length=1):
         return self.S(scale, length)*self.h*self.m.density;
@@ -40,22 +43,38 @@ class surface:
 
 
 class volume:
-    def __init__(self, V, name, cost=0, d=0, mass=-1, surface=None, subvolumes=[]):
-        self._V    = float(V)
+    def __init__(self, vol, name, **kwargs):
+        #main parameters
+        self._V    = float(vol)
         self.name  = name
-        self._cost = float(cost)
-        self._surface = surface
-        self._subvolumes = subvolumes
-        #transitory check
-        if mass is surface: raise ValueError("volume: mass should be a number")
-        #recalculate mass and density
-        if d < 0 and mass < 0:
-            raise ValueError('volume: either mass or density should be non-negative')
-        elif d < 0: 
-            d = float(mass)/self.V()
-            self._cost = cost/self.V() 
-        elif mass > 0: print('volume: non-negative density was given; mass is ignored')
-        self.d = float(d)
+        #surface and subvolumes
+        self._surface = kwargs.get('S', None)
+        self._subvolumes = kwargs.get('V', [])
+        #counterparts of this volume
+        n = kwargs.get('N', 1.0)
+        self.set_pcs(n)
+        #cost, mass and density
+        mat = kwargs.get('material', None)
+        if isinstance(mat, material):
+            self.d = mat.density
+            self._cost = mat.cost
+        else:
+            self._cost = kwargs.get('C', 0.0)
+            mass = float(kwargs.get('M', -1.0))
+            d = float(kwargs.get('D', -1.0))
+            #recalculate mass and density
+            if d < 0 and mass < 0: d = 0.0
+            elif d < 0: 
+                d = mass*n/self.V()
+                self._cost = self._cost*n/self.V() 
+            elif mass > 0: print('volume: density was given; mass is ignored')
+            self.d = d
+    #end def
+
+    def set_pcs(self, n):
+        self._V *= n
+        if self._surface is not None: self._surface.set_pcs(n)
+        map(lambda sv: sv.set_pcs(n), self._subvolumes)
     #end def
         
     #volume and surface area
@@ -135,7 +154,7 @@ class volume:
 #end class
 
 
-class ship:
+class part(collections.Iterable):
     _asymptote_slope     = 1.5
     _asymptote_intercept = 1e5
     _exponent_base       = 1.25
@@ -155,6 +174,17 @@ class ship:
         self._cost      = sum(self._spec_cost)
         self._cost_weights = self._spec_cost/self._cost
         self._cost     += res_cost
+        print(self)
+        print
+    #end def
+    
+    def __iter__(self): return iter(self._volumes)
+    
+    @property
+    def volumes(self): 
+        return [volume(self.volume(), self.name, 
+                           0, 0, -1, 
+                           subvolumes=self._volumes)]
     #end def
     
     def mass(self, scale=1, length=1):
@@ -202,7 +232,7 @@ class ship:
         s += '//Total surface:   %.3f m^2, %.6f t\n' % (self.surface(), self.S_mass())
         s += '//Additional mass: %.6f t\n' % self._add_mass
         s += '//Additional cost: %.3f Cr\n' % self._add_cost
-        s += '//Resources cost:  %.3f Cr\n' % self._res_cost
+        s += '//Resources  cost: %.3f Cr\n' % self._res_cost
         s += 'entryCost = %d\n' % np.ceil(self.entry_cost(self._cost-self._res_cost))
         s += 'cost = %d\n' % np.ceil(self._cost)
         s += 'mass = %.6f\n' % self._init_mass
