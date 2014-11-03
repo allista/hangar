@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace AtHangar
 {
@@ -21,6 +22,7 @@ namespace AtHangar
 		protected readonly int[] base_emission = new int[2];
 
 		protected ResourcePump socket;
+		protected readonly List<AnimatedConverterBase> other_converters = new List<AnimatedConverterBase>();
 
 		public override string GetInfo()
 		{ 
@@ -30,10 +32,25 @@ namespace AtHangar
 			return info;
 		}
 
+		protected bool some_working
+		{
+			get
+			{
+				var working = false;
+				foreach(var c in other_converters)
+				{ working |= c.Converting; if(working) break; }
+				return working;
+			}
+		}
+
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
 			socket = part.CreateSocket();
+			//get other converters
+			if(AnimatorID != "_none_")
+				other_converters.AddRange(from c in part.Modules.OfType<AnimatedConverterBase>()
+										  where c != this && c.AnimatorID == AnimatorID select c);
 			//initialize Animator
 			part.force_activate();
 			emitter  = part.GetComponentsInChildren<KSPParticleEmitter>().FirstOrDefault();
@@ -44,6 +61,7 @@ namespace AtHangar
 				base_emission[1] = emitter.maxEmission;
 			}
 			//setup GUI fields
+			Fields["EnergyConsumption"].guiName = Title+" Requires";
 			Events["StartConversion"].guiName   = StartEventGUIName+" "+Title;
 			Events["StopConversion"].guiName    = StopEventGUIName+" "+Title;
 			Actions["ToggleConversion"].guiName = ActionGUIName+" "+Title;
@@ -72,7 +90,7 @@ namespace AtHangar
 				emitter.enabled = Converting;
 			}
 			if(Converting) animator.Open();
-			else animator.Close();
+			else if(!some_working) animator.Close();
 		}
 
 		[KSPEvent (guiActive = true, guiName = "Start Conversion", active = true)]
@@ -80,7 +98,6 @@ namespace AtHangar
 		{
 			if(!can_convert(true)) return;
 			Converting = true;
-			animator.Open();
 			update_events();
 		}
 
@@ -89,7 +106,6 @@ namespace AtHangar
 		{
 			Converting = false;
 			on_stop_conversion();
-			animator.Close();
 			update_events();
 		}
 
