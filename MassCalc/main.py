@@ -230,9 +230,10 @@ if __name__ == '__main__':
     
     #asteroid hangars
     asteroid_hatch = part('AsteroidHatch',
-                          [volume(16.33, 'hull', C=1000, D=2.9,
+                          [volume(16.33, 'hull', C=5000, D=2.9,
                                   V=[volume(13.8, 'hatch-port', C=3180, M=1.2, 
-                                            S=surface(90.43, 0.005, steel))]),
+                                            S=surface(90.43, 0.005, steel),
+                                            V=[battery(E=1000)])]),
                            volume(1.12+1.45, 'frames', C=1000, D=0.9,
                                   S=surface(23.62+27.34, 0.005, steel)),
                            volume(0.027, 'outer-cylinders', N=4, material=steel,
@@ -249,7 +250,8 @@ if __name__ == '__main__':
                                   S=surface(4.93, 0.006, Al_Li)),
                            volume(2.3, 'S2-port', C=100, D=0.1, 
                                   S=surface(13.62, 0.006, Al_Li),
-                                  V=[battery(E=4000)])
+                                  V=[battery(E=4000),
+                                     reaction_wheel(V=0.316)])
                            ],
                           add_cost=400) #light
     
