@@ -15,7 +15,7 @@ namespace AtHangar
 		{
 			var name_and_value = resource_definition.Split(new []{' '}, 
 				StringSplitOptions.RemoveEmptyEntries);
-			var my_name = this.GetType().Name;
+			var my_name = GetType().Name;
 			if(name_and_value.Length != 2) 
 			{
 				Utils.Log("{0}: Invalid format of tank resource definition. " +
