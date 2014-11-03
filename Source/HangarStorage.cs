@@ -6,13 +6,12 @@ namespace AtHangar
 {
 	public class HangarStorage : HangarPassage, IPartCostModifier, IControllableModule
 	{
-		const float usefull_size_ratio = 0.9f;
-
-		[KSPField(isPersistant = false)] public string HangarSpace;
+		[KSPField] public string HangarSpace;
+		[KSPField] public float UsefulSizeRatio = 0.9f; //in case no HangarSpace is provided and the part metric is used
 
 		#region Internals
 		//metrics
-		[KSPField (isPersistant = true)] public float base_mass = -1f;
+		[KSPField(isPersistant = true)] public float base_mass = -1f;
 		public Metric PartMetric { get; protected set; }
 		public Metric HangarMetric { get; protected set; }
 
@@ -89,7 +88,7 @@ namespace AtHangar
 			PartMetric = new Metric(part);
 			HangarMetric = new Metric(part, HangarSpace);
 			//if hangar metric is not provided, derive it from part metric
-			if(HangarMetric.Empty) HangarMetric = PartMetric*usefull_size_ratio;
+			if(HangarMetric.Empty) HangarMetric = PartMetric*UsefulSizeRatio;
 		}
 
 		public override void Setup(bool reset = false)
