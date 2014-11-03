@@ -311,7 +311,13 @@ if __name__ == '__main__':
     mobile_smelter = part('MobileSmelter',
 		                 [volume(12.46, 'hull', C=1, D=0.02,
 		                         S=surface(29.98, 0.006, Al_Li),
-		                         V=[volume(12.0, 'machinery', C=6850, M=0.730)])])
+		                         V=[volume(12.0, 'machinery', C=6970, M=0.730)])])
+    
+    mobile_smelter = part('SubstrateMixer',
+                         [volume(12.46, 'hull', C=1, D=0.02,
+                                 S=surface(29.98, 0.006, Al_Li),
+                                 V=[volume(2.0, 'machinery', C=1730, M=0.330),
+                                    volume(10, 'tanks', C=20)])])
     
     small_tank    = part('*TankS',
 		                 [volume(19.43/2, 'hull', 
