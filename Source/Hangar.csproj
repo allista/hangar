@@ -64,7 +64,6 @@
     <Compile Include="BaseHangarAnimator.cs" />
     <Compile Include="Metric.cs" />
     <Compile Include="CrewTransfer.cs" />
-    <Compile Include="Resources.cs" />
     <Compile Include="VesselsPack.cs" />
     <Compile Include="VesselWrappers.cs" />
     <Compile Include="PartUpdaters.cs" />
@@ -106,6 +105,8 @@
     <Compile Include="AuxModules\TruncatedCone.cs" />
     <Compile Include="AsteroidHangars\HangarSwitchableTank.cs" />
     <Compile Include="AsteroidHangars\SwitchableTankType.cs" />
+    <Compile Include="ResourceTransfer.cs" />
+    <Compile Include="AsteroidHangars\ResourceWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
