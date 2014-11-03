@@ -5,6 +5,7 @@
 		[KSPField(isPersistant = true)] public float CurrentVolume;
 		[KSPField] public float UpdateVolumeThreshold = 0.1f; //m^3
 
+		public override string GetInfo() { return ""; }
 
 		protected override void early_setup(StartState state)
 		{
