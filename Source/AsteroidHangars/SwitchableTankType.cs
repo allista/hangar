@@ -22,9 +22,12 @@ namespace AtHangar
 				if(_tank_types == null)
 				{
 					_tank_types = new Dictionary<string, SwitchableTankType>();
-					foreach(ConfigNode n in GameDatabase.Instance.GetConfigNodes(SwitchableTankType.NODE_NAME))
+					foreach(ConfigNode n in GameDatabase.Instance.GetConfigNodes(NODE_NAME))
 					{
 						var tank_type = new SwitchableTankType();
+						#if DEBUG
+						Utils.Log("TankType:\n{0}", n.ToString());
+						#endif
 						tank_type.Load(n);
 						if(!tank_type.Valid)
 						{
