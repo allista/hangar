@@ -44,12 +44,11 @@ namespace AtHangar
 		{
 			var res_col = new Col();
 			if(string.IsNullOrEmpty(resources)) return res_col;
-			foreach(var _res_str in resources.Split(';'))
+			foreach(var res_str in resources.Split(new []{';'}, 
+					StringSplitOptions.RemoveEmptyEntries))
 			{
-				var res_str = _res_str.Trim();
-				if(res_str == string.Empty) continue;
 				var res = new Res();
-				res.LoadDefinition(res_str);
+				res.LoadDefinition(res_str.Trim());
 				if(!res.Valid) return null;
 				add_to_collection(res_col, res);
 			}
