@@ -13,7 +13,7 @@ namespace AtHangar
 	{
 		[KSPField] public string WasteResource = "Waste";
 		[KSPField] public string InputResources;
-		[KSPField] public string OuptuResources;
+		[KSPField] public string OutputResources;
 
 		List<ResourceLine> input;
 		List<ResourceLine> output;
@@ -33,52 +33,16 @@ namespace AtHangar
 				info += output.Aggregate("", (s, r) => s+"- "+r.Info+'\n');
 			}
 			if(waste.Valid)
-				info += string.Format("Byproduct: {0}", waste.Info);
+				info += string.Format("- {0}", waste.Info);
 			return info;
 		}
 
-		string configuration_is_invalid 
-		{ get { return string.Format("Configuration of \"{0}\" is INVALID.", this.Title()); } }
-
-		ResourceLine parse_resource(string res, bool _in = true)
+		void configuration_is_invalid(string msg)
 		{
-			var name_and_rate = res.Split(new []{' '}, 
-				StringSplitOptions.RemoveEmptyEntries);
-			if(name_and_rate.Length != 2) 
-			{
-				this.Log("Invalid format of resource usage definition. " +
-						 "Should be 'ResourceName conversion_rate', got {0}", res);
-				return default(ResourceLine);
-			}
-			float rate;
-			if(!float.TryParse(name_and_rate[1], out rate) || rate <= 0)
-			{
-				this.Log("Invalid format of resource usage rate. " +
-					"Should be positive float value, got: {0}", name_and_rate[1]);
-				return default(ResourceLine);
-			}
-			rate *= RatesMultiplier;
-			var res_def = this.GetResourceDef(name_and_rate[0]);
-			if(res_def == null) 
-			{
-				this.Log("Resource does not exist: {0}", name_and_rate[0]);
-				return default(ResourceLine);
-			}
-			return new ResourceLine(part, res_def, _in? rate : -rate);
-		}
-
-		List<ResourceLine> parse_resources(string resources, bool _in = true)
-		{
-			var res_list = new List<ResourceLine>();
-			foreach(var _res_str in resources.Split(';'))
-			{
-				var res_str = _res_str.Trim();
-				if(res_str == string.Empty) continue;
-				var res = parse_resource(res_str, _in);
-				if(!res.Valid) return null;
-				res_list.Add(res);
-			}
-			return res_list;
+			ScreenMessager.showMessage(6, "WARNING: {0}.\n" +
+				"Configuration of \"{1}\" is INVALID.", msg, this.Title());
+			enabled = isEnabled = false;
+			return;
 		}
 
 		static float mass_flow(ICollection<ResourceLine> resources)
@@ -92,33 +56,37 @@ namespace AtHangar
 			//check energy consumption
 			if(EnergyConsumption <= 0) EnergyConsumption = 0.01f;
 			//parse input/output resources
-			input  = parse_resources(InputResources);
-			if(input == null) return;
-			output = parse_resources(OuptuResources, false);
-			if(output == null) return;
+			input  = ResourceLine.ParseResourcesToList(InputResources);
+			if(input == null) 
+			{ 
+				configuration_is_invalid("unable to initialize INPUT resources"); 
+				return; 
+			}
+			input.ForEach(r => r.InitializePump(part, RatesMultiplier));
+			output = ResourceLine.ParseResourcesToList(OutputResources);
+			if(output == null)
+			{ 
+				configuration_is_invalid("unable to initialize OUTPUT resources"); 
+				return; 
+			}
+			output.ForEach(r => r.InitializePump(part, -RatesMultiplier));
 			//mass flow conservation
-			var in_mf  = mass_flow(input);
-			var out_mf = mass_flow(output);
-			if(in_mf < out_mf)
+			var net_mf = mass_flow(input) + mass_flow(output);
+			if(net_mf < 0)
 			{
-				ScreenMessager.showMessage(6, "WARNING: the mass flow of input resources is less then that of output resources.\n" +
-					configuration_is_invalid);
-				enabled = isEnabled = false;
+				configuration_is_invalid("the mass flow of input resources is less then that of output resources");
 				return;
 			}
-			if(in_mf > out_mf) //initialize waste resource
+			if(net_mf > 0) //initialize waste resource
 			{
 				var waste_res = this.GetResourceDef(WasteResource);
 				if(waste_res == null) return;
 				if(waste_res.density == 0)
 				{
-					ScreenMessager.showMessage(6, "WARNING: WasteResource should have non-zero density.\n" +
-						configuration_is_invalid);
-					enabled = isEnabled = false;
+					configuration_is_invalid("WasteResource should have non-zero density");
 					return;
 				}
-				var waste_rate = (out_mf-in_mf)/waste_res.density;
-				waste = new ResourceLine(part, waste_res, waste_rate);
+				waste = new ResourceLine(part, waste_res, -net_mf);
 			}
 		}
 
@@ -180,7 +148,7 @@ namespace AtHangar
 			{
 				if(waste.Valid)
 				{
-					waste.Pump.RequestTransfer(transferred_mass(input)/waste.Density);
+					waste.Pump.RequestTransfer(-transferred_mass(input)/waste.Density);
 					if(waste.Pump.TransferResource() && waste.PartialTransfer)
 						ScreenMessager.showMessage("No space left for {0}", waste.Resource.name);
 				}
@@ -209,10 +177,8 @@ namespace AtHangar
 		protected override void on_stop_conversion() {}
 	}
 
-
-	public struct ResourceLine
+	public class ResourceLine : ResourceWrapper<ResourceLine>
 	{
-		public PartResourceDefinition Resource { get; private set; }
 		/// <summary>
 		/// Gets the density in tons/unit.
 		/// </summary>
@@ -227,17 +193,32 @@ namespace AtHangar
 		public float URate   { get; private set; } //u/sec
 
 		public ResourcePump Pump { get; private set; }
-		public bool Valid { get { return Resource != null; } }
 
-		public ResourceLine(Part part, PartResourceDefinition res_def, float rate) : this()
+		public ResourceLine() {}
+		public ResourceLine(Part part, PartResourceDefinition res_def, float rate)
 		{ 
 			Resource = res_def; 
 			Rate = rate;
 			if(res_def != null) 
 			{
 				Pump = new ResourcePump(part, res_def.id);
-				URate = rate*res_def.density;
+				URate = rate/res_def.density;
 			}
+		}
+
+		public void InitializePump(Part part, float rate_multiplier)
+		{ 
+			Pump   = new ResourcePump(part, Resource.id);
+			Rate  *= rate_multiplier;
+			URate *= rate_multiplier;
+		}
+
+		public override void LoadDefinition(string resource_definition)
+		{
+			var rate = load_definition(resource_definition);
+			if(!Valid) return;
+			Rate  = rate;
+			URate = rate/Resource.density;
 		}
 
 		public bool TransferResource(float rate = 1f)
@@ -249,7 +230,6 @@ namespace AtHangar
 		public bool PartialTransfer { get { return Pump.PartialTransfer; } }
 
 		public string Info
-		{ get { return string.Format("{0}: {1}/sec", Resource.name, URate); } }
+		{ get { return string.Format("{0}: {1}/sec", Resource.name, Utils.formatUnits(URate)); } }
 	}
 }
-
