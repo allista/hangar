@@ -38,10 +38,7 @@ namespace AtHangar
 		{
 			//prepare root folder path
 			if(!string.IsNullOrEmpty(RootFolder))
-			{ 
-				RootFolder.TrimEnd('/');
-				RootFolder += "/";
-			}
+				RootFolder = RootFolder.TrimEnd('/')+"/";
 			setup_material();
 			setup_textures();
 			set_texture();
@@ -63,8 +60,8 @@ namespace AtHangar
 			foreach(var r in part.FindModelComponents<Renderer>())
 			{
 				if(r == null || !r.enabled) continue;
-				if(r.sharedMaterial.name == AffectedMaterial)
-					renderers.Add(r);
+				var m_name = r.sharedMaterial.name.Replace("(Instance)", "").Trim();
+				if(m_name == AffectedMaterial) renderers.Add(r);
 			}
 			if(renderers.Count == 0)
 				this.Log("Material {0} was not found", AffectedMaterial);
@@ -85,10 +82,11 @@ namespace AtHangar
 					try { textures.Add(tex); }
 					catch { this.Log("Duplicate texture in the replacement list: {0}", tex); }
 				}
-				else this.Log("No such texture: {0}", tex);
+				else this.Log("No such texture: {0}", RootFolder+tex);
 			}
-			if(CurrentTexture == string.Empty || 
-				!textures.Contains(CurrentTexture))
+			if(textures.Count > 0 && 
+				(CurrentTexture == string.Empty || 
+				!textures.Contains(CurrentTexture)))
 				CurrentTexture = textures[0];
 		}
 
