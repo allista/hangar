@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using KSPAPIExtensions;
 
 namespace AtHangar
 {
@@ -38,6 +39,31 @@ namespace AtHangar
 			else if(R.xMax > Screen.width) R.x -= R.xMax-Screen.width;
 			if(R.yMin < 0) R.y -= R.yMin;
 			else if(R.yMax > Screen.height) R.y -= R.yMax-Screen.height;
+		}
+		#endregion
+
+		#region KSP_UI
+		public static void EnableField(BaseField field, bool enable = true)
+		{
+			field.guiActive = field.guiActiveEditor = enable;
+			var current_editor = field.uiControlEditor as UI_ChooseOption;
+			if(current_editor != null) current_editor.controlEnabled = enable;
+			current_editor = field.uiControlFlight as UI_ChooseOption;
+			if(current_editor != null) current_editor.controlEnabled = enable;
+		}
+
+		static void setup_chooser_control(string[] names, string[] values, UI_Control control)
+		{
+			var current_editor = control as UI_ChooseOption;
+			if(current_editor == null) return;
+			current_editor.display = names;
+			current_editor.options = values;
+		}
+
+		public static void SetupChooser(string[] names, string[] values, BaseField field)
+		{
+			setup_chooser_control(names, values, field.uiControlEditor);
+			setup_chooser_control(names, values, field.uiControlFlight);
 		}
 		#endregion
 
