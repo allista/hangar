@@ -32,7 +32,7 @@ namespace AtHangar
 				info += "Outputs:\n";
 				info += output.Aggregate("", (s, r) => s+"- "+r.Info+'\n');
 			}
-			if(waste.Valid)
+			if(waste != null && waste.Valid)
 				info += string.Format("- {0}", waste.Info);
 			return info;
 		}
