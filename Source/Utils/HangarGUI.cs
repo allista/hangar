@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using UnityEngine;
 using KSPAPIExtensions;
@@ -8,6 +9,14 @@ namespace AtHangar
 {
 	static class HangarGUI
 	{
+		/// <summary>
+		/// The camel case components matching regexp.
+		/// From: http://stackoverflow.com/questions/155303/net-how-can-you-split-a-caps-delimited-string-into-an-array
+		/// </summary>
+		const string CamelCaseRegexp = "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))";
+
+		public static string ParseCamelCase(string s) { return Regex.Replace(s, CamelCaseRegexp, "$1 "); }
+
 		#region Widgets
 		public static void UsedVolumeLabel(float UsedVolume, float UsedVolumeFrac, string label="Used Volume")
 		{
