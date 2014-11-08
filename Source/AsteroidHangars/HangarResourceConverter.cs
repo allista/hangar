@@ -21,6 +21,7 @@ namespace AtHangar
 
 		public override string GetInfo()
 		{
+			setup_resources();
 			var info = base.GetInfo();
 			if(input != null && input.Count > 0)
 			{
@@ -88,12 +89,6 @@ namespace AtHangar
 				}
 				waste = new ResourceLine(part, waste_res, -net_mf);
 			}
-		}
-
-		public override void OnLoad(ConfigNode node)
-		{
-			base.OnLoad(node);
-			setup_resources();
 		}
 
 		public override void OnStart(StartState state)
