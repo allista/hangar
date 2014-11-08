@@ -95,6 +95,7 @@ namespace AtHangar
 		#region Setup
 		public override string GetInfo()
 		{
+			init_nodes();
 			if(Nodes.Count == 0) return "";
 			var info = "Vessels can pass through:";
 			var nodes = new List<string>(Nodes.Keys);
@@ -109,7 +110,6 @@ namespace AtHangar
 			base.OnLoad(node);
 			//only save config for the first time
 			if(ModuleConfig == null) ModuleConfig = node;
-			init_nodes(); //for PartPrefab
 		}
 
 		public override void OnStart(StartState state)
