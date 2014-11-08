@@ -93,16 +93,17 @@ namespace AtHangar
 		{
 			try
 			{
+				//get asteroid hatch
+				var hatch = part.GetAttachedPart<SingleUseGrappleNode>();
+				grapple_node = hatch.GetModule<SingleUseGrappleNode>();
+				storage = hatch.GetModule<HangarStorageDynamic>();
+				if(grapple_node == null || storage == null) 
+					throw new Exception();
 				//get asteroid
-				asteroid = vessel.GetPart<ModuleAsteroid>();
+				asteroid = hatch.GetAttachedPart<ModuleAsteroid>();
 				if(!asteroid_is_usable) throw new Exception();
 				asteroid_info = asteroid.GetModule<AsteroidInfo>();
 				if(asteroid_info == null) throw new Exception();
-				//get asteroid hatch
-				var hatch = vessel.GetPart<SingleUseGrappleNode>();
-				grapple_node = hatch.GetModule<SingleUseGrappleNode>();
-				storage = hatch.GetModule<HangarStorageDynamic>();
-				if(grapple_node == null || storage == null) throw new Exception();
 			}
 			catch
 			{ 
