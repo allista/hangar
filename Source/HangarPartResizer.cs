@@ -79,7 +79,7 @@ namespace AtHangar
 		[KSPField(isPersistant=true)] public float orig_aspect = -1;
 
 		protected Transform model { get { return part.transform.GetChild(0); } }
-		public    float delta_cost  = 0f;
+		public    float delta_cost;
 		protected bool  just_loaded = true;
 
 		#region TechTree
@@ -137,13 +137,13 @@ namespace AtHangar
 
 		protected override void SaveDefaults()
 		{
-			base.SaveDefaults();
 			if(orig_aspect < 0 || HighLogic.LoadedSceneIsEditor)
 			{
 				var resizer = base_part.GetModule<HangarResizableBase>();
 				orig_aspect = resizer != null ? resizer.aspect : aspect;
 			}
 			old_aspect = aspect;
+
 		}
 
 		public override void OnStart(StartState state)
@@ -181,6 +181,7 @@ namespace AtHangar
 		Vector3 old_local_scale;
 		[KSPField(isPersistant=true)] public float orig_size = -1;
 		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect, just_loaded); } }
+		float orig_cost;
 		
 		#region PartUpdaters
 		readonly List<PartUpdater> updaters = new List<PartUpdater>();
@@ -212,7 +213,8 @@ namespace AtHangar
 				var resizer = base_part.GetModule<HangarPartResizer>();
 				orig_size = resizer != null ? resizer.size : size;
 			}
-			old_size = size;
+			old_size  = size;
+			orig_cost = specificCost.x+specificCost.y+specificCost.z; //specificCost.w is eliminated anyway
 			create_updaters();
 		}
 
@@ -249,12 +251,11 @@ namespace AtHangar
 			model.localScale = ScaleVector(Vector3.one, _scale, _scale.aspect);
 			model.hasChanged = true;
 			part.transform.hasChanged = true;
-			//recalculate mass
-			part.mass  = ((specificMass.x * _scale + specificMass.y) * _scale + specificMass.z) * _scale * _scale.aspect + specificMass.w;
+			//recalculate mass and cost
+			part.mass  = ((specificMass.x*_scale + specificMass.y)*_scale + specificMass.z)*_scale * _scale.aspect + specificMass.w;
+			delta_cost = ((specificCost.x*_scale + specificCost.y)*_scale + specificCost.z)*_scale * _scale.aspect - orig_cost; //specificCost.w is eliminated anyway
 			//update nodes and modules
 			foreach(PartUpdater updater in updaters) updater.OnRescale(_scale);
-			//recalculate cost
-			delta_cost = ((specificCost.x * _scale + specificCost.y) * _scale + specificCost.z) * _scale * _scale.aspect + specificCost.w - part.DryCost();
 			//save size and aspect
 			old_size   = size;
 			old_aspect = aspect;

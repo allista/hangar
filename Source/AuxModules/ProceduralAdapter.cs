@@ -17,9 +17,10 @@ namespace AtHangar
 		public float bottomSize = 1.0f;
 
 		//module config
+		[KSPField] public float AreaCost     = 9f;
 		[KSPField] public float AreaDensity  = 2.7f*6e-3f; // 2.7t/m^3 * 1m^2 * 6mm: aluminium sheet 6mm thick
 		[KSPField] public float UnitDiameter = 1.25f; // m
-		[KSPField] public float Length = 1f; // m
+		[KSPField] public float Length       = 1f;    // m
 
 		[KSPField] public string BodyName       = "adapter";
 		[KSPField] public string ColliderName   = "collider";
@@ -215,7 +216,7 @@ namespace AtHangar
 			update_body();
 			//calculate surface area, mass and cost changes
 			part.mass  = body.current.Area*AreaDensity;
-			delta_cost = part.DryCost()*(body.current.Area/orig_area-1);
+			delta_cost = AreaCost*(body.current.Area - orig_area);
 			//update attach nodes
 			update_nodes();
 			//save new values
