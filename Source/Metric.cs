@@ -167,11 +167,13 @@ namespace AtHangar
 			mass   = m;
 			CrewCapacity = crew_capacity;
 		}
+		public Metric(Vector3 size, float m = 0f, int crew_capacity = 0) 
+			: this(Vector3.zero, size, m, crew_capacity) {}
 
 		//metric from volume
 		public Metric(float V, float m = 0f, int crew_capacity = 0) : this()
 		{
-			var a = Mathf.Pow(V, 1/3f);
+			var a  = Mathf.Pow(V, 1/3f);
 			bounds = new Bounds(Vector3.zero, new Vector3(a,a,a));
 			volume = boundsVolume(bounds);
 			area   = boundsArea(bounds);
