@@ -168,6 +168,13 @@ namespace AtHangar
 			return animator;
 		}
 
+		public static Part GetAttachedPart<T>(this Part p) where T : PartModule
+		{
+			if(p.parent != null && p.parent.HasModule<T>()) return p.parent;
+			foreach(var c in p.children) if(c.HasModule<T>()) return c;
+			return null;
+		}
+
 		public static void Log(this Part p, string msg, params object[] args)
 		{
 			var vname = p.vessel == null? "" : p.vessel.vesselName;
