@@ -45,9 +45,12 @@ namespace AtHangar
 		{ 
 			update_metrics();
 			var info = base.GetInfo();
-			if(info != string.Empty) info += "\n";
-			info += string.Format("Available Volume: {0}\n", Utils.formatVolume(HangarMetric.volume));
-			info += string.Format("Dimensions: {0}", Utils.formatDimensions(HangarMetric.size));
+			if(HangarMetric.volume > 0)
+			{
+				if(info != string.Empty) info += "\n";
+				info += string.Format("Available Volume: {0}\n", Utils.formatVolume(HangarMetric.volume));
+				info += string.Format("Dimensions: {0}", Utils.formatDimensions(HangarMetric.size));
+			}
 			return info;
 		}
 
