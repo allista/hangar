@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace AtHangar
@@ -26,16 +27,16 @@ namespace AtHangar
 					{
 						var tank_type = new SwitchableTankType();
 						#if DEBUG
-						Utils.Log("TankType:\n{0}", n.ToString());
+						Utils.Log("\n{0}", n.ToString());
 						#endif
 						tank_type.Load(n);
 						if(!tank_type.Valid)
 						{
-							ScreenMessager.showMessage(6, "Hangar: configuration of \"{0}\" tank type is INVALID.", tank_type.Name);
+							ScreenMessager.showMessage(6, "Hangar: configuration of \"{0}\" tank type is INVALID.", tank_type.name);
 							continue;
 						}
-						try { _tank_types.Add(tank_type.Name, tank_type); }
-						catch { Utils.Log("SwitchableTankType: ignoring duplicate configuration of {0} tank type", tank_type.Name); }
+						try { _tank_types.Add(tank_type.name, tank_type); }
+						catch { Utils.Log("SwitchableTankType: ignoring duplicate configuration of {0} tank type", tank_type.name); }
 					}
 				}
 				return _tank_types;
@@ -59,9 +60,10 @@ namespace AtHangar
 
 		new public const string NODE_NAME = "TANKTYPE";
 		/// <summary>
-		/// The name of the tank type.
+		/// The name of the tank type. 
+		/// It is possible to edit these nodes with MM using NODE[name] syntax.
 		/// </summary>
-		[Persistent] public string Name;
+		[Persistent] public string name;
 		/// <summary>
 		/// The string list of resources a tank of this type can hold. Format:
 		/// ResourceName1 units_per_liter; ResourceName2 units_per_liter2; ...
@@ -81,10 +83,33 @@ namespace AtHangar
 		{
 			get
 			{
-				TankResource res = null;
-				if(Valid) Resources.TryGetValue(name, out res);
-				return res;
+				try { return Resources[name]; }
+				catch { return null; }
 			}
+		}
+
+		/// <summary>
+		/// Get the resource that next to the 'cur' in the direction 
+		/// away from the 'prev' within SortedNames.
+		/// The method is unsafe with respect to TankType.Valid value.
+		/// </summary>
+		/// <param name="cur">resource name to start from.</param>
+		/// <param name="prev">if provided, indicates direction. Otherwise direction is positive.</param>
+		public TankResource Next(string cur, string prev)
+		{
+			if(!Resources.ContainsKey(cur)) return null;
+			var  c = SortedNames.IndexOf(cur);
+			var step = 1;
+			if(Resources.ContainsKey(prev))
+			{
+				step = c-SortedNames.IndexOf(prev);
+				if(step > 1) step = -1;
+				else if(step < -1) step = 1;
+			}
+			var  n = c+step;
+			if(n < 0) n = SortedNames.Count-1;
+			else n = n % SortedNames.Count;
+			return Resources[SortedNames[n]];
 		}
 
 		public override void Load(ConfigNode node)
