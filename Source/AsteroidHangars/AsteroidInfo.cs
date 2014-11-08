@@ -12,6 +12,7 @@ namespace AtHangar
 		[KSPField(isPersistant = true)] public float Density  = -1f;
 
 		ModuleAsteroid asteroid;
+		float orig_crash_tolerance;
 
 		IEnumerator<YieldInstruction> init_params()
 		{
@@ -21,11 +22,22 @@ namespace AtHangar
 			OrigMass = part.mass;
 			MinMass  = OrigMass * min_mass_ratio;
 			Density  = asteroid.density;
+			yield return StartCoroutine(slow_update());
+		}
+
+		IEnumerator<YieldInstruction> slow_update()
+		{
+			while(true)
+			{
+				part.crashTolerance = orig_crash_tolerance * part.mass/OrigMass;
+				yield return new WaitForSeconds(0.5f);
+			}
 		}
 
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
+			orig_crash_tolerance = part.crashTolerance;
 			asteroid = part.GetModule<ModuleAsteroid>();
 			StartCoroutine(init_params());
 		}
