@@ -46,6 +46,26 @@ namespace AtHangar
 			{ if(max.CompareTo(arg) > 0) max = arg; }
 			return max;
 		}
+
+		public static TValue Next<TKey, TValue>(this SortedList<TKey,TValue> list, TKey key)
+		{
+			try
+			{
+				var i = list.IndexOfKey(key);
+				var ni = (i+1) % list.Count;
+				return list.Values[ni];
+			} catch { return default(TValue); }
+		}
+
+		public static TValue Prev<TKey, TValue>(this SortedList<TKey,TValue> list, TKey key)
+		{
+			try
+			{
+				var i = list.IndexOfKey(key);
+				var ni = i > 0? i-1 : list.Count-1;
+				return list.Values[ni];
+			} catch { return default(TValue); }
+		}
 	}
 
 	public static class PartExtensions
@@ -178,8 +198,39 @@ namespace AtHangar
 		public static void Log(this Part p, string msg, params object[] args)
 		{
 			var vname = p.vessel == null? "" : p.vessel.vesselName;
-			var _msg = string.Format("{0}.{1}: {2}", vname, p.name, msg);
+			var _msg = string.Format("{0}.{1} [{2}]: {3}", 
+				vname, p.name, p.flightID, msg);
 			Utils.Log(_msg, args);
+		}
+
+		//directly from Part disassembly
+		public static PartModule.StartState StartState(this Part part)
+		{
+			var _state = PartModule.StartState.None;
+			if(HighLogic.LoadedSceneIsEditor)
+				_state |= PartModule.StartState.Editor;
+			else if(HighLogic.LoadedSceneIsFlight)
+			{
+				if(part.vessel.situation == Vessel.Situations.PRELAUNCH)
+				{
+					_state |= PartModule.StartState.PreLaunch;
+					_state |= PartModule.StartState.Landed;
+				}
+				if(part.vessel.situation == Vessel.Situations.DOCKED)
+					_state |= PartModule.StartState.Docked;
+				if(part.vessel.situation == Vessel.Situations.ORBITING ||
+					part.vessel.situation == Vessel.Situations.ESCAPING)
+					_state |= PartModule.StartState.Orbital;
+				if(part.vessel.situation == Vessel.Situations.SUB_ORBITAL)
+					_state |= PartModule.StartState.SubOrbital;
+				if(part.vessel.situation == Vessel.Situations.SPLASHED)
+					_state |= PartModule.StartState.Splashed;
+				if(part.vessel.situation == Vessel.Situations.FLYING)
+					_state |= PartModule.StartState.Flying;
+				if(part.vessel.situation == Vessel.Situations.LANDED)
+					_state |= PartModule.StartState.Landed;
+			}
+			return _state;
 		}
 	}
 
@@ -194,7 +245,8 @@ namespace AtHangar
 		public static void Log(this PartModule pm, string msg, params object[] args)
 		{
 			var vname = pm.part.vessel == null? "" : pm.part.vessel.vesselName;
-			var _msg = string.Format("{0}.{1}.{2}: {3}", vname, pm.part.name, pm.GetType().Name, msg);
+			var _msg = string.Format("{0}.{1}.{2} [{3}]: {4}", 
+				vname, pm.part.name, pm.GetType().Name, pm.GetInstanceID(), msg);
 			Utils.Log(_msg, args);
 		}
 
