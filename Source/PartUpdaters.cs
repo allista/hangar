@@ -352,9 +352,12 @@ namespace AtHangar
 		}
 	}
 
-	public class DynamicStorageUpdater : ModuleUpdater<HangarStorageDynamic>
+	public class TankManagerUpdater : ModuleUpdater<HangarTankManager>
 	{
-		protected override void on_rescale(HangarStorageDynamic module, HangarStorageDynamic base_module, Scale scale)
-		{ module.RescaleTanks(scale.relative.cube * scale.relative.aspect); }
+		protected override void on_rescale(HangarTankManager module, HangarTankManager base_module, Scale scale)
+		{ 
+			module.RescaleTanks(scale.relative.cube * scale.relative.aspect); 
+			module.Volume *= scale.relative.cube * scale.relative.aspect;
+		}
 	}
 }
