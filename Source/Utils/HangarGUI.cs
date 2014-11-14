@@ -38,6 +38,15 @@ namespace AtHangar
 			return new Color(frac, 1f-frac, 0);
 		}
 
+		public static int LeftRightChooser(string text, int width = 0)
+		{
+			var left  = GUILayout.Button("<", Styles.yellow_button, GUILayout.Width(20));
+			if(width > 0) GUILayout.Label(text, Styles.white, GUILayout.Width(width));
+			else GUILayout.Label(text, Styles.white);
+			var right = GUILayout.Button(">", Styles.yellow_button, GUILayout.Width(20));
+			return left? -1 : (right? 1 : 0);
+		}
+
 		public static void CheckRect(ref Rect R)
 		{
 			//check size
