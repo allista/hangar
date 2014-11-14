@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AtHangar
@@ -11,11 +10,6 @@ namespace AtHangar
 		[KSPField] public string OutputResource;
 		[KSPField] public float  Efficiency = 0.92f; // 8% of mass is lost
 		[KSPField] public float  ConversionRate = 0.01f; // tons per electric charge
-		[KSPField] public float  RateThreshold = 0.1f; // relative rate threshold
-
-		[KSPField(guiActive = true, guiName = "Mining Rate", guiFormat = "n1", guiUnits = "%")]
-		public float RateDisplay;
-		float rate, last_rate;
 
 		ResourcePump pump;
 		float dM_buffer;
@@ -53,24 +47,6 @@ namespace AtHangar
 		void update_state(Vessel vsl)
 		{ if(vsl == part.vessel) update_state(); }
 
-		IEnumerator<YieldInstruction> slow_update()
-		{
-			while(true)
-			{
-				if(rate != last_rate)
-				{
-					RateDisplay = rate*100f;
-					if(emitter != null)
-					{
-						emitter.minEmission = (int)Mathf.Ceil(base_emission[0]*rate);
-						emitter.maxEmission = (int)Mathf.Ceil(base_emission[1]*rate);
-					}
-					last_rate = rate;
-				}
-				yield return new WaitForSeconds(0.5f);
-			}
-		}
-
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
@@ -78,7 +54,6 @@ namespace AtHangar
 			if(resource == null) return;
 			pump = new ResourcePump(part, resource.id);
 			update_state();
-			StartCoroutine(slow_update());
 		}
 
 		public override void OnLoad(ConfigNode node)
@@ -179,7 +154,7 @@ namespace AtHangar
 					"through a permanentely fixed acces port.");
 				return false;
 			}
-			if(storage.VesselsDocked > 0)
+			if(storage.CanAddVolume)
 			{
 				ScreenMessager.showMessage("The space inside the asteroid is already in use. " +
 					"Cannot start mining.");
@@ -200,10 +175,11 @@ namespace AtHangar
 			if(!pump.TransferResource()) return true;
 			var dM = pump.Result*resource.density/Efficiency;
 			new_mass = asteroid.mass+dM;
-			//if what produced is still less then is required to change asteroid mass, revert
-			if(asteroid.mass == new_mass) 
+			//if what produced is still less then required to change asteroid mass, 
+			//or if storage cannot accept new volume -- revert
+			if(asteroid.mass == new_mass || 
+				!storage.AddVolume(-dM/asteroid_info.Density))
 			{ pump.Revert(); return false; }
-			storage.AddVolume(-dM/asteroid_info.Density);
 			asteroid.mass = new_mass;
 			return true;
 		}
@@ -214,9 +190,10 @@ namespace AtHangar
 			socket.RequestTransfer(RatesMultiplier*EnergyConsumption*TimeWarp.fixedDeltaTime);
 			if(!socket.TransferResource()) return true;
 			rate = socket.Ratio;
-			if(rate < RateThreshold) 
+			if(rate < EnergyRateThreshold) 
 			{
 				ScreenMessager.showMessage("Not enough energy");
+				socket.Clear();
 				return false;
 			}
 			//try to produce resource
@@ -242,9 +219,15 @@ namespace AtHangar
 		protected override void on_stop_conversion()
 		{
 			RateDisplay = 0;
-			storage.UpdateMetric();
+			storage.Setup();
 		}
 		#endregion
+
+//		#region BackgroundProcessing
+//		public static int GetBackgroundResourceCount()
+//
+//		public static void GetBackgroundResource(int index, out string resourceName, out float resourceRate)
+//		#endregion
 	}
 }
 

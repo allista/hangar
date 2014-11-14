@@ -1,24 +1,31 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace AtHangar
 {
 	public abstract class AnimatedConverterBase : PartModule
 	{
-		[KSPField] public string Title             = "Converter";
-		[KSPField] public string StartEventGUIName = "Start";
-		[KSPField] public string StopEventGUIName  = "Stop";
-		[KSPField] public string ActionGUIName     = "Toggle";
-		[KSPField] public float  RatesMultiplier   = 1f;
+		[KSPField] public string Title               = "Converter";
+		[KSPField] public string StartEventGUIName   = "Start";
+		[KSPField] public string StopEventGUIName    = "Stop";
+		[KSPField] public string ActionGUIName       = "Toggle";
+		[KSPField] public float  RatesMultiplier     = 1f;
+		[KSPField] public float  EnergyRateThreshold = 0.1f; // relative energy consumtion rate threshold
 
 		[KSPField(isPersistant = true)] public bool Converting;
-		[KSPField(guiActive = true, guiActiveEditor = true, guiName = "Energy Consumption", guiUnits = "ec/sec")] 
+		[KSPField(guiActiveEditor = true, guiName = "Energy Consumption", guiUnits = "ec/sec")] 
 		public float EnergyConsumption = 50f;
+
+		[KSPField(guiActive = true, guiName = "Rate", guiFormat = "n1", guiUnits = "%")]
+		public float RateDisplay;
+		protected float rate, last_rate;
 
 		[KSPField] public string AnimatorID = "_none_";
 		protected BaseHangarAnimator animator;
 		protected KSPParticleEmitter emitter;
+		protected float base_animation_speed = 1f;
 		protected readonly int[] base_emission = new int[2];
 
 		protected ResourcePump socket;
@@ -28,7 +35,8 @@ namespace AtHangar
 		{ 
 			var info = "";
 			info += Title+":\n";
-			info += string.Format("Energy Consumption: {0}/sec\n", EnergyConsumption*RatesMultiplier); 
+			info += string.Format("Energy Consumption: {0:F2}/sec\n", EnergyConsumption*RatesMultiplier);
+			info += string.Format("Minimum Rate: {0}\n", Utils.formatPercent(EnergyRateThreshold)); 
 			return info;
 		}
 
@@ -54,18 +62,25 @@ namespace AtHangar
 			//initialize Animator
 			part.force_activate();
 			emitter  = part.GetComponentsInChildren<KSPParticleEmitter>().FirstOrDefault();
-			animator = part.GetAnimator(AnimatorID);
 			if(emitter != null) 
 			{
 				base_emission[0] = emitter.minEmission;
 				base_emission[1] = emitter.maxEmission;
 			}
+			animator = part.GetAnimator(AnimatorID);
+			if(animator is HangarAnimator)
+			{
+				var an = animator as HangarAnimator;
+				base_animation_speed = an.ForwardSpeed;
+			}
 			//setup GUI fields
-			Fields["EnergyConsumption"].guiName = Title+" Requires";
+			Fields["EnergyConsumption"].guiName = Title+" Uses";
+			Fields["RateDisplay"].guiName       = Title+" Rate";
 			Events["StartConversion"].guiName   = StartEventGUIName+" "+Title;
 			Events["StopConversion"].guiName    = StopEventGUIName+" "+Title;
 			Actions["ToggleConversion"].guiName = ActionGUIName+" "+Title;
 			update_events();
+			StartCoroutine(slow_update());
 		}
 
 		public virtual void SetRatesMultiplier(float mult)
@@ -78,6 +93,29 @@ namespace AtHangar
 
 		public void FixedUpdate()
 		{ if(Converting && !convert()) StopConversion(); }
+
+		IEnumerator<YieldInstruction> slow_update()
+		{
+			while(true)
+			{
+				if(rate != last_rate)
+				{
+					RateDisplay = rate*100f;
+					if(emitter != null)
+					{
+						emitter.minEmission = (int)Mathf.Ceil(base_emission[0]*rate);
+						emitter.maxEmission = (int)Mathf.Ceil(base_emission[1]*rate);
+					}
+					if(animator is HangarAnimator)
+					{
+						var an = animator as HangarAnimator;
+						an.ForwardSpeed = base_animation_speed*rate;
+					}
+					last_rate = rate;
+				}
+				yield return new WaitForSeconds(0.5f);
+			}
+		}
 
 		#region Events & Actions
 		protected virtual void update_events()

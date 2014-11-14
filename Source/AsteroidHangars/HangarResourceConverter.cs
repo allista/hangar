@@ -106,12 +106,12 @@ namespace AtHangar
 		static float transferred_mass(List<ResourceLine> resources)
 		{ return resources.Aggregate(0f, (m, r) => m+r.Pump.Result*r.Resource.density); }
 
-		static string try_transfer(List<ResourceLine> resources, bool skip_failed = false)
+		static string try_transfer(List<ResourceLine> resources, float rate = 1f, bool skip_failed = false)
 		{
 			string failed = "";
 			foreach(var r in resources)
 			{
-				if(r.TransferResource() && r.PartialTransfer) 
+				if(r.TransferResource(rate) && r.PartialTransfer) 
 				{ 
 					if(skip_failed) 
 						failed += (failed == string.Empty? " " : "") 
@@ -130,14 +130,15 @@ namespace AtHangar
 			//consume energy
 			socket.RequestTransfer(EnergyConsumption*TimeWarp.fixedDeltaTime);
 			if(!socket.TransferResource()) return true;
-			if(socket.PartialTransfer) 
+			rate = socket.Ratio;
+			if(rate < EnergyRateThreshold) 
 			{
 				ScreenMessager.showMessage("Not enough energy");
 				socket.Clear(); 
 				return false; 
 			}
 			//consume input resources
-			var failed = try_transfer(input);
+			var failed = try_transfer(input, rate);
 			//if not all inputs are present, dump consumed into waste and shut off
 			if(failed != string.Empty)
 			{
@@ -148,16 +149,16 @@ namespace AtHangar
 						ScreenMessager.showMessage("No space left for {0}", waste.Resource.name);
 				}
 				input.ForEach(r => r.Pump.Clear());
-				ScreenMessager.showMessage("{0} has been depleted", failed);
+				ScreenMessager.showMessage("Not enough {0}", failed);
 				return false;
 			}
 			//produce waste
-			if(waste.Valid && waste.TransferResource() && waste.PartialTransfer)
+			if(waste.Valid && waste.TransferResource(rate) && waste.PartialTransfer)
 			{
 				ScreenMessager.showMessage("No space left for {0}", waste.Resource.name);
 				return false;
 			}
-			failed = try_transfer(output, true);
+			failed = try_transfer(output, rate, true);
 			//if not all outputs are present, shut off
 			if(failed != string.Empty)
 			{
