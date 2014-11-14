@@ -260,6 +260,8 @@ if __name__ == '__main__':
                                  S=surface(171.22, 0.005, steel),
                                  V=[volume(120, 'machinery', C=8350, M=12),
                                     volume(10, 'rock-tank', C=20),
+                                    volume(5, 'rcs-tank', C=20),
+                                    reaction_wheel(1.15),
                                     generator(E=15)]),
                           volume(43.08, 'main-drill', C=23780, M=6,
                                  S=surface(81.66, 0.005, steel)),
