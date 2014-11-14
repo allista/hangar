@@ -66,7 +66,7 @@ namespace AtHangar
 
 		protected abstract bool compute_hull { get; }
 
-		BaseHangarAnimator hangar_gates;
+		protected BaseHangarAnimator hangar_gates;
 		public AnimatorState gates_state { get { return hangar_gates.State; } }
 		public HangarState hangar_state { get; private set; }
 
@@ -121,17 +121,21 @@ namespace AtHangar
 		{
 			passage_checklist.Clear();
 			foreach(Part p in part.AllConnectedParts())
-			{ if(p != part) passage_checklist.AddRange(p.Modules.OfType<HangarPassage>()); }
+			{ passage_checklist.AddRange(p.Modules.OfType<HangarPassage>()); }
+			this.Log("All connected parts: {0}; Passages Checklist {1}", 
+				part.AllConnectedParts().Count, passage_checklist.Count);//debug
 		}
 
-		bool all_passages_ready
+		protected bool all_passages_ready
 		{
 			get
 			{
 				if(passage_checklist.Count == 0) return true;
 				bool loaded = true;
 				foreach(var p in passage_checklist)
-				{ loaded &= p.Ready; if(!loaded) break; }
+				{ loaded &= p.Ready; 
+					this.Log("{0} is Ready: {1}", p, p.Ready);//debug
+					if(!loaded) break; }
 				return loaded;
 			}
 		}
@@ -142,9 +146,12 @@ namespace AtHangar
 		{
 			ConnectedStorage.Clear();
 			var connected_passages = get_connected_passages();
+			this.Log("ConnectedPassages '{0}'", connected_passages);//debug
 			if(connected_passages == null) return;
+			this.Log("Connected Passages {0}", connected_passages.Count);//debug
 			foreach(var p in connected_passages)
 			{
+				this.Log("Passage '{0}'", p);
 				var other_storage = p as HangarStorage;
 				if(other_storage != null) 
 					ConnectedStorage.Add(other_storage);
@@ -176,15 +183,22 @@ namespace AtHangar
 			Events["RelocateVessels"].guiActiveEditor = CanRelocate;
 		}
 
-		void update_connected_storage(Vessel vsl)
-		{ if(vsl == part.vessel) update_connected_storage(); }
+		protected virtual void update_connected_storage(Vessel vsl)
+		{ 
+			if(vsl != part.vessel || !all_passages_ready) return;
+			this.Log("OnVesselWasModified"); //debug
+			update_connected_storage(); 
+		}
 
 		void update_connected_storage(ShipConstruct ship)
-		{ update_connected_storage(); }
+		{ if(!all_passages_ready) return;
+			this.Log("OnEditorShipChanged"); //debug
+			update_connected_storage(); }
 
 		IEnumerator<YieldInstruction> delayed_update_connected_storage()
 		{
 			while(!all_passages_ready) yield return null;
+			this.Log("Delayed update connected storage"); //debug
 			update_connected_storage();
 		}
 
