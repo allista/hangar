@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace AtHangar
@@ -21,8 +20,7 @@ namespace AtHangar
 			//initialize Animator
 			part.force_activate();
 			animator = part.GetAnimator(AnimatorID);
-			animator = part.Modules.OfType<BaseHangarAnimator>().FirstOrDefault(m => m.AnimatorID == AnimatorID);
-			if(Fixed && animator as HangarAnimator == null) animator.Open();
+			if(Fixed && animator is HangarAnimator) animator.Open();
 			//initialize Fixed state
 			StartCoroutine(delayed_disable_decoupling());
 		}
@@ -77,10 +75,7 @@ namespace AtHangar
 				yield break;
 			}
 			if(animator.State != AnimatorState.Opening) 
-			{ 
-				this.Log("WARNING: trying to disable decoupling while not playing the animation."); 
 				yield break; 
-			}
 			while(animator.State != AnimatorState.Opened) 
 				yield return new WaitForSeconds(0.5f);
 			disable_decoupling();
