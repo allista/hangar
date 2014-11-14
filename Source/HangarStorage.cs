@@ -122,14 +122,17 @@ namespace AtHangar
 			else if(part.vessel != null) GameEvents.onVesselWasModified.Fire(part.vessel);
 		}
 
+		virtual protected void set_part_mass()
+		{ part.mass = base_mass+VesselsMass; }
+
 		virtual protected void set_part_params(bool reset = false) 
 		{
 			if(base_mass < 0 || reset) base_mass = part.mass;
+			set_part_mass();
 			_stored_vessels = VesselsDocked.ToString();
 			_stored_mass    = Utils.formatMass(VesselsMass);
 			_stored_cost    = VesselsCost.ToString();
 			_used_volume    = Utils.formatPercent(UsedVolumeFrac);
-			part.mass = base_mass+VesselsMass;
 			on_set_part_params();
 		}
 
