@@ -8,56 +8,18 @@ namespace AtHangar
 	public class SwitchableTankManager : ConfigNodeObject
 	{
 		new public const string NODE_NAME = "TANKMANAGER";
-		const string TANK_NODE = "TANK";
+		public const string TANK_NODE = "TANK";
 
 		readonly Part part;
 		readonly List<HangarSwitchableTank> tanks = new List<HangarSwitchableTank>();
 		public int TanksCount { get { return tanks.Count; } }
-
-		//directly from Part disassembly
-		PartModule.StartState start_state
-		{
-			get 
-			{
-				var _state = PartModule.StartState.None;
-				if(HighLogic.LoadedSceneIsEditor)
-					_state |= PartModule.StartState.Editor;
-				else if(HighLogic.LoadedSceneIsFlight)
-				{
-					if(part.vessel.situation == Vessel.Situations.PRELAUNCH)
-					{
-						_state |= PartModule.StartState.PreLaunch;
-						_state |= PartModule.StartState.Landed;
-					}
-					if(part.vessel.situation == Vessel.Situations.DOCKED)
-						_state |= PartModule.StartState.Docked;
-					if(part.vessel.situation == Vessel.Situations.ORBITING ||
-						part.vessel.situation == Vessel.Situations.ESCAPING)
-						_state |= PartModule.StartState.Orbital;
-					if(part.vessel.situation == Vessel.Situations.SUB_ORBITAL)
-						_state |= PartModule.StartState.SubOrbital;
-					if(part.vessel.situation == Vessel.Situations.SPLASHED)
-						_state |= PartModule.StartState.Splashed;
-					if(part.vessel.situation == Vessel.Situations.FLYING)
-						_state |= PartModule.StartState.Flying;
-					if(part.vessel.situation == Vessel.Situations.LANDED)
-						_state |= PartModule.StartState.Landed;
-				}
-				return _state;
-			}
-		}
-
-//		void start_tanks()
-//		{
-//			if(tanks.Count == 0) return;
-//			var state = start_state;
-//			tanks.ForEach(t => t.OnStart(state));
-//		}
+		public float TotalVolume { get { return tanks.Aggregate(0f, (v, t) => v+t.Volume); } }
+		public IEnumerable<float> TanksVolumes { get { return tanks.Select(t => t.Volume); } }
 
 		public SwitchableTankManager(Part part) 
 		{ 
 			this.part = part; 
-			tank_types_list.Items = SwitchableTankType.TankTypeNames;
+			tank_types_list.Items = SwitchableTankType.TankTypeNames.ToList();
 		}
 
 		public override void Save(ConfigNode node)
@@ -78,6 +40,7 @@ namespace AtHangar
 			foreach(var n in node.GetNodes(TANK_NODE))
 			{
 				n.AddValue("name", typeof(HangarSwitchableTank).Name);
+
 				var tank = part.AddModule(n) as HangarSwitchableTank;
 				if(tank != null) tanks.Add(tank);
 				else Utils.Log("SwitchableTankManager: unable to load module from config:\n{0}", n.ToString());
@@ -102,7 +65,7 @@ namespace AtHangar
 			if(tank == null) return false;
 			tank.Volume = volume;
 			tank.TankType = tank_type;
-			tank.OnStart(start_state);
+			tank.OnStart(part.StartState());
 			tanks.ForEach(t => t.RegisterOtherTank(tank));
 			tanks.Add(tank);
 			return true;
@@ -119,6 +82,7 @@ namespace AtHangar
 			if(!tanks.Contains(tank)) return false;
 			if(!tank.TryRemoveResource()) return false;
 			tanks.Remove(tank);
+			tanks.ForEach(t => t.UnregisterOtherTank(tank));
 			part.RemoveModule(tank);
 			return true;
 		}
@@ -136,29 +100,53 @@ namespace AtHangar
 		}
 
 		#region GUI
-		const int scroll_width  = 450;
+		const int scroll_width  = 550;
 		const int scroll_height = 200;
 		const string eLock      = "SwitchableTankManager.EditingTanks";
 		Vector2 tanks_scroll    = Vector2.zero;
 		Rect eWindowPos = new Rect(Screen.width/2-scroll_width/2, scroll_height, scroll_width, scroll_height);
-		Rect aWindowPos = new Rect(Screen.width/2-scroll_width/2, scroll_height/2, scroll_width, scroll_height/2);
 		DropDownList tank_types_list = new DropDownList();
 		Func<string, float, float> add_tank_delegate;
 		Action<HangarSwitchableTank> remove_tank_delegate;
 		string volume_field = "0.0";
 
-		public bool Close { get; private set; }
+		public bool Closed { get; private set; }
+
+		void close_button()
+		{ 	
+			Closed = GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true));
+			if(Closed) Utils.LockIfMouseOver(eLock, eWindowPos, false);
+		}
+
+		static void tank_type_gui(HangarSwitchableTank tank)
+		{
+			var choice = HangarGUI.LeftRightChooser(tank.TankType, 120);
+			SwitchableTankType new_type = null;
+			if(choice < 0) new_type = SwitchableTankType.TankTypes.Prev(tank.TankType);
+			else if(choice > 0) new_type = SwitchableTankType.TankTypes.Next(tank.TankType);
+			if(new_type != null) tank.TankType = new_type.name;
+		}
+
+		static void tank_resource_gui(HangarSwitchableTank tank)
+		{
+			var choice = HangarGUI.LeftRightChooser(tank.CurrentResource, 120);
+			TankResource new_res = null;
+			if(choice < 0) new_res = tank.Type.Resources.Prev(tank.CurrentResource);
+			else if(choice > 0) new_res = tank.Type.Resources.Next(tank.CurrentResource);
+			if(new_res != null) tank.CurrentResource = new_res.Name;
+		}
 
 		void tank_gui(HangarSwitchableTank tank)
 		{
 			GUILayout.BeginHorizontal();
-			GUILayout.Label(string.Format("{0} [{1}]:", tank.TankType, tank.CurrentResource));
+			tank_type_gui(tank);
+			tank_resource_gui(tank);
 			GUILayout.FlexibleSpace();
-			GUILayout.Label(Utils.formatVolume(tank.Volume));
+			GUILayout.Label(Utils.formatVolume(tank.Volume), GUILayout.ExpandWidth(true));
 			var usage = tank.Usage;
-			GUILayout.Label("Filled: "+Utils.formatPercent(usage), Styles.fracStyle(usage), GUILayout.Width(115));
-			if(tank.Usage > 0) GUILayout.Label("X", Styles.grey, GUILayout.Width(25));
-			else if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25)))
+			GUILayout.Label("Filled: "+Utils.formatPercent(usage), Styles.fracStyle(usage), GUILayout.Width(95));
+			if(tank.Usage > 0) GUILayout.Label("X", Styles.grey, GUILayout.Width(20));
+			else if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(20)))
 				remove_tank_delegate(tank);
 			GUILayout.EndHorizontal();
 		}
@@ -181,7 +169,7 @@ namespace AtHangar
 			var tank_type = tank_types_list.SelectedValue;
 			GUILayout.Label("Volume:", GUILayout.Width(50));
 			volume_field = GUILayout.TextField(volume_field, GUILayout.ExpandWidth(true), GUILayout.MinWidth(50));
-			GUILayout.Label("m^3", GUILayout.Width(25));
+			GUILayout.Label("m3", GUILayout.Width(20));
 			float volume = -1;
 			var volume_valid = float.TryParse(volume_field, out volume); 
 			volume = add_tank_delegate(tank_type, volume);
@@ -199,20 +187,6 @@ namespace AtHangar
 			//finish the dropdown list
 			tank_types_list.DrawDropDown();
 			tank_types_list.CloseOnOutsideClick();
-		}
-
-		void close_button()
-		{ Close = GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true)); }
-
-		/// <summary>
-		/// Draws stand-alone AddTankGUI.
-		/// </summary>
-		public void AddTankGUI(int windowId)
-		{
-			AddTankGUI_start(aWindowPos);
-			AddTankGUI();
-			AddTankGUI_end();
-			GUI.DragWindow(new Rect(0, 0, 500, 20));
 		}
 
 		/// <summary>
@@ -243,39 +217,22 @@ namespace AtHangar
 		/// <param name="windowId">Window ID.</param>
 		/// <param name="add_tank">This function should take selected tank type and value, 
 		/// check them and if appropriate add new tank by calling AddTank method.</param>
-		public void DrawAddTankWindow(int windowId, Func<string, float, float> add_tank = null)
-		{
-			add_tank_delegate = add_tank;
-			Utils.LockIfMouseOver(eLock, aWindowPos);
-			aWindowPos = GUILayout.Window(windowId, 
-				aWindowPos, AddTankGUI,
-				string.Format("Add New Resource Tank"),
-				GUILayout.Width(scroll_width),
-				GUILayout.Height(scroll_height/2));
-			HangarGUI.CheckRect(ref aWindowPos);
-		}
-
-		/// <summary>
-		/// Draws the add tank GUI in a separate window.
-		/// </summary>
-		/// <returns>New window position.</returns>
-		/// <param name="windowId">Window ID.</param>
-		/// <param name="add_tank">This function should take selected tank type and value, 
-		/// check them and if appropriate add new tank by calling AddTank method.</param>
 		/// <param name="remove_tank">This function should take selected tank 
 		/// and if possible remove it using RemoveTank method.</param>
-		public void DrawTanksWindow(int windowId, Func<string, float, float> add_tank, Action<HangarSwitchableTank> remove_tank)
+		public void DrawTanksWindow(int windowId, string title, Func<string, float, float> add_tank, Action<HangarSwitchableTank> remove_tank)
 		{
 			add_tank_delegate = add_tank;
 			remove_tank_delegate = remove_tank;
-			Utils.LockIfMouseOver(eLock, eWindowPos);
+			Utils.LockIfMouseOver(eLock, eWindowPos, !Closed);
 			eWindowPos = GUILayout.Window(windowId, 
-				eWindowPos, TanksGUI,
-				string.Format("Switchable Tanks Configuration"),
+				eWindowPos, TanksGUI, title,
 				GUILayout.Width(scroll_width),
 				GUILayout.Height(scroll_height));
 			HangarGUI.CheckRect(ref eWindowPos);
 		}
+
+		public void UnlockEditor()
+		{ Utils.LockIfMouseOver(eLock, eWindowPos, false); }
 		#endregion
 	}
 }

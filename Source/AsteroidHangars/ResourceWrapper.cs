@@ -58,8 +58,8 @@ namespace AtHangar
 		static public List<Res> ParseResourcesToList(string resources)
 		{ return parse_resources<List<Res>>(resources, (c, r) => c.Add(r)); }
 
-		static public Dictionary<string, Res> ParseResourcesToDict(string resources)
-		{ return parse_resources<Dictionary<string, Res>>(resources, (c, r) => c.Add(r.Name, r)); }
+		static public SortedList<string, Res> ParseResourcesToSortedList(string resources)
+		{ return parse_resources<SortedList<string, Res>>(resources, (c, r) => c.Add(r.Name, r)); }
 	}
 }
 

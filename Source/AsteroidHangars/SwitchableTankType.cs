@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace AtHangar
 {
@@ -12,18 +13,20 @@ namespace AtHangar
 	/// </summary>
 	public class SwitchableTankType : ConfigNodeObject
 	{
+		#region Tank Type Library
 		/// <summary>
 		/// The library of preconfigured tank types 
 		/// that is loaded on game start by HangarConfigLoader.
 		/// </summary>
-		public static Dictionary<string, SwitchableTankType> TankTypes 
+		public static SortedList<string, SwitchableTankType> TankTypes 
 		{ 
 			get
 			{
 				if(_tank_types == null)
 				{
-					_tank_types = new Dictionary<string, SwitchableTankType>();
-					foreach(ConfigNode n in GameDatabase.Instance.GetConfigNodes(NODE_NAME))
+					var nodes = GameDatabase.Instance.GetConfigNodes(NODE_NAME);
+					_tank_types = new SortedList<string, SwitchableTankType>(nodes.Length);
+					foreach(ConfigNode n in nodes)
 					{
 						var tank_type = new SwitchableTankType();
 						#if DEBUG
@@ -42,21 +45,13 @@ namespace AtHangar
 				return _tank_types;
 			}
 		}
-		static Dictionary<string, SwitchableTankType> _tank_types;
+		static SortedList<string, SwitchableTankType> _tank_types;
 
 		/// <summary>
-		/// Gets the sorted list of tank type names.
+		/// Sorted list of tank type names.
 		/// </summary>
-		public static List<string> TankTypeNames
-		{
-			get
-			{
-				var types = TankTypes;
-				var names = new List<string>(types.Keys);
-				names.Sort();
-				return names;
-			}
-		}
+		public static IList<string> TankTypeNames { get { return TankTypes.Keys; } }
+		#endregion
 
 		new public const string NODE_NAME = "TANKTYPE";
 		/// <summary>
@@ -74,10 +69,10 @@ namespace AtHangar
 		/// </summary>
 		[Persistent] public float  UsefulVolumeRatio = 0.8f;
 
-		public Dictionary<string,TankResource> Resources { get; private set; }
+		public SortedList<string, TankResource> Resources { get; private set; }
 		public bool Valid { get { return Resources != null && Resources.Count > 0; } }
-		public List<string> SortedNames { get; private set; }
-		public TankResource DefaultResource { get; private set; }
+		public IList<string> ResourceNames { get { return Resources.Keys; } }
+		public TankResource DefaultResource { get { return Resources.Values[0]; } }
 
 		public TankResource this[string name]
 		{
@@ -88,40 +83,10 @@ namespace AtHangar
 			}
 		}
 
-		/// <summary>
-		/// Get the resource that next to the 'cur' in the direction 
-		/// away from the 'prev' within SortedNames.
-		/// The method is unsafe with respect to TankType.Valid value.
-		/// </summary>
-		/// <param name="cur">resource name to start from.</param>
-		/// <param name="prev">if provided, indicates direction. Otherwise direction is positive.</param>
-		public TankResource Next(string cur, string prev)
-		{
-			if(!Resources.ContainsKey(cur)) return null;
-			var  c = SortedNames.IndexOf(cur);
-			var step = 1;
-			if(Resources.ContainsKey(prev))
-			{
-				step = c-SortedNames.IndexOf(prev);
-				if(step > 1) step = -1;
-				else if(step < -1) step = 1;
-			}
-			var  n = c+step;
-			if(n < 0) n = SortedNames.Count-1;
-			else n = n % SortedNames.Count;
-			return Resources[SortedNames[n]];
-		}
-
 		public override void Load(ConfigNode node)
 		{
 			base.Load(node);
-			Resources = TankResource.ParseResourcesToDict(PossibleResources);
-			if(Valid) 
-			{
-				var names = new List<string>(Resources.Keys); names.Sort();
-				SortedNames = names;
-				DefaultResource = Resources[SortedNames[0]];
-			}
+			Resources = TankResource.ParseResourcesToSortedList(PossibleResources);
 		}
 
 		public string Info
@@ -131,7 +96,7 @@ namespace AtHangar
 				var info = "";
 				if(!Valid) return info;
 				info += "Tank can hold:\n";
-				foreach(var r in SortedNames)
+				foreach(var r in ResourceNames)
 					info += string.Format("- {0}: {1}/L\n", 
 						Resources[r].Name, Utils.formatUnits(Resources[r].UnitsPerLiter));
 				return info;
