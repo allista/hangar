@@ -99,7 +99,7 @@ namespace AtHangar
 		{
 			if(volume < 1f)
 				return (volume * 1e3f).ToString ("n0") + "L";
-			return volume.ToString("n1") + "m^3";
+			return volume.ToString("n1") + "m3";
 		}
 
 		public static string formatUnits(float units)
@@ -137,6 +137,7 @@ namespace AtHangar
 			{
 				if(args[i] is Vector3) args[i] = formatVector((Vector3)args[i]);
 				else if(args[i] is Vector3d) args[i] = formatVector((Vector3d)args[i]);
+				else if(args[i] == null) args[i] = "null";
 			}
 			Debug.Log(string.Format("[Hangar] "+msg, args)); 
 		}
