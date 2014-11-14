@@ -5,6 +5,9 @@ namespace AtHangar
 {
 	public class HangarGateway : HangarMachinery
 	{
+		public static 
+
+
 		HangarPassage entrance;
 
 		protected override bool compute_hull { get { return false; } }
@@ -15,18 +18,18 @@ namespace AtHangar
 		protected override void update_connected_storage()
 		{
 			base.update_connected_storage();
-			if(ConnectedStorage.Count > 0 &&
-				(Storage == null || !ConnectedStorage.Contains(Storage)))
-			{
-				Storage = ConnectedStorage[0];
-				Setup();
-				this.EnableModule(true);
-			}
-			else 
-			{
-				Storage = null;
-				this.EnableModule(false);
-			}
+			this.Log("Entrance '{0}', Connected Storages {1}, Storage '{2}'", entrance, ConnectedStorage.Count, Storage);
+			if(ConnectedStorage.Count == 0) Storage = null;
+			else if(Storage == null || !ConnectedStorage.Contains(Storage))
+			{ Storage = ConnectedStorage[0]; Setup(); }
+			this.EnableModule(Storage != null);
+		}
+
+		protected override void update_connected_storage(Vessel vsl)
+		{
+			if(vsl != part.vessel || !all_passages_ready) return;
+			update_connected_storage();
+			if(!enabled && hangar_gates != null) Close();
 		}
 
 		protected override void early_setup(StartState state)
@@ -36,6 +39,7 @@ namespace AtHangar
 			if(entrance == null) 
 				ScreenMessager.showMessage("WARNING: \"{0}\" part has no HangarPassage module.\n" +
 				"The part configuration is INVALID!", part.Title()); 
+			this.Log("early_setup: entrance '{0}'", entrance);
 		}
 
 		protected override bool can_store_vessel(PackedVessel v)
