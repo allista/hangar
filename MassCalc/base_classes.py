@@ -182,9 +182,7 @@ class part(collections.Iterable):
     
     @property
     def volumes(self): 
-        return [volume(self.volume(), self.name, 
-                           0, 0, -1, 
-                           subvolumes=self._volumes)]
+        return [volume(self.volume(), self.name, V=self._volumes)]
     #end def
     
     def mass(self, scale=1, length=1):
