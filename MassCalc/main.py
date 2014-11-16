@@ -229,21 +229,12 @@ if __name__ == '__main__':
 
     
     #asteroid hangars
-    asteroid_hatch = part('AsteroidHatch',
-                          [volume(16.33, 'hull', C=5000, D=2.9,
-                                  V=[volume(13.8, 'hatch-port', C=3180, M=1.2, 
-                                            S=surface(90.43, 0.005, steel),
-                                            V=[battery(E=1000)])]),
-                           volume(1.12+1.45, 'frames', C=1000, D=0.9,
-                                  S=surface(23.62+27.34, 0.005, steel)),
-                           volume(0.027, 'outer-cylinders', N=4, material=steel,
-                                  V=[volume(0.023, 'bolts', material=steel)]),
-                           volume(0.36, 'clamps', C=1000, D=0.9, N=4, 
-                                  S=surface(8.77, 0.005, steel)),
-                           volume(0.031, 'hinges', C=500, D=0.7, N=8),
-                           ])
+    asteroid_port = part('SquarePort',
+                         [volume(7.99, 'hull', C=3180, M=1.2, 
+                                 S=surface(94.89, 0.003, steel))
+                          ])
     
-    asteroid_hatch = part('AsteroidPortAdater',
+    asteroid_port_adapter = part('SquarePortAdater',
                           [volume(3.96, 'hatch-port', C=2053, M=0.8, 
                                   S=surface(38.78, 0.006, Al_Li)),
                            volume(0.276, 'hatch-port-support', C=100, D=0.1, N=4, 
@@ -254,6 +245,17 @@ if __name__ == '__main__':
                                      reaction_wheel(V=0.316)])
                            ],
                           add_cost=400) #light
+    
+    asteroid_hatch = part('AsteroidHatch',
+                          [volume(1.45, 'frames', C=1000, D=0.9, N=2,
+                                  S=surface(27.34, 0.005, steel),
+                                  V=[battery(E=1000)]),
+                           volume(0.027, 'outer-cylinders', N=4, material=steel,
+                                  V=[volume(0.023, 'bolts', material=steel)]),
+                           volume(0.36, 'clamps', C=1000, D=0.9, N=4, 
+                                  S=surface(8.77, 0.005, steel)),
+                           volume(0.031, 'hinges', C=500, D=0.7, N=8),
+                           ])
     
     asteroid_drill = part('AsteroidDrill',
                          [volume(143.63, 'base', C=2, D=0.05,
@@ -269,9 +271,7 @@ if __name__ == '__main__':
                                  S=surface(9.16, 0.01, steel)),
                           volume(2.92, 'motors', C=1370, M=4, N=4),
                           battery(V=1.45*4),
-                          volume(13.8, 'hatch-port', C=3180, M=1.2, 
-                                 S=surface(90.43, 0.005, steel)),
-                          ],
+                          ]+asteroid_port.volumes,
                          add_mass=0.04, #probe core
                          add_cost=480) #probe core
     
@@ -284,8 +284,6 @@ if __name__ == '__main__':
                                     volume(2, 'monopropellent tank', C=20)]),
                           volume(1.54, 'doors', C=2, D=0.01, N=2,
                                  S=surface(32.2, 0.007, Al_Li)),
-                          volume(13.8, 'hatch-port', C=3180, M=1.2, 
-                                 S=surface(90.43, 0.005, Al_Li)),
                           volume(22.62, 'cabins', C=100, D=0.1, N=2, 
                                  S=surface(52.17, 0.007, Al_Li),
                                  V=[volume(4.23, 'corridor', C=1, D=0.0012,
@@ -300,7 +298,7 @@ if __name__ == '__main__':
                                     volume(0.0017+0.0027+0.002+0.0008, 'ladder', material=aluminium),
                                     volume(0.0013, 'ladder-fixer', material=steel),
                                     ]),
-                          ],
+                          ]+asteroid_port.volumes,
                          add_mass=0.08, #cockpit, probe core
                          add_cost=600 + 600,  #Light + probe core
                          res_cost=2400) #Monoprop
