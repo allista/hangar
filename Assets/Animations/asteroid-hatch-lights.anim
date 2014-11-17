@@ -31,7 +31,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_Intensity
-    path: left-lamp-body/left-lamp
+    path: clamp_003/left-lamp-body/left-lamp
     classID: 108
     script: {fileID: 0}
   - curve:
@@ -50,7 +50,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_Intensity
-    path: right-lamp-body/right-lamp
+    path: clamp_002/right-lamp-body/right-lamp
     classID: 108
     script: {fileID: 0}
   m_PPtrCurves: []
@@ -96,7 +96,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_Intensity
-    path: left-lamp-body/left-lamp
+    path: clamp_003/left-lamp-body/left-lamp
     classID: 108
     script: {fileID: 0}
   - curve:
@@ -115,7 +115,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_Intensity
-    path: right-lamp-body/right-lamp
+    path: clamp_002/right-lamp-body/right-lamp
     classID: 108
     script: {fileID: 0}
   m_EulerEditorCurves: []

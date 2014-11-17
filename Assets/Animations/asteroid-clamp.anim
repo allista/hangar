@@ -321,7 +321,7 @@ AnimationClip:
         tangentMode: -1094827524
       m_PreInfinity: 2
       m_PostInfinity: 2
-    path: frame/clamp_003
+    path: frame/frame_001/clamp_003
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -632,7 +632,7 @@ AnimationClip:
         tangentMode: 1018339200
       m_PreInfinity: 2
       m_PostInfinity: 2
-    path: frame/clamp_001
+    path: frame/frame_001/clamp_001
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -943,7 +943,7 @@ AnimationClip:
         tangentMode: 1054821196
       m_PreInfinity: 2
       m_PostInfinity: 2
-    path: frame/clamp_002
+    path: frame/frame_001/clamp_002
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -1254,7 +1254,7 @@ AnimationClip:
         tangentMode: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
-    path: frame/clamp
+    path: frame/frame_001/clamp
   m_CompressedRotationCurves: []
   m_PositionCurves:
   - curve:
@@ -1613,7 +1613,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.w
-    path: frame/clamp_003
+    path: frame/frame_001/clamp_003
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1927,7 +1927,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.z
-    path: frame/clamp_003
+    path: frame/frame_001/clamp_003
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -2241,7 +2241,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.y
-    path: frame/clamp_003
+    path: frame/frame_001/clamp_003
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -2555,7 +2555,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.x
-    path: frame/clamp_003
+    path: frame/frame_001/clamp_003
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -2869,7 +2869,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.w
-    path: frame/clamp_001
+    path: frame/frame_001/clamp_001
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -3183,7 +3183,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.z
-    path: frame/clamp_001
+    path: frame/frame_001/clamp_001
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -3497,7 +3497,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.y
-    path: frame/clamp_001
+    path: frame/frame_001/clamp_001
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -3811,7 +3811,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.x
-    path: frame/clamp_001
+    path: frame/frame_001/clamp_001
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -4125,7 +4125,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.w
-    path: frame/clamp_002
+    path: frame/frame_001/clamp_002
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -4439,7 +4439,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.z
-    path: frame/clamp_002
+    path: frame/frame_001/clamp_002
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -4753,7 +4753,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.y
-    path: frame/clamp_002
+    path: frame/frame_001/clamp_002
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -5067,7 +5067,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.x
-    path: frame/clamp_002
+    path: frame/frame_001/clamp_002
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -5381,7 +5381,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.x
-    path: frame/clamp
+    path: frame/frame_001/clamp
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -5695,7 +5695,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.y
-    path: frame/clamp
+    path: frame/frame_001/clamp
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6009,7 +6009,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.z
-    path: frame/clamp
+    path: frame/frame_001/clamp
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6323,7 +6323,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: m_LocalRotation.w
-    path: frame/clamp
+    path: frame/frame_001/clamp
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6400,7 +6400,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.x
-    path: frame/clamp
+    path: frame/frame_001/clamp
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6419,7 +6419,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.y
-    path: frame/clamp
+    path: frame/frame_001/clamp
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6438,7 +6438,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.z
-    path: frame/clamp
+    path: frame/frame_001/clamp
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6457,7 +6457,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.x
-    path: frame/clamp_001
+    path: frame/frame_001/clamp_001
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6476,7 +6476,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.y
-    path: frame/clamp_001
+    path: frame/frame_001/clamp_001
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6495,7 +6495,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.z
-    path: frame/clamp_001
+    path: frame/frame_001/clamp_001
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6514,7 +6514,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.x
-    path: frame/clamp_002
+    path: frame/frame_001/clamp_002
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6533,7 +6533,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.y
-    path: frame/clamp_002
+    path: frame/frame_001/clamp_002
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6552,7 +6552,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.z
-    path: frame/clamp_002
+    path: frame/frame_001/clamp_002
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6571,7 +6571,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.x
-    path: frame/clamp_003
+    path: frame/frame_001/clamp_003
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6590,7 +6590,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.y
-    path: frame/clamp_003
+    path: frame/frame_001/clamp_003
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -6609,7 +6609,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
     attribute: localEulerAnglesBaked.z
-    path: frame/clamp_003
+    path: frame/frame_001/clamp_003
     classID: 4
     script: {fileID: 0}
   m_Events: []
