@@ -410,7 +410,7 @@ EllipsoidParticleEmitter:
   angularVelocity: 0
   rndAngularVelocity: .0500000007
   rndRotation: 1
-  Simulate in Worldspace?: 1
+  Simulate in Worldspace?: 0
   m_OneShot: 0
   m_Ellipsoid: {x: 1, y: 1, z: 1}
   m_MinEmitterRange: 0
@@ -434,7 +434,7 @@ MonoBehaviour:
   shape2D: {x: 6, y: 6}
   shape1D: 1
   color: {r: 1, g: 1, b: 1, a: 1}
-  useWorldSpace: 1
+  useWorldSpace: 0
   minSize: 2
   maxSize: 8
   minEnergy: 4
