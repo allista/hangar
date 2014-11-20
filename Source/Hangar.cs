@@ -12,7 +12,7 @@ namespace AtHangar
 		protected override bool compute_hull { get { return hangar_space != null; } }
 
 		protected override List<HangarPassage> get_connected_passages()
-		{ return Storage == null ? null : Storage.GetConnectedPassages(); }
+		{ return Storage == null ? null : Storage.ConnectedPassages(); }
 
 		protected override void early_setup(StartState state)
 		{

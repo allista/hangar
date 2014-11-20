@@ -92,31 +92,7 @@ namespace AtHangar
 		public static float TotalMass(this Part p) { return p.mass+p.GetResourceMass(); }
 		#endregion
 
-		public static string Title(this Part p) { return p.partInfo != null? p.partInfo.title : p.name; }
-
-		public static float TotalCost(this Part p) { return p.partInfo != null? p.partInfo.cost : 0; }
-
-		public static float ResourcesCost(this Part p) 
-		{ 
-			return (float)p.Resources.Cast<PartResource>()
-				.Aggregate(0.0, (a, b) => a + b.amount * b.info.unitCost); 
-		}
-
-		public static float MaxResourcesCost(this Part p) 
-		{ 
-			return (float)p.Resources.Cast<PartResource>()
-				.Aggregate(0.0, (a, b) => a + b.maxAmount * b.info.unitCost); 
-		}
-
-		public static float DryCost(this Part p) { return p.TotalCost() - p.MaxResourcesCost(); }
-
-		public static float MassWithChildren(this Part p)
-		{
-			float mass = p.TotalMass();
-			p.children.ForEach(ch => mass += ch.MassWithChildren());
-			return mass;
-		}
-
+		#region Find Modules or Parts
 		public static Part RootPart(this Part p) 
 		{ return p.parent == null ? p : p.parent.RootPart(); }
 
@@ -139,6 +115,76 @@ namespace AtHangar
 			return all_parts;
 		}
 
+		public static Part AttachedPartWithModule<T>(this Part p) where T : PartModule
+		{
+			if(p.parent != null && p.parent.HasModule<T>()) return p.parent;
+			foreach(var c in p.children) if(c.HasModule<T>()) return c;
+			return null;
+		}
+
+		public static List<ModuleT> AllModulesOfType<ModuleT>(this Part part, ModuleT exception = null)
+			where ModuleT : PartModule
+		{
+			var passages = new List<ModuleT>();
+			foreach(Part p in part.AllConnectedParts())
+				passages.AddRange(from m in p.Modules.OfType<ModuleT>()
+					where exception == null || m != exception
+					select m);
+			return passages;
+		}
+
+		public static BaseHangarAnimator GetAnimator(this Part p, string ID)
+		{
+			var animator = p.Modules.OfType<BaseHangarAnimator>().FirstOrDefault(m => m.AnimatorID == ID);
+			if(animator == null)
+			{
+				p.Log("Using BaseHangarAnimator");
+				animator = new BaseHangarAnimator();
+			}
+			return animator;
+		}
+
+		public static HangarPassage GetPassage(this Part part)
+		{
+			var passage = part.GetModule<HangarPassage>();
+			if(passage == null) 
+				ScreenMessager.showMessage("WARNING: \"{0}\" part has no HangarPassage module.\n" +
+					"The part configuration is INVALID!", part.Title());
+			return passage;
+		}
+		#endregion
+
+		#region Part dependant factories
+		public static ResourcePump CreateSocket(this Part p)
+		{ return new ResourcePump(p, Utils.ElectricChargeID); }
+		#endregion
+
+		#region Resources and Phys-Props
+		public static float TotalCost(this Part p) { return p.partInfo != null? p.partInfo.cost : 0; }
+
+		public static float ResourcesCost(this Part p) 
+		{ 
+			return (float)p.Resources.Cast<PartResource>()
+				.Aggregate(0.0, (a, b) => a + b.amount * b.info.unitCost); 
+		}
+
+		public static float MaxResourcesCost(this Part p) 
+		{ 
+			return (float)p.Resources.Cast<PartResource>()
+				.Aggregate(0.0, (a, b) => a + b.maxAmount * b.info.unitCost); 
+		}
+
+		public static float DryCost(this Part p) { return p.TotalCost() - p.MaxResourcesCost(); }
+
+		public static float MassWithChildren(this Part p)
+		{
+			float mass = p.TotalMass();
+			p.children.ForEach(ch => mass += ch.MassWithChildren());
+			return mass;
+		}
+		#endregion
+
+		#region Actions
 		public static void BreakConnectedStruts(this Part p)
 		{
 			//break strut connectors
@@ -173,27 +219,10 @@ namespace AtHangar
 			} 
 			else ap.transform.position += dp;
 		}
+		#endregion
 
-		public static ResourcePump CreateSocket(this Part p)
-		{ return new ResourcePump(p, Utils.ElectricChargeID); }
-
-		public static BaseHangarAnimator GetAnimator(this Part p, string ID)
-		{
-			var animator = p.Modules.OfType<BaseHangarAnimator>().FirstOrDefault(m => m.AnimatorID == ID);
-			if(animator == null)
-			{
-				p.Log("Using BaseHangarAnimator");
-				animator = new BaseHangarAnimator();
-			}
-			return animator;
-		}
-
-		public static Part GetAttachedPart<T>(this Part p) where T : PartModule
-		{
-			if(p.parent != null && p.parent.HasModule<T>()) return p.parent;
-			foreach(var c in p.children) if(c.HasModule<T>()) return c;
-			return null;
-		}
+		#region Logging
+		public static string Title(this Part p) { return p.partInfo != null? p.partInfo.title : p.name; }
 
 		public static void Log(this Part p, string msg, params object[] args)
 		{
@@ -202,7 +231,9 @@ namespace AtHangar
 				vname, p.name, p.flightID, msg);
 			Utils.Log(_msg, args);
 		}
+		#endregion
 
+		#region Misc
 		//directly from Part disassembly
 		public static PartModule.StartState StartState(this Part part)
 		{
@@ -232,6 +263,7 @@ namespace AtHangar
 			}
 			return _state;
 		}
+		#endregion
 	}
 
 	public static class PartModuleExtensions

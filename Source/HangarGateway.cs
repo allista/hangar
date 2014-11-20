@@ -13,12 +13,12 @@ namespace AtHangar
 		protected override bool compute_hull { get { return false; } }
 
 		protected override List<HangarPassage> get_connected_passages()
-		{ return entrance == null ? null : entrance.GetConnectedPassages(); }
+		{ return entrance == null ? null : entrance.ConnectedPassages(); }
 
 		protected override void update_connected_storage()
 		{
 			base.update_connected_storage();
-			this.Log("Entrance '{0}', Connected Storages {1}, Storage '{2}'", entrance, ConnectedStorage.Count, Storage);
+			this.Log("Entrance '{0}', Connected Storages {1}, Storage '{2}'", entrance, ConnectedStorage.Count, Storage);//debug
 			if(ConnectedStorage.Count == 0) Storage = null;
 			else if(Storage == null || !ConnectedStorage.Contains(Storage))
 			{ Storage = ConnectedStorage[0]; Setup(); }
@@ -35,19 +35,16 @@ namespace AtHangar
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
-			entrance = part.GetModule<HangarPassage>();
-			if(entrance == null) 
-				ScreenMessager.showMessage("WARNING: \"{0}\" part has no HangarPassage module.\n" +
-				"The part configuration is INVALID!", part.Title()); 
-			this.Log("early_setup: entrance '{0}'", entrance);
+			entrance = part.GetPassage();
+			this.Log("early_setup: entrance '{0}'", entrance);//debug
 		}
 
 		protected override bool can_store_vessel(PackedVessel v)
 		{
-			if(entrance.CanTransferTo(v, Storage))
+			if(!entrance.CanTransferTo(v, Storage))
 			{
-				ScreenMessager.showMessage(5, "There's no room in the hangar for this vessel,\n" +
-					"or vessel clearance is insufficient for safe docking.\n" +
+				ScreenMessager.showMessage(8, "There's no room in the hangar for this vessel,\n" +
+					"OR vessel clearance is insufficient for safe docking.\n\n" +
 					"\"{0}\" cannot be stored", v.name);
 				return false;
 			}

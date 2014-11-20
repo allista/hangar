@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AtHangar
 {
 	public class AsteroidMassConverter : AnimatedConverterBase
 	{
-		const string USI_PotatoInfoName = "USI_PotatoInfo";
-
 		[KSPField] public string OutputResource;
 		[KSPField] public float  Efficiency = 0.92f; // 8% of mass is lost
 		[KSPField] public float  ConversionRate = 0.01f; // tons per electric charge
@@ -15,10 +15,12 @@ namespace AtHangar
 		float dM_buffer;
 
 		#region Parts & Modules
-		Part asteroid;
-		AsteroidInfo asteroid_info;
+		HangarPassage entrance;
+		List<HangarPassage> passage_checklist;
 		SingleUseGrappleNode grapple_node;
 		HangarStorageDynamic storage;
+		Part asteroid;
+		AsteroidInfo asteroid_info;
 		PartResourceDefinition resource;
 		#endregion
 
@@ -45,15 +47,21 @@ namespace AtHangar
 		{ GameEvents.onVesselWasModified.Remove(update_state); }
 
 		void update_state(Vessel vsl)
-		{ if(vsl == part.vessel) update_state(); }
+		{ 
+			if(vsl != part.vessel || !all_passages_ready) return;
+			update_state(); 
+		}
 
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
+			entrance = part.GetPassage();
+			if(entrance == null) return;
+			passage_checklist = part.AllModulesOfType<HangarPassage>();
 			resource = this.GetResourceDef(OutputResource);
 			if(resource == null) return;
 			pump = new ResourcePump(part, resource.id);
-			update_state();
+			StartCoroutine(delayed_update_state());
 		}
 
 		public override void OnLoad(ConfigNode node)
@@ -64,21 +72,32 @@ namespace AtHangar
 		#endregion
 
 		#region Asteroid
+		bool all_passages_ready { get { return passage_checklist.All(p => p.Ready); } }
+
+		IEnumerator<YieldInstruction> delayed_update_state()
+		{
+			while(!all_passages_ready) yield return null;
+			update_state();
+		}
+
 		void update_state()
 		{
 			try
 			{
 				//get asteroid hatch
-				var hatch = part.GetAttachedPart<SingleUseGrappleNode>();
+				var hatch = entrance.ConnectedPartWithModule<SingleUseGrappleNode>();
 				grapple_node = hatch.GetModule<SingleUseGrappleNode>();
 				storage = hatch.GetModule<HangarStorageDynamic>();
-				if(grapple_node == null || storage == null) 
-					throw new Exception();
+				if(grapple_node == null || storage == null) throw new Exception();
 				//get asteroid
-				asteroid = hatch.GetAttachedPart<ModuleAsteroid>();
-				if(!asteroid_is_usable) throw new Exception();
+				asteroid = hatch.AttachedPartWithModule<ModuleAsteroid>();
 				asteroid_info = asteroid.GetModule<AsteroidInfo>();
-				if(asteroid_info == null) throw new Exception();
+				if(!asteroid_info.AsteroidIsUsable) 
+				{
+					ScreenMessager.showMessage(6, "This asteroid is used by Asteroid Recycling machinery.\n" +
+						"Mining it is prohibited for safety reasons.");
+					throw new Exception();
+				}
 			}
 			catch
 			{ 
@@ -93,33 +112,6 @@ namespace AtHangar
 			Converting &= can_convert();
 			update_events();
 		}
-
-		bool asteroid_is_usable
-		{
-			get
-			{
-				if(asteroid == null) return false;
-				try
-				{
-					var USI_PotatoInfo = asteroid.Modules[USI_PotatoInfoName];
-					var explored = USI_PotatoInfo.Fields["Explored"];
-					if((bool)explored.host) 
-					{
-						ScreenMessager.showMessage(6, "This asteroid is used by Asteroid Recycling machinery.\n" +
-							"Mining it is prohibited for safety reasons.");
-						return false;
-					}
-				} catch {}
-				return true;
-			}
-		}
-
-		void lock_asteroid()
-		{
-			if(asteroid == null) return;
-			try { asteroid.Modules.Remove(asteroid.Modules[USI_PotatoInfoName]); }
-			catch {}
-		}
 		#endregion
 
 		#region Mining
@@ -131,17 +123,6 @@ namespace AtHangar
 					&& storage != null
 					&& grapple_node != null 
 					&& grapple_node.Fixed;
-			if(asteroid == null)
-			{
-				ScreenMessager.showMessage("No asteroid to mine");
-				return false;
-			}
-			if(asteroid_info == null)
-			{
-				ScreenMessager.showMessage("Asteroid does not contain AsteroidInfo module.\n" +
-					"This should never happen!");
-				return false;
-			}
 			if(storage == null)
 			{
 				ScreenMessager.showMessage("The mining can only be performed " +
@@ -154,7 +135,18 @@ namespace AtHangar
 					"through a permanentely fixed acces port.");
 				return false;
 			}
-			if(storage.CanAddVolume)
+			if(asteroid == null)
+			{
+				ScreenMessager.showMessage("No asteroid to mine");
+				return false;
+			}
+			if(asteroid_info == null)
+			{
+				ScreenMessager.showMessage("Asteroid does not contain AsteroidInfo module.\n" +
+					"This should never happen!");
+				return false;
+			}
+			if(!storage.CanAddVolume)
 			{
 				ScreenMessager.showMessage("The space inside the asteroid is already in use. " +
 					"Cannot start mining.");
@@ -163,25 +155,40 @@ namespace AtHangar
 			return true;
 		}
 
+		//ode to the imprecision of floating point calculations
 		bool produce(float consumed)
 		{
 			//check if it is possible to get so little from the asteroid
 			dM_buffer -= Mathf.Min(consumed*ConversionRate, asteroid.mass-asteroid_info.MinMass);
 			var new_mass = asteroid.mass+dM_buffer;
 			if(asteroid.mass == new_mass) return true;
-			//if it seems possible, try to produce resource
+			//if it seems possible, try to produce the resource
 			pump.RequestTransfer(dM_buffer/resource.density*Efficiency);
 			dM_buffer = 0;
 			if(!pump.TransferResource()) return true;
 			var dM = pump.Result*resource.density/Efficiency;
+			//if the transfer was partial and what was produced is still less 
+			//then required to change asteroid mass, revert
 			new_mass = asteroid.mass+dM;
-			//if what produced is still less then required to change asteroid mass, 
-			//or if storage cannot accept new volume -- revert
-			if(asteroid.mass == new_mass || 
-				!storage.AddVolume(-dM/asteroid_info.Density))
-			{ pump.Revert(); return false; }
+			if(asteroid.mass == new_mass)
+			{ 
+				ScreenMessager.showMessage("No space left for {0}", OutputResource);
+				goto abort;
+			}
+			//if the storage cannot accept new volume, also revert
+			if(!storage.AddVolume(-dM/asteroid_info.Density))
+			{
+				ScreenMessager.showMessage("Mining was aborted");
+				goto abort;
+			}
 			asteroid.mass = new_mass;
 			return true;
+			abort:
+			{
+				pump.Revert();
+				pump.Clear();
+				return false;
+			}
 		}
 
 		protected override bool convert()
@@ -205,22 +212,14 @@ namespace AtHangar
 				dM_buffer = 0; pump.Clear();
 				return false;
 			}
-			if(!produced)
-			{
-				ScreenMessager.showMessage("No space left for {0}", OutputResource);
-				return false;
-			}
-			return true;
+			return produced;
 		}
 
 		protected override void on_start_conversion()
-		{ lock_asteroid(); }
+		{ asteroid_info.LockAsteroid(); }
 
 		protected override void on_stop_conversion()
-		{
-			RateDisplay = 0;
-			storage.Setup();
-		}
+		{ storage.Setup(); }
 		#endregion
 
 //		#region BackgroundProcessing

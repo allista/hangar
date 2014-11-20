@@ -48,7 +48,7 @@ namespace AtHangar
 		{ return Storage == null? new List<StoredVessel>() : Storage.GetVessels(); }
 
 		//vessels storage
-		readonly protected List<HangarPassage> passage_checklist = new List<HangarPassage>();
+		protected List<HangarPassage> passage_checklist = new List<HangarPassage>();
 		readonly public List<HangarStorage> ConnectedStorage = new List<HangarStorage>();
 		public int   TotalVesselsDocked;
 		public float TotalVolume;
@@ -117,28 +117,7 @@ namespace AtHangar
 		void update_resources()
 		{ hangarResources = new VesselResources<Vessel, Part, PartResource>(vessel); }
 
-		void build_passage_checklist()
-		{
-			passage_checklist.Clear();
-			foreach(Part p in part.AllConnectedParts())
-			{ passage_checklist.AddRange(p.Modules.OfType<HangarPassage>()); }
-			this.Log("All connected parts: {0}; Passages Checklist {1}", 
-				part.AllConnectedParts().Count, passage_checklist.Count);//debug
-		}
-
-		protected bool all_passages_ready
-		{
-			get
-			{
-				if(passage_checklist.Count == 0) return true;
-				bool loaded = true;
-				foreach(var p in passage_checklist)
-				{ loaded &= p.Ready; 
-					this.Log("{0} is Ready: {1}", p, p.Ready);//debug
-					if(!loaded) break; }
-				return loaded;
-			}
-		}
+		protected bool all_passages_ready { get { return passage_checklist.All(p => p.Ready); } }
 
 		protected abstract List<HangarPassage> get_connected_passages();
 
@@ -228,7 +207,7 @@ namespace AtHangar
 			}
 			if(EnergyConsumption > 0) 
 				socket = part.CreateSocket();
-			build_passage_checklist();
+			passage_checklist = part.AllModulesOfType<HangarPassage>();
 		}
 
 		protected virtual void start_coroutines()
@@ -403,7 +382,7 @@ namespace AtHangar
 		}
 
 		//called every frame while part collider is touching the trigger
-		void OnTriggerStay (Collider col)
+		void OnTriggerStay(Collider col)
 		{
 			if(hangar_state != HangarState.Active
 				||  Storage == null
