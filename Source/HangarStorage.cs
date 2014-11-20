@@ -27,7 +27,7 @@ namespace AtHangar
 		public float FreeVolume	    { get { return Volume-UsedVolume; } }
 		public float UsedVolumeFrac { get { return UsedVolume/Volume; } }
 		//coordination
-		readonly List<HangarStorage> storage_cecklist = new List<HangarStorage>();
+		readonly List<HangarStorage> storage_checklist = new List<HangarStorage>();
 		#endregion
 
 		#region GUI
@@ -57,25 +57,22 @@ namespace AtHangar
 		void build_storage_checklist()
 		{
 			if(!HighLogic.LoadedSceneIsFlight) return;
-			storage_cecklist.Clear();
+			storage_checklist.Clear();
 			foreach(Part p in vessel.parts)
 			{
-				if(p == part) break;
-				storage_cecklist.AddRange(p.Modules.OfType<HangarStorage>());
+				if(p == part) 
+				{
+					foreach(var s in p.Modules.OfType<HangarStorage>())
+					{ 
+						if(s == this) return;
+						storage_checklist.Add(s);
+					} return;
+				}
+				storage_checklist.AddRange(p.Modules.OfType<HangarStorage>());
 			}
 		}
 
-		bool other_storages_ready
-		{
-			get
-			{
-				if(storage_cecklist.Count == 0) return true;
-				bool ready = true;
-				foreach(var h in storage_cecklist)
-				{ ready &= h.Ready; if(!ready) break; }
-				return ready;
-			}
-		}
+		bool other_storages_ready { get { return storage_checklist.All(s => s.Ready); } }
 
 		protected override void early_setup(StartState state)
 		{
