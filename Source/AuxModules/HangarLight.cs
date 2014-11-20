@@ -1,9 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace AtHangar
 {
 	public class HangarLight : HangarAnimator
 	{
+		[KSPField] public float RangeMultiplier = 1f;
+		[KSPField] public string LightNames = string.Empty;
+		readonly List<Light> lights = new List<Light>();
+		readonly Dictionary<int,float> ranges = new Dictionary<int, float>();
+
 		public override string GetInfo()
 		{
 			var info = base.GetInfo();
@@ -21,6 +28,11 @@ namespace AtHangar
 
 		public override void OnStart (StartState state)
 		{
+			//get lights, save their ranges and apply range multiplier
+			foreach(var l in LightNames.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries))
+				lights.AddRange(part.FindModelComponents<Light>(l));
+			lights.ForEach(l => ranges[l.GetInstanceID()] = l.range);
+			UpdateLights();
 			//default labels
 			if(OpenEventGUIName  == string.Empty) OpenEventGUIName  = "Lights On";
 			if(CloseEventGUIName == string.Empty) CloseEventGUIName = "Lights Off";
@@ -28,6 +40,9 @@ namespace AtHangar
 			Actions["ToggleAction"].actionGroup = KSPActionGroup.Light;
 			base.OnStart (state);
 		}
+
+		public void UpdateLights()
+		{ lights.ForEach(l => l.range = ranges[l.GetInstanceID()]*RangeMultiplier); }
 
 		protected override void consume_energy()
 		{

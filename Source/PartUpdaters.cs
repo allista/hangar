@@ -113,13 +113,19 @@ namespace AtHangar
 
 		public override void Init() { base.Init(); SaveDefaults(); }
 		protected override void SaveDefaults()
-		{ foreach(AttachNode node in base_part.attachNodes) orig_nodes[node.id] = node; }
+		{ base_part.attachNodes.ForEach(n => orig_nodes[n.id] = n); }
 
 		public override void OnRescale(Scale scale)
 		{
 			//update attach nodes and their parts
 			foreach(AttachNode node in part.attachNodes)
 			{
+				#if DEBUG
+				this.Log("OnRescale: node.id {0}, node.size {1}, node.bForce {2} node.bTorque {3}", 
+					node.id, node.size, node.breakingForce, node.breakingTorque);
+				#endif
+				//ModuleGrappleNode adds new AttachNode on dock
+				if(!orig_nodes.ContainsKey(node.id)) continue; 
 				//update node position
 				node.position = ScaleVector(node.originalPosition, scale, scale.aspect);
 				part.UpdateAttachedPartPos(node);
@@ -358,6 +364,15 @@ namespace AtHangar
 		{ 
 			module.RescaleTanks(scale.relative.cube * scale.relative.aspect); 
 			module.Volume *= scale.relative.cube * scale.relative.aspect;
+		}
+	}
+
+	public class HangarLightUpdater : ModuleUpdater<HangarLight>
+	{
+		protected override void on_rescale(HangarLight module, HangarLight base_module, Scale scale)
+		{ 
+			module.RangeMultiplier = base_module.RangeMultiplier * scale;
+			module.UpdateLights(); 
 		}
 	}
 }
