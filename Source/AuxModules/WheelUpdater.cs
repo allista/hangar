@@ -6,25 +6,40 @@ namespace AtHangar
 	class WheelFrictionChanger
 	{ 
 		public readonly WheelCollider Collider;
-		readonly float forwardStiffness, sidewaysStiffness;
+		readonly WheelFrictionCurve forwardFriction, sidewaysFriction;
 
 		public WheelFrictionChanger(Wheel w)
 		{ 
 			Collider = w.whCollider;
-			forwardStiffness  = Collider.forwardFriction.stiffness; 
-			sidewaysStiffness = Collider.sidewaysFriction.stiffness; 
+			forwardFriction  = Collider.forwardFriction; 
+			sidewaysFriction = Collider.sidewaysFriction; 
 		}
 
-		public void SetStiffness(float f, float s)
+		public void SetFriction(float val)
 		{
-			WheelFrictionCurve ff = Collider.forwardFriction;
-			ff.stiffness = f; Collider.forwardFriction = ff;
-			WheelFrictionCurve sf = Collider.sidewaysFriction;
-			sf.stiffness = s; Collider.sidewaysFriction = sf;
+			var ff = Collider.forwardFriction;
+			ff.stiffness = val; 
+			Collider.forwardFriction = ff;
+			var sf = Collider.sidewaysFriction;
+			sf.stiffness = val; 
+			Collider.sidewaysFriction = sf;
+			#if DEBUG
+			Utils.Log("WheelFriction [{0}]: fF {1} sF {2} feS {3}, feV {4} faS {5} faV {6}", 
+				Collider.GetInstanceID(), 
+				Collider.forwardFriction.stiffness, 
+				Collider.sidewaysFriction.stiffness,
+				Collider.forwardFriction.extremumSlip,
+				Collider.forwardFriction.extremumValue,
+				Collider.forwardFriction.asymptoteSlip,
+				Collider.forwardFriction.asymptoteValue);
+			#endif
 		}
 
 		public void RestoreWheel()
-		{ SetStiffness(forwardStiffness, sidewaysStiffness); }
+		{ 
+			Collider.forwardFriction = forwardFriction;
+			Collider.sidewaysFriction = sidewaysFriction;
+		}
 	}
 
 	public class WheelUpdater : PartModule
@@ -35,8 +50,8 @@ namespace AtHangar
 
 		void OnDestroy() { RestoreWheels(); }
 
-		public void StiffenWheels() 
-		{ saved_wheels.ForEach(w => w.SetStiffness(1, 1)); }
+		public void StiffenWheels(float val) 
+		{ saved_wheels.ForEach(w => w.SetFriction(val)); }
 
 		public void RestoreWheels()
 		{ saved_wheels.ForEach(w => w.RestoreWheel()); }
@@ -58,8 +73,8 @@ namespace AtHangar
 			if(id == last_id) return;
 			last_id = id;
 			//check part
-			Part other_part = collision.gameObject.GetComponent<Part>();
-			if(other_part != null && other_part.HasModule<Hangar>()) StiffenWheels();
+			var other_part = collision.gameObject.GetComponent<Part>();
+			if(other_part != null && other_part.HasModule<HangarMachinery>()) StiffenWheels(1);
 			else RestoreWheels();
 		}
 	}
