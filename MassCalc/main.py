@@ -229,6 +229,20 @@ if __name__ == '__main__':
 
     
     #asteroid hangars
+    struct_grapple = part('StructuralGrapple',
+                          [volume(2.76, 'hull', C=200, D=0.01,
+                                  S=surface(23.83, 0.006, Al_Li),
+                                  V=[battery(E=1000),
+                                     volume(1.0, 'machinery', C=500, D=0.3)]),
+                           volume(0.026, 'outer-cylinders', N=4, material=aluminium,
+                                  V=[volume(0.0025, 'inner_cylinders', material=aluminium)]),
+                           volume(0.008+0.0007+0.0009+0.0036+0.0018+0.001+0.006, 
+                                  'levers-axis', material=aluminium, N=4),
+                           volume(0.039, 'clinches', C=1000, D=0.9, N=4),
+                           volume(0.012, 'clinch-caps', C=100, D=0.1, N=4,
+                                  S=surface(0.97, 0.006, Al_Li)),
+                           ])
+    
     asteroid_port = part('SquarePort',
                          [volume(7.99, 'hull', C=3180, M=1.2, 
                                  S=surface(94.89, 0.003, steel))
@@ -281,7 +295,7 @@ if __name__ == '__main__':
                                  V=[battery(E=10000),
                                     reaction_wheel(0.55),
                                     generator(E=6.0),
-                                    volume(2, 'monopropellent tank', C=20)]),
+                                    volume(5, 'monopropellent tank', C=20)]),
                           volume(1.54, 'doors', C=2, D=0.01, N=2,
                                  S=surface(32.2, 0.007, Al_Li)),
                           volume(22.62, 'cabins', C=100, D=0.1, N=2, 
@@ -299,9 +313,9 @@ if __name__ == '__main__':
                                     volume(0.0013, 'ladder-fixer', material=steel),
                                     ]),
                           ]+asteroid_port.volumes,
-                         add_mass=0.08, #cockpit, probe core
+                         add_mass=0.08, #probe core
                          add_cost=600 + 600,  #Light + probe core
-                         res_cost=2400) #Monoprop
+                         res_cost=0)
     
     ore_converter = part('RockOreConverter',
 		                 [volume(12.46, 'hull', C=1, D=0.02,
