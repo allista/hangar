@@ -109,7 +109,6 @@
     <Compile Include="AsteroidHangars\ResourceWrapper.cs" />
     <Compile Include="AsteroidHangars\SimpleTextureSwitcher.cs" />
     <Compile Include="AsteroidHangars\SwitchableTankManager.cs" />
-    <Compile Include="TestModule.cs" />
     <Compile Include="AsteroidHangars\HangarTankManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
