@@ -61,18 +61,15 @@ namespace AtHangar
 										  where c != this && c.AnimatorID == AnimatorID select c);
 			//initialize Animator
 			part.force_activate();
-			emitter  = part.GetComponentsInChildren<KSPParticleEmitter>().FirstOrDefault();
+			emitter = part.GetComponentsInChildren<KSPParticleEmitter>().FirstOrDefault();
 			if(emitter != null) 
 			{
 				base_emission[0] = emitter.minEmission;
 				base_emission[1] = emitter.maxEmission;
 			}
 			animator = part.GetAnimator(AnimatorID);
-			if(animator is HangarAnimator)
-			{
-				var an = animator as HangarAnimator;
-				base_animation_speed = an.ForwardSpeed;
-			}
+			var an = animator as HangarAnimator;
+			if(an != null) base_animation_speed = an.ForwardSpeed;
 			//setup GUI fields
 			Fields["EnergyConsumption"].guiName = Title+" Uses";
 			Fields["RateDisplay"].guiName       = Title+" Rate";
@@ -106,11 +103,8 @@ namespace AtHangar
 						emitter.minEmission = (int)Mathf.Ceil(base_emission[0]*rate);
 						emitter.maxEmission = (int)Mathf.Ceil(base_emission[1]*rate);
 					}
-					if(animator is HangarAnimator)
-					{
-						var an = animator as HangarAnimator;
-						an.ForwardSpeed = base_animation_speed*rate;
-					}
+					var an = animator as HangarAnimator;
+					if(an != null) an.ForwardSpeed = base_animation_speed*rate;
 					last_rate = rate;
 				}
 				yield return new WaitForSeconds(0.5f);
@@ -118,17 +112,27 @@ namespace AtHangar
 		}
 
 		#region Events & Actions
+		void enable_emitter(bool enable = true)
+		{
+			if(emitter == null) return;
+			emitter.emit = enable;
+			emitter.enabled = enable;
+		}
+
 		protected virtual void update_events()
 		{
 			Events["StartConversion"].active = !Converting;
 			Events["StopConversion"].active  =  Converting;
-			if(emitter != null)
+			if(Converting)
 			{
-				emitter.emit = Converting;
-				emitter.enabled = Converting;
+				enable_emitter();
+				animator.Open();
 			}
-			if(Converting) animator.Open();
-			else if(!some_working) animator.Close();
+			else if(!some_working) 
+			{
+				enable_emitter(false);
+				animator.Close();
+			}
 		}
 
 		[KSPEvent (guiActive = true, guiName = "Start Conversion", active = true)]
@@ -136,13 +140,14 @@ namespace AtHangar
 		{
 			if(!can_convert(true)) return;
 			Converting = true;
+			on_start_conversion();
 			update_events();
 		}
 
 		[KSPEvent (guiActive = true, guiName = "Stop Conversion", active = true)]
 		public void StopConversion()
 		{
-			Converting = false;
+			Converting = false; rate = 0;
 			on_stop_conversion();
 			update_events();
 		}
