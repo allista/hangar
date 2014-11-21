@@ -12,7 +12,7 @@ namespace AtHangar
 		[KSPField(isPersistant = false)] public string CloseEventGUIName;
 		[KSPField(isPersistant = false)] public string ActionGUIName;
 
-		[KSPField(isPersistant = false)] public string AnimationName;
+		[KSPField(isPersistant = false)] public string AnimationNames;
 		[KSPField(isPersistant = false)] public float  ForwardSpeed = 1f;
 		[KSPField(isPersistant = false)] public float  ReverseSpeed = 1f;
 		[KSPField(isPersistant = false)] public bool   Loop = false;
@@ -30,23 +30,25 @@ namespace AtHangar
 		//from Kethane / Plugin / Misc.cs
 		void setup_animation()
 		{
-			Animation[] animations = part.FindModelAnimators(AnimationName);
-			if(animations == null || animations.Length == 0)
+			foreach(var aname in AnimationNames.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries))
 			{
-				this.Log("setup_animation: there's no '{0}' animation in {1}", 
-						  AnimationName, part.name);
-				return;
-			}
-			animation_states = new List<AnimationState>();
-			foreach(Animation anim in animations)
-			{
-				if(anim[AnimationName] == null) continue;
-				AnimationState animationState = anim[AnimationName];
-				animationState.speed = 0;
-				animationState.enabled = true;
-				animationState.wrapMode = WrapMode.ClampForever;
-				anim.Blend(AnimationName);
-				animation_states.Add(animationState);
+				Animation[] animations = part.FindModelAnimators(aname);
+				if(animations == null || animations.Length == 0)
+				{
+					this.Log("setup_animation: there's no '{0}' animation in {1}", 
+							  aname, part.name);
+					continue;
+				}
+				foreach(Animation anim in animations)
+				{
+					if(anim[aname] == null) continue;
+					AnimationState animationState = anim[aname];
+					animationState.speed = 0;
+					animationState.enabled = true;
+					animationState.wrapMode = WrapMode.ClampForever;
+					anim.Blend(aname);
+					animation_states.Add(animationState);
+				}
 			}
 			Duration = animation_states.Aggregate(0f, (d, s) => Math.Max(d, s.length));
 		}
