@@ -19,6 +19,7 @@ namespace AtHangar
 		[KSPField (isPersistant = false)] public string LaunchTransform;
 		[KSPField (isPersistant = false)] public string LaunchVelocity;
 		[KSPField (isPersistant = true)]  public bool   LaunchWithPunch;
+		[KSPField (isPersistant = false)] public string CheckDockingPorts;
 		#endregion
 
 		#region Managed Storage
@@ -49,6 +50,7 @@ namespace AtHangar
 
 		//vessels storage
 		protected List<HangarPassage> passage_checklist = new List<HangarPassage>();
+		readonly protected List<ModuleDockingNode> docks_checklist = new List<ModuleDockingNode>();
 		readonly public List<HangarStorage> ConnectedStorage = new List<HangarStorage>();
 		public int   TotalVesselsDocked;
 		public float TotalVolume;
@@ -207,6 +209,11 @@ namespace AtHangar
 			}
 			if(EnergyConsumption > 0) 
 				socket = part.CreateSocket();
+			//get docking ports that are inside hangar sapace
+			var docks = part.Modules.OfType<ModuleDockingNode>().ToList();
+			foreach(var d in CheckDockingPorts.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries))
+				docks_checklist.AddRange(docks.Where(m => m.referenceAttachNode == d));
+			//get all passages in the vessel
 			passage_checklist = part.AllModulesOfType<HangarPassage>();
 		}
 
@@ -567,8 +574,7 @@ namespace AtHangar
 				return false;
 			}
 			//if something is docked to the hangar docking port (if its present)
-			ModuleDockingNode dport = part.GetModule<ModuleDockingNode>();
-			if(dport != null && dport.vesselInfo != null)
+			if(!docks_checklist.TrueForAll(d => d.vesselInfo == null))
 			{
 				ScreenMessager.showMessage("Cannot launch a vessel while another is docked");
 				return false;
