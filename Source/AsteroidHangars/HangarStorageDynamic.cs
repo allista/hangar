@@ -121,7 +121,8 @@ namespace AtHangar
 					{
 						ScreenMessager.showMessage("Not enough {0} to build {1} tank. Need {2}.", 
 							BuildTanksFrom, Utils.formatVolume(volume), metal);
-						metal_pump.Revert(); 
+						metal_pump.Revert();
+						metal_pump.Clear();
 						return false;
 					}
 					TanksMass += metal_pump.Result*metal_pump.Resource.density;
