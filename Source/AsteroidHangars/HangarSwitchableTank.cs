@@ -310,11 +310,17 @@ namespace AtHangar
 		{
 			while(true)
 			{
-				if(HighLogic.LoadedSceneIsEditor &&
-				   (tank_type == null || 
-					tank_type.name != TankType))
-					init_tank_type();
-				if( CurrentResource != previous_resource)
+				if(HighLogic.LoadedSceneIsEditor)
+				{
+					if(tank_type == null || tank_type.name != TankType)
+						init_tank_type();
+				}
+				else if(tank_type != null && tank_type.name != TankType)
+				{
+					ScreenMessager.showMessage("Cannot change the type of the already constructed tank");
+					TankType = tank_type.name;
+				}
+				if(CurrentResource != previous_resource)
 					switch_resource();
 				yield return new WaitForSeconds(0.1f);
 			}
