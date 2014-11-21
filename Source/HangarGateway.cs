@@ -5,9 +5,6 @@ namespace AtHangar
 {
 	public class HangarGateway : HangarMachinery
 	{
-		public static 
-
-
 		HangarPassage entrance;
 
 		protected override bool compute_hull { get { return false; } }
@@ -55,7 +52,7 @@ namespace AtHangar
 		{
 			return vessel.LandedOrSplashed ? 
 				launch_transform.TransformDirection(-sv.CoG - Vector3.up*sv.size.y) : 
-				launch_transform.TransformDirection(sv.CoM - sv.CoG - Vector3.up*sv.size.y);
+				launch_transform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.size.y/2);
 		}
 	}
 }
