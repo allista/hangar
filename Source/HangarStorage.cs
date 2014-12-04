@@ -106,7 +106,10 @@ namespace AtHangar
 			{   //if resetting, try to repack vessels on resize
 				var constructs = packed_constructs.Values;
 				packed_constructs.Clear();
-				constructs.ForEach(pc => TryStoreVessel(pc));
+				constructs.ForEach(pc => packed_constructs.TryAdd(pc));
+				if(constructs.Count > packed_constructs.Count)
+					ScreenMessager.showMessage("The storage became too small. Some {0} vessels were removed", 
+						constructs.Count-packed_constructs.Count);
 			}
 			//then set other part parameters
 			set_part_params(reset);
