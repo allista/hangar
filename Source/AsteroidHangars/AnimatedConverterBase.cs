@@ -18,9 +18,9 @@ namespace AtHangar
 		[KSPField(guiActiveEditor = true, guiName = "Energy Consumption", guiUnits = "ec/sec")] 
 		public float EnergyConsumption = 50f;
 
-		[KSPField(guiActive = true, guiName = "Rate", guiFormat = "n1", guiUnits = "%")]
-		public float RateDisplay;
-		protected float rate, last_rate;
+		[KSPField(guiActive = true, guiName = "Rate", guiFormat = "P1")]
+		public float Rate;
+		protected float last_rate;
 
 		[KSPField] public string AnimatorID = "_none_";
 		protected BaseHangarAnimator animator;
@@ -60,7 +60,6 @@ namespace AtHangar
 				other_converters.AddRange(from c in part.Modules.OfType<AnimatedConverterBase>()
 										  where c != this && c.AnimatorID == AnimatorID select c);
 			//initialize Animator
-			part.force_activate();
 			emitter = part.GetComponentsInChildren<KSPParticleEmitter>().FirstOrDefault();
 			if(emitter != null) 
 			{
@@ -72,7 +71,7 @@ namespace AtHangar
 			if(an != null) base_animation_speed = an.ForwardSpeed;
 			//setup GUI fields
 			Fields["EnergyConsumption"].guiName = Title+" Uses";
-			Fields["RateDisplay"].guiName       = Title+" Rate";
+			Fields["Rate"].guiName              = Title+" Rate";
 			Events["StartConversion"].guiName   = StartEventGUIName+" "+Title;
 			Events["StopConversion"].guiName    = StopEventGUIName+" "+Title;
 			Actions["ToggleConversion"].guiName = ActionGUIName+" "+Title;
@@ -95,17 +94,16 @@ namespace AtHangar
 		{
 			while(true)
 			{
-				if(rate != last_rate)
+				if(Rate != last_rate)
 				{
-					RateDisplay = rate*100f;
 					if(emitter != null)
 					{
-						emitter.minEmission = (int)Mathf.Ceil(base_emission[0]*rate);
-						emitter.maxEmission = (int)Mathf.Ceil(base_emission[1]*rate);
+						emitter.minEmission = (int)Mathf.Ceil(base_emission[0]*Rate);
+						emitter.maxEmission = (int)Mathf.Ceil(base_emission[1]*Rate);
 					}
 					var an = animator as HangarAnimator;
-					if(an != null) an.ForwardSpeed = base_animation_speed*rate;
-					last_rate = rate;
+					if(an != null) an.ForwardSpeed = base_animation_speed*Rate;
+					last_rate = Rate;
 				}
 				yield return new WaitForSeconds(0.5f);
 			}
@@ -147,7 +145,7 @@ namespace AtHangar
 		[KSPEvent (guiActive = true, guiName = "Stop Conversion", active = true)]
 		public void StopConversion()
 		{
-			Converting = false; rate = 0;
+			Converting = false; Rate = 0;
 			on_stop_conversion();
 			update_events();
 		}

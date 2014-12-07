@@ -196,8 +196,8 @@ namespace AtHangar
 			//get energy
 			socket.RequestTransfer(RatesMultiplier*EnergyConsumption*TimeWarp.fixedDeltaTime);
 			if(!socket.TransferResource()) return true;
-			rate = socket.Ratio;
-			if(rate < EnergyRateThreshold) 
+			Rate = socket.Ratio;
+			if(Rate < EnergyRateThreshold) 
 			{
 				ScreenMessager.showMessage("Not enough energy");
 				socket.Clear();

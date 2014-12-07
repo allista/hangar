@@ -130,15 +130,15 @@ namespace AtHangar
 			//consume energy
 			socket.RequestTransfer(EnergyConsumption*TimeWarp.fixedDeltaTime);
 			if(!socket.TransferResource()) return true;
-			rate = socket.Ratio;
-			if(rate < EnergyRateThreshold) 
+			Rate = socket.Ratio;
+			if(Rate < EnergyRateThreshold) 
 			{
 				ScreenMessager.showMessage("Not enough energy");
 				socket.Clear(); 
 				return false; 
 			}
 			//consume input resources
-			var failed = try_transfer(input, rate);
+			var failed = try_transfer(input, Rate);
 			//if not all inputs are present, dump consumed into waste and shut off
 			if(failed != string.Empty)
 			{
@@ -153,12 +153,12 @@ namespace AtHangar
 				return false;
 			}
 			//produce waste
-			if(waste.Valid && waste.TransferResource(rate) && waste.PartialTransfer)
+			if(waste.Valid && waste.TransferResource(Rate) && waste.PartialTransfer)
 			{
 				ScreenMessager.showMessage("No space left for {0}", waste.Resource.name);
 				return false;
 			}
-			failed = try_transfer(output, rate, true);
+			failed = try_transfer(output, Rate, true);
 			//if not all outputs are present, shut off
 			if(failed != string.Empty)
 			{
