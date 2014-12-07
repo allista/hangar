@@ -15,7 +15,6 @@ namespace AtHangar
 		protected override void update_connected_storage()
 		{
 			base.update_connected_storage();
-			this.Log("Entrance '{0}', Connected Storages {1}, Storage '{2}'", entrance, ConnectedStorage.Count, Storage);//debug
 			if(ConnectedStorage.Count == 0) Storage = null;
 			else if(Storage == null || !ConnectedStorage.Contains(Storage))
 			{ Storage = ConnectedStorage[0]; Setup(); }
@@ -33,7 +32,6 @@ namespace AtHangar
 		{
 			base.early_setup(state);
 			entrance = part.GetPassage();
-			this.Log("early_setup: entrance '{0}'", entrance);//debug
 		}
 
 		protected override bool can_store_vessel(PackedVessel v)

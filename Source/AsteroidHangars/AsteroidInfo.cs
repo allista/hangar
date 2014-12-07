@@ -27,7 +27,6 @@ namespace AtHangar
 				CurMass  = OrigMass;
 				MinMass  = OrigMass * min_mass_ratio;
 				Density  = asteroid.density;
-				this.Log("Set OrigMass: {0}", OrigMass);//debug
 			}
 			else if(CurMass < 0) CurMass = part.mass;
 			else part.mass = CurMass;
