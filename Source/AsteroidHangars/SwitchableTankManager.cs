@@ -26,11 +26,7 @@ namespace AtHangar
 		{
 			base.Save(node);
 			if(tanks.Count == 0) return;
-			foreach(var t in tanks)
-			{
-				var n = node.AddNode(TANK_NODE);
-				t.Save(n);
-			}
+			tanks.ForEach(t => t.Save(node.AddNode(TANK_NODE)));
 		}
 
 		public override void Load(ConfigNode node)

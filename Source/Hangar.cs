@@ -65,8 +65,7 @@ namespace AtHangar
 		{
 			base.OnLoad(node);
 			//deprecated config conversion//
-			if(node.HasValue("base_mass"))
-				ModuleConfig = node;
+			ModuleConfig = node.HasValue("base_mass")? node : null;
 			//****************************//
 		}
 	}

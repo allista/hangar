@@ -255,7 +255,7 @@ namespace AtHangar
 			part.mass  = ((specificMass.x*_scale + specificMass.y)*_scale + specificMass.z)*_scale * _scale.aspect + specificMass.w;
 			delta_cost = ((specificCost.x*_scale + specificCost.y)*_scale + specificCost.z)*_scale * _scale.aspect - orig_cost; //specificCost.w is eliminated anyway
 			//update nodes and modules
-			foreach(PartUpdater updater in updaters) updater.OnRescale(_scale);
+			updaters.ForEach(u => u.OnRescale(_scale));
 			//save size and aspect
 			old_size   = size;
 			old_aspect = aspect;
