@@ -277,9 +277,9 @@ namespace AtHangar
 		}
 	}
 
-	public class HangarUpdater : ModuleUpdater<Hangar>
+	public class HangarMachineryUpdater : ModuleUpdater<HangarMachinery>
 	{ 
-		protected override void on_rescale(Hangar module, Hangar base_module, Scale scale)
+		protected override void on_rescale(HangarMachinery module, HangarMachinery base_module, Scale scale)
 		{
 			module.Setup(true);
 			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect; 
