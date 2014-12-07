@@ -14,6 +14,7 @@ namespace AtHangar
 		[KSPField (isPersistant = false)] public string AnimatorID;
 		[KSPField (isPersistant = false)] public float  EnergyConsumption = 0.75f;
 		[KSPField (isPersistant = false)] public bool   NoTransfers;
+		[KSPField (isPersistant = false)] public bool   NoGUI;
 		//vessel spawning
 		[KSPField (isPersistant = false)] public float  LaunchHeightOffset;
 		[KSPField (isPersistant = false)] public string LaunchTransform;
@@ -94,10 +95,14 @@ namespace AtHangar
 
 		public override string GetInfo()
 		{
-			var info = "Energy Cosumption:\n";
-			info += string.Format("- Hangar: {0}/sec", EnergyConsumption);
 			var gates = part.Modules.OfType<HangarAnimator>().FirstOrDefault(m => m.AnimatorID == AnimatorID);
-			if(gates != null) info += string.Format("\n- Doors: {0}/sec\n", gates.EnergyConsumption);
+			if(EnergyConsumption == 0 && (gates == null || gates.EnergyConsumption == 0)) 
+				return "Simple cargo bay\n";
+			var info = "Energy Cosumption:\n";
+			if(EnergyConsumption > 0)
+				info += string.Format("- Hangar: {0}/sec\n", EnergyConsumption);
+			if(gates != null && gates.EnergyConsumption > 0) 
+				info += string.Format("- Doors: {0}/sec\n", gates.EnergyConsumption);
 			return info;
 		}
 		#endregion
@@ -127,12 +132,9 @@ namespace AtHangar
 		{
 			ConnectedStorage.Clear();
 			var connected_passages = get_connected_passages();
-			this.Log("ConnectedPassages '{0}'", connected_passages);//debug
 			if(connected_passages == null) return;
-			this.Log("Connected Passages {0}", connected_passages.Count);//debug
 			foreach(var p in connected_passages)
 			{
-				this.Log("Passage '{0}'", p);
 				var other_storage = p as HangarStorage;
 				if(other_storage != null) 
 					ConnectedStorage.Add(other_storage);
@@ -167,20 +169,27 @@ namespace AtHangar
 		protected virtual void update_connected_storage(Vessel vsl)
 		{ 
 			if(vsl != part.vessel || !all_passages_ready) return;
-			this.Log("OnVesselWasModified"); //debug
 			update_connected_storage(); 
 		}
 
 		void update_connected_storage(ShipConstruct ship)
 		{ if(!all_passages_ready) return;
-			this.Log("OnEditorShipChanged"); //debug
 			update_connected_storage(); }
 
 		IEnumerator<YieldInstruction> delayed_update_connected_storage()
 		{
 			while(!all_passages_ready) yield return null;
-			this.Log("Delayed update connected storage"); //debug
 			update_connected_storage();
+		}
+
+		protected void parse_launch_velocity()
+		{
+			try { launchVelocity = LaunchVelocity != "" ? ConfigNode.ParseVector3(LaunchVelocity) : Vector3.zero; }
+			catch(Exception ex)
+			{
+				this.Log("Unable to parse LaunchVelocity '{0}'", LaunchVelocity);
+				Debug.LogException(ex);
+			}
 		}
 
 		protected virtual void early_setup(StartState state)
@@ -192,15 +201,9 @@ namespace AtHangar
 			if(HangarName == "_none_") HangarName = part.Title();
 			//initialize resources
 			if(state != StartState.Editor) update_resources();
-			//get launch speed if it's defined
-			try { launchVelocity = LaunchVelocity != "" ? ConfigNode.ParseVector3(LaunchVelocity) : Vector3.zero; }
-			catch(Exception ex)
-			{
-				this.Log("Unable to parse LaunchVelocity '{0}'", LaunchVelocity);
-				Debug.LogException(ex);
-			}
+			//get launch velocity
+			parse_launch_velocity();
 			//initialize Animator
-			part.force_activate();
 			hangar_gates = part.GetAnimator(AnimatorID);
 			if(hangar_gates as HangarAnimator != null)
 			{
@@ -295,24 +298,15 @@ namespace AtHangar
 				ScreenMessager.showMessage("Activate the hangar first");
 				return false;
 			}
-			//check self state first
-			switch(FlightGlobals.ClearToSave()) 
-			{
-			case ClearToSaveStatus.NOT_WHILE_ABOUT_TO_CRASH:
-				{
-					ScreenMessager.showMessage("Cannot accept the vessel while about to crush");
-					return false;
-				}
-			}
 			//always check relative velocity and acceleration
 			Vector3 rv = vessel.GetObtVelocity()-vsl.GetObtVelocity();
-			if(rv.magnitude > 1f) 
+			if(rv.sqrMagnitude > 1f) 
 			{
 				ScreenMessager.showMessage("Cannot accept a vessel with a relative speed higher than 1m/s");
 				return false;
 			}
 			Vector3 ra = vessel.acceleration - vsl.acceleration;
-			if(ra.magnitude > 0.1)
+			if(ra.sqrMagnitude > 0.01)
 			{
 				ScreenMessager.showMessage("Cannot accept an accelerating vessel");
 				return false;
@@ -562,7 +556,7 @@ namespace AtHangar
 
 		bool can_restore()
 		{
-			//if hangar is not ready, return
+			//if hangar is not ready
 			if(hangar_state == HangarState.Inactive) 
 			{
 				ScreenMessager.showMessage("Activate the hangar first");
@@ -576,37 +570,36 @@ namespace AtHangar
 			//if something is docked to the hangar docking port (if its present)
 			if(!docks_checklist.TrueForAll(d => d.vesselInfo == null))
 			{
-				ScreenMessager.showMessage("Cannot launch a vessel while another is docked");
+				ScreenMessager.showMessage("Cannot launch a vessel while another one is docked");
 				return false;
 			}
-			//if in orbit or on the ground and not moving
-			switch(FlightGlobals.ClearToSave()) 
-			{
-			case ClearToSaveStatus.NOT_IN_ATMOSPHERE:
-				{
-					ScreenMessager.showMessage("Cannot launch a vessel while flying in atmosphere");
-					return false;
-				}
-			case ClearToSaveStatus.NOT_UNDER_ACCELERATION:
-				{
-					ScreenMessager.showMessage("Cannot launch a vessel hangar is under accelleration");
-					return false;
-				}
-			case ClearToSaveStatus.NOT_WHILE_ABOUT_TO_CRASH:
-				{
-					ScreenMessager.showMessage("Cannot launch a vessel while about to crush");
-					return false;
-				}
-			case ClearToSaveStatus.NOT_WHILE_MOVING_OVER_SURFACE:
-				{
-					ScreenMessager.showMessage("Cannot launch a vessel while moving over the surface");
-					return false;
-				}
-			}
-			if(vessel.angularVelocity.magnitude > 0.01)
+			//if rotating
+			if(vessel.angularVelocity.sqrMagnitude > 0.01) //5.73 deg/s
 			{
 				ScreenMessager.showMessage("Cannot launch a vessel while rotating");
 				return false;
+			}
+			//if on the ground
+			if(vessel.LandedOrSplashed)
+			{
+				if(vessel.srf_velocity.sqrMagnitude > 0.01) // 0.1m/s
+				{
+					ScreenMessager.showMessage("Cannot launch a vessel while moving");
+					return false;
+				}
+			}
+			else //if flying
+			{
+				if(vessel.geeForce_immediate > 0.1) // 1m/s
+				{
+					ScreenMessager.showMessage("Cannot launch a vessel under gee force above 0.1");
+					return false;
+				}
+				if(vessel.mainBody.atmosphere && FlightGlobals.getStaticPressure(vessel.altitude, vessel.mainBody) > 0.01)
+				{
+					ScreenMessager.showMessage("Cannot launch a vessel while flying in low atmosphere");
+					return false;
+				}
 			}
 			return true;
 		}
