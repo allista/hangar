@@ -18,7 +18,6 @@ namespace AtHangar
 		{
 			base.OnStart(st);
 			//initialize Animator
-			part.force_activate();
 			animator = part.GetAnimator(AnimatorID);
 			if(Fixed && animator is HangarAnimator) animator.Open();
 			//initialize Fixed state
