@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace AtHangar
@@ -18,10 +17,10 @@ namespace AtHangar
 			if(HideInfo) return "";
 			init_nodes();
 			if(Nodes.Count == 0) return "";
-			var info = "Vessels can pass through:";
+			var info = "Vessels can pass through:\n";
 			var nodes = new List<string>(Nodes.Keys);
 			nodes.Sort(); 
-			nodes.ForEach(n => info += string.Format("\n- {0}: {1:F2}m x {2:F2}m", 
+			nodes.ForEach(n => info += string.Format("- {0}: {1:F2}m x {2:F2}m\n", 
 				n, Nodes[n].Size.x, Nodes[n].Size.y));
 			return info;
 		}
@@ -73,7 +72,6 @@ namespace AtHangar
 			var C = new List<HangarPassage>{this};
 			foreach(var pn in Nodes.Values)
 			{
-				this.Log("Node: {0}, other passage {1}", pn.NodeID, pn.OtherPassage);//debug
 				if(pn == this_node) continue;
 				var other_passage = pn.OtherPassage;
 				if(other_passage != null)
@@ -108,7 +106,6 @@ namespace AtHangar
 			var this_node = requesting_node != null? requesting_node.OtherNode : null;
 			foreach(var pn in Nodes.Values)
 			{
-				this.Log("PartWithModule: Node: {0}, other passage {1}", pn.NodeID, pn.OtherPassage);//debug
 				if(pn == this_node) continue;
 				var other_passage = pn.OtherPassage;
 				if(other_passage == null) continue;
