@@ -42,7 +42,7 @@ namespace AtHangar
 				group.audio.clip = GameDatabase.Instance.GetAudioClip(sndPath);
 				return true;
 			}
-			ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " as not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
+			ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " has not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
 			return false;
 		}
 
