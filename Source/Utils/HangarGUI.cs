@@ -61,13 +61,12 @@ namespace AtHangar
 		#endregion
 
 		#region KSP_UI
-		public static void EnableField(BaseField field, bool enable = true)
+		public static void EnableField(BaseField field, bool enable = true, UI_Scene scene = UI_Scene.All)
 		{
-			field.guiActive = field.guiActiveEditor = enable;
-			var current_editor = field.uiControlEditor as UI_ChooseOption;
-			if(current_editor != null) current_editor.controlEnabled = enable;
-			current_editor = field.uiControlFlight as UI_ChooseOption;
-			if(current_editor != null) current_editor.controlEnabled = enable;
+			if((scene & UI_Scene.Flight) == UI_Scene.Flight) field.guiActive       = enable;
+			if((scene & UI_Scene.Editor) == UI_Scene.Editor) field.guiActiveEditor = enable;
+			if(field.uiControlEditor != null) field.uiControlEditor.controlEnabled = enable;
+			if(field.uiControlFlight != null) field.uiControlFlight.controlEnabled = enable;
 		}
 
 		static void setup_chooser_control(string[] names, string[] values, UI_Control control)
