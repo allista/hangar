@@ -22,34 +22,35 @@ def format_data(x, ys, w=None):
 if __name__ == '__main__':
     scales = np.arange(0.5, 4.1, 0.5)
     
-    steel     = material(8.05,  2.0)
-    aluminium = material(2.7,   8.0)
-    Al_Li     = material(2.63, 12.0)
-    composits = material(1.9,  20.0)
-    lavsan    = material(300e-6/0.001, 1)
+    steel      = material(8.05,  2.0)
+    aluminium  = material(2.7,   8.0)
+    Al_Li      = material(2.63, 12.0)
+    composits  = material(1.9,  20.0)
+    compositsL = material(1.3,  18.0)
+    lavsan     = material(300e-6/0.001, 1)
 
     inline1   = part('InlineHangar',
                      [volume(9.4, 'hull', 
                              C=1, D=0.02, 
-                             S=surface(66.444, 0.006, Al_Li),
-                             V=[volume(3.93, 'machinery', C=850, M=0.530)]),
+                             S=surface(66.444, 0.004, Al_Li),
+                             V=[volume(3.93, 'machinery', C=850, M=0.430)]),
                       volume(0.659*2, 'doors', C=1, D=0.02,
-                             S=surface(9.32*2, 0.005, Al_Li)),
+                             S=surface(9.32*2, 0.003, Al_Li)),
                       ],
                      add_mass=0,
                      add_cost=200) #docking port
     
     inline2   = part('InlineHangar2',
                      [volume(98.08, 'hull', C=1, D=0.02,
-                             S=surface(268.11, 0.006, Al_Li),
+                             S=surface(268.11, 0.005, Al_Li),
                              V=[volume(53.66, 'top compartment', C=20, D=0.05,
                                        V=[volume(7.34, 'cabins', C=4000, M=0.35*3, N=2,
-                                                 S=surface(25.19, 0.006, Al_Li)),
+                                                 S=surface(25.19, 0.003, Al_Li)),
                                           volume(15.5, 'coridor', C=2, D=0.0012,
-                                                 S=surface(41.33, 0.006, Al_Li)),
+                                                 S=surface(41.33, 0.003, Al_Li)),
                                           volume(9.17, 'machinery', C=1900, M=2.1)])]),
                       volume(4.05, 'doors', C=1, D=0.02, N=2,
-                             S=surface(35.94, 0.006, Al_Li)),
+                             S=surface(35.94, 0.004, Al_Li)),
                       ], 
                      add_mass=0,
                      add_cost=280) #docking port
@@ -62,14 +63,14 @@ if __name__ == '__main__':
                                           reaction_wheel(0.95),
                                           generator(E=6.75),
                                           volume(2, 'monopropellent tank', 
-                                                 S=surface(11.04, 0.006, aluminium))]),
+                                                 S=surface(11.04, 0.003, Al_Li))]),
                               volume(112.64, 'side-space', C=20, D=0.05, N=2,
                                      V=[volume(2.88, 'cabins', C=2000, M=0.35, N=5,
-                                               S=surface(12.8, 0.01, composits)),
+                                               S=surface(12.8, 0.01, compositsL)),
                                         volume(27.25, 'coridors', C=1, D=0.0012,
-                                               S=surface(93.66, 0.01, composits)),
+                                               S=surface(93.66, 0.01, compositsL)),
                                         volume(8.79, 'doors machinery', C=800, M=0.35,
-                                               S=surface(26.44, 0.01, composits))]),
+                                               S=surface(26.44, 0.01, compositsL))]),
                               volume(1.5*2+8.7, 'coridors', C=1, D=0.0012)
                               ]),
                       volume(1.64, 'doors', C=2, D=0.01, N=2,
@@ -93,7 +94,7 @@ if __name__ == '__main__':
                        volume(0.045, 'clamp', C=600, D=0.98),
                        battery(V=0.444*2, E=2000),
                        volume(0.186, 'fuel tanks', N=6,
-                              S=surface(2.39, 0.006, aluminium)),
+                              S=surface(2.39, 0.002, aluminium)),
                        volume(0.0225, 'hydraulic cylinders', N=4,
                               S=surface(0.721, 0.008, aluminium),
                               V=[volume(0.012, 'inner hydraulic cylinders', C=3, D=0.8, #hydraulic oil is ~0.8
@@ -204,19 +205,23 @@ if __name__ == '__main__':
     heatshield = part('SquareHeatshield', 
                      [volume(3.8, 'hull', C=20, D=0.01,
                              S=surface(40.7, 0.005, aluminium))])
+
     
     #extensions
     extension  = part('HangarExtension',
-                     [volume(19.43, 'hull',
-                             S=surface(41.56, 0.006, Al_Li))])
+                     [volume(19.43, 'hull', C=500, M=0.2,
+                             S=surface(41.56, 0.006, Al_Li),
+                             V=[volume(19.43*0.9**3, 'storage')])])
     
     extensionL = part('HangarExtensionL',
-                     [volume(68.47, 'hull',
-                             S=surface(94.59, 0.006, Al_Li))])
+                     [volume(68.47, 'hull', C=500, M=0.3,
+                             S=surface(94.59, 0.006, Al_Li),
+                             V=[volume(47.33, 'storage')])])
     
     extensionXL = part('HangarExtensionXL',
-                     [volume(117.98, 'hull',
-                             S=surface(129.39, 0.006, Al_Li))])
+                     [volume(117.98, 'hull', C=1200, M=0.4,
+                             S=surface(129.39, 0.006, Al_Li),
+                             V=[volume(88.43, 'storage')])])
     
     #ExLP
     recycler   = part('Recycler', 
@@ -343,3 +348,4 @@ if __name__ == '__main__':
 		                         V=[volume(0.241, 'container')]),
                           volume(0.006, 'door', C=12, D=2.63)])
     
+    print('//:mode=c#:') #for JEdit, Vim and others
