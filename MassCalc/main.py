@@ -172,6 +172,7 @@ if __name__ == '__main__':
                               ], 
                      add_mass=0.04, #probe core
                      add_cost=480) #Light + probe core
+
     
     #utilities
     adapter  = part('Adapter', 
@@ -329,7 +330,7 @@ if __name__ == '__main__':
     
     mobile_smelter = part('MobileSmelter',
 		                 [volume(12.46, 'hull', C=1, D=0.02,
-		                         S=surface(29.98, 0.006, Al_Li),
+		                         S=surface(29.98, 0.003, steel),
 		                         V=[volume(12.0, 'machinery', C=6970, M=0.730)])])
     
     mobile_smelter = part('SubstrateMixer',
