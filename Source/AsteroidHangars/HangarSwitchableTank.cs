@@ -25,7 +25,7 @@ namespace AtHangar
 		/// <summary>
 		/// The type of the tank. Types are defined in separate config nodes. Cannot be changed in flight.
 		/// </summary>
-		[KSPField(guiActiveEditor = true, guiName = "Tank Type")]
+		[KSPField(isPersistant = true, guiActiveEditor = true, guiName = "Tank Type")]
 		[UI_ChooseOption(scene = UI_Scene.Editor)]
 		public string TankType;
 		SwitchableTankType tank_type;
@@ -54,10 +54,6 @@ namespace AtHangar
 		public float Usage { get { return current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0; } }
 		public string ResourceInUse { get { return current_resource != null? CurrentResource : string.Empty; } }
 
-		/// <summary>
-		/// The module ConfigNode as received by OnLoad.
-		/// </summary>
-		public ConfigNode ModuleConfig;
 		readonly List<HangarSwitchableTank> other_tanks = new List<HangarSwitchableTank>();
 		UIPartActionWindow part_menu;
 
@@ -114,10 +110,15 @@ namespace AtHangar
 			StartCoroutine(slow_update());
 		}
 
+		//deprecated config conversion
 		public override void OnLoad(ConfigNode node)
 		{
 			base.OnLoad(node);
-			ModuleConfig = node;
+			if(node.HasNode(SwitchableTankType.NODE_NAME))
+			{
+				var tn = node.GetNode(SwitchableTankType.NODE_NAME);
+				if(tn.HasValue("name")) TankType = tn.GetValue("name");
+			}
 		}
 
 		public override void OnSave(ConfigNode node)
@@ -211,23 +212,8 @@ namespace AtHangar
 			//if tank type is not provided, use the first one from the library
 			if(string.IsNullOrEmpty(TankType))
 			{ TankType = SwitchableTankType.TankTypeNames[0]; }
-			//if just loaded and there is a saved config of a tank type, use it
-			if( ModuleConfig != null &&
-				ModuleConfig.HasNode(SwitchableTankType.NODE_NAME))
-			{
-				tank_type = new SwitchableTankType();
-				tank_type.Load(ModuleConfig.GetNode(SwitchableTankType.NODE_NAME));
-				if(!tank_type.Valid)
-				{
-					ScreenMessager.showMessage(6, "Hangar: Configuration of \"{0}\" Tank Type in \"{1}\" is INVALID.\n", 
-						tank_type.name, this.Title());
-					tank_type = null;
-				}
-				else TankType = tank_type.name;
-				ModuleConfig = null;
-			} 
-			//otherwise, select tank type from the library
-			else if(!SwitchableTankType.TankTypes.TryGetValue(TankType, out tank_type))
+			//select tank type from the library
+			if(!SwitchableTankType.TankTypes.TryGetValue(TankType, out tank_type))
 				ScreenMessager.showMessage(6, "Hangar: No \"{0}\" tank type in the library. Configuration of \"{1}\" is INVALID.", 
 					TankType, this.Title());
 			//switch off the UI
@@ -269,7 +255,9 @@ namespace AtHangar
 			if(tank_type == null) return false;
 			//remove the old resource, if any
 			if(!TryRemoveResource()) return false;
-			//now the state is already changed 
+			//check if this is tank initialization or real switching
+			var initializing = previous_resource == string.Empty;
+			//now the state is already changed
 			previous_resource = CurrentResource;
 			//check if the resource is in use by another tank
 			if(resource_in_use(CurrentResource)) 
@@ -297,7 +285,7 @@ namespace AtHangar
 			{
 				var node = new ConfigNode("RESOURCE");
 				node.AddValue("name", res.Name);
-				node.AddValue("amount", maxAmount*InitialAmount);
+				node.AddValue("amount", initializing? maxAmount*InitialAmount : 0);
 				node.AddValue("maxAmount", maxAmount);
 				current_resource = part.Resources.Add(node);
 			}

@@ -4,7 +4,7 @@ namespace AtHangar
 {
 	public class HangarTankManager : PartModule
 	{
-		[KSPField(isPersistant = true)] public float Volume;
+		[KSPField] public float Volume;
 
 		public ConfigNode ModuleSave;
 		SwitchableTankManager tank_manager;
@@ -16,13 +16,18 @@ namespace AtHangar
 			{
 				info += "Preconfigured Tanks:\n";
 				foreach(var n in ModuleSave.GetNodes(SwitchableTankManager.TANK_NODE))
-				{ if(n.HasValue("TankType")) info += " -"+n.GetValue("TankType")+"\n"; }
+				{ 
+					if(n.HasValue("TankType")) info += " -"+n.GetValue("TankType"); 
+					if(n.HasValue("CurrentResource")) info += " -"+n.GetValue("CurrentResource")+"\n";
+					else info += "\n";
+				}
 			}
 			return info;
 		}
 
 		void init_tank_manager()
 		{
+			if(tank_manager != null) return;
 			tank_manager = new SwitchableTankManager(part);
 			tank_manager.Load(ModuleSave);
 			var used_volume = tank_manager.TotalVolume;
@@ -38,6 +43,9 @@ namespace AtHangar
 		{
 			base.OnLoad(node);
 			ModuleSave = node;
+			if(HighLogic.LoadedSceneIsEditor || 
+			   HighLogic.LoadedSceneIsFlight) 
+				init_tank_manager();
 		}
 
 		public override void OnStart(StartState state)
