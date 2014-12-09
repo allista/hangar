@@ -172,6 +172,20 @@ if __name__ == '__main__':
                               ], 
                      add_mass=0.04, #probe core
                      add_cost=480) #Light + probe core
+    
+    mk3_hangar   = part('Mk3Hangar',
+                     [volume(49.47, 'hull', C=1, D=0.02,
+                             S=surface(298.5, 0.003, Al_Li),
+                             V=[volume(5, 'machinery', C=1200, M=0.7),
+                                battery(E=5000),
+                                reaction_wheel(0.53),
+                                volume(40, 'tanks', C=20)]),
+                      volume(0.56+0.45, 'doors', C=1, D=0.02,
+                             S=surface(24.37+22.38, 0.004, Al_Li)),
+                      solar_panel(1.20855*2),
+                      ], 
+                     add_mass=0,
+                     add_cost=0)
 
     
     #utilities
@@ -206,7 +220,21 @@ if __name__ == '__main__':
     heatshield = part('SquareHeatshield', 
                      [volume(3.8, 'hull', C=20, D=0.01,
                              S=surface(40.7, 0.005, aluminium))])
-
+    
+    srf_tail   = part('SurfaceTail', 
+                     [volume(0.6, 'hull', C=20, D=0.01,
+                             S=surface(6.85, 0.003, Al_Li))])
+    
+    airbrake   = part('Airbrake',
+                          [volume(0.19, 'hull', C=2000, D=0.01,
+                                  S=surface(6.5, 0.002, Al_Li)),
+                           volume(0.0051, 'outer-cylinder', material=Al_Li,
+                                  V=[volume(0.0012, 'inner_cylinder', material=Al_Li)]),
+                           volume(0.001+0.00092+0.00064+0.0008+0.0022, 
+                                  'hinges-axis', material=Al_Li),
+                           volume(0.039, 'brake', 
+                                  S=surface(3.97, 0.002, Al_Li)),
+                           ])
     
     #extensions
     extension  = part('HangarExtension',
