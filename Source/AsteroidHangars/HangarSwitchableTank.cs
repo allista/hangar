@@ -121,16 +121,6 @@ namespace AtHangar
 			}
 		}
 
-		public override void OnSave(ConfigNode node)
-		{
-			base.OnSave(node);
-			if(tank_type != null && tank_type.Valid)
-			{
-				ConfigNode tank_node = node.AddNode(SwitchableTankType.NODE_NAME);
-				tank_type.Save(tank_node);
-			}
-		}
-
 		#region KAE Message Bus
 		[PartMessageDelegate]
 		public delegate void TankResourceChanged(string resource);
