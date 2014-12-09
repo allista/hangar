@@ -12,12 +12,12 @@ _You may keep the config.xml to save positions of GUI windows._
 	* Prefilled switchable tanks do not fill themselves on each resource switch anymore.
 	* **Inflatable Hangars now allow to store *only one vessel at a time*.**
 	* Rebalanced masses: 
-		* Inline Hangars, Spaceport and Rover Lander are a little lighter now,
+		* Inline Hangars, Ground Hangars, Spaceport and Rover Lander are little lighter now,
 		* **But** Hangar Extensions are heavier due to the machinery that allows to transfer vessels between them.
 		* Mobile Smelter also became heavier as its hull is made of steel to withstand the heating.
 	* Reduced drag of the Procedural Adapter.
 	* Added more info for Passage, Storage and Hangars modules in part library.
-	* Parts with HangarStorage module now reset their base mass to the value from part.cfg if PartResizer module is not present.
+	* Parts with HangarStorage module now always reset their base mass to the value from part.cfg.
 
 * v2.0.0-beta.0
 
