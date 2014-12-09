@@ -48,7 +48,7 @@ namespace AtHangar
 			if(HangarMetric.volume > 0)
 			{
 				info += string.Format("Available Volume: {0}\n", Utils.formatVolume(HangarMetric.volume));
-				info += string.Format("Dimensions: {0}", Utils.formatDimensions(HangarMetric.size));
+				info += string.Format("Dimensions: {0}\n", Utils.formatDimensions(HangarMetric.size));
 			}
 			return info;
 		}
