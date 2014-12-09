@@ -1,26 +1,39 @@
-###If you're upgrading _from v1.1.1.1 or below_, follow these instructions:
-
-1. **If** your savegame contains *landed* **Rover Lander** *with opened doors*,
-    * switch to it **before** upgrading and **close the doors**.
-2. Delete the old version of the mod before installing this one.
-_You may keep the config.xml to save positions of GUI windows._
-3. Install the new version.
-4. **If** your savegame contains:
-    * Any ship that includes:
-        * **S4-S3 or S4-S2 adapters**
-        * *small* **Inline Hangar**
-        * *small* **Ground Hangar**:
-    * install the [**Deprecated Parts Addon**](https://github.com/allista/hangar/releases/download/v1.3.0/DeprecatedParts-v1.1.1.1_to_v1.3.zip), then recover these ships.
-5. After that, **if** you have installed the **Deprecated Parts Addon**, uninstall it.
-
-***
-
-###Delete the old version of the mod before installing the new one.
+###Delete the old version of the mod before installing a new one.
 _You may keep the config.xml to save positions of GUI windows._
 
 ***
 
 ###ChangeLog###
+
+* v2.0.0-beta.1
+	* Fixed mass calculation on resize of a hangar that has some vessels stored in editor.
+	* Corrected definition of resources: no need to install Extraplanetary Launchpads for converters to work.
+	* Fixed the bug that caused a part with configurable switchable tanks to lose tanks configuration on "Revert to VAB/SPH".
+	* Prefilled switchable tanks do not fill themselves on each resource switch anymore.
+	* **Inflatable Hangars now allow to store *only one vessel at a time*.**
+	* Rebalanced masses: 
+		* Inline Hangars, Spaceport and Rover Lander are a little lighter now,
+		* **But** Hangar Extensions are heavier due to the machinery that allows to transfer vessels between them.
+		* Mobile Smelter also became heavier as its hull is made of steel to withstand the heating.
+	* Reduced drag of the Procedural Adapter.
+	* Added more info for Passage, Storage and Hangars modules in part library.
+	* Parts with HangarStorage module now reset their base mass to the value from part.cfg if PartResizer module is not present.
+
+* v2.0.0-beta.0
+
+	* I has rewrote the core implementation of Hangar module to allow for new features to be added. It should **not** break any saves by itself, but there's so much new in the code that some nasty bugs are inevitably there at this point.
+	* Three major features are added: 
+		* **Hangar Extensions**
+			* These are parts that do not have docking space with doors to accept vessels, but they can store vessels inside and if you _connect them to a hangar correctly_, they extend its storage capabilities. The key thing is: each extension and _some_ of the hangars (for now only the small inline hangar supports this) has their stack attach nodes marked as _Hangar Passages_ (see part description in part library); a ship may only pass from one part to another through a connected pair of such nods, and only if their size allows. So by connecting extensions through Hangar Passages you may build an extensive and complex storage space with only a single hangar to accept and launch vessels. Provided Radial Adapters and Docking Ports (but not the Station Hub) also support this mode, so you may even add storage space by docking. Or directly transfer stored vessel from one carrier to another without launching it first.
+		* **Asteroid Hangars**
+			* Yes. This is what it sounds to be: you can now build a hangar _inside_ an asteroid. *But* it is not an easy task to do. Aside from a _big_ asteroid you need to:
+				1. attach the **Asteroid Hatch** to the asteroid. The Hatch is a special grapple device that may be fixed to the asteroid permanently. It should also be equipped with the special docking port which is provided as well.
+				2. dock to The Hatch with the **Asteroid Drill** and _slowly_ burrow a hole in the asteroid large enough to hold ships
+				3. undock the Drill and dock the **Asteroid Gateway** -- a part that enables you to accept vessels inside the asteroid and launch them back.
+			* **NOTE**: this framework **is not compatible** with the USI Asteroid Recycling Technologies. Both mods **may** be installed at the same time, but **you cannot use the same asteroid** both as a hangar and by ART machinery. I've wrote some dirty protection code preventing this from happening and you are free to test it, but in the stable release I would encourage users to use an asteroid with one of the mods only. Besides, as I will explain below, an asteroid Hangar has more or less the capabilities as the ART-utilized asteroid.
+		* **Switchable Resource Containers and Converters** which are needed for the Asteroid Hangars
+			* The challenge of creating a hangar inside an asteroid is even more complex, as digging produces grinded Rock resource which you should dispose of or convert: Rock->Ore+Silicates; Ore->Metal+Slag. And while Slag is a waste product and Silicates are only usable if you are playing with MKS/OKS, the Metal may be used to **build resource containers inside the asteroid**. Each container has a type that defines which resources it may hold. If a tank is empty its resource may be switched within the type. This functionality is available through the part menu of the **Asteroid Hatch**.
+			* Also, several parts with the same capability are provided and may be used to build cargo vessels of broad specialization. **In Editor** these parts may also be partitioned into several sub-containers of different types.
 
 * **1.3.0** - _IF you are upgrading **from v1.1.1.1 or below**_, READ THE INSTALLATION INSTRUCTIONS CAREFULLY
     * **Recompiled for KSP 0.25.0**
