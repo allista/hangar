@@ -187,6 +187,18 @@ if __name__ == '__main__':
                      add_mass=0,
                      add_cost=0)
 
+    fairings_octo = part('FairingsOcto',
+                     [volume(0.36, 'hull', C=1, D=0.02,
+                             S=surface(20.6 , 0.002, Al_Li)),
+                      volume(0.74, 'base', C=1, D=0.02,
+                             S=surface(2.23, 0.003, Al_Li),
+                             V=[reaction_wheel(0.1),
+                                volume(0.1, 'jettison-charge', C=400, M=0.05)]),
+                      volume(0.01, 'petals', N=8,
+                             S=surface(1.02, 0.002, Al_Li)),
+                      ], 
+                     add_mass=0,
+                     add_cost=0)
     
     #utilities
     adapter  = part('Adapter', 
