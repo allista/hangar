@@ -2,8 +2,6 @@
 
 ##_store your vessels until they are needed_##
 
-***
-
 Hangars are parts that can **store whole ships inside**. Stored ships are not docked but **unloaded**, which reduces part count considerably, improving framerate and memory footprint while allowing to carry out missions of great complexity.
 
 Aside from the hangars themselves the mod provides a set of utility parts that help in various usage scenarios. To further reduce part count, most parts (including hangars) have multiple integrated modules and resources that are balanced and often eliminate the need to add such things as batteries, lights, generators, probe cores and reaction wheels.
@@ -34,17 +32,13 @@ Aside from the hangars themselves the mod provides a set of utility parts that h
 
 ##[Future plans](https://github.com/allista/hangar/milestones)
 
-***
-
 ##Support this project:
 
-[**WebMoney**](https://funding.wmtransfer.com/hangar-ksp-plugin/donate)
+* [**WebMoney**](https://funding.wmtransfer.com/hangar-ksp-plugin/donate)
 
-[![Flattr this](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=allista&url=https%3A%2F%2Fgithub.com%2Fallista%2Fhangar)
+* [![Flattr this](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=allista&url=https%3A%2F%2Fgithub.com%2Fallista%2Fhangar)
 
-<iframe frameborder="0" allowtransparency="true" scrolling="no" src="https://money.yandex.ru/embed/small.xml?account=410011588562910&quickpay=small&any-card-payment-type=on&button-text=06&button-size=l&button-color=orange&targets=%D0%9F%D0%BE%D0%B4%D0%B4%D0%B5%D1%80%D0%B6%D0%BA%D0%B0+%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0+%22Hangar%3A+KSP+Plugin%22&default-sum=100&successURL=" width="260" height="54"></iframe>
-
-***
+* [![Gratipay](https://img.shields.io/gratipay/allista.svg)](https://gratipay.com/allista)
 
 ##Downloads and Installation
 
@@ -95,8 +89,6 @@ And some functionality and parts are added if the following mods are installed:
 
 ###Unsupported Mods
 * [Asteroid Recycling Technologies](http://forum.kerbalspaceprogram.com/threads/91790) is not compatible with the Asteroid Hangars framework. Both mods **can be installed** at the same time, but **you cannot use the same asteroid** both as a hangar and by ART machinery.
-
-***
 
 ##Acknowledgements
 
