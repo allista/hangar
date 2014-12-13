@@ -8,23 +8,15 @@ Aside from the hangars themselves the mod provides a set of utility parts that h
 
 ##Features###
 
-* Hangars are fit for any application: 
-    * small light and cheap as well as huge, packed with all needed modules
-    * **most may be rescaled** to the needed size and proportions **via tweakables** (mass, volume and cost are changed accordingly)
-* There are several types of hangars:
-    * **In-line Hangars** (simple and habitable) for spaceships
-    * **Inflatable Ground Hangars** that may be easily dropped off from the orbit
-    * **Stationary Ground Hangars** (simple and habitable) for colonies
-    * **Rover Lander** hangar that has all needed modules and fuel to autonomously land on a planet or moon, bringing some rovers along the way
-    * **Spaceport** that combines a huge hangar with a cockpit; the Spaceport has only a single stack node at its bottom and meant to be used instead of a cockpit
-* Ground hangars have anchoring modules for comfort use on low-gravity worlds and integrated probe cores with antennas for autonomous operation
-* Crew and resources can be transferred between a vessel with a non-inflatable hangar and stored vessels
-* Smart internal machinery ensures optimal filling of a hangar and mass distribution, while preventing attempts to store objects that do not fit in
-* A non-inflatable hangar can be filled with vessels at construction time (NOTE: a vessel with a filled hangar will stutter for a second or two upon launch; that's normal)
+* Many **different types of hangars** for any application
+* Most hangars **may be rescaled** to the needed size and proportions **via tweakables**
+* **Ships could be stored in hangars at construction time**
+* **Crew and resources can be transferred** between a ship with a hangar and stored ships
+* **Ground hangars have anchors** for comfort use on low-gravity worlds
 * **An asteroid can also be stored in a hangar**. If it fits, of course.
 * And vice versa: **a hangar can be made inside and asteroid!**
 * In addition, many utility parts are provided to help in various usage scenarios.
-* For more information read:
+* **For more information read:**
 
 ##[Documentation](https://github.com/allista/hangar/wiki)
 
@@ -66,7 +58,7 @@ Many of the hangars have plenty of modules (like batteries, command modules, fue
 
 ###Requirements
 
-* Hangar uses [KSPAPIExtensions](http://forum.kerbalspaceprogram.com/threads/81496) by [swamp_ig](http://forum.kerbalspaceprogram.com/members/100707-swamp_ig). This plugin is bundled with the Hangar as it should be.
+* Hangar uses [KSPAPIExtensions](http://forum.kerbalspaceprogram.com/threads/81496) by [swamp_ig](http://forum.kerbalspaceprogram.com/members/100707-swamp_ig). This plugin is bundled with the Hangar.
 * The [ModuleManager](http://forum.kerbalspaceprogram.com/threads/55219) **is required**.
 
 ###Recommended mods
