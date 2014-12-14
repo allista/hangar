@@ -30,12 +30,14 @@ namespace AtHangar
             }
             protected set { SavedState = Enum.GetName(typeof(AnimatorState), value); }
 		}
-		
+
+		public bool Playing { get { var s = State; return s == AnimatorState.Opening || s == AnimatorState.Closing; } }
+
 		public override void OnStart(StartState state) { Duration = 0f; }
 		
         virtual public void Open() { State = AnimatorState.Opened; }
         virtual public void Close() { State = AnimatorState.Closed; }
-		
+
 		public bool Toggle()
 		{
 			if(State == AnimatorState.Closed 

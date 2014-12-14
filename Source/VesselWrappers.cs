@@ -94,7 +94,6 @@ namespace AtHangar
 		public Vessel launched_vessel { get { return vessel.vesselRef; } }
 		public Vector3 CoM { get; private set; }
 		public List<ProtoCrewMember> crew { get; private set; }
-		public int CrewCapacity { get{ return metric.CrewCapacity; } }
 		public VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot> resources { get; private set; }
 
 		public StoredVessel() {}

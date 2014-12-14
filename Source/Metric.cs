@@ -1,15 +1,11 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace AtHangar
 {
-	public class Metric
+	public struct Metric
 	{
-		//ignore list
-		public const string MESHES_TO_SKIP = "MeshesToSkip";
-		public static readonly List<string> MeshesToSkip = new List<string>();
 		//convex hull
 		public ConvexHull3D hull { get; private set; }
 		//bounds
@@ -112,7 +108,7 @@ namespace AtHangar
 					if(m.renderer == null || !m.renderer.enabled) continue;
 					//skip meshes from the blacklist
 					bool skip_mesh = false;
-					foreach(string mesh_name in MeshesToSkip)
+					foreach(string mesh_name in HangarConfig.MeshesToSkip)
 					{
 						if(mesh_name == "") continue;
 						skip_mesh = m.name.IndexOf(mesh_name, StringComparison.OrdinalIgnoreCase) >= 0;
@@ -141,18 +137,8 @@ namespace AtHangar
 		}
 
 		#region Constructors
-		//empty metric
-		public Metric()
-		{
-			bounds = new Bounds();
-			volume = 0f;
-			area   = 0f;
-			mass   = 0f;
-			CrewCapacity = 0;
-		}
-		
 		//metric copy
-		public Metric(Metric m)
+		public Metric(Metric m) : this()
 		{
 			hull   = m.hull;
 			bounds = new Bounds(m.bounds.center, m.bounds.size);
@@ -163,7 +149,7 @@ namespace AtHangar
 		}
 		
 		//metric from bounds
-		public Metric(Bounds b, float m = 0f, int crew_capacity = 0)
+		public Metric(Bounds b, float m = 0f, int crew_capacity = 0) : this()
 		{
 			bounds = new Bounds(b.center, b.size);
 			volume = boundsVolume(bounds);
@@ -173,7 +159,7 @@ namespace AtHangar
 		}
 		
 		//metric from size
-		public Metric(Vector3 center, Vector3 size, float m = 0f, int crew_capacity = 0)
+		public Metric(Vector3 center, Vector3 size, float m = 0f, int crew_capacity = 0) : this()
 		{
 			bounds = new Bounds(center, size);
 			volume = boundsVolume(bounds);
@@ -181,9 +167,22 @@ namespace AtHangar
 			mass   = m;
 			CrewCapacity = crew_capacity;
 		}
+		public Metric(Vector3 size, float m = 0f, int crew_capacity = 0) 
+			: this(Vector3.zero, size, m, crew_capacity) {}
+
+		//metric from volume
+		public Metric(float V, float m = 0f, int crew_capacity = 0) : this()
+		{
+			var a  = Mathf.Pow(V, 1/3f);
+			bounds = new Bounds(Vector3.zero, new Vector3(a,a,a));
+			volume = boundsVolume(bounds);
+			area   = boundsArea(bounds);
+			mass   = m;
+			CrewCapacity = crew_capacity;
+		}
 		
 		//metric form edges
-		public Metric(Vector3[] edges, float m = 0f, int crew_capacity = 0, bool compute_hull=false)
+		public Metric(Vector3[] edges, float m = 0f, int crew_capacity = 0, bool compute_hull=false) : this()
 		{
 			if(compute_hull) hull = new ConvexHull3D(edges);
 			bounds = initBounds(edges);
@@ -194,11 +193,12 @@ namespace AtHangar
 		}
 		
 		//metric from config node
-		public Metric(ConfigNode node) { Load(node); }
+		public Metric(ConfigNode node) : this() { Load(node); }
 		
 		//mesh metric
-		public Metric(Part part, string mesh_name, bool compute_hull=false)
+		public Metric(Part part, string mesh_name, bool compute_hull=false) : this()
 		{
+			if(string.IsNullOrEmpty(mesh_name)) return;
 			MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
 			if(m == null) { Utils.Log("[Metric] {0} does not have '{1}' mesh", part.name, mesh_name); return; }
 			if(compute_hull) hull = new ConvexHull3D(uniqueVertices(m.sharedMesh));
@@ -211,7 +211,7 @@ namespace AtHangar
 		}
 		
 		//part metric
-		public Metric(Part part, bool compute_hull=false)
+		public Metric(Part part, bool compute_hull=false) : this()
 		{
 			bounds = partsBounds(new List<Part>{part}, part.partTransform, compute_hull);
 			volume = boundsVolume(bounds);
@@ -219,7 +219,7 @@ namespace AtHangar
 		}
 		
 		//vessel metric
-		public Metric(Vessel vessel, bool compute_hull=false)
+		public Metric(Vessel vessel, bool compute_hull=false) : this()
 		{
 			bounds = partsBounds(vessel.parts, vessel.vesselTransform, compute_hull);
 			volume = boundsVolume(bounds);
@@ -227,7 +227,7 @@ namespace AtHangar
 		}
 		
 		//in-editor vessel metric
-		public Metric(List<Part> vessel, bool compute_hull=false)
+		public Metric(List<Part> vessel, bool compute_hull=false) : this()
 		{
 			bounds = partsBounds(vessel, vessel[0].partTransform, compute_hull);
 			volume = boundsVolume(bounds);
@@ -236,6 +236,14 @@ namespace AtHangar
 		#endregion
 		
 		//public methods
+		public void Clear() 
+		{ 
+			bounds = default(Bounds);
+			volume = area = mass = cost = 0;
+			CrewCapacity = 0;
+			hull   = null;
+		}
+
 		public Bounds GetBounds() { return new Bounds(bounds.center, bounds.size); }
 
 		public void Scale(float s)
@@ -276,26 +284,35 @@ namespace AtHangar
 		}
 
 		#region Fitting
-		public bool FitsSomehow(Metric other)
+		bool fits_somehow(List<float> _D)
 		{
 			var  D = new List<float>{size.x, size.y, size.z};
-			var _D = new List<float>{other.size.x, other.size.y, other.size.z};
 			D.Sort(); _D.Sort();
 			foreach(float d in D)
 			{
-				float ud = -1;
-				foreach(float _d in _D)
-				{
-					if(d <= _d)
-					{
-						ud = _d;
-						break;
-					}
+				if(_D.Count == 0) break;
+				int ud = -1;
+				for(int i = 0; i < _D.Count; i++)
+				{ 
+					if(d <= _D[i]) 
+					{ ud = i; break; } 
 				}
 				if(ud < 0) return false;
-				_D.Remove(ud);
+				_D.RemoveAt(ud);
 			}
 			return true;
+		}
+
+		public bool FitsSomehow(Metric other)
+		{
+			var _D = new List<float>{other.size.x, other.size.y, other.size.z};
+			return fits_somehow(_D);
+		}
+
+		public bool FitsSomehow(Vector2 node)
+		{
+			var _D = new List<float>{node.x, node.y};
+			return fits_somehow(_D);
 		}
 
 		/// <summary>
@@ -382,12 +399,12 @@ namespace AtHangar
 		public static float Volume(Part part) { return (new Metric(part)).volume; }
 		public static float Volume(Vessel vessel) { return (new Metric(vessel)).volume; }
 		#endregion
-		
-		#region Graphics
-		public void DrawBox(Transform vT) { Utils.DrawBounds(bounds, vT, Color.white); }
 
-		public void DrawCenter(Transform vT) { Utils.DrawPoint(center, vT); }
-		#endregion
+		#if DEBUG
+		public void DrawBox(Transform vT) { HangarGUI.DrawBounds(bounds, vT, Color.white); }
+
+		public void DrawCenter(Transform vT) { HangarGUI.DrawPoint(center, vT); }
+		#endif
 	}
 }
 
