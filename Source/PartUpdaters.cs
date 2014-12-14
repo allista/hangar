@@ -32,7 +32,7 @@ namespace AtHangar
 		{
 			loadedInScene = false;
 			Destroy(gameObject);
-			
+
 		}
 	}
 
@@ -56,23 +56,21 @@ namespace AtHangar
 		//Register all found PartUpdaters
 		override public void OnStart()
 		{
-			var all_updaters = get_all_types()
-				.Where(IsPartUpdater)
-				.ToArray();
+			var all_updaters = get_all_types().Where(IsPartUpdater).ToArray();
 			foreach (var updater in all_updaters)
 			{
 				MethodInfo register = typeof(PartUpdater).GetMethod("RegisterUpdater");
-				register = register.MakeGenericMethod(new Type[] { updater });
+				register = register.MakeGenericMethod(new [] { updater });
 				register.Invoke(null, null);
 			}
 		}
 
 		static bool IsPartUpdater(Type t)
-		{ return !t.IsGenericType && typeof(PartUpdater).IsAssignableFrom(t); }
+		{ return !t.IsGenericType && t.IsSubclassOf(typeof(PartUpdater)); }
 	}
 	#endregion
 
-	public class PartUpdaterBase : PartModule
+	public abstract class PartUpdaterBase : PartModule
 	{
 		protected Part base_part;
 
@@ -82,13 +80,14 @@ namespace AtHangar
 		public virtual void Init() 
 		{ base_part = PartLoader.getPartInfoByName(part.partInfo.name).partPrefab; }
 
-		protected virtual void SaveDefaults() {}
+		protected abstract void SaveDefaults();
 	}
 
-	public class PartUpdater : PartUpdaterBase
+	public abstract class PartUpdater : PartUpdaterBase
 	{
 		public uint priority = 0; // 0 is highest
 
+		protected override void SaveDefaults() {}
 		public virtual void OnRescale(Scale scale) {}
 
 		#region ModuleUpdaters
@@ -114,13 +113,19 @@ namespace AtHangar
 
 		public override void Init() { base.Init(); SaveDefaults(); }
 		protected override void SaveDefaults()
-		{ foreach(AttachNode node in base_part.attachNodes) orig_nodes[node.id] = node; }
+		{ base_part.attachNodes.ForEach(n => orig_nodes[n.id] = n); }
 
 		public override void OnRescale(Scale scale)
 		{
 			//update attach nodes and their parts
 			foreach(AttachNode node in part.attachNodes)
 			{
+				#if DEBUG
+				this.Log("OnRescale: node.id {0}, node.size {1}, node.bForce {2} node.bTorque {3}", 
+					node.id, node.size, node.breakingForce, node.breakingTorque);
+				#endif
+				//ModuleGrappleNode adds new AttachNode on dock
+				if(!orig_nodes.ContainsKey(node.id)) continue; 
 				//update node position
 				node.position = ScaleVector(node.originalPosition, scale, scale.aspect);
 				part.UpdateAttachedPartPos(node);
@@ -137,13 +142,15 @@ namespace AtHangar
 			{
 				Vector3 old_position = part.srfAttachNode.position;
 				part.srfAttachNode.position = ScaleVector(part.srfAttachNode.originalPosition, scale, scale.aspect);
+				//don't move the part at start, its position is persistant
 				if(!scale.FirstTime)
 				{
 					Vector3 d_pos = part.transform.TransformDirection(part.srfAttachNode.position - old_position);
 					part.transform.position -= d_pos;
 				}
 			}
-			//no need to update surface attached parts for the first time
+			//no need to update surface attached parts on start
+			//as their positions are persistant; less calculations
 			if(scale.FirstTime) return;
 			//update parts that are surface attached to this
 			foreach(Part child in part.children)
@@ -179,6 +186,9 @@ namespace AtHangar
 	{
 		public override void OnRescale(Scale scale)
 		{
+			//no need to update resources on start
+			//as they are persistant; less calculations
+			if(scale.FirstTime) return;
 			foreach(PartResource r in part.Resources)
 			{
 				var s = r.resourceName == "AblativeShielding"? 
@@ -188,78 +198,115 @@ namespace AtHangar
 		}
 	}
 
-	public class ModuleUpdater<T> : PartUpdater where T : PartModule
+	public abstract class ModuleUpdater<T> : PartUpdater where T : PartModule
 	{
-		protected T module;
-		protected T base_module;
+		protected struct ModulePair<M>
+		{
+			public M base_module;
+			public M module;
+
+			public ModulePair(M base_module, M module)
+			{
+				this.module = module;
+				this.base_module = base_module;
+			}
+		}
+
+		protected readonly List<ModulePair<T>> modules = new List<ModulePair<T>>();
 
 		public override void Init() 
 		{
 			base.Init();
 			priority = 100; 
-			module = part.GetModule<T>();
-			base_module = base_part.GetModule<T>();
-			if(module == null) 
-				throw new MissingComponentException(string.Format("[Hangar] ModuleUpdater: part {0} does not have {1} module", part.name, module));
+			var m = part.Modules.GetEnumerator();
+			var b = base_part.Modules.GetEnumerator();
+			while(b.MoveNext() && m.MoveNext())
+			{
+				if(b.Current is T && m.Current is T)
+					modules.Add(new ModulePair<T>(b.Current as T, m.Current as T));
+			}
+			if(modules.Count == 0) 
+				throw new MissingComponentException(string.Format("[Hangar] ModuleUpdater: part {0} does not have {1} module", part.name, typeof(T).Name));
 			SaveDefaults();
 		}
 
-		protected override void SaveDefaults() {}
-		public override void OnRescale(Scale scale) {}
+		protected abstract void on_rescale(T module, T base_module, Scale scale);
+
+		public override void OnRescale(Scale scale) 
+		{ modules.ForEach(mp => on_rescale(mp.module, mp.base_module, scale)); }
 	}
 
 	public class RCS_Updater : ModuleUpdater<ModuleRCS>
 	{
 		[KSPField(isPersistant=false, guiActiveEditor=true, guiActive=true, guiName="Thrust")]
 		public string thrustDisplay;
-		float thrust;
-		protected override void SaveDefaults()	{ thrust = base_module.thrusterPower; thrustDisplay = thrust.ToString(); }
-		public override void OnRescale(Scale scale) { module.thrusterPower = thrust*scale.absolute.quad; thrustDisplay =  module.thrusterPower.ToString(); }
+
+		string all_thrusts() 
+		{ 
+			return modules
+				.Aggregate("", (s, mp) => s+mp.module.thrusterPower + ", ")
+				.Trim(", ".ToCharArray()); 
+		}
+
+		public override void OnStart(StartState state) { base.OnStart(state); thrustDisplay = all_thrusts(); }
+		public override void OnRescale(Scale scale)	{ base.OnRescale(scale); thrustDisplay = all_thrusts(); }
+
+		protected override void on_rescale(ModuleRCS module, ModuleRCS base_module, Scale scale)
+		{ module.thrusterPower = base_module.thrusterPower*scale.absolute.quad; }
 	}
 
 	public class DockingNodeUpdater : ModuleUpdater<ModuleDockingNode>
 	{
-		public override void OnRescale(Scale scale)
+		protected override void on_rescale(ModuleDockingNode module, ModuleDockingNode base_module, Scale scale)
 		{
 			AttachNode node = part.findAttachNode(module.referenceAttachNode);
 			if(node == null) return;
-			module.nodeType = string.Format("size{0}", node.size);
+			if(module.nodeType.StartsWith("size"))
+				module.nodeType = string.Format("size{0}", node.size);
 		}
 	}
 
-	public class HangarUpdater : ModuleUpdater<Hangar>
+	public class PassageUpdater : ModuleUpdater<HangarPassage>
 	{ 
-		public override void OnRescale(Scale scale) 
-		{ 
+		protected override void on_rescale(HangarPassage module, HangarPassage base_module, Scale scale)
+		{
 			module.Setup(true);
-			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect;
+			foreach(var key in new List<string>(module.Nodes.Keys))
+				module.Nodes[key].Size = Vector3.Scale(base_module.Nodes[key].Size, 
+					new Vector3(scale, scale, 1));
+		}
+	}
+
+	public class HangarMachineryUpdater : ModuleUpdater<HangarMachinery>
+	{ 
+		protected override void on_rescale(HangarMachinery module, HangarMachinery base_module, Scale scale)
+		{
+			module.Setup(true);
+			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect; 
 		}
 	}
 
 	public class AnimatorUpdater : ModuleUpdater<HangarAnimator>
 	{ 
-		public override void OnRescale(Scale scale) 
+		protected override void on_rescale(HangarAnimator module, HangarAnimator base_module, Scale scale)
 		{ module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect; }
 	}
 
 	public class ReactionWheelUpdater : ModuleUpdater<ModuleReactionWheel>
 	{
-		readonly Dictionary<string,ModuleResource> input_resources = new Dictionary<string, ModuleResource>();
-		protected override void SaveDefaults()
-		{ base_module.inputResources.ForEach(r => input_resources.Add(r.name, r)); }
-
-		public override void OnRescale(Scale scale)
+		protected override void on_rescale(ModuleReactionWheel module, ModuleReactionWheel base_module, Scale scale)
 		{
-			module.PitchTorque = base_module.PitchTorque * scale.absolute.cube * scale.absolute.aspect;
-			module.YawTorque   = base_module.YawTorque   * scale.absolute.cube * scale.absolute.aspect;
-			module.RollTorque  = base_module.RollTorque  * scale.absolute.cube * scale.absolute.aspect;
+			module.PitchTorque  = base_module.PitchTorque * scale.absolute.cube * scale.absolute.aspect;
+			module.YawTorque    = base_module.YawTorque   * scale.absolute.cube * scale.absolute.aspect;
+			module.RollTorque   = base_module.RollTorque  * scale.absolute.cube * scale.absolute.aspect;
+			var input_resources = base_module.inputResources.ToDictionary(r => r.name);
 			module.inputResources.ForEach(r => r.rate = input_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
 		}
 	}
 
 	public class GenericInflatableUpdater : ModuleUpdater<HangarGenericInflatable>
 	{
-		public override void OnRescale(Scale scale)
+		protected override void on_rescale(HangarGenericInflatable module, HangarGenericInflatable base_module, Scale scale)
 		{
 			module.InflatableVolume = base_module.InflatableVolume * scale.absolute.cube * scale.absolute.aspect;
 			module.CompressedGas   *= scale.relative.cube * scale.relative.aspect;
@@ -272,16 +319,10 @@ namespace AtHangar
 
 	public class GeneratorUpdater : ModuleUpdater<ModuleGenerator>
 	{
-		readonly Dictionary<string, ModuleGenerator.GeneratorResource> input_resources  = new Dictionary<string, ModuleGenerator.GeneratorResource>();
-		readonly Dictionary<string, ModuleGenerator.GeneratorResource> output_resources = new Dictionary<string, ModuleGenerator.GeneratorResource>();
-		protected override void SaveDefaults()
-		{ 
-			base_module.inputList.ForEach(r => input_resources.Add(r.name, r)); 
-			base_module.outputList.ForEach(r => output_resources.Add(r.name, r)); 
-		}
-
-		public override void OnRescale(Scale scale)
+		protected override void on_rescale(ModuleGenerator module, ModuleGenerator base_module, Scale scale)
 		{
+			var input_resources  = base_module.inputList.ToDictionary(r => r.name);
+			var output_resources = base_module.outputList.ToDictionary(r => r.name);
 			module.inputList.ForEach(r =>  r.rate = input_resources[r.name].rate  * scale.absolute.cube * scale.absolute.aspect);
 			module.outputList.ForEach(r => r.rate = output_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
 		}
@@ -289,8 +330,8 @@ namespace AtHangar
 
 	public class SolarPanelUpdater : ModuleUpdater<ModuleDeployableSolarPanel>
 	{
-		public override void OnRescale(Scale scale)
-		{ 
+		protected override void on_rescale(ModuleDeployableSolarPanel module, ModuleDeployableSolarPanel base_module, Scale scale)
+		{
 			module.chargeRate = base_module.chargeRate * scale.absolute.quad * scale.absolute.aspect; 
 			module.flowRate   = base_module.flowRate   * scale.absolute.quad * scale.absolute.aspect; 
 		}
@@ -298,8 +339,40 @@ namespace AtHangar
 
 	public class DecoupleUpdater : ModuleUpdater<ModuleDecouple>
 	{
-		public override void OnRescale(Scale scale)
+		protected override void on_rescale(ModuleDecouple module, ModuleDecouple base_module, Scale scale)
 		{ module.ejectionForce = base_module.ejectionForce * scale.absolute; }
 	}
-}
 
+	public class SwitchableTankUpdater : ModuleUpdater<HangarSwitchableTank>
+	{
+		protected override void on_rescale(HangarSwitchableTank module, HangarSwitchableTank base_module, Scale scale)
+		{ module.Volume *= scale.relative.cube * scale.relative.aspect;	}
+	}
+
+	public class ResourceConverterUpdater : ModuleUpdater<AnimatedConverterBase>
+	{
+		protected override void on_rescale(AnimatedConverterBase module, AnimatedConverterBase base_module, Scale scale)
+		{
+			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.cube * scale.absolute.aspect;
+			module.SetRatesMultiplier(base_module.RatesMultiplier * scale.absolute.cube * scale.absolute.aspect); 
+		}
+	}
+
+	public class TankManagerUpdater : ModuleUpdater<HangarTankManager>
+	{
+		protected override void on_rescale(HangarTankManager module, HangarTankManager base_module, Scale scale)
+		{ 
+			module.RescaleTanks(scale.relative.cube * scale.relative.aspect); 
+			module.Volume *= scale.relative.cube * scale.relative.aspect;
+		}
+	}
+
+	public class HangarLightUpdater : ModuleUpdater<HangarLight>
+	{
+		protected override void on_rescale(HangarLight module, HangarLight base_module, Scale scale)
+		{ 
+			module.RangeMultiplier = base_module.RangeMultiplier * scale;
+			module.UpdateLights(); 
+		}
+	}
+}

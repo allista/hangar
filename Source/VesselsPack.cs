@@ -1,5 +1,6 @@
 //Packing algorithm based on <http://www.blackpawn.com/texts/lightmaps/default.html>  
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -78,26 +79,32 @@ namespace AtHangar
 	{ 
 		public Metric metric; 
 		public Guid id; 
-		public string  name   { get; protected set; }
-		public Vector3 size   { get { return metric.size; } }
-		public float   volume { get { return metric.volume; } }
-		public float   mass   { get { return metric.mass; } set { metric.mass = value; } }
-		public float   cost   { get { return metric.cost; } set { metric.cost = value; } }
-		public Vector3 CoG    { get { return metric.center; } } //center of geometry
+		public string  name     { get; protected set; }
+		public Vector3 size     { get { return metric.size; } }
+		public float   volume   { get { return metric.volume; } }
+		public float   mass     { get { return metric.mass; } set { metric.mass = value; } }
+		public float   cost     { get { return metric.cost; } set { metric.cost = value; } }
+		public Vector3 CoG      { get { return metric.center; } } //center of geometry
+		public int CrewCapacity { get{ return metric.CrewCapacity; } }
 
 		public abstract void Save(ConfigNode node);
 		public abstract void Load(ConfigNode node);
 	}
 
-	public class VesselsPack<V> where V : PackedVessel, new()
+
+	public class VesselsPack<V> : IEnumerable<PackedVessel> where V : PackedVessel, new()
 	{
 		Dictionary<Guid, V> stored_vessels = new Dictionary<Guid, V>();
 		public Metric space = new Metric();
+
+		public float VesselsMass;
+		public float VesselsCost;
+		public float UsedVolume;
 		
 		public VesselsPack() {}
 		public VesselsPack(Metric space) { this.space = space; }
 
-
+		#region Packing
 		/// <summary>
 		/// Chooses the best rotation of a size vector "s" to store it inside the box with the size vector "box_size".
 		/// The rotation is considered optimal if it gives the absolute maximum remainder in one of the dimensions,
@@ -176,7 +183,7 @@ namespace AtHangar
 		bool pack(List<V> vessels)
 		{
 			sort_vessels(vessels);
-			Node root = new Node(space);
+			var root = new Node(space);
 			foreach(V vsl in vessels)
 			{ if(!add_vessel(root, vsl.size, vsl.id)) return false; }
 			return true;
@@ -185,47 +192,88 @@ namespace AtHangar
 		List<V> pack_some(List<V> vessels)
 		{
 			sort_vessels(vessels);
-			Node root = new Node(space);
-			List<V> rem = new List<V>();
-			foreach(V vsl in vessels) { if(!add_vessel(root, vsl.size, vsl.id)) rem.Add(vsl); }
+			var root = new Node(space);
+			var rem  = new List<V>();
+			foreach(V vsl in vessels) 
+			{ if(!add_vessel(root, vsl.size, vsl.id)) rem.Add(vsl); }
 			return rem;
 		}
-		
-		public bool Add(V vsl)
+		#endregion
+
+		#region Main Interface
+		void change_params(V vsl, int k=1)
 		{
-			List<V> vessels = Values;
+			VesselsMass += k*vsl.mass;
+			VesselsCost += k*vsl.cost;
+			UsedVolume  += k*vsl.volume;
+			if(UsedVolume  < 0) UsedVolume  = 0;
+			if(VesselsMass < 0) VesselsMass = 0;
+			if(VesselsCost < 0) VesselsCost = 0;
+		}
+
+		public void UpdateParams()
+		{
+			VesselsMass = 0; VesselsCost = 0; UsedVolume  = 0;
+			foreach(V vsl in stored_vessels.Values)
+				change_params(vsl);
+		}
+
+		public bool CanAdd(V vsl)
+		{
+			var vessels = Values;
 			vessels.Add(vsl);
-			if(!pack(vessels)) return false;
+			return pack(vessels);
+		}
+
+		public bool TryAdd(V vsl)
+		{
+			if(!CanAdd(vsl)) return false;
 			stored_vessels.Add(vsl.id, vsl);
+			change_params(vsl);
 			return true;
 		}
 
-		public void ForceAdd(V vsl)	{ stored_vessels.Add(vsl.id, vsl); }
+		public void ForceAdd(V vsl) 
+		{ 
+			stored_vessels.Add(vsl.id, vsl);
+			change_params(vsl);
+		}
 
 		public void Set(List<V> vessels)
 		{
 			stored_vessels.Clear();
-			foreach(V sv in vessels) 
-				stored_vessels.Add(sv.id, sv);
+			vessels.ForEach(ForceAdd);
 		}
 
 		public List<V> Repack() { return pack_some(Values); }
 		
-		//mimic Dictionary
-		public bool Remove(V vsl) { return stored_vessels.Remove(vsl.id); }
+		public bool Remove(V vsl) 
+		{ 
+			if(stored_vessels.Remove(vsl.id))
+			{ change_params(vsl, -1); return true; }
+			return false;
+		}
 
-		public void Clear() { stored_vessels.Clear(); }
-		
-		public bool ContainsKey(Guid vid) { return stored_vessels.ContainsKey(vid); }
-		
-		public bool TryGetValue(Guid vid, out V vessel)
-		{ return stored_vessels.TryGetValue(vid, out vessel); }
+		public void Clear() 
+		{ 
+			stored_vessels.Clear();
+			VesselsMass = 0;
+			VesselsCost = 0;
+			UsedVolume  = 0;
+		}
 		
 		public int Count { get { return stored_vessels.Count; } }
-		public List<Guid> Keys { get { return new List<Guid>(stored_vessels.Keys); } }
 		public List<V> Values { get { return new List<V>(stored_vessels.Values); } }
-		public V this[Guid vid] { get { return stored_vessels[vid]; } }
 
+		#region IEnumerable
+		public IEnumerator<PackedVessel> GetEnumerator()
+		{ foreach(var v in stored_vessels.Values) yield return v; }
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{ return GetEnumerator(); }
+		#endregion
+
+		#region Save Load
 		public void Save(ConfigNode node)
 		{
 			foreach(V vsl in stored_vessels.Values)
@@ -237,15 +285,17 @@ namespace AtHangar
 
 		public void Load(ConfigNode node)
 		{
-			List<V> vessels = new List<V>();
+			var vessels = new List<V>();
 			foreach(ConfigNode vn in node.nodes)
 			{
-				V vsl = new V();
+				var vsl = new V();
 				vsl.Load(vn);
 				vessels.Add(vsl);
 			}
 			Set(vessels);
 		}
+		#endregion
+		#endregion
 	}
 }
 

@@ -6,7 +6,7 @@ class custom_volume(volume):
     _cost_density = 1
     
     def __init__(self, V):
-        volume.__init__(self, V, self._name, self._cost_density, self._density)
+        volume.__init__(self, V, self._name, C=self._cost_density, D=self._density)
         
     def _add_str(self): return ''
     
@@ -66,19 +66,21 @@ class battery(custom_volume):
     _energy_cost    = 1.375  #Cr/El.u
     _energy_density = 4000.0 #El.u/m^3
     
-    def __init__(self, V, energy=-1):
-        if V < 0 and energy < 0: 
+    def __init__(self, **kwargs):
+        V = kwargs.get('V', -1.0)
+        E = kwargs.get('E', -1.0)
+        if V < 0 and E < 0: 
             raise ValueError("%s: either V or energy should be positive" % self._name)
         #compute energy, energy density and volume
-        if        V < 0: V = energy/self._energy_density
-        elif energy < 0: energy = V*self._energy_density
+        if        V < 0: V = E/self._energy_density
+        elif E < 0: E = V*self._energy_density
         else: 
-            self._energy_density = energy/float(V)
+            self._energy_density = E/float(V)
             k = self._energy_density/battery._energy_density
             self._density *= k
             self._energy_cost *= k
-        self._cost_density = self._energy_cost*energy/V
-        self.energy = energy
+        self._cost_density = self._energy_cost*E/V
+        self.energy = E
         #initialize volume
         custom_volume.__init__(self, V)
     #end def
