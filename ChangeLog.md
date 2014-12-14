@@ -5,6 +5,11 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###ChangeLog###
 
+
+* **v2.0.0**
+    * Lowered drag of the Habitable Inline Hangar a little (rounded ends should count for something).
+    * Wrote a proper [**documentation**](https://github.com/allista/hangar/wiki).
+    
 * v2.0.0-beta.1
 	* Fixed mass calculation on resize of a hangar that has some vessels stored in editor.
 	* Corrected definition of resources: no need to install Extraplanetary Launchpads for converters to work.
@@ -35,7 +40,7 @@ _You may keep the config.xml to save positions of GUI windows._
 			* The challenge of creating a hangar inside an asteroid is even more complex, as digging produces grinded Rock resource which you should dispose of or convert: Rock->Ore+Silicates; Ore->Metal+Slag. And while Slag is a waste product and Silicates are only usable if you are playing with MKS/OKS, the Metal may be used to **build resource containers inside the asteroid**. Each container has a type that defines which resources it may hold. If a tank is empty its resource may be switched within the type. This functionality is available through the part menu of the **Asteroid Hatch**.
 			* Also, several parts with the same capability are provided and may be used to build cargo vessels of broad specialization. **In Editor** these parts may also be partitioned into several sub-containers of different types.
 
-* **1.3.0** - _IF you are upgrading **from v1.1.1.1 or below**_, READ THE INSTALLATION INSTRUCTIONS CAREFULLY
+* 1.3.0
     * **Recompiled for KSP 0.25.0**
     * Added **Inflatable Ground Hangars**. They are very light, cheap and tough. You can drop them from orbit using smallest thrusters and parachutes, then fix them to the ground with the anchor, inflate them and store rovers inside. If they're not needed you may deflate them and pack again. The downside, though, is that you can't use resource or crew transfer inside of these.
     * Added **Small Square Heatshield** for Inflatable Hangars.
