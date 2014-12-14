@@ -44,7 +44,7 @@ Releases are available at:
 [SIZE=3][list]
 [*][url=https://github.com/allista/hangar/releases][b]GitHub[/b][/url] (including beta pre-releases)
 [*][url=https://kerbalstuff.com/mod/270/Hangar][b]Kerbal Stuff[/b][/url] (starting from v1.3.0)[/list]
-There's also a [url=https://github.com/allista/hangar/raw/master/DesaturatedTexturePack/DesaturatedTexturePack.zip][b]Desaturated Texture Pack[/b][/url] for those who prefer a more stock-like color scheme.
+There's also a [url=https://github.com/allista/hangar/releases/download/v2.0.0/DesaturatedTexturePack.zip][b]Desaturated Texture Pack[/b][/url] for those who prefer a more stock-like color scheme.
 
 [B][COLOR=#006400]Before using a hangar, study the list of modules that are integrated into it (RMB on part's icon).[/COLOR][/B][/SIZE]
 Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating.
