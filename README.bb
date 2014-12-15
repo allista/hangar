@@ -21,7 +21,7 @@ Aside from the hangars themselves the mod provides a set of utility parts that h
 [*][b]For more information read:[/b][/list]
 [SIZE=4][b][url=https://github.com/allista/hangar/wiki]Documentation[/url][/b][/SIZE]
 
-[SIZE=4][b][url=https://github.com/allista/hangar/blob/development/ChangeLog.md]ChangeLog[/url][/b][/SIZE]
+[SIZE=4][b][url=https://github.com/allista/hangar/blob/master/ChangeLog.md]ChangeLog[/url][/b][/SIZE]
 
 [SIZE=4][b][url=https://github.com/allista/hangar/milestones]Future plans[/url][/b][/SIZE]
 
