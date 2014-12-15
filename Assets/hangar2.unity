@@ -290,7 +290,7 @@ Renderer:
   m_LightmapIndex: 255
   m_LightmapTilingOffset: {x: 1, y: 1, z: 0, w: 0}
   m_Materials:
-  - {fileID: 2100000, guid: a127266826391e74390efa132b71e33a, type: 2}
+  - {fileID: 2100000, guid: edf82feb408116643af1394808bba9a5, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 0
@@ -664,7 +664,7 @@ GameObject:
   - 4: {fileID: 577664348}
   - 114: {fileID: 577664349}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: BigHangar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1146,7 +1146,7 @@ Renderer:
   m_LightmapIndex: 255
   m_LightmapTilingOffset: {x: 1, y: 1, z: 0, w: 0}
   m_Materials:
-  - {fileID: 2100000, guid: a127266826391e74390efa132b71e33a, type: 2}
+  - {fileID: 2100000, guid: edf82feb408116643af1394808bba9a5, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 0
