@@ -9,11 +9,11 @@ FBXHeaderExtension:  {
 	CreationTimeStamp:  {
 		Version: 1000
 		Year: 2014
-		Month: 10
-		Day: 07
-		Hour: 15
-		Minute: 39
-		Second: 56
+		Month: 12
+		Day: 16
+		Hour: 17
+		Minute: 11
+		Second: 53
 		Millisecond: 0
 	}
 	Creator: "FBX SDK/FBX Plugins build 20070228"
@@ -21,7 +21,7 @@ FBXHeaderExtension:  {
 		FlagPLE: 0
 	}
 }
-CreationTime: "2014-10-07 15:39:56:000"
+CreationTime: "2014-12-16 17:11:53:000"
 Creator: "Blender version 2.71 (sub 6)"
 
 ; Object definitions
@@ -29,7 +29,7 @@ Creator: "Blender version 2.71 (sub 6)"
 
 Definitions:  {
 	Version: 100
-	Count: 39
+	Count: 33
 	ObjectType: "Model" {
 		Count: 25
 	}
@@ -37,13 +37,13 @@ Definitions:  {
 		Count: 12
 	}
 	ObjectType: "Material" {
-		Count: 5
+		Count: 3
 	}
 	ObjectType: "Texture" {
-		Count: 4
+		Count: 2
 	}
 	ObjectType: "Video" {
-		Count: 4
+		Count: 2
 	}
 	ObjectType: "Pose" {
 		Count: 1
@@ -1194,16 +1194,15 @@ Objects:  {
 			Name: "UVMap"
 			MappingInformationType: "ByPolygonVertex"
 			ReferenceInformationType: "IndexToDirect"
-			UV: 0.465038,0.630410,0.465038,0.617802,0.465038,0.000000,0.474528,0.617802,0.009491,0.617802,0.009491,0.630410,
-			    1.000000,0.000000,0.484019,0.012608,0.000000,0.617802,0.484019,0.630410,0.465038,0.012608,0.949057,0.312842,
-			    0.949057,0.617802,1.000000,0.515058,0.009491,0.000000,0.974528,0.515058,0.939566,0.000000,0.974528,0.312842,
-			    1.000000,0.531339,0.974528,0.531339,0.484019,0.617802,0.939566,0.617802,0.974528,0.329123,0.974528,0.797784,
-			    0.949057,0.797784,0.949057,0.329123,1.000000,0.504757,0.974528,0.010301,1.000000,0.010301,0.009491,0.012608,
-			    0.000000,0.012608,0.474528,0.012608,0.939566,0.012608,0.949057,0.000000,0.474528,0.012608,0.949057,0.012608,
-			    0.974528,0.504757,0.974528,0.000000,1.000000,1.000000,0.974528,1.000000,0.474528,0.617802,0.939566,0.630410,
-			    0.484019,0.000000
-			UVIndex: 18,38,39,19,20,7,32,21,22,23,24,25,26,36,27,28,17,11,33,37,40,0,1,10,2,34,41,21,12,32,16,35,4,5,8,29,30,14,9,3,20,7,31,42,0,5,4,1,8,30,29,4,14,2,10,29,34,40,1,10,13,15,36,26,
-			         20,21,41,9,37,6,28,27,3,31,7,20,42,16,32,7,35,12,21,32,22,25,11,17,18,19,15,13,4,29,10,1
+			UV: 0.307561,0.197846,0.601382,0.197179,0.602305,0.002547,0.310016,0.197845,0.607328,0.197845,0.614805,0.201091,
+			    0.603464,0.002900,0.601382,0.009421,0.609783,0.008755,0.902076,0.005511,0.602305,0.204052,0.315962,0.009422,
+			    0.315038,0.005510,0.614806,0.005509,0.308856,0.006147,0.603464,0.203699,0.602305,0.005509,0.310015,0.008756,
+			    0.315039,0.204051,0.315039,0.201091,0.315962,0.197179,0.615728,0.197179,0.609782,0.197845,0.907099,0.197848,
+			    0.902076,0.201096,0.907099,0.008756,0.313880,0.203700,0.608487,0.200454,0.608487,0.006146,0.602305,0.201090,
+			    0.607328,0.008755,0.901152,0.197182,0.615729,0.009421,0.313879,0.002900,0.308857,0.200455,0.315038,0.002549,
+			    0.307561,0.008756,0.901153,0.009423
+			UVIndex: 10,18,19,29,11,7,1,20,16,12,35,2,36,17,3,0,30,8,22,4,5,22,21,31,23,24,3,20,19,1,4,29,32,8,13,37,9,25,17,12,11,7,16,30,22,8,32,21,13,9,37,32,25,23,31,37,24,5,21,31,33,12,17,14,
+			         11,20,3,17,19,26,34,3,12,16,7,11,30,4,1,7,29,19,20,1,16,6,28,30,15,29,4,27,32,37,31,21
 		}
 		LayerElementTexture: 0 {
 			Version: 101
@@ -2301,50 +2300,53 @@ Objects:  {
 			Name: "UVMap"
 			MappingInformationType: "ByPolygonVertex"
 			ReferenceInformationType: "IndexToDirect"
-			UV: 0.782239,0.304936,0.999889,0.488783,0.733304,0.113315,0.757674,0.174983,0.267139,0.615981,0.749088,0.074890,
-			    0.264177,0.624043,0.242201,0.178130,0.337489,0.488778,0.337490,0.425948,0.724044,0.295745,0.251297,0.733426,
-			    0.765303,0.124149,0.345754,0.069509,0.795970,0.613538,0.225687,0.794199,0.654554,0.425949,0.672638,0.089741,
-			    0.750320,0.165730,0.218555,0.306703,0.113791,0.857066,0.249412,0.168872,0.342161,0.356740,0.203063,0.615391,
-			    0.732900,0.298712,0.226598,0.033646,0.508063,0.857066,0.781458,0.608021,0.818479,0.765048,0.772943,0.782820,
-			    0.336954,0.503216,0.602145,0.794420,0.739909,0.117121,0.349481,0.076859,0.247539,0.078682,0.000110,0.794420,
-			    0.302974,0.060957,0.639274,0.073502,0.358246,0.072769,0.257784,0.113043,0.661649,0.135495,0.679790,0.091333,
-			    0.192029,0.794419,0.317376,0.091930,0.748382,0.179533,0.823639,0.137763,0.353219,0.065957,0.324850,0.089848,
-			    0.105870,0.857066,0.662499,0.488781,0.830770,0.425950,0.631484,0.117788,0.226969,0.786511,0.225347,0.130812,
-			    0.199951,0.857066,0.113791,0.794419,0.827741,0.145026,0.335052,0.561725,0.345435,0.425947,0.654554,0.488781,
-			    0.374256,0.127937,0.314298,0.085309,0.272128,0.626081,0.657826,0.557997,0.695574,0.052908,0.169225,0.425947,
-			    0.207297,0.608022,0.000110,0.857067,0.770776,0.022092,0.173217,0.768218,0.792658,0.306683,0.204008,0.301214,
-			    0.172952,0.148860,0.657468,0.355965,0.787966,0.615223,0.707904,0.857067,0.663058,0.503225,0.757676,0.734434,
-			    0.717943,0.150711,0.788791,0.297624,0.820057,0.144531,0.652000,0.158984,0.830770,0.488782,0.838715,0.488782,
-			    0.337597,0.491733,0.649221,0.165751,0.796933,0.299321,0.676963,0.083582,0.791755,0.606265,0.334728,0.353862,
-			    0.656989,0.132389,0.217718,0.609755,0.631114,0.126074,0.341426,0.131843,0.377366,0.118688,0.282032,0.152863,
-			    0.285110,0.159483,0.723918,0.617313,0.345502,0.496804,0.654512,0.496932,0.999890,0.425952,0.663033,0.411510,
-			    0.736084,0.106548,0.180520,0.148328,0.658095,0.364042,0.654485,0.417923,0.242232,0.737523,0.267294,0.300378,
-			    0.278954,0.009301,0.274546,0.155007,0.334389,0.128517,0.261941,0.109655,0.231556,0.120707,0.727730,0.624344,
-			    0.279421,0.161042,0.774238,0.790417,0.774192,0.127055,0.664429,0.128729,0.299896,0.054336,0.720508,0.158391,
-			    0.177271,0.775452,0.337591,0.422921,0.366704,0.125397,0.740738,0.109730,0.692794,0.059675,0.717261,0.000110,
-			    0.272243,0.290347,0.176953,0.141701,0.161280,0.488776,0.265019,0.116275,0.594223,0.857066,0.666839,0.551213,
-			    0.336933,0.411504,0.658429,0.549918,0.515985,0.857066,0.508063,0.794419,0.732631,0.614339,0.211164,0.617064,
-			    0.264318,0.292399,0.000110,0.425947,0.258987,0.120209,0.169225,0.488776,0.748698,0.730414,0.333403,0.552007,
-			    0.276042,0.297411,0.340467,0.124720,0.161280,0.425947,0.775216,0.119152,0.000110,0.488776,0.662399,0.491807,
-			    0.727857,0.288587,0.714482,0.006877,0.644043,0.066981,0.224284,0.123178,0.320092,0.083801,0.725028,0.152463,
-			    0.275876,0.002680,0.662500,0.425949,0.666582,0.362726,0.199951,0.794419,0.647837,0.077319,0.735880,0.290630,
-			    0.341558,0.364819,0.366271,0.117214,0.233900,0.127779,0.662391,0.422993,0.664932,0.353007,0.208263,0.308476,
-			    0.351232,0.164740,0.705514,0.180967,0.715163,0.157478,0.192029,0.857066,0.295796,0.182465,0.767635,0.116614,
-			    0.623513,0.128660,0.702734,0.187734,0.223519,0.027026,0.620346,0.119351,0.746308,0.081657,0.105869,0.794419,
-			    0.651210,0.070306,0.251450,0.182612,0.838715,0.425950,0.341891,0.550691,0.515985,0.794419,0.594223,0.794419,
-			    0.735585,0.622300,0.602145,0.857066,0.707904,0.794420,0.180853,0.768703,0.767996,0.028859,0.345478,0.417797,
-			    0.826028,0.764541,0.657784,0.124924,0.250617,0.085302,0.345434,0.488779,0.275958,0.618958,0.682570,0.084566,
-			    0.212048,0.299503,0.337468,0.135138,0.333148,0.363526,0.348154,0.158119,0.822045,0.771708,0.744634,0.172185,
-			    0.255164,0.175281,0.298875,0.189085,0.342518,0.558768,0.665258,0.560876
-			UVIndex: 98,99,133,183,83,182,100,1,134,184,185,130,49,157,50,82,101,158,24,0,79,161,3,116,80,131,76,27,136,26,54,159,135,162,104,105,191,124,178,102,197,190,5,64,151,186,74,28,29,77,187,31,188,75,169,81,40,170,51,160,17,193,78,117,
-			         41,2,12,18,155,32,6,106,52,189,137,143,4,91,30,132,19,107,200,198,103,53,7,138,171,20,55,42,8,141,65,9,163,145,47,33,25,108,118,34,48,67,35,179,128,148,139,146,172,96,199,201,164,140,109,21,95,129,43,110,36,61,111,194,
-			         59,149,76,99,131,207,63,133,16,105,101,165,166,158,104,73,88,14,74,27,186,113,97,136,79,86,70,0,150,161,24,10,28,192,202,152,180,160,37,45,56,80,147,116,12,173,177,51,92,174,3,44,203,18,17,87,41,2,123,32,90,193,117,78,
-			         155,119,30,84,195,98,206,57,143,183,132,191,58,121,162,200,89,22,137,23,66,91,196,62,6,4,167,71,198,19,107,138,126,144,120,69,189,33,13,46,38,103,72,127,164,53,153,112,122,163,94,60,204,181,7,21,43,154,47,140,39,129,110,145,
-			         93,114,109,95,191,105,16,58,157,49,59,16,99,98,195,59,105,104,158,101,26,135,184,134,133,99,76,131,104,162,22,73,183,133,63,206,182,83,82,50,0,24,161,79,130,185,31,187,136,27,74,186,70,165,101,0,166,10,24,158,27,76,149,88,
-			         97,207,131,136,190,151,125,68,80,116,147,45,178,124,64,5,29,28,202,115,3,161,150,44,177,37,160,51,56,86,79,80,28,74,14,192,142,113,186,77,18,12,116,3,175,85,81,169,2,41,197,102,193,17,41,117,78,2,32,155,170,40,117,78,
-			         123,173,12,32,203,119,155,18,17,160,180,87,51,193,90,92,58,195,8,9,171,42,159,54,143,30,98,183,132,200,162,191,65,141,128,146,198,138,107,19,48,179,55,20,6,137,91,4,19,132,121,167,200,107,144,89,66,84,30,91,4,143,57,196,
-			         176,156,108,25,127,153,53,103,34,118,36,194,15,120,189,52,181,126,138,7,163,33,38,94,103,198,71,72,69,23,137,189,106,6,62,11,7,53,164,21,172,201,168,205,111,61,43,129,110,43,47,145,109,140,129,95,95,110,199,96,140,164,112,39,
-			         21,109,114,204,154,13,33,47,122,93,145,163,58,16,59,195
+			UV: 0.954219,0.321855,0.983534,0.397054,0.983534,0.317858,0.389945,0.874928,0.983344,0.439602,0.348629,0.873981,
+			    0.350765,0.870308,0.498077,0.905516,0.496620,0.932995,0.551231,0.960939,0.550721,0.879780,0.554823,0.932862,
+			    0.393501,0.924523,0.575510,0.909184,0.954029,0.401779,0.983343,0.397054,0.954029,0.219606,0.983344,0.214305,
+			    0.521029,0.934529,0.653510,0.811195,0.490003,0.906673,0.493993,0.903499,0.521029,0.955294,0.520973,0.879839,
+			    0.954107,0.019773,0.701509,0.927148,0.698883,0.871151,0.551238,0.904221,0.516866,0.909350,0.436344,0.839365,
+			    0.391222,0.871159,0.983534,0.321855,0.653529,0.814911,0.357235,0.870616,0.551277,0.884635,0.555394,0.909350,
+			    0.555793,0.909461,0.351049,0.952745,0.582257,0.906675,0.521031,0.909016,0.578267,0.903500,0.550791,0.929732,
+			    0.582087,0.929496,0.436437,0.811202,0.396508,0.872097,0.551231,0.955294,0.976027,0.181540,0.983534,0.214305,
+			    0.739368,0.952795,0.555401,0.929319,0.024769,0.338042,0.024768,0.116503,0.743363,0.949534,0.954029,0.214305,
+			    0.497904,0.905704,0.739389,0.870227,0.521469,0.960939,0.351694,0.949177,0.658148,0.844440,0.389241,0.953847,
+			    0.701124,0.954038,0.954219,0.317858,0.351693,0.949150,0.388192,0.950092,0.701536,0.927142,0.954029,0.317858,
+			    0.496593,0.929336,0.496598,0.909313,0.431187,0.812886,0.582218,0.929355,0.490172,0.929494,0.580929,0.933164,
+			    0.700176,0.874947,0.983344,0.401779,0.554806,0.905816,0.521029,0.960939,0.976027,0.019773,0.954219,0.214305,
+			    0.550791,0.960939,0.431195,0.812878,0.489986,0.906834,0.431828,0.844425,0.695499,0.875368,0.389245,0.953869,
+			    0.516467,0.909461,0.693564,0.872109,0.521469,0.934529,0.555829,0.929285,0.653546,0.814905,0.388745,0.927011,
+			    0.388189,0.950069,0.357226,0.870636,0.738739,0.949212,0.575662,0.909313,0.702138,0.950255,0.698861,0.871158,
+			    0.551229,0.909016,0.517027,0.905960,0.521028,0.929732,0.743392,0.949525,0.393500,0.924503,0.659303,0.840161,
+			    0.954029,0.397054,0.581094,0.932985,0.658755,0.812869,0.739412,0.870217,0.555233,0.905960,0.575667,0.929336,
+			    0.353355,0.874191,0.054083,0.338042,0.054083,0.382970,0.054083,0.062342,0.574183,0.905517,0.732934,0.870544,
+			    0.550731,0.884575,0.520982,0.884635,0.436445,0.811194,0.693586,0.872102,0.696763,0.924644,0.391228,0.871143,
+			    0.430673,0.840156,0.983534,0.439603,0.954219,0.439602,0.347056,0.949505,0.491330,0.933163,0.494086,0.903266,
+			    0.490041,0.929355,0.491165,0.932986,0.695477,0.875374,0.550791,0.934529,0.653233,0.843043,0.983534,0.219606,
+			    0.575410,0.933143,0.024769,0.012853,0.054083,0.012853,0.653493,0.811202,0.574356,0.905704,0.516431,0.929285,
+			    0.351049,0.952718,0.521480,0.908956,0.659059,0.818127,0.436413,0.814905,0.659285,0.840167,0.983534,0.401779,
+			    0.954219,0.401779,0.653625,0.839375,0.521529,0.884575,0.653607,0.839381,0.954220,0.397054,0.551231,0.929731,
+			    0.550780,0.908957,0.521469,0.929731,0.575640,0.932994,0.396513,0.872081,0.954107,0.181540,0.024768,0.382969,
+			    0.054083,0.332770,0.024768,0.386932,0.024768,0.111231,0.024768,0.066304,0.054083,0.111232,0.024768,0.062342,
+			    0.954029,0.439603,0.436736,0.843028,0.582274,0.906834,0.389939,0.874945,0.738710,0.949221,0.702167,0.950249,
+			    0.353363,0.874170,0.430874,0.818137,0.496750,0.909183,0.496805,0.929441,0.983343,0.321855,0.954029,0.321855,
+			    0.348638,0.873960,0.394611,0.875338,0.347056,0.949477,0.496849,0.933142,0.653215,0.843048,0.431834,0.844416,
+			    0.575454,0.929442,0.550770,0.904161,0.394606,0.875354,0.658738,0.812875,0.741527,0.873874,0.555272,0.932810,
+			    0.954219,0.219607,0.658130,0.844445,0.516987,0.932810,0.578174,0.903268,0.054084,0.436421,0.024769,0.436421,
+			    0.983344,0.317858,0.521022,0.904221,0.551287,0.879839,0.521469,0.955294,0.659076,0.818120,0.551231,0.934529,
+			    0.388746,0.927032,0.700153,0.874954,0.736800,0.874098,0.436405,0.814913,0.436337,0.839373,0.430882,0.818129,
+			    0.430679,0.840147,0.521490,0.904161,0.732911,0.870554,0.550791,0.955294,0.350756,0.870328,0.741550,0.873864,
+			    0.696736,0.924649,0.517436,0.932861,0.736824,0.874088,0.983344,0.219607,0.516859,0.929318,0.024769,0.332770,
+			    0.054083,0.116503,0.054083,0.386932,0.054083,0.066304,0.517455,0.905816,0.436729,0.843036,0.521539,0.879780,
+			    0.739397,0.952787,0.701095,0.954044
+			UVIndex: 32,201,202,147,0,31,1,148,50,109,110,155,186,131,2,61,203,204,119,33,168,3,89,90,62,120,169,91,30,215,51,216,156,145,29,141,88,45,195,86,197,143,121,122,144,165,108,57,63,198,157,217,190,191,146,34,27,205,93,107,87,36,139,96,
+			         149,151,171,170,28,214,199,25,94,166,200,142,95,206,140,196,113,26,101,212,92,167,64,72,158,159,218,160,213,192,65,16,13,35,49,180,14,73,4,162,161,133,134,111,172,15,102,173,115,193,181,114,66,137,84,67,39,98,41,150,207,129,18,22,
+			         43,68,169,201,120,81,220,202,116,141,203,79,179,204,29,163,208,5,108,91,165,182,44,30,168,174,6,33,175,3,119,153,57,123,37,103,152,107,69,138,176,62,124,70,171,177,164,93,136,40,20,125,7,170,87,185,149,151,211,214,106,36,96,139,
+			         28,219,140,183,135,32,178,187,142,147,196,88,19,104,145,101,58,130,200,184,55,206,85,128,199,95,105,209,212,113,26,72,82,117,48,52,166,180,132,71,42,92,99,222,66,126,127,8,112,13,38,189,54,21,80,67,41,11,49,137,188,98,150,35,
+			         74,97,84,39,88,141,116,19,131,186,77,47,201,32,135,43,141,29,204,203,215,156,109,50,202,201,169,120,29,145,130,163,147,202,220,178,31,0,61,2,33,119,3,168,155,110,217,157,30,91,108,165,6,79,203,33,179,153,119,204,91,169,68,208,
+			         44,81,120,30,143,144,148,1,62,90,59,138,195,45,9,56,63,57,37,83,89,3,175,100,164,69,107,93,176,174,168,62,57,108,5,123,12,182,165,198,170,171,70,20,221,194,34,146,151,149,197,86,36,87,149,96,139,151,214,28,205,27,96,139,
+			         211,177,171,214,7,219,28,170,87,107,152,185,93,36,106,136,53,17,213,16,158,160,216,51,142,140,32,147,196,101,145,88,65,192,172,173,212,72,26,113,161,111,218,159,199,200,206,95,113,196,104,105,101,26,117,58,55,183,140,206,95,142,187,85,
+			         102,15,73,14,222,60,167,92,75,78,207,22,223,48,166,94,118,82,72,64,13,180,42,38,92,212,209,99,52,184,200,166,25,199,128,210,80,126,66,67,115,114,10,23,18,129,41,98,150,41,49,35,84,137,98,39,39,150,181,193,137,66,8,188,
+			         67,84,97,54,11,132,180,49,112,74,35,13,76,46,154,24
 		}
 		LayerElementTexture: 0 {
 			Version: 101
@@ -3623,96 +3625,6 @@ Objects:  {
 			Property: "Reflectivity", "double", "",0
 		}
 	}
-	Material: "Material::clamp__clamp_png", "" {
-		Version: 102
-		ShadingModel: "lambert"
-		MultiLayer: 0
-		Properties60:  {
-			Property: "ShadingModel", "KString", "", "Lambert"
-			Property: "MultiLayer", "bool", "",0
-			Property: "EmissiveColor", "ColorRGB", "",0.8000,0.8000,0.8000
-			Property: "EmissiveFactor", "double", "",0.0000
-			Property: "AmbientColor", "ColorRGB", "",1.0000,1.0000,1.0000
-			Property: "AmbientFactor", "double", "",1.0000
-			Property: "DiffuseColor", "ColorRGB", "",0.8000,0.8000,0.8000
-			Property: "DiffuseFactor", "double", "",0.4000
-			Property: "Bump", "Vector3D", "",0,0,0
-			Property: "TransparentColor", "ColorRGB", "",1,1,1
-			Property: "TransparencyFactor", "double", "",0.0000
-			Property: "SpecularColor", "ColorRGB", "",1.0000,1.0000,1.0000
-			Property: "SpecularFactor", "double", "",0.8000
-			Property: "ShininessExponent", "double", "",16.1
-			Property: "ReflectionColor", "ColorRGB", "",0,0,0
-			Property: "ReflectionFactor", "double", "",1
-			Property: "Emissive", "ColorRGB", "",0,0,0
-			Property: "Ambient", "ColorRGB", "",1.0,1.0,1.0
-			Property: "Diffuse", "ColorRGB", "",0.8,0.8,0.8
-			Property: "Specular", "ColorRGB", "",1.0,1.0,1.0
-			Property: "Shininess", "double", "",16.1
-			Property: "Opacity", "double", "",1.0
-			Property: "Reflectivity", "double", "",0
-		}
-	}
-	Material: "Material::default", "" {
-		Version: 102
-		ShadingModel: "lambert"
-		MultiLayer: 0
-		Properties60:  {
-			Property: "ShadingModel", "KString", "", "Lambert"
-			Property: "MultiLayer", "bool", "",0
-			Property: "EmissiveColor", "ColorRGB", "",0.8000,0.8000,0.8000
-			Property: "EmissiveFactor", "double", "",0.0000
-			Property: "AmbientColor", "ColorRGB", "",1.0000,1.0000,1.0000
-			Property: "AmbientFactor", "double", "",1.0000
-			Property: "DiffuseColor", "ColorRGB", "",0.8000,0.8000,0.8000
-			Property: "DiffuseFactor", "double", "",0.8000
-			Property: "Bump", "Vector3D", "",0,0,0
-			Property: "TransparentColor", "ColorRGB", "",1,1,1
-			Property: "TransparencyFactor", "double", "",0.0000
-			Property: "SpecularColor", "ColorRGB", "",1.0000,1.0000,1.0000
-			Property: "SpecularFactor", "double", "",0.5000
-			Property: "ShininessExponent", "double", "",12.3
-			Property: "ReflectionColor", "ColorRGB", "",0,0,0
-			Property: "ReflectionFactor", "double", "",1
-			Property: "Emissive", "ColorRGB", "",0,0,0
-			Property: "Ambient", "ColorRGB", "",1.0,1.0,1.0
-			Property: "Diffuse", "ColorRGB", "",0.8,0.8,0.8
-			Property: "Specular", "ColorRGB", "",1.0,1.0,1.0
-			Property: "Shininess", "double", "",12.3
-			Property: "Opacity", "double", "",1.0
-			Property: "Reflectivity", "double", "",0
-		}
-	}
-	Material: "Material::gate__gate_png", "" {
-		Version: 102
-		ShadingModel: "lambert"
-		MultiLayer: 0
-		Properties60:  {
-			Property: "ShadingModel", "KString", "", "Lambert"
-			Property: "MultiLayer", "bool", "",0
-			Property: "EmissiveColor", "ColorRGB", "",1.0000,1.0000,1.0000
-			Property: "EmissiveFactor", "double", "",0.0000
-			Property: "AmbientColor", "ColorRGB", "",1.0000,1.0000,1.0000
-			Property: "AmbientFactor", "double", "",1.0000
-			Property: "DiffuseColor", "ColorRGB", "",1.0000,1.0000,1.0000
-			Property: "DiffuseFactor", "double", "",0.8000
-			Property: "Bump", "Vector3D", "",0,0,0
-			Property: "TransparentColor", "ColorRGB", "",1,1,1
-			Property: "TransparencyFactor", "double", "",0.0000
-			Property: "SpecularColor", "ColorRGB", "",1.0000,1.0000,1.0000
-			Property: "SpecularFactor", "double", "",0.6000
-			Property: "ShininessExponent", "double", "",16.1
-			Property: "ReflectionColor", "ColorRGB", "",0,0,0
-			Property: "ReflectionFactor", "double", "",1
-			Property: "Emissive", "ColorRGB", "",0,0,0
-			Property: "Ambient", "ColorRGB", "",1.0,1.0,1.0
-			Property: "Diffuse", "ColorRGB", "",1.0,1.0,1.0
-			Property: "Specular", "ColorRGB", "",1.0,1.0,1.0
-			Property: "Shininess", "double", "",16.1
-			Property: "Opacity", "double", "",1.0
-			Property: "Reflectivity", "double", "",0
-		}
-	}
 	Material: "Material::hangar__hangar_png", "" {
 		Version: 102
 		ShadingModel: "lambert"
@@ -3743,47 +3655,35 @@ Objects:  {
 			Property: "Reflectivity", "double", "",0
 		}
 	}
-	Video: "Video::clamp_png", "Clip" {
-		Type: "Clip"
+	Material: "Material::unnamed", "" {
+		Version: 102
+		ShadingModel: "phong"
+		MultiLayer: 0
 		Properties60:  {
-			Property: "FrameRate", "double", "",0
-			Property: "LastFrame", "int", "",0
-			Property: "Width", "int", "",0
-			Property: "Height", "int", "",0
-			Property: "Path", "charptr", "", "clamp.png"
-			Property: "StartFrame", "int", "",0
-			Property: "StopFrame", "int", "",0
-			Property: "PlaySpeed", "double", "",1
-			Property: "Offset", "KTime", "",0
-			Property: "InterlaceMode", "enum", "",0
-			Property: "FreeRunning", "bool", "",0
-			Property: "Loop", "bool", "",0
-			Property: "AccessMode", "enum", "",0
+			Property: "ShadingModel", "KString", "", "Phong"
+			Property: "MultiLayer", "bool", "",0
+			Property: "EmissiveColor", "ColorRGB", "",0.8000,0.8000,0.8000
+			Property: "EmissiveFactor", "double", "",0.0000
+			Property: "AmbientColor", "ColorRGB", "",1.0000,1.0000,1.0000
+			Property: "AmbientFactor", "double", "",1.0000
+			Property: "DiffuseColor", "ColorRGB", "",0.8000,0.8000,0.8000
+			Property: "DiffuseFactor", "double", "",0.8000
+			Property: "Bump", "Vector3D", "",0,0,0
+			Property: "TransparentColor", "ColorRGB", "",1,1,1
+			Property: "TransparencyFactor", "double", "",0.0000
+			Property: "SpecularColor", "ColorRGB", "",1.0000,1.0000,1.0000
+			Property: "SpecularFactor", "double", "",0.5000
+			Property: "ShininessExponent", "double", "",12.3
+			Property: "ReflectionColor", "ColorRGB", "",0,0,0
+			Property: "ReflectionFactor", "double", "",1
+			Property: "Emissive", "ColorRGB", "",0,0,0
+			Property: "Ambient", "ColorRGB", "",1.0,1.0,1.0
+			Property: "Diffuse", "ColorRGB", "",0.8,0.8,0.8
+			Property: "Specular", "ColorRGB", "",1.0,1.0,1.0
+			Property: "Shininess", "double", "",12.3
+			Property: "Opacity", "double", "",1.0
+			Property: "Reflectivity", "double", "",0
 		}
-		UseMipMap: 0
-		Filename: "clamp.png"
-		RelativeFilename: "Textures/clamp.png"
-	}
-	Video: "Video::gate_png", "Clip" {
-		Type: "Clip"
-		Properties60:  {
-			Property: "FrameRate", "double", "",0
-			Property: "LastFrame", "int", "",0
-			Property: "Width", "int", "",0
-			Property: "Height", "int", "",0
-			Property: "Path", "charptr", "", "gate.png"
-			Property: "StartFrame", "int", "",0
-			Property: "StopFrame", "int", "",0
-			Property: "PlaySpeed", "double", "",1
-			Property: "Offset", "KTime", "",0
-			Property: "InterlaceMode", "enum", "",0
-			Property: "FreeRunning", "bool", "",0
-			Property: "Loop", "bool", "",0
-			Property: "AccessMode", "enum", "",0
-		}
-		UseMipMap: 0
-		Filename: "gate.png"
-		RelativeFilename: "Textures/gate.png"
 	}
 	Video: "Video::hangar_png", "Clip" {
 		Type: "Clip"
@@ -3827,64 +3727,6 @@ Objects:  {
 		Filename: "solarpanel.png"
 		RelativeFilename: "Textures/solarpanel.png"
 	}
-	Texture: "Texture::clamp_png", "TextureVideoClip" {
-		Type: "TextureVideoClip"
-		Version: 202
-		TextureName: "Texture::clamp_png"
-		Properties60:  {
-			Property: "Translation", "Vector", "A+",0,0,0
-			Property: "Rotation", "Vector", "A+",0,0,0
-			Property: "Scaling", "Vector", "A+",1,1,1
-			Property: "Texture alpha", "Number", "A+",0
-			Property: "TextureTypeUse", "enum", "",0
-			Property: "CurrentTextureBlendMode", "enum", "",1
-			Property: "UseMaterial", "bool", "",0
-			Property: "UseMipMap", "bool", "",0
-			Property: "CurrentMappingType", "enum", "",0
-			Property: "UVSwap", "bool", "",0
-			Property: "WrapModeU", "enum", "",0
-			Property: "WrapModeV", "enum", "",0
-			Property: "TextureRotationPivot", "Vector3D", "",0,0,0
-			Property: "TextureScalingPivot", "Vector3D", "",0,0,0
-			Property: "VideoProperty", "object", ""
-		}
-		Media: "Video::clamp_png"
-		FileName: "clamp.png"
-		RelativeFilename: "Textures/clamp.png"
-		ModelUVTranslation: 0,0
-		ModelUVScaling: 1,1
-		Texture_Alpha_Source: "None"
-		Cropping: 0,0,0,0
-	}
-	Texture: "Texture::gate_png", "TextureVideoClip" {
-		Type: "TextureVideoClip"
-		Version: 202
-		TextureName: "Texture::gate_png"
-		Properties60:  {
-			Property: "Translation", "Vector", "A+",0,0,0
-			Property: "Rotation", "Vector", "A+",0,0,0
-			Property: "Scaling", "Vector", "A+",1,1,1
-			Property: "Texture alpha", "Number", "A+",1
-			Property: "TextureTypeUse", "enum", "",0
-			Property: "CurrentTextureBlendMode", "enum", "",1
-			Property: "UseMaterial", "bool", "",0
-			Property: "UseMipMap", "bool", "",0
-			Property: "CurrentMappingType", "enum", "",0
-			Property: "UVSwap", "bool", "",0
-			Property: "WrapModeU", "enum", "",0
-			Property: "WrapModeV", "enum", "",0
-			Property: "TextureRotationPivot", "Vector3D", "",0,0,0
-			Property: "TextureScalingPivot", "Vector3D", "",0,0,0
-			Property: "VideoProperty", "object", ""
-		}
-		Media: "Video::gate_png"
-		FileName: "gate.png"
-		RelativeFilename: "Textures/gate.png"
-		ModelUVTranslation: 0,0
-		ModelUVScaling: 1,1
-		Texture_Alpha_Source: "None"
-		Cropping: 0,0,0,0
-	}
 	Texture: "Texture::hangar_png", "TextureVideoClip" {
 		Type: "TextureVideoClip"
 		Version: 202
@@ -3893,7 +3735,7 @@ Objects:  {
 			Property: "Translation", "Vector", "A+",0,0,0
 			Property: "Rotation", "Vector", "A+",0,0,0
 			Property: "Scaling", "Vector", "A+",1,1,1
-			Property: "Texture alpha", "Number", "A+",2
+			Property: "Texture alpha", "Number", "A+",0
 			Property: "TextureTypeUse", "enum", "",0
 			Property: "CurrentTextureBlendMode", "enum", "",1
 			Property: "UseMaterial", "bool", "",0
@@ -3922,7 +3764,7 @@ Objects:  {
 			Property: "Translation", "Vector", "A+",0,0,0
 			Property: "Rotation", "Vector", "A+",0,0,0
 			Property: "Scaling", "Vector", "A+",1,1,1
-			Property: "Texture alpha", "Number", "A+",3
+			Property: "Texture alpha", "Number", "A+",1
 			Property: "TextureTypeUse", "enum", "",0
 			Property: "CurrentTextureBlendMode", "enum", "",1
 			Property: "UseMaterial", "bool", "",0
@@ -4097,25 +3939,13 @@ Relations:  {
 	}
 	Material: "Material::None__solarpanel_png", "" {
 	}
-	Material: "Material::clamp__clamp_png", "" {
-	}
-	Material: "Material::default", "" {
-	}
-	Material: "Material::gate__gate_png", "" {
-	}
 	Material: "Material::hangar__hangar_png", "" {
 	}
-	Texture: "Texture::clamp_png", "TextureVideoClip" {
-	}
-	Texture: "Texture::gate_png", "TextureVideoClip" {
+	Material: "Material::unnamed", "" {
 	}
 	Texture: "Texture::hangar_png", "TextureVideoClip" {
 	}
 	Texture: "Texture::solarpanel_png", "TextureVideoClip" {
-	}
-	Video: "Video::clamp_png", "Clip" {
-	}
-	Video: "Video::gate_png", "Clip" {
 	}
 	Video: "Video::hangar_png", "Clip" {
 	}
@@ -4148,22 +3978,20 @@ Connections:  {
 	Connect: "OO", "Model::dockingNode", "Model::hangar1"
 	Connect: "OO", "Material::hangar__hangar_png", "Model::hangar1"
 	Connect: "OO", "Material::None__solarpanel_png", "Model::solarpanel"
-	Connect: "OO", "Material::default", "Model::hangar_space"
-	Connect: "OO", "Material::gate__gate_png", "Model::gates"
-	Connect: "OO", "Material::default", "Model::trigger_hangar"
-	Connect: "OO", "Material::default", "Model::collider_back"
-	Connect: "OO", "Material::default", "Model::collider_bottom"
-	Connect: "OO", "Material::default", "Model::collider_right"
-	Connect: "OO", "Material::default", "Model::collider_left"
-	Connect: "OO", "Material::default", "Model::collider_top"
-	Connect: "OO", "Material::clamp__clamp_png", "Model::clamp"
-	Connect: "OO", "Material::default", "Model::collider_clamp"
+	Connect: "OO", "Material::unnamed", "Model::hangar_space"
+	Connect: "OO", "Material::hangar__hangar_png", "Model::gates"
+	Connect: "OO", "Material::unnamed", "Model::trigger_hangar"
+	Connect: "OO", "Material::unnamed", "Model::collider_back"
+	Connect: "OO", "Material::unnamed", "Model::collider_bottom"
+	Connect: "OO", "Material::unnamed", "Model::collider_right"
+	Connect: "OO", "Material::unnamed", "Model::collider_left"
+	Connect: "OO", "Material::unnamed", "Model::collider_top"
+	Connect: "OO", "Material::hangar__hangar_png", "Model::clamp"
+	Connect: "OO", "Material::unnamed", "Model::collider_clamp"
 	Connect: "OO", "Texture::hangar_png", "Model::hangar1"
 	Connect: "OO", "Texture::solarpanel_png", "Model::solarpanel"
-	Connect: "OO", "Texture::gate_png", "Model::gates"
-	Connect: "OO", "Texture::clamp_png", "Model::clamp"
-	Connect: "OO", "Video::clamp_png", "Texture::clamp_png"
-	Connect: "OO", "Video::gate_png", "Texture::gate_png"
+	Connect: "OO", "Texture::hangar_png", "Model::gates"
+	Connect: "OO", "Texture::hangar_png", "Model::clamp"
 	Connect: "OO", "Video::hangar_png", "Texture::hangar_png"
 	Connect: "OO", "Video::solarpanel_png", "Texture::solarpanel_png"
 	Connect: "OO", "Model::hangar1", "GroupSelection::hangar"

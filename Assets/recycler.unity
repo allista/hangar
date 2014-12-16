@@ -628,7 +628,7 @@ Renderer:
   m_LightmapIndex: 255
   m_LightmapTilingOffset: {x: 1, y: 1, z: 0, w: 0}
   m_Materials:
-  - {fileID: 2100000, guid: d7a1b118926c22b4eb63186c80e27d01, type: 2}
+  - {fileID: 2100000, guid: a17031e8089c7dd429d91a8cfd083c5a, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 0
@@ -654,7 +654,7 @@ GameObject:
   - 4: {fileID: 1710422815}
   - 114: {fileID: 1710422816}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Recycler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
