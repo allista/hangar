@@ -134,7 +134,7 @@ namespace AtHangar
 			vessel = new ProtoVessel(vessel_node, FlightDriver.FlightStateCache);
 			metric = new Metric(metric_node);
 			crew   = new List<ProtoCrewMember>();
-			foreach(ConfigNode cn in crew_node.nodes) crew.Add(new ProtoCrewMember(cn));
+			foreach(ConfigNode cn in crew_node.nodes) crew.Add(new ProtoCrewMember(HighLogic.CurrentGame.Mode, cn));
 			id   = vessel.vesselID;
 			name = vessel.vesselName;
 			CoM  = ConfigNode.ParseVector3(node.GetValue("CoM"));

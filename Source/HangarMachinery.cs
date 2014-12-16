@@ -196,7 +196,7 @@ namespace AtHangar
 		{
 			//set vessel type
 			EditorLogic el = EditorLogic.fetch;
-			if(el != null) vessel_type = el.editorType == EditorLogic.EditorMode.SPH ? VesselType.SPH : VesselType.VAB;
+			if(el != null) vessel_type = el.ship.shipFacility == EditorFacility.SPH ? VesselType.SPH : VesselType.VAB;
 			//setup hangar name
 			if(HangarName == "_none_") HangarName = part.Title();
 			//initialize resources

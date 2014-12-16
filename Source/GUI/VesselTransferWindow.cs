@@ -23,7 +23,6 @@ namespace AtHangar
 		{
 			if(pm == null || pm.part == null) return;
 			pm.part.SetHighlightDefault();
-			pm.part.highlightRecurse = HighLogic.LoadedSceneIsEditor;
 		}
 
 		void parts_list(ref Vector2 scroll, ref HangarStorage selected, bool is_lhs=true)
@@ -46,9 +45,8 @@ namespace AtHangar
 			}
 			if(selected != null)
 			{
-				selected.part.highlightRecurse = false;
 				selected.part.SetHighlightColor(selected_color);
-				selected.part.SetHighlight(true);
+				selected.part.SetHighlight(true, false);
 			}
 			GUILayout.EndVertical();
 			GUILayout.EndScrollView();

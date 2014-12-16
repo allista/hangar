@@ -135,7 +135,7 @@ namespace AtHangar
 			on_set_part_params();
 		}
 
-		public float GetModuleCost() { return VesselsCost; }
+		public float GetModuleCost(float default_cost) { return VesselsCost; }
 		#endregion
 
 		#region Content Management

@@ -86,12 +86,13 @@ namespace AtHangar
 				if(vessel_type == VesselType.SubAssembly) diff.AllowStockVessels = false;
 				vessel_selector = 
 					new CraftBrowser(sWindowPos, 
-						vessel_dirs[(int)vessel_type],
+						EditorFacility.VAB,
 						HighLogic.SaveFolder, "Select a ship to store",
 						vessel_selected,
 						selection_canceled,
 						HighLogic.Skin,
 						EditorLogic.ShipFileImage, true);
+				vessel_selector.craftSubfolder = vessel_dirs[(int)vessel_type];
 				diff.AllowStockVessels = stock;
 			}
 			GUILayout.EndHorizontal();

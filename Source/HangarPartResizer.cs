@@ -159,7 +159,7 @@ namespace AtHangar
 			just_loaded = true;
 		}
 
-		public float GetModuleCost() { return delta_cost; }
+		public float GetModuleCost(float default_cost) { return delta_cost; }
 	}
 
 	public class HangarPartResizer : HangarResizableBase
