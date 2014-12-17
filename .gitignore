@@ -1,5 +1,5 @@
 /C:
-/KSP_test
+/KSP_test*
 /Resources
 /Temp
 /Library/metadata/**
@@ -8,6 +8,7 @@
 /Assets/bbox/**
 /Releases/*
 /Screenshots/**
+/UserManual/**
 /Debugging/**
 /AssetsVariants/**
 /DesaturatedTexturePack/GameData/**
