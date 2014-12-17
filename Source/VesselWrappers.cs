@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public enum VesselType { VAB, SPH, SubAssembly }
-
 	public class PackedConstruct : PackedVessel
 	{
 		public string flag { get; private set; }
@@ -117,11 +115,7 @@ namespace AtHangar
 			ConfigNode crew_node   = node.AddNode("CREW");
 			vessel.Save(vessel_node);
 			metric.Save(metric_node);
-			foreach(ProtoCrewMember c in crew)
-			{
-				ConfigNode n = crew_node.AddNode(c.name);
-				c.Save(n);
-			}
+			crew.ForEach(c => c.Save(crew_node.AddNode(c.name)));
 			//values
 			node.AddValue("CoM", ConfigNode.WriteVector(CoM));
 		}
@@ -134,7 +128,8 @@ namespace AtHangar
 			vessel = new ProtoVessel(vessel_node, FlightDriver.FlightStateCache);
 			metric = new Metric(metric_node);
 			crew   = new List<ProtoCrewMember>();
-			foreach(ConfigNode cn in crew_node.nodes) crew.Add(new ProtoCrewMember(HighLogic.CurrentGame.Mode, cn));
+			foreach(ConfigNode cn in crew_node.nodes) 
+				crew.Add(new ProtoCrewMember(HighLogic.CurrentGame.Mode, cn));
 			id   = vessel.vesselID;
 			name = vessel.vesselName;
 			CoM  = ConfigNode.ParseVector3(node.GetValue("CoM"));
@@ -183,18 +178,10 @@ namespace AtHangar
 
 	public class LaunchedVessel : VesselWaiter
 	{
-		readonly List<ProtoCrewMember> crew;
 		readonly StoredVessel sv;
 
-		public LaunchedVessel(StoredVessel sv, Vessel vsl, List<ProtoCrewMember> crew)
-			: base(vsl)
-		{
-			this.sv = sv;
-			this.crew = crew;
-		}
-
-		public void transferCrew() 
-		{ CrewTransfer.addCrew(vessel, crew); }
+		public LaunchedVessel(StoredVessel sv)
+			: base(sv.launched_vessel) { this.sv = sv; }
 
 		public void tunePosition()
 		{

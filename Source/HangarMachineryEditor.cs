@@ -9,7 +9,6 @@ namespace AtHangar
 		const int windows_width = 400;
 		const string eLock  = "Hangar.EditHangar";
 		const string scLock = "Hangar.LoadShipConstruct";
-		static readonly List<string> vessel_dirs = new List<string>{"VAB", "SPH", "../Subassemblies"};
 		enum EditorWindows { EditContent, EditName, RelocateVessels }
 		readonly Multiplexer<EditorWindows> selected_window = new Multiplexer<EditorWindows>();
 
@@ -20,7 +19,7 @@ namespace AtHangar
 
 		readonly VesselTransferWindow vessels_window = new VesselTransferWindow();
 		CraftBrowser vessel_selector;
-		VesselType   vessel_type;
+		EditorFacility facility;
 
 
 		IEnumerator<YieldInstruction> delayed_try_store_construct(PackedConstruct pc)
@@ -72,28 +71,18 @@ namespace AtHangar
 		{
 			GUILayout.BeginVertical();
 			GUILayout.BeginHorizontal();
-			//VAB / SPH / SubAss selection
-			GUILayout.FlexibleSpace();
-			for(var T = VesselType.VAB; T <= VesselType.SubAssembly; T++)
-			{ if(GUILayout.Toggle(vessel_type == T, T.ToString(), GUILayout.Width(100))) vessel_type = T; }
-			GUILayout.FlexibleSpace();
 			//Vessel selector
 			if(GUILayout.Button("Select Vessel", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
 				var sWindowPos  = new Rect(eWindowPos) { height = 500 };
-				var  diff  = HighLogic.CurrentGame.Parameters.Difficulty;
-				bool stock = diff.AllowStockVessels;
-				if(vessel_type == VesselType.SubAssembly) diff.AllowStockVessels = false;
 				vessel_selector = 
 					new CraftBrowser(sWindowPos, 
-						EditorFacility.VAB,
+						facility,
 						HighLogic.SaveFolder, "Select a ship to store",
 						vessel_selected,
 						selection_canceled,
 						HighLogic.Skin,
 						EditorLogic.ShipFileImage, true);
-				vessel_selector.craftSubfolder = vessel_dirs[(int)vessel_type];
-				diff.AllowStockVessels = stock;
 			}
 			GUILayout.EndHorizontal();
 			//hangar info
