@@ -45,8 +45,9 @@ namespace AtHangar
 			}
 			if(selected != null)
 			{
-				selected.part.SetHighlightColor(selected_color);
+				selected.part.highlightType = Part.HighlightType.AlwaysOn;
 				selected.part.SetHighlight(true, false);
+				selected.part.SetHighlightColor(selected_color);
 			}
 			GUILayout.EndVertical();
 			GUILayout.EndScrollView();
