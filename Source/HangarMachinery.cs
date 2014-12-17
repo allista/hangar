@@ -196,7 +196,7 @@ namespace AtHangar
 		{
 			//set vessel type
 			EditorLogic el = EditorLogic.fetch;
-			if(el != null) vessel_type = el.editorType == EditorLogic.EditorMode.SPH ? VesselType.SPH : VesselType.VAB;
+			if(el != null) facility = el.ship.shipFacility;
 			//setup hangar name
 			if(HangarName == "_none_") HangarName = part.Title();
 			//initialize resources
@@ -339,6 +339,14 @@ namespace AtHangar
 			probed_vessels.Clear();
 		}
 
+		static IEnumerator<YieldInstruction> delayed_spawn_crew(Vessel vsl)
+		{
+			var v = new VesselWaiter(vsl);
+			while(!v.loaded) yield return null;
+			yield return new WaitForSeconds(0.5f);
+			vsl.SpawnCrew();
+		}
+
 		/// <summary>
 		/// Process a vessel that triggered the hangar.
 		/// </summary>
@@ -380,6 +388,7 @@ namespace AtHangar
 			//destroy vessel
 			vsl.Die();
 			ScreenMessager.showMessage("\"{0}\" has been docked inside the hangar", stored_vessel.name);
+			StartCoroutine(delayed_spawn_crew(vessel));
 		}
 
 		//called every frame while part collider is touching the trigger
@@ -471,9 +480,9 @@ namespace AtHangar
 				//calculate launch offset from vessel bounds
 				//set vessel's position
 				vpos = Vector3d.zero+launch_transform.position+get_vessel_offset(sv);
-				pv.longitude  = vessel.mainBody.GetLongitude(vpos);
-				pv.latitude   = vessel.mainBody.GetLatitude(vpos);
-				pv.altitude   = vessel.mainBody.GetAltitude(vpos);
+				pv.longitude = vessel.mainBody.GetLongitude(vpos);
+				pv.latitude  = vessel.mainBody.GetLatitude(vpos);
+				pv.altitude  = vessel.mainBody.GetAltitude(vpos);
 			}
 		}
 
@@ -482,12 +491,6 @@ namespace AtHangar
 		{
 			while(!lv.loaded) yield return null;
 			lv.tunePosition();
-			lv.transferCrew();
-			//it seems you must give KSP a moment to sort it all out,
-			//so delay the remaining steps of the transfer process. 
-			//(from the CrewManifest: https://github.com/sarbian/CrewManifest/blob/master/CrewManifest/ManifestController.cs)
-			yield return new WaitForSeconds(0.25f);
-			lv.vessel.SpawnCrew();
 			Destroy(sentinel);
 		}
 
@@ -616,7 +619,7 @@ namespace AtHangar
 			}
 			ScreenMessager.showMessage("Launching \"{0}\"...", stored_vessel.name);
 			//switch hangar state
-			hangar_state = HangarState.Inactive;
+			Deactivate();
 			//transfer resources
 			transferResources(stored_vessel);
 			//set restored vessel orbit
@@ -624,16 +627,17 @@ namespace AtHangar
 			position_vessel(stored_vessel);
 			//restore vessel
 			stored_vessel.Load();
-			//get restored vessel from the world
-			launched_vessel = stored_vessel.launched_vessel;
 			//transfer crew back to the launched vessel
 			List<ProtoCrewMember> crew_to_transfer = CrewTransfer.delCrew(vessel, stored_vessel.crew);
+			CrewTransfer.addCrew(stored_vessel.vessel, crew_to_transfer);
 			//switch to restored vessel
 			//:set launched vessel's state to flight
 			// otherwise launched rovers are sometimes stuck to the ground despite of the launch_transform
+			//get restored vessel from the world
+			launched_vessel = stored_vessel.launched_vessel;
 			launched_vessel.Splashed = launched_vessel.Landed = false; 
 			FlightGlobals.ForceSetActiveVessel(launched_vessel);
-			SetupVessel(new LaunchedVessel(stored_vessel, launched_vessel, crew_to_transfer));
+			SetupVessel(new LaunchedVessel(stored_vessel));
 		}
 		#endregion
 

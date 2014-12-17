@@ -72,7 +72,7 @@ namespace AtHangar
 			return info;
 		}
 
-		public float GetModuleCost() 
+		public float GetModuleCost(float default_cost) 
 		{ 
 			return current_resource == null? 0f 
 					: (float)current_resource.maxAmount*current_resource.info.unitCost;

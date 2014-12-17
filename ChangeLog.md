@@ -5,8 +5,20 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###ChangeLog###
 
+* **v2.0.1**
+    * **Compatible with KSP-0.90.** 
+    * _But incompatible with KSP-0.25._
+    * Added custom configuration for Advanced Texture Manager.
+    * **Removed VAB/SPH/Subassembly choice** from the Hangar Contents Editor window. Unfortunately 0.90 API does not allow to set the directory for the Craft Browser window anymore. So now only VAB and SPH lists are available; **it's impossible to store Subassemblies in a hangar.**
+    * Fixed several bugs resulted from the 0.90 API changes.
+    * Fixed internal docking port checks in Inline Hangars and Spaceport.
+    * Improved memory usage (a little):
+        * Unified docking port models for Inline Hangars, Spaceport and Resizable Docking Port.
+            * **NOTE:** to allow crew transfer the Inline Hangar now has **size 1** docking port, not size 0.
+        * Some textures were merged, and some resized.
+        
 
-* **v2.0.0**
+* v2.0.0
     * Lowered drag of the Habitable Inline Hangar a little (rounded ends should count for something).
     * Wrote a proper [**documentation**](https://github.com/allista/hangar/wiki).
     

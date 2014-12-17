@@ -173,7 +173,7 @@ namespace AtHangar
 						foreach(var s in selected_hangar.ConnectedStorage)
 						{
 							s.part.SetHighlightColor(HangarGUI.UsedVolumeColor(s));
-							s.part.SetHighlight(true);
+							s.part.SetHighlight(true, false);
 						}
 					else if(highlight_storage == HighlightState.Disable)
 					{
@@ -186,7 +186,7 @@ namespace AtHangar
 				if(enabled && highlight_hangar == HighlightState.Enable) 
 				{
 					selected_hangar.part.SetHighlightColor(XKCDColors.LightSeaGreen);
-					selected_hangar.part.SetHighlight(true);
+					selected_hangar.part.SetHighlight(true, false);
 				} 
 				else if(highlight_hangar == HighlightState.Disable)
 				{
@@ -587,7 +587,7 @@ namespace AtHangar
 		void DrawPoints()
 		{
 			if(vessel_metric.Empty) return;
-			if(EditorLogic.fetch != null)
+			if(HighLogic.LoadedSceneIsEditor)
 			{
 				List<Part> parts;
 				try { parts = EditorLogic.SortedShipList; }

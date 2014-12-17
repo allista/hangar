@@ -49,7 +49,7 @@ namespace AtHangar
 		protected override Vector3 get_vessel_offset(StoredVessel sv)
 		{
 			return vessel.LandedOrSplashed ? 
-				launch_transform.TransformDirection(-sv.CoG - Vector3.up*sv.size.y) : 
+				launch_transform.TransformDirection(-sv.CoG + Vector3.up*sv.size.y/2) : 
 				launch_transform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.size.y/2);
 		}
 	}
