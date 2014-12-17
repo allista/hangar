@@ -587,7 +587,7 @@ namespace AtHangar
 		void DrawPoints()
 		{
 			if(vessel_metric.Empty) return;
-			if(EditorLogic.fetch != null)
+			if(HighLogic.LoadedSceneIsEditor)
 			{
 				List<Part> parts;
 				try { parts = EditorLogic.SortedShipList; }
