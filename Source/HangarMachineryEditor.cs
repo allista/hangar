@@ -144,7 +144,7 @@ namespace AtHangar
 					Utils.LockIfMouseOver(eLock, eWindowPos);
 					eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
 						hangar_content_editor,
-						"Choose vessel type",
+						"Hangar Contents Editor",
 						GUILayout.Width(windows_width));
 					HangarGUI.CheckRect(ref eWindowPos);
 				}
