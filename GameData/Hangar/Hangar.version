@@ -7,19 +7,19 @@
      {
          "MAJOR":2
          "MINOR":0
-         "PATCH":0
+         "PATCH":1
          "BUILD":0
      }
     "KSP_VERSION_MIN":
      {
          "MAJOR":0
-         "MINOR":25
+         "MINOR":90
          "PATCH":0
      }
     "KSP_VERSION_MAX":
      {
          "MAJOR":0
-         "MINOR":25
+         "MINOR":90
          "PATCH":0
      }
 }
