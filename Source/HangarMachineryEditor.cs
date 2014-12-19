@@ -28,7 +28,7 @@ namespace AtHangar
 			Utils.LockEditor(scLock);
 			for(int i = 0; i < 3; i++)
 				yield return new WaitForEndOfFrame();
-			pc.UpdateMetric(compute_hull);
+			pc.UpdateMetric(Storage.ComputeHull);
 			try_store_vessel(pc);
 			pc.UnloadConstruct();
 			Utils.LockEditor(scLock, false);

@@ -7,8 +7,6 @@ namespace AtHangar
 	{
 		HangarPassage entrance;
 
-		protected override bool compute_hull { get { return false; } }
-
 		protected override List<HangarPassage> get_connected_passages()
 		{ return entrance == null ? null : entrance.ConnectedPassages(); }
 
@@ -34,7 +32,7 @@ namespace AtHangar
 			entrance = part.GetPassage();
 		}
 
-		protected override bool can_store_vessel(PackedVessel v)
+		protected override bool try_store_vessel(PackedVessel v)
 		{
 			if(!entrance.CanTransferTo(v, Storage))
 			{
@@ -43,6 +41,7 @@ namespace AtHangar
 					"\"{0}\" cannot be stored", v.name);
 				return false;
 			}
+			Storage.StoreVessel(v);
 			return true;
 		}
 

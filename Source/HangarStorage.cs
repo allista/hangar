@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +15,12 @@ namespace AtHangar
 		[KSPField(isPersistant = true)] public float base_mass = -1f;
 		public Metric PartMetric { get; protected set; }
 		public Metric HangarMetric { get; protected set; }
+
+		//hangar space
+		[KSPField (isPersistant = false)] public bool UseHangarSpaceMesh;
+		MeshFilter hangar_space;
+		public virtual bool ComputeHull { get { return hangar_space != null; } }
+		public Func<Transform> GetSpawnTransform;
 
 		//vessels storage
 		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
@@ -76,6 +83,8 @@ namespace AtHangar
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
+			if(UseHangarSpaceMesh && HangarSpace != string.Empty)
+				hangar_space = part.FindModelComponent<MeshFilter>(HangarSpace);
 			build_storage_checklist();
 		}
 
@@ -89,6 +98,18 @@ namespace AtHangar
 			//if hangar metric is not provided, derive it from part metric
 			if(HangarMetric.Empty) HangarMetric = PartMetric*UsefulSizeRatio;
 		}
+
+		public bool VesselFits(PackedVessel v)
+		{
+			if(GetSpawnTransform == null) return true;
+			var	position = GetSpawnTransform();
+			return hangar_space == null ? 
+				v.metric.FitsAligned(position, part.partTransform, HangarMetric) : 
+				v.metric.FitsAligned(position, hangar_space.transform, hangar_space.sharedMesh);
+		}
+
+		void try_repack_construct(PackedConstruct pc)
+		{ if(VesselFits(pc)) packed_constructs.TryAdd(pc); }
 
 		public override void Setup(bool reset = false)
 		{
@@ -105,10 +126,13 @@ namespace AtHangar
 			{   //if resetting, try to repack vessels on resize
 				var constructs = packed_constructs.Values;
 				packed_constructs.Clear();
-				constructs.ForEach(pc => packed_constructs.TryAdd(pc));
+				constructs.ForEach(try_repack_construct);
 				if(constructs.Count > packed_constructs.Count)
-					ScreenMessager.showMessage("The storage became too small. Some {0} vessels were removed", 
-						constructs.Count-packed_constructs.Count);
+				{
+					var dN = constructs.Count-packed_constructs.Count;
+					ScreenMessager.showMessage("The storage became too small. {0} vessels {1} removed", 
+						dN, dN > 1? "were" : "was");
+				}
 			}
 			//then set other part parameters
 			set_part_params(reset);
@@ -167,6 +191,7 @@ namespace AtHangar
 		#region Logistics
 		public override bool CanHold(PackedVessel vsl)
 		{
+			if(!VesselFits(vsl)) return false;
 			var pc = vsl as PackedConstruct;
 			if(pc != null) return packed_constructs.CanAdd(pc);
 			var sv = vsl as StoredVessel;
@@ -178,7 +203,7 @@ namespace AtHangar
 		{
 			if(!CanTransferTo(vsl, other)) 
 			{
-				ScreenMessager.showMessage("Unable to move \"{0}\" from {1} to {2}",
+				ScreenMessager.showMessage("Unable to move \"{0}\" from \"{1}\" to \"{2}\"",
 					vsl.name, this.Title(), other.Title());
 				return false;
 			}
@@ -217,6 +242,12 @@ namespace AtHangar
 
 		public virtual bool TryStoreVessel(PackedVessel v)
 		{
+			if(!VesselFits(v))
+			{
+				ScreenMessager.showMessage(5, "Insufficient vessel clearance for safe docking\n" +
+					"\"{0}\" cannot be stored", v.name);
+				return false;
+			}
 			bool stored = false;
 			var pc = v as PackedConstruct;
 			var sv = v as StoredVessel;

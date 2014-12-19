@@ -61,13 +61,11 @@ namespace AtHangar
 		public float TotalUsedVolumeFrac
 		{ get { return TotalUsedVolume/TotalVolume; } }
 		public bool CanRelocate
-		{ get { return ConnectedStorage.Count > 1 && TotalVesselsDocked > 0; } }
+		{ get { return ConnectedStorage.Count > 1; } }
 		#endregion
 
 		#region Machinery
 		public Metric PartMetric { get; private set; }
-
-		protected abstract bool compute_hull { get; }
 
 		protected BaseHangarAnimator hangar_gates;
 		public AnimatorState gates_state { get { return hangar_gates.State; } }
@@ -314,10 +312,8 @@ namespace AtHangar
 			return true;
 		}
 
-		protected abstract bool can_store_vessel(PackedVessel v);
-
-		bool try_store_vessel(PackedVessel v)
-		{ return can_store_vessel(v) && Storage.TryStoreVessel(v); }
+		protected virtual bool try_store_vessel(PackedVessel v)
+		{ return Storage.TryStoreVessel(v); }
 
 		StoredVessel try_store_vessel(Vessel vsl)
 		{
@@ -328,7 +324,7 @@ namespace AtHangar
 				return null;
 			}
 			//check vessel metrics
-			var sv = new StoredVessel(vsl, compute_hull);
+			var sv = new StoredVessel(vsl, Storage.ComputeHull);
 			return try_store_vessel(sv) ? sv : null;
 		}
 
