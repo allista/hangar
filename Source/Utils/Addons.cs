@@ -112,8 +112,10 @@ namespace AtHangar
 		void Awake()
 		{ GameEvents.onGUIEditorToolbarReady.Add(add_filter); }
 
-		static bool has_hangar(string module_name)
+		static bool is_hangar(string module_name)
 		{
+			module_name = string.Join("", module_name.Split());
+			Utils.Log("HangarFilterManager.has_hangar: {0}", module_name);
 			if(module_name == typeof(Hangar).Name) return true;
 			if(module_name == typeof(HangarGateway).Name) return true;
 			if(module_name == typeof(HangarStorage).Name) return true;
@@ -138,11 +140,11 @@ namespace AtHangar
 			var filter = PartCategorizer.Instance.filters
 				.Find(f => f.button.categoryName == "Filter by Function");
 			PartCategorizer.AddCustomSubcategoryFilter(filter, CATEGORY, icon, 
-				p => p.moduleInfos.Any(m => has_hangar(m.moduleName)));
+				p => p.moduleInfos.Any(m => is_hangar(m.moduleName)));
 			//set icon(s) for all the modules
 			PartCategorizer.Instance.filters
 				.Find(f => f.button.categoryName == "Filter by Module")
-				.subcategories.FindAll(s => has_hangar(string.Join("", s.button.categoryName.Split())))
+				.subcategories.FindAll(s => is_hangar(s.button.categoryName))
 				.ForEach(c => c.button.SetIcon(icon));
 			//Apparently needed to make sure the icon actually shows at first
 			var button = filter.button.activeButton;
