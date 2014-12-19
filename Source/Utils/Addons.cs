@@ -115,7 +115,6 @@ namespace AtHangar
 		static bool is_hangar(string module_name)
 		{
 			module_name = string.Join("", module_name.Split());
-			Utils.Log("HangarFilterManager.has_hangar: {0}", module_name);
 			if(module_name == typeof(Hangar).Name) return true;
 			if(module_name == typeof(HangarGateway).Name) return true;
 			if(module_name == typeof(HangarStorage).Name) return true;
