@@ -127,6 +127,7 @@
     <Compile Include="AsteroidHangars\SwitchableTankManager.cs" />
     <Compile Include="AsteroidHangars\HangarTankManager.cs" />
     <Compile Include="HangarContract.cs" />
+    <Compile Include="AuxModules\HangarAirbrake.cs" />
     <Compile Include="LimitedHangarStorage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
