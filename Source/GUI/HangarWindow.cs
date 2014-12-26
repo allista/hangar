@@ -283,7 +283,7 @@ namespace AtHangar
 		void CrewTransferButton()
 		{
 			if(selected_vessel == null) return;
-			if(selected_hangar.NoTransfers) return;
+			if(selected_hangar.NoCrewTransfers) return;
 			if(GUILayout.Button("Change Vessel Crew", GUILayout.ExpandWidth(true)))
 				selected_window.Toggle(TransferWindows.SelectCrew);
 		}
@@ -291,7 +291,7 @@ namespace AtHangar
 		void ResourcesTransferButton()
 		{
 			if(selected_vessel == null) return;
-			if(selected_hangar.NoTransfers) return;
+			if(selected_hangar.NoResourceTransfers) return;
 			if(GUILayout.Button("Transfer Resources", GUILayout.ExpandWidth(true)))
 				selected_window.Toggle(TransferWindows.TransferResources);
 		}
