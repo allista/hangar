@@ -441,6 +441,7 @@ namespace AtHangar
 			//state
 			pv.splashed = vessel.Landed;
 			pv.landed   = vessel.Splashed;
+			pv.landedAt = vessel.landedAt;
 			//rotation
 			//it is essential to use BackupVessel() instead of vessel.protoVessel, 
 			//because in general the latter does not store the current flight state of the vessel
