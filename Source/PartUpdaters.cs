@@ -395,7 +395,7 @@ namespace AtHangar
 		{
 			module.minThrust = base_module.minThrust * scale.absolute.quad;
 			module.maxThrust = base_module.maxThrust * scale.absolute.quad;
-			module.heatProduction = base_module.heatProduction * scale.absolute;
+//			module.heatProduction = base_module.heatProduction * scale.absolute;
 		}
 	}
 
@@ -418,7 +418,7 @@ namespace AtHangar
 		{
 			module.minThrust = base_module.minThrust * scale.absolute.quad;
 			module.maxThrust = base_module.maxThrust * scale.absolute.quad;
-			module.heatProduction = base_module.heatProduction * scale.absolute;
+//			module.heatProduction = base_module.heatProduction * scale.absolute;
 		}
 	}
 }
