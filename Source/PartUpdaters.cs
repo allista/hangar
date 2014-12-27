@@ -375,4 +375,50 @@ namespace AtHangar
 			module.UpdateLights(); 
 		}
 	}
+
+	public class EngineUpdater : ModuleUpdater<ModuleEngines>
+	{
+		[KSPField(isPersistant=false, guiActiveEditor=true, guiActive=false, guiName="Max. Thrust")]
+		public string thrustDisplay;
+
+		string all_thrusts() 
+		{ 
+			return modules
+				.Aggregate("", (s, mp) => s+mp.module.maxThrust + ", ")
+				.Trim(", ".ToCharArray()); 
+		}
+
+		public override void OnStart(StartState state) { base.OnStart(state); thrustDisplay = all_thrusts(); }
+		public override void OnRescale(Scale scale)	{ base.OnRescale(scale); thrustDisplay = all_thrusts(); }
+
+		protected override void on_rescale(ModuleEngines module, ModuleEngines base_module, Scale scale)
+		{
+			module.minThrust = base_module.minThrust * scale.absolute.quad;
+			module.maxThrust = base_module.maxThrust * scale.absolute.quad;
+			module.heatProduction = base_module.heatProduction * scale.absolute;
+		}
+	}
+
+	public class EngineFXUpdater : ModuleUpdater<ModuleEnginesFX>
+	{
+		[KSPField(isPersistant=false, guiActiveEditor=true, guiActive=false, guiName="Max. Thrust")]
+		public string thrustDisplay;
+
+		string all_thrusts() 
+		{ 
+			return modules
+				.Aggregate("", (s, mp) => s+mp.module.maxThrust + ", ")
+				.Trim(", ".ToCharArray()); 
+		}
+
+		public override void OnStart(StartState state) { base.OnStart(state); thrustDisplay = all_thrusts(); }
+		public override void OnRescale(Scale scale)	{ base.OnRescale(scale); thrustDisplay = all_thrusts(); }
+
+		protected override void on_rescale(ModuleEnginesFX module, ModuleEnginesFX base_module, Scale scale)
+		{
+			module.minThrust = base_module.minThrust * scale.absolute.quad;
+			module.maxThrust = base_module.maxThrust * scale.absolute.quad;
+			module.heatProduction = base_module.heatProduction * scale.absolute;
+		}
+	}
 }
