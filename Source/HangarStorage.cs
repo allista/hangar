@@ -287,7 +287,7 @@ namespace AtHangar
 				}
 				ShipConstruction.PutShipToGround(pc.construct, part.transform);
 				ShipConstruction.AssembleForLaunch(pc.construct, 
-					vessel.vesselName, pc.flag, 
+					vessel.landedAt, pc.flag, 
 					FlightDriver.FlightStateCache,
 					new VesselCrewManifest());
 				var vsl = new VesselWaiter(FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1]);
