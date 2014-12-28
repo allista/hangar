@@ -55,6 +55,10 @@ Many of the hangars have plenty of modules (like batteries, command modules, fue
     * Dropdown lists show vertical scrollbars when there are too many items. But due to the implemented click-through prevention mechanism the scrollbars cannot be moved by mouse cursor; use mouse wheel instead. _And curse Unity3D for the poor GUI API._
 * Rovers:
     * Rovers stored **in editor** have somewhat smaller dimensions due to inactive suspension of the wheels. So if you pack several rovers **tightly** into a hangar, and than launch one of them, the launched rover sometimes cannot be stored again into that same hangar with the "No room ..." message. Again: it's no bug, calculations are performed correctly, the rover's just got bigger.
+* Mod Conflicts:
+    * **ScienceAlert** (v1.8.2 and v1.8.3) causes ships stored in VAB/SPH to disappear upon launch.
+* Other:
+    * Installation with **CKAN** causes Hangar (among several other mods) to fail on dll loading. The reason is that CKAN removes KSPAPIExtensions.dll from Hangar/Plugins folder. Placing this dll back there fixes the installation.
 
 ###Requirements
 
