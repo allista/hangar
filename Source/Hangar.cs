@@ -7,10 +7,6 @@ namespace AtHangar
 	{
 		public ConfigNode ModuleConfig;
 
-		[KSPField (isPersistant = false)] public bool UseHangarSpaceMesh = false;
-		MeshFilter hangar_space;
-		protected override bool compute_hull { get { return hangar_space != null; } }
-
 		protected override List<HangarPassage> get_connected_passages()
 		{ return Storage == null ? null : Storage.ConnectedPassages(); }
 
@@ -30,28 +26,8 @@ namespace AtHangar
 				Storage.OnLoad(ModuleConfig);
 				Storage.Setup();
 			}
+			Storage.GetSpawnTransform += GetLaunchTransform;
 			//****************************//
-			if(UseHangarSpaceMesh && Storage.HangarSpace != string.Empty)
-				hangar_space = part.FindModelComponent<MeshFilter>(Storage.HangarSpace);
-		}
-
-		bool metric_fits_into_hangar_space(Metric m)
-		{
-			GetLaunchTransform();
-			return hangar_space == null ? 
-				m.FitsAligned(launch_transform, part.partTransform, Storage.HangarMetric) : 
-				m.FitsAligned(launch_transform, hangar_space.transform, hangar_space.sharedMesh);
-		}
-
-		protected override bool can_store_vessel(PackedVessel v)
-		{
-			if(!metric_fits_into_hangar_space(v.metric))
-			{
-				ScreenMessager.showMessage(5, "Insufficient vessel clearance for safe docking\n" +
-					"\"{0}\" cannot be stored in this hangar", v.name);
-				return false;
-			}
-			return true;
 		}
 
 		protected override Vector3 get_vessel_offset(StoredVessel sv)

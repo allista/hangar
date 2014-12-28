@@ -28,7 +28,7 @@ namespace AtHangar
 			Utils.LockEditor(scLock);
 			for(int i = 0; i < 3; i++)
 				yield return new WaitForEndOfFrame();
-			pc.UpdateMetric(compute_hull);
+			pc.UpdateMetric(Storage.ComputeHull);
 			try_store_vessel(pc);
 			pc.UnloadConstruct();
 			Utils.LockEditor(scLock, false);
@@ -144,7 +144,7 @@ namespace AtHangar
 					Utils.LockIfMouseOver(eLock, eWindowPos);
 					eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
 						hangar_content_editor,
-						"Choose vessel type",
+						"Hangar Contents Editor",
 						GUILayout.Width(windows_width));
 					HangarGUI.CheckRect(ref eWindowPos);
 				}
