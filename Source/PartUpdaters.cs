@@ -170,15 +170,68 @@ namespace AtHangar
 		public override void OnRescale(Scale scale)
 		{
 			//change breaking forces (if not defined in the config, set to a reasonable default)
-			if(base_part.breakingForce == 22f) part.breakingForce = 32.0f * scale.absolute.quad; //taken from TweakScale
-			else part.breakingForce = base_part.breakingForce * scale.absolute.quad;
-			if (part.breakingForce < 22f) part.breakingForce = 22f;
-			if(base_part.breakingTorque == 22f) part.breakingTorque = 32.0f * scale.absolute.quad;
-			else part.breakingTorque = base_part.breakingTorque * scale.absolute.quad;
-			if(part.breakingTorque < 22f) part.breakingTorque = 22f;
+			part.breakingForce  = Mathf.Max(22f, base_part.breakingForce * scale.absolute.quad);
+			part.breakingTorque = Mathf.Max(22f, base_part.breakingTorque * scale.absolute.quad);
 			//change other properties
 			part.buoyancy = base_part.buoyancy * scale.absolute.cube * scale.absolute.aspect;
 			part.explosionPotential = base_part.explosionPotential * scale.absolute.cube * scale.absolute.aspect;
+		}
+	}
+
+	/// <summary>
+	/// Emitter updater. Adapted from TweakScale.
+	/// </summary>
+	public class EmitterUpdater : PartUpdater
+	{
+		struct EmitterData
+		{
+			public readonly float MinSize, MaxSize, Shape1D;
+			public readonly Vector2 Shape2D;
+			public readonly Vector3 Shape3D, LocalVelocity, Force;
+			public EmitterData(KSPParticleEmitter pe)
+			{
+				MinSize = pe.minSize;
+				MaxSize = pe.maxSize;
+				Shape1D = pe.shape1D;
+				Shape2D = pe.shape2D;
+				Shape3D = pe.shape3D;
+				Force   = pe.force;
+				LocalVelocity = pe.localVelocity;
+			}
+		}
+
+		Scale scale;
+		readonly Dictionary<KSPParticleEmitter, EmitterData> orig_scales = new Dictionary<KSPParticleEmitter, EmitterData>();
+
+		void UpdateParticleEmitter(KSPParticleEmitter pe)
+		{
+			if(pe == null) return;
+			if(!orig_scales.ContainsKey(pe))
+				orig_scales[pe] = new EmitterData(pe);
+			var ed = orig_scales[pe];
+			pe.minSize = ed.MinSize * scale;
+			pe.maxSize = ed.MaxSize * scale;
+			pe.shape1D = ed.Shape1D * scale;
+			pe.shape2D = ed.Shape2D * scale;
+			pe.shape3D = ed.Shape3D * scale;
+			pe.force   = ed.Force   * scale;
+			pe.localVelocity = ed.LocalVelocity * scale;
+		}
+
+		public override void OnUpdate()
+		{
+			if(scale == null) return;
+			var emitters = part.gameObject.GetComponentsInChildren<KSPParticleEmitter>();
+			if(emitters == null) return;
+			emitters.ForEach(UpdateParticleEmitter);
+			scale = null;
+		}
+
+		public override void OnRescale(Scale scale)
+		{
+			if(!part.GetComponents<EffectBehaviour>()
+				.Any(e => e is ModelMultiParticleFX || e is ModelParticleFX)) return;
+			this.scale = scale;
 		}
 	}
 
@@ -420,5 +473,11 @@ namespace AtHangar
 			module.maxThrust = base_module.maxThrust * scale.absolute.quad;
 //			module.heatProduction = base_module.heatProduction * scale.absolute;
 		}
+	}
+
+	public class ResourceIntakeUpdater : ModuleUpdater<ModuleResourceIntake>
+	{
+		protected override void on_rescale(ModuleResourceIntake module, ModuleResourceIntake base_module, Scale scale)
+		{ module.area = base_module.area * scale.absolute.quad; }
 	}
 }
