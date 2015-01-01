@@ -100,6 +100,15 @@ namespace AtHangar
 
 		public void Reset() { sw.Stop(); sw.Reset(); }
 	}
+
+	public class TemperatureReporter : PartModule
+	{
+		[KSPField(isPersistant=false, guiActiveEditor=true, guiActive=true, guiName="T", guiUnits = "C")]
+		public string temperatureDisplay; //debug
+
+		public override void OnUpdate() //debug
+		{ temperatureDisplay = part.temperature.ToString(); }
+	}
 }
 #endif
 
