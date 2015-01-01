@@ -104,9 +104,9 @@ namespace AtHangar
 	public class TemperatureReporter : PartModule
 	{
 		[KSPField(isPersistant=false, guiActiveEditor=true, guiActive=true, guiName="T", guiUnits = "C")]
-		public string temperatureDisplay; //debug
+		public string temperatureDisplay;
 
-		public override void OnUpdate() //debug
+		public override void OnUpdate()
 		{ temperatureDisplay = part.temperature.ToString(); }
 	}
 }
