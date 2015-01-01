@@ -243,7 +243,7 @@ if __name__ == '__main__':
     rad_sabre  = part('RadialSabre', 
                      [volume(3.727, 'hull', C=200, D=0.02,
                              S=surface(26.07, 0.003, Al_Li),
-                             V=[volume(3, 'engines', M=1.3, C=4000)])])
+                             V=[volume(3, 'engines', M=1.3, C=8000)])])
     
     sys.exit()
     
