@@ -218,7 +218,7 @@ namespace AtHangar
 			eWindowPos = configfile.GetValue<Rect>(mangleName("eWindowPos"), eWindowPos);
 			cWindowPos = configfile.GetValue<Rect>(mangleName("cWindowPos"), cWindowPos);
 			rWindowPos = configfile.GetValue<Rect>(mangleName("rWindowPos"), rWindowPos);
-			vWindowPos = configfile.GetValue<Rect>(mangleName("rWindowPos"), vWindowPos);
+			vWindowPos = configfile.GetValue<Rect>(mangleName("vWindowPos"), vWindowPos);
 			hangar_id  = configfile.GetValue<uint>(mangleName("hangar_id"),  default(uint));
 			vessel_id  = configfile.GetValue<Guid>(mangleName("vessel_id"),  Guid.Empty);
 		}
@@ -229,7 +229,7 @@ namespace AtHangar
 			configfile.SetValue(mangleName("eWindowPos"), eWindowPos);
 			configfile.SetValue(mangleName("cWindowPos"), cWindowPos);
 			configfile.SetValue(mangleName("rWindowPos"), rWindowPos);
-			configfile.SetValue(mangleName("rWindowPos"), vWindowPos);
+			configfile.SetValue(mangleName("vWindowPos"), vWindowPos);
 			configfile.SetValue(mangleName("hangar_id"), hangar_id);
 			configfile.SetValue(mangleName("vessel_id"), vessel_id);
 			base.SaveSettings();
