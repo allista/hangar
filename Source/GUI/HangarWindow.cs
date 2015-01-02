@@ -213,25 +213,25 @@ namespace AtHangar
 		
 		public override void LoadSettings()
 		{
-			base.LoadSettings ();
-			fWindowPos = configfile.GetValue<Rect>(mangleName("fWindowPos"), fWindowPos);
-			eWindowPos = configfile.GetValue<Rect>(mangleName("eWindowPos"), eWindowPos);
-			cWindowPos = configfile.GetValue<Rect>(mangleName("cWindowPos"), cWindowPos);
-			rWindowPos = configfile.GetValue<Rect>(mangleName("rWindowPos"), rWindowPos);
-			vWindowPos = configfile.GetValue<Rect>(mangleName("vWindowPos"), vWindowPos);
-			hangar_id  = configfile.GetValue<uint>(mangleName("hangar_id"),  default(uint));
-			vessel_id  = configfile.GetValue<Guid>(mangleName("vessel_id"),  Guid.Empty);
+			base.LoadSettings();
+			fWindowPos = GetConfigValue<Rect>("fWindowPos", fWindowPos);
+			eWindowPos = GetConfigValue<Rect>("eWindowPos", eWindowPos);
+			cWindowPos = GetConfigValue<Rect>("cWindowPos", cWindowPos);
+			rWindowPos = GetConfigValue<Rect>("rWindowPos", rWindowPos);
+			vWindowPos = GetConfigValue<Rect>("vWindowPos", vWindowPos);
+			hangar_id  = GetConfigValue<uint>("hangar_id",  default(uint));
+			vessel_id  = GetConfigValue<Guid>("vessel_id",  Guid.Empty);
 		}
 		
 		public override void SaveSettings()
 		{
-			configfile.SetValue(mangleName("fWindowPos"), fWindowPos);
-			configfile.SetValue(mangleName("eWindowPos"), eWindowPos);
-			configfile.SetValue(mangleName("cWindowPos"), cWindowPos);
-			configfile.SetValue(mangleName("rWindowPos"), rWindowPos);
-			configfile.SetValue(mangleName("vWindowPos"), vWindowPos);
-			configfile.SetValue(mangleName("hangar_id"), hangar_id);
-			configfile.SetValue(mangleName("vessel_id"), vessel_id);
+			SetConfigValue("fWindowPos", fWindowPos);
+			SetConfigValue("eWindowPos", eWindowPos);
+			SetConfigValue("cWindowPos", cWindowPos);
+			SetConfigValue("rWindowPos", rWindowPos);
+			SetConfigValue("vWindowPos", vWindowPos);
+			SetConfigValue("hangar_id",  hangar_id);
+			SetConfigValue("vessel_id",  vessel_id);
 			base.SaveSettings();
 		}
 		
@@ -282,16 +282,18 @@ namespace AtHangar
 		
 		void CrewTransferButton()
 		{
-			if(selected_vessel == null) return;
-			if(selected_hangar.NoCrewTransfers) return;
+			if(selected_hangar.NoCrewTransfers ||
+				selected_vessel == null ||
+				selected_vessel.CrewCapacity == 0 ||
+				selected_hangar.vessel.GetCrewCount() == 0) return;
 			if(GUILayout.Button("Change Vessel Crew", GUILayout.ExpandWidth(true)))
 				selected_window.Toggle(TransferWindows.SelectCrew);
 		}
 		
 		void ResourcesTransferButton()
 		{
-			if(selected_vessel == null) return;
-			if(selected_hangar.NoResourceTransfers) return;
+			if(selected_hangar.NoResourceTransfers ||
+				selected_vessel == null) return;
 			if(GUILayout.Button("Transfer Resources", GUILayout.ExpandWidth(true)))
 				selected_window.Toggle(TransferWindows.TransferResources);
 		}
