@@ -11,9 +11,10 @@ namespace AtHangar
 		[KSPField] public float Volume;
 
 		/// <summary>
-		/// The cost fraction per additional tank.
+		/// The cost of a tank per total volume. 
+		/// Total tanks cost = tanks number - 1 * TanksCostPerVolume * Volume.
 		/// </summary>
-		[KSPField] public float CostPerTank = 0.1f;
+		[KSPField] public float TankCostPerVolume = 2f;
 
 		public ConfigNode ModuleSave;
 		#endregion
@@ -33,7 +34,7 @@ namespace AtHangar
 			}
 		}
 
-		public float GetModuleCost(float default_cost) { return additional_tanks_count * CostPerTank * default_cost; }
+		public float GetModuleCost(float default_cost) { return additional_tanks_count * TankCostPerVolume * Volume; }
 
 		public override string GetInfo()
 		{ 
@@ -47,8 +48,8 @@ namespace AtHangar
 					if(n.HasValue("CurrentResource")) info += ": "+n.GetValue("CurrentResource")+"\n";
 					else info += "\n";
 				}
-				var cost = GetModuleCost(part.partInfo.cost);
-				if(cost > 0) info += string.Format("Tanks Cost: {0}\n", cost);
+				var cost = GetModuleCost(0);
+				if(cost > 0) info += string.Format("Tanks Cost: +{0}\n", cost);
 			}
 			return info;
 		}
