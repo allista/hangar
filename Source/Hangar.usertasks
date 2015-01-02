@@ -1,6 +1,6 @@
 <ListOfTask>
-  <Task file="" description="Test mk2 conversions" />
-  <Task file="" description="Test mk3 conversions" />
+  <Task file="" description="Test mk2 conversions" completed="True" />
+  <Task file="" description="Test mk3 conversions" completed="True" />
   <Task file="" description="Test Mk3Hangar in flight: SSTO Kerbin + landing (max. cargo weight?)" />
   <Task file="" description="Test Mk3Hangar in flight: SSTO Mun + refueling || back (if possible); (max. cargo weight?)" />
   <Task file="" description="Test Mk3Hangar in flight: SSTS Mun + refueling || back (if possible); (max. cargo weight?)" />
