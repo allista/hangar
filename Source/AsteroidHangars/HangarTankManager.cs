@@ -2,12 +2,25 @@
 
 namespace AtHangar
 {
-	public class HangarTankManager : PartModule
+	public class HangarTankManager : PartModule, IPartCostModifier
 	{
 		[KSPField] public float Volume;
+		[KSPField] public float CostPerTank = 0.1f;
 
 		public ConfigNode ModuleSave;
 		SwitchableTankManager tank_manager;
+
+		int tanks_count 
+		{ 
+			get 
+			{
+				if(tank_manager != null) return tank_manager.TanksCount;
+				return ModuleSave.HasNode(SwitchableTankManager.TANK_NODE) ? 
+					ModuleSave.GetNodes(SwitchableTankManager.TANK_NODE).Length : 0;
+			}
+		}
+
+		public float GetModuleCost(float default_cost) { return tanks_count * CostPerTank * default_cost; }
 
 		public override string GetInfo()
 		{ 
@@ -17,10 +30,11 @@ namespace AtHangar
 				info += "Preconfigured Tanks:\n";
 				foreach(var n in ModuleSave.GetNodes(SwitchableTankManager.TANK_NODE))
 				{ 
-					if(n.HasValue("TankType")) info += " -"+n.GetValue("TankType"); 
-					if(n.HasValue("CurrentResource")) info += " -"+n.GetValue("CurrentResource")+"\n";
+					if(n.HasValue("TankType")) info += " - "+n.GetValue("TankType"); 
+					if(n.HasValue("CurrentResource")) info += ": "+n.GetValue("CurrentResource")+"\n";
 					else info += "\n";
 				}
+				info += string.Format("Tanks Cost: {0}\n", GetModuleCost(part.partInfo.cost));
 			}
 			return info;
 		}
