@@ -19,6 +19,13 @@ namespace AtHangar
 		ResourcePump metal_pump;
 		float max_side;
 
+		public override float GetModuleCost(float default_cost)
+		{
+			var cost = base.GetModuleCost(default_cost);
+			var res = PartResourceLibrary.Instance.GetDefinition(BuildTanksFrom);
+			return res == null ? cost : cost + TanksMass / res.density * res.unitCost;
+		}
+
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
