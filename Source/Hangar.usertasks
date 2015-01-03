@@ -6,4 +6,6 @@
   <Task file="" description="Test Mk3Hangar in flight: SSTS Mun + refueling || back (if possible); (max. cargo weight?)" />
   <Task file="" description="Test Mk3Hangar in flight: Kerbin, transcontinental; (max. cargo weight?)" />
   <Task file="" description="Test all the previous with AJE." />
+  <Task file="" description="Test hangars' bouyancy." />
+  <Task file="" description="Test Hangars as FAR CargoBays." />
 </ListOfTask>
