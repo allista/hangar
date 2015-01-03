@@ -44,6 +44,7 @@ Releases are available from:
 
 * [**GitHub**](https://github.com/allista/hangar/releases)
 * [**Kerbal Stuff**](https://kerbalstuff.com/mod/270/Hangar) (from v1.3.0)
+* [**CKAN**](https://github.com/KSP-CKAN/CKAN) is now **officially** supported
 
 There's also a [**Desaturated Texture Pack**](https://github.com/allista/hangar/releases/download/v2.0.0/DesaturatedTexturePack.zip) for those who prefer a more stock-like color scheme.
 
@@ -58,7 +59,7 @@ Many of the hangars have plenty of modules (like batteries, command modules, fue
 * Mod Conflicts:
     * **ScienceAlert** (v1.8.2 and v1.8.3) causes ships stored in VAB/SPH to disappear upon launch.
 * Other:
-    * Installation with **CKAN** causes Hangar (among several other mods) to fail on dll loading. The reason is that CKAN removes KSPAPIExtensions.dll from Hangar/Plugins folder. Placing this dll back there fixes the installation.
+    * Removing Hangar **in career** mode sometimes corrupts the savegame (the user cannot enter VAB/SPH and so on). This is due to a bug in KSP and should also affect any mod that has its own Agent for Contracts. To **fix** such savegame see [**this HOWTO**](https://github.com/allista/hangar/blob/master/SavegameFix-HOWTO.md)
 
 ###Requirements
 

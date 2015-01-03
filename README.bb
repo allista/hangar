@@ -43,15 +43,20 @@ Releases are available at:
 
 [SIZE=3][list]
 [*][url=https://github.com/allista/hangar/releases][b]GitHub[/b][/url] (including beta pre-releases)
-[*][url=https://kerbalstuff.com/mod/270/Hangar][b]Kerbal Stuff[/b][/url] (starting from v1.3.0)[/list]
-There's also a [url=https://github.com/allista/hangar/releases/download/v2.0.0/DesaturatedTexturePack.zip][b]Desaturated Texture Pack[/b][/url] for those who prefer a more stock-like color scheme.
+[*][url=https://kerbalstuff.com/mod/270/Hangar][b]Kerbal Stuff[/b][/url] (starting from v1.3.0)
+[*][url=https://github.com/KSP-CKAN/CKAN][b]CKAN[/b][/url] is now [U]officially[/U] supported[/list]
+There's also a [url=https://github.com/allista/hangar/releases/download/v2.0.1/DesaturatedTexturePack-v2.0.1.zip][b]Desaturated Texture Pack[/b][/url] for those who prefer a more stock-like color scheme.
 
 [B][COLOR=#006400]Before using a hangar, study the list of modules that are integrated into it (RMB on part's icon).[/COLOR][/B][/SIZE]
 Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating.
 
 [SIZE=3][b]Known Issues[/b][/SIZE]
 
-[list][*]GUI:[list]Dropdown lists show vertical scrollbars when there are too many items. But due to the implemented click-through prevention mechanism the scrollbars cannot be moved by mouse cursor; use mouse wheel instead. [i]And curse Unity3D for the poor GUI API.[/i][/list][*]Rovers:[list]Rovers stored [b]in editor[/b] have somewhat smaller dimensions due to inactive suspension of the wheels. So if you pack several rovers [b]tightly[/b] into a hangar, and than launch one of them, the launched rover sometimes cannot be stored again into that same hangar with the "No room ..." message. Again: it's no bug, calculations are performed correctly, the rover's just got bigger.[/list][/list]
+[list]
+[*]GUI:[list]Dropdown lists show vertical scrollbars when there are too many items. But due to the implemented click-through prevention mechanism the scrollbars cannot be moved by mouse cursor; use mouse wheel instead. [i]And curse Unity3D for the poor GUI API.[/i][/list]
+[*]Rovers:[list]Rovers stored [b]in editor[/b] have somewhat smaller dimensions due to inactive suspension of the wheels. So if you pack several rovers [b]tightly[/b] into a hangar, and than launch one of them, the launched rover sometimes cannot be stored again into that same hangar with the "No room ..." message. Again: it's no bug, calculations are performed correctly, the rover's just got bigger.[/list]
+[*]Mod Conflicts:[list][B]ScienceAlert[/B] (v1.8.2 and v1.8.3) causes ships stored in VAB/SPH to disappear upon launch.[/list]
+[*]Other:[list]Removing Hangar [B]in career[/B] mode sometimes corrupts the savegame (the user cannot enter VAB/SPH and so on). To fix such savegame see [URL="https://github.com/allista/hangar/blob/master/SavegameFix-HOWTO.md"][B]the HOWTO[/B][/URL].[/list][/list]
 [SIZE=3][b]Requirements[/b][/SIZE]
 
 [list][*]Hangar uses [url=http://forum.kerbalspaceprogram.com/threads/81496]KSPAPIExtensions[/url] by [url=http://forum.kerbalspaceprogram.com/members/100707-swamp_ig]swamp_ig[/url]. This plugin is bundled with the Hangar.[*]The [url=http://forum.kerbalspaceprogram.com/threads/55219]ModuleManager[/url] [b]is required[/b].[/list]
