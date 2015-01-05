@@ -245,6 +245,11 @@ if __name__ == '__main__':
                              S=surface(26.07, 0.003, Al_Li),
                              V=[volume(3, 'engines', M=1.3, C=8000)])])
     
+    rad_heavy  = part('RadialHeavyEngine', 
+                     [volume(1.46, 'hull', C=200, D=0.02,
+                             S=surface(10.75, 0.003, Al_Li),
+                             V=[volume(0.8, 'engines', M=0.95, C=2000)])])
+    
     sys.exit()
     
     #extensions
