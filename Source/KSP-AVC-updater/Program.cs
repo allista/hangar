@@ -11,12 +11,12 @@ namespace KSPAVCupdater
 			{
 			file.WriteLine(
 @"{{ 
-    ""NAME"":""Hangar"",
-    ""URL"":""{0}"",
-    ""DOWNLOAD"":""{1}"",
-    ""CHANGE_LOG_URL"":""{2}"",
+    ""NAME"":""{0}"",
+    ""URL"":""{1}"",
+    ""DOWNLOAD"":""{2}"",
+    ""CHANGE_LOG_URL"":""{3}"",
     ""VERSION"":
-     {{", KSP_AVC_Info.VersionURL, KSP_AVC_Info.UpgradeURL, KSP_AVC_Info.ChangeLogURL);
+     {{", KSP_AVC_Info.Name, KSP_AVC_Info.VersionURL, KSP_AVC_Info.UpgradeURL, KSP_AVC_Info.ChangeLogURL);
 			file.WriteLine("         \"MAJOR\":{0}", KSP_AVC_Info.HangarVersion.Major);
 			file.WriteLine("         \"MINOR\":{0}", KSP_AVC_Info.HangarVersion.Minor);
 			file.WriteLine("         \"PATCH\":{0}", KSP_AVC_Info.HangarVersion.Build);
