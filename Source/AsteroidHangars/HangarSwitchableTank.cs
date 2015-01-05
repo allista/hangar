@@ -35,7 +35,7 @@ namespace AtHangar
 		/// The volume of a tank in m^3. It is defined in a config or calculated from the part volume in editor.
 		/// Cannot be changed in flight.
 		/// </summary>
-		[KSPField(isPersistant = true)] public float  Volume = -1f;
+		[KSPField(isPersistant = true)] public float Volume = -1f;
 
 		/// <summary>
 		/// The initial partial amount of the CurrentResource.
@@ -56,6 +56,8 @@ namespace AtHangar
 
 		readonly List<HangarSwitchableTank> other_tanks = new List<HangarSwitchableTank>();
 		UIPartActionWindow part_menu;
+
+		public ConfigNode ModuleSave;
 
 		public override string GetInfo()
 		{
@@ -110,10 +112,13 @@ namespace AtHangar
 			StartCoroutine(slow_update());
 		}
 
-		//deprecated config conversion
 		public override void OnLoad(ConfigNode node)
 		{
-			base.OnLoad(node);
+			//if the tank is managed, save its config
+			if(node.HasValue(SwitchableTankManager.MANAGED)) ModuleSave = node;
+			//if the nod is not from a TankManager, but we have a saved config, reload it
+			else if(ModuleSave != null) Load(ModuleSave);
+			//deprecated config conversion
 			if(node.HasNode(SwitchableTankType.NODE_NAME))
 			{
 				var tn = node.GetNode(SwitchableTankType.NODE_NAME);
