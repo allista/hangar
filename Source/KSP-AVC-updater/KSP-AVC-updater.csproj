@@ -37,7 +37,7 @@
     <Externalconsole>true</Externalconsole>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="mono ../../Source/KSP-AVC-updater/bin/${ProjectConfigName}/KSP-AVC-updater.exe" workingdir="${SolutionDir}/../GameData/Hangar/" externalConsole="True" pauseExternalConsole="True" />
+        <Command type="AfterBuild" command="mono ../../Source/KSP-AVC-updater/bin/${ProjectConfigName}/KSP-AVC-updater.exe" workingdir="${SolutionDir}/../GameData/Hangar/" pauseExternalConsole="True" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
