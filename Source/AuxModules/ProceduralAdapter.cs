@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using KSPAPIExtensions;
-using KSPAPIExtensions.PartMessage;
 
 namespace AtHangar
 {
@@ -27,11 +26,6 @@ namespace AtHangar
 		[KSPField] public string TopNodeName    = "top";
 		[KSPField] public string BottomNodeName = "bottom";
 
-		//KAE stuff
-		[PartMessageEvent] public event PartModelChanged ModelChanged;
-		[PartMessageEvent] public event PartColliderChanged ColliderChanged;
-		void RaiseModelAndColliderChanged() { ModelChanged(); ColliderChanged(); }
-
 		//state
 		public  State<TruncatedCone> body;
 		Vector2 size { get { return new Vector2(topSize, bottomSize); } }
@@ -54,12 +48,6 @@ namespace AtHangar
 			update_body();
 			part.mass = SurfaceArea*AreaDensity;
 			return base.GetInfo();
-		}
-
-		public override void OnAwake()
-		{
-			base.OnAwake();
-			PartMessageService.Register(this);
 		}
 
 		protected override void SaveDefaults()
@@ -149,7 +137,6 @@ namespace AtHangar
 			body_collider.sharedMesh = collider_mesh;
 			body_collider.enabled = false;
 			body_collider.enabled = true;
-			RaiseModelAndColliderChanged();
 		}
 
 		void update_nodes()
