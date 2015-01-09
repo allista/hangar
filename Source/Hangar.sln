@@ -151,7 +151,7 @@ Global
 		$24.DirectoryNamespaceAssociation = None
 		$24.ResourceNamePolicy = FileFormatDefault
 		$0.StandardHeader = $25
-		$25.Text = 
+		$25.Text = @  ${FileName}\n \n Author:\n      ${AuthorName} <${AuthorEmail}>\n\n Copyright (c) ${Year} ${CopyrightHolder}\n\nThis work is licensed under the Creative Commons Attribution 4.0 International License. \nTo view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ \nor send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 		$25.IncludeInNewFiles = True
 		$0.VersionControlPolicy = $26
 		$26.inheritsSet = Mono
