@@ -5,12 +5,16 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###ChangeLog###
 
-* **v2.0.2**
+* **v2.0.2.2 - CKAN compatibility**
+    * Reverted local copying of KAE .dll
+    * Hopefully fixed the issue with Hangar.dll loading prior to KSPAPIExtensions.dll. Now it should load even without the local copy of KAE.
+    
+* v2.0.2
     * Added custom **part filter** by function for hangars.
     * Fixed in-editor check of a stored vessel's dimensions on hangar resize. Hangars again remove stored vessels if they don't fit anymore.
     * Fixed _(I hope)_ the problem with invalid biomes of vessels launched from a hangar.
     * Various small fixes.
-    
+
 * v2.0.1
     * **Compatible with KSP-0.90.** 
     * _But incompatible with KSP-0.25._
