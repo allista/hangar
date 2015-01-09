@@ -33,10 +33,6 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KSPAPIExtensions">
-      <HintPath>..\KSPAPIExtensions.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System">
       <HintPath>..\KSP_test_0.90\KSP_Data\Managed\System.dll</HintPath>
       <Private>False</Private>
@@ -72,6 +68,9 @@
     <Reference Include="TDx.TDxInput">
       <HintPath>..\KSP_test_0.90\KSP_Data\Managed\TDx.TDxInput.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="KSPAPIExtensions">
+      <HintPath>..\KSPAPIExtensions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
