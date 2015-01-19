@@ -17,8 +17,8 @@ using System.Reflection;
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,
 // and "{Major}.{Minor}.{Build}.*" will update just the revision.
 
-[assembly: AssemblyVersion("2.0.2.2")]
-[assembly: KSPAssembly("Hangar", 2, 0)]
+[assembly: AssemblyVersion("2.1.0")]
+[assembly: KSPAssembly("Hangar", 2, 1)]
 //TODO: enable this when KAE pull in my request
 //[assembly: KSPAssemblyDependency("KSPAPIExtensions", 1, 7)]
 
@@ -32,6 +32,7 @@ namespace AtHangar
 {
 	public static class KSP_AVC_Info
 	{
+		public static readonly string  Name          = "Hangar";
 		public static readonly Version HangarVersion = Assembly.GetCallingAssembly().GetName().Version;
 		public static readonly Version MinKSPVersion = new Version(0,90,0);
 		public static readonly Version MaxKSPVersion = new Version(0,90,0);

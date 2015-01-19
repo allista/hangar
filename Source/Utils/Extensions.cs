@@ -268,8 +268,8 @@ namespace AtHangar
 
 	public static class PartModuleExtensions
 	{
-		public static string Title(this PartModule p) 
-		{ return p.part.partInfo != null? p.part.partInfo.title : p.part.name; }
+		public static string Title(this PartModule pm) 
+		{ return pm.part.partInfo != null? pm.part.partInfo.title : pm.part.name; }
 
 		public static void EnableModule(this PartModule pm, bool enable)
 		{ pm.enabled = pm.isEnabled = enable; }

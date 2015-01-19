@@ -9,6 +9,7 @@ namespace AtHangar
 	{
 		new public const string NODE_NAME = "TANKMANAGER";
 		public const string TANK_NODE = "TANK";
+		public const string MANAGED = "MANAGED";
 
 		readonly Part part;
 		readonly List<HangarSwitchableTank> tanks = new List<HangarSwitchableTank>();
@@ -36,7 +37,7 @@ namespace AtHangar
 			foreach(var n in node.GetNodes(TANK_NODE))
 			{
 				n.AddValue("name", typeof(HangarSwitchableTank).Name);
-
+				n.AddValue(MANAGED, true);
 				var tank = part.AddModule(n) as HangarSwitchableTank;
 				if(tank != null) tanks.Add(tank);
 				else Utils.Log("SwitchableTankManager: unable to load module from config:\n{0}", n.ToString());

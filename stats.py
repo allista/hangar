@@ -59,8 +59,9 @@ for full_name in full_names:
             if "assets" in p:
                 for asset in p['assets']:
                     total_downloads += asset['download_count']
-                    print(asset['name'] + ", tag: " + p['tag_name'] + ", created at " + asset['created_at'])
-                    print("Downloaded " + str(asset['download_count']) + " times")
+                    print("Tag: %s\nFile: %s\nCreated at: %s" %
+                    	  (p['tag_name'], asset['name'], asset['created_at']))
+                    print("Downloads: %d" % asset['download_count'])
                     print("")
             else:
                 print("No data")

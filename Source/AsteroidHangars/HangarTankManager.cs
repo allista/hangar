@@ -2,12 +2,39 @@
 
 namespace AtHangar
 {
-	public class HangarTankManager : PartModule
+	public class HangarTankManager : PartModule, IPartCostModifier
 	{
+		#region Config
+		/// <summary>
+		/// The total maximum volume of a tank.
+		/// </summary>
 		[KSPField] public float Volume;
 
+		/// <summary>
+		/// The cost of a tank per total volume. 
+		/// Total tanks cost = tanks number - 1 * TanksCostPerVolume * Volume.
+		/// </summary>
+		[KSPField] public float TankCostPerVolume = 2f;
+
 		public ConfigNode ModuleSave;
+		#endregion
+
+		#region Tanks
 		SwitchableTankManager tank_manager;
+
+		int additional_tanks_count 
+		{ 
+			get 
+			{
+				var count = 0;
+				if(tank_manager != null) count = tank_manager.TanksCount - 1;
+				else count = ModuleSave.HasNode(SwitchableTankManager.TANK_NODE) ? 
+							 ModuleSave.GetNodes(SwitchableTankManager.TANK_NODE).Length - 1 : 0;
+				return count < 0? 0 : count;
+			}
+		}
+
+		public float GetModuleCost(float default_cost) { return additional_tanks_count * TankCostPerVolume * Volume; }
 
 		public override string GetInfo()
 		{ 
@@ -17,10 +44,12 @@ namespace AtHangar
 				info += "Preconfigured Tanks:\n";
 				foreach(var n in ModuleSave.GetNodes(SwitchableTankManager.TANK_NODE))
 				{ 
-					if(n.HasValue("TankType")) info += " -"+n.GetValue("TankType"); 
-					if(n.HasValue("CurrentResource")) info += " -"+n.GetValue("CurrentResource")+"\n";
+					if(n.HasValue("TankType")) info += " - "+n.GetValue("TankType"); 
+					if(n.HasValue("CurrentResource")) info += ": "+n.GetValue("CurrentResource")+"\n";
 					else info += "\n";
 				}
+				var cost = GetModuleCost(0);
+				if(cost > 0) info += string.Format("Tanks Cost: +{0}\n", cost);
 			}
 			return info;
 		}
@@ -63,6 +92,7 @@ namespace AtHangar
 
 		public void RescaleTanks(float relative_scale)
 		{ if(tank_manager != null) tank_manager.RescaleTanks(relative_scale); }
+		#endregion
 
 		#region GUI
 		enum TankWindows { EditTanks } //maybe we'll need more in the future

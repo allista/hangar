@@ -13,6 +13,7 @@ _You may keep the config.xml to save positions of GUI windows._
     * Added custom **part filter** by function for hangars.
     * Fixed in-editor check of a stored vessel's dimensions on hangar resize. Hangars again remove stored vessels if they don't fit anymore.
     * Fixed _(I hope)_ the problem with invalid biomes of vessels launched from a hangar.
+    * Updated KSPAPIExtensions.dll to the latest (1.7.2.2) version
     * Various small fixes.
 
 * v2.0.1

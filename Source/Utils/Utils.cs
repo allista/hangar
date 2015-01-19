@@ -118,7 +118,7 @@ namespace AtHangar
 			return "0.0u"; //effectivly zero
 		}
 
-		public static string formatPercent(float fraction)
+		public static string formatPercent(float fraction) //FIXME: replace with P1 formatting
 		{ return string.Format("{0:F1}%", fraction*100); }
 
 		public static string formatDimensions(Vector3 size)

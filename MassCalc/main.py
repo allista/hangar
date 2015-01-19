@@ -174,7 +174,23 @@ if __name__ == '__main__':
                               ], 
                      add_mass=0.04, #probe core
                      add_cost=480) #Light + probe core
-
+    
+    mk3_hangar   = part('Mk3Hangar',
+                     [volume(130.43, 'hull', C=100, D=0.02,
+                             S=surface(549.29, 0.002, Al_Li),
+                             V=[volume(5, 'machinery', C=1200, M=0.7),
+                                generator(E=1.5),
+                                battery(E=5000),
+                                reaction_wheel(0.8),
+                                volume(0.011, 'hydraulics', N=2, 
+                                       material=aluminium),
+                                volume(100, 'tanks', C=20)]),
+                      volume(3.96, 'doors', C=100, D=0.02,
+                             S=surface(70.86, 0.002, Al_Li)),
+                      ], 
+                     add_mass=0,
+                     add_cost=0)
+#     sys.exit()
     
     #utilities
     adapter  = part('Adapter', 
@@ -208,7 +224,33 @@ if __name__ == '__main__':
     heatshield = part('SquareHeatshield', 
                      [volume(3.8, 'hull', C=20, D=0.01,
                              S=surface(40.7, 0.005, aluminium))])
-
+    
+    srf_tail   = part('SurfaceTail', 
+                     [volume(0.6, 'hull', C=20, D=0.01,
+                             S=surface(6.85, 0.003, Al_Li))])
+    
+    airbrake   = part('Airbrake',
+                          [volume(0.19, 'hull', C=2000, D=0.01,
+                                  S=surface(6.5, 0.002, Al_Li)),
+                           volume(0.0051, 'outer-cylinder', material=Al_Li,
+                                  V=[volume(0.0012, 'inner_cylinder', material=Al_Li)]),
+                           volume(0.001+0.00092+0.00064+0.0008+0.0022, 
+                                  'hinges-axis', material=Al_Li),
+                           volume(0.039, 'brake', 
+                                  S=surface(3.97, 0.002, Al_Li)),
+                           ])
+    
+    rad_sabre  = part('RadialSabre', 
+                     [volume(3.727, 'hull', C=200, D=0.02,
+                             S=surface(26.07, 0.003, Al_Li),
+                             V=[volume(3, 'engines', M=1.3, C=8000)])])
+    
+    rad_heavy  = part('RadialHeavyEngine', 
+                     [volume(1.46, 'hull', C=200, D=0.02,
+                             S=surface(10.75, 0.003, Al_Li),
+                             V=[volume(0.8, 'engines', M=0.95, C=2000)])])
+    
+    sys.exit()
     
     #extensions
     extension  = part('HangarExtension',

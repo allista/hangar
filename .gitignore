@@ -18,6 +18,7 @@
 *bin*
 *~
 *.swp
+*.blend1
 *.log
 *.meta
 *.mdb

@@ -324,9 +324,9 @@ namespace AtHangar
 		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
 		{
 			var edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
-			foreach(Vector3 edge in edges)
+			for(int i = 0; i < edges.Length; i++) 
 			{
-				Vector3 _edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edge-center));
+				Vector3 _edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
 				if(other.hull != null) 
 				{ if(!other.hull.Contains(_edge)) return false; }
 				else if(!other.bounds.Contains(_edge)) return false;

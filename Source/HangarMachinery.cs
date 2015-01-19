@@ -13,7 +13,8 @@ namespace AtHangar
 		//hangar properties
 		[KSPField (isPersistant = false)] public string AnimatorID;
 		[KSPField (isPersistant = false)] public float  EnergyConsumption = 0.75f;
-		[KSPField (isPersistant = false)] public bool   NoTransfers;
+		[KSPField (isPersistant = false)] public bool   NoCrewTransfers;
+		[KSPField (isPersistant = false)] public bool   NoResourceTransfers;
 		[KSPField (isPersistant = false)] public bool   NoGUI;
 		//vessel spawning
 		[KSPField (isPersistant = false)] public float  LaunchHeightOffset;
