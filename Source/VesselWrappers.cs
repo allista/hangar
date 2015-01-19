@@ -25,7 +25,10 @@ namespace AtHangar
 		public void UpdateMetric(bool compute_hull = false)
 		{ 
 			if(construct == null) return;
-			metric = new Metric(construct.Parts, compute_hull); 
+			if(construct.parts.Count == 0) return;
+			//sort parts from root to leavs
+			var parts = construct.parts[0].AllConnectedParts();
+			metric = new Metric(parts, compute_hull); 
 		}
 
 		public void UnloadConstruct() 
