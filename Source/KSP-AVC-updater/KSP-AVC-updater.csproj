@@ -25,7 +25,7 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="mono ../../Source/KSP-AVC-updater/bin/${ProjectConfigName}/KSP-AVC-updater.exe" workingdir="${SolutionDir}/../GameData/Hangar/" externalConsole="True" pauseExternalConsole="True" />
+        <Command type="AfterBuild" command="mono ../../Source/KSP-AVC-updater/bin/${ProjectConfigName}/KSP-AVC-updater.exe" workingdir="${SolutionDir}/../GameData/Hangar/" pauseExternalConsole="True" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -42,7 +42,12 @@
     </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
+    <Reference Include="System">
+      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\System.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
