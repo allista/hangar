@@ -456,8 +456,9 @@ namespace AtHangar
 					GUILayout.FlexibleSpace();
 					GUILayout.Label("Vessel's Bottom");
 					GUILayout.EndHorizontal();
-					GUILayout.Label("If there are hangars in the vessel, additional sets of arrows show orientation " +
-									"in which a vessel will be launched from each of the hangars", GUILayout.ExpandWidth(true));
+					GUILayout.Label("If there are hangars in the vessel, additional sets of arrows show\n" +
+					                "orientation in which a vessel will be launched from each of the hangars", 
+					                GUILayout.ExpandWidth(false));
 				}
 				else draw_directions = false;
 			}
