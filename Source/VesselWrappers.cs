@@ -173,7 +173,6 @@ namespace AtHangar
 				if(vessel.id != FlightGlobals.ActiveVessel.id) return false;
 				vessel = FlightGlobals.ActiveVessel;
 				if(parts_inited(vessel.parts)) return true;
-				OrbitPhysicsManager.HoldVesselUnpack(2);
 				return false;
 			}
 		}
