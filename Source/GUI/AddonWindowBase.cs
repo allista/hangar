@@ -82,9 +82,11 @@ namespace AtHangar
 			blue = new GUIStyle(white);
 			blue.normal.textColor = blue.focused.textColor = new Color(0.6f, 0.6f, 1f, 1f);
 
+			GUI.skin.label.wordWrap = true;
 			label = new GUIStyle (GUI.skin.label);
 			label.normal.textColor = label.focused.textColor = Color.white;
 			label.alignment = TextAnchor.MiddleCenter;
+			label.wordWrap  = true;
 
 			slider = new GUIStyle (GUI.skin.horizontalSlider);
 			slider.margin = new RectOffset (0, 0, 0, 0);
