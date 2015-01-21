@@ -117,7 +117,8 @@ namespace AtHangar
 			//if the tank is managed, save its config
 			if(node.HasValue(SwitchableTankManager.MANAGED)) ModuleSave = node;
 			//if the nod is not from a TankManager, but we have a saved config, reload it
-			else if(ModuleSave != null) Load(ModuleSave);
+			else if(ModuleSave != null && 
+			        ModuleSave.HasValue(SwitchableTankManager.MANAGED))	Load(ModuleSave);
 			//deprecated config conversion
 			if(node.HasNode(SwitchableTankType.NODE_NAME))
 			{
