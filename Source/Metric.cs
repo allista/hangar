@@ -326,10 +326,10 @@ namespace AtHangar
 			var edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
 			for(int i = 0; i < edges.Length; i++) 
 			{
-				Vector3 _edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
+				Vector3 edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
 				if(other.hull != null) 
-				{ if(!other.hull.Contains(_edge)) return false; }
-				else if(!other.bounds.Contains(_edge)) return false;
+				{ if(!other.hull.Contains(edge)) return false; }
+				else if(!other.bounds.Contains(edge)) return false;
 			}
 			return true;
 		}
@@ -375,7 +375,7 @@ namespace AtHangar
 				}
 				for(int i = 0; i < edges.Length; i++) 
 				{
-					Vector3 edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
+					var edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
 					foreach(Plane P in planes)
 					{ if(!P.GetSide(edge)) return false; }
 				}
