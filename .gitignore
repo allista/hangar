@@ -13,9 +13,9 @@
 /AssetsVariants/**
 /DesaturatedTexturePack/GameData/**
 /EngineSim/**
-*obj*
-*cache*
-*bin*
+/**/obj/**
+/**/cache/**
+/**/bin/**
 *~
 *.swp
 *.blend1
