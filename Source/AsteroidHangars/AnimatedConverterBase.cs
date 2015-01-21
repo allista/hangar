@@ -36,7 +36,7 @@ namespace AtHangar
 			var info = "";
 			info += Title+":\n";
 			info += string.Format("Energy Consumption: {0:F2}/sec\n", EnergyConsumption*RatesMultiplier);
-			info += string.Format("Minimum Rate: {0}\n", Utils.formatPercent(EnergyRateThreshold)); 
+			info += string.Format("Minimum Rate: {0:P1}\n", EnergyRateThreshold); 
 			return info;
 		}
 

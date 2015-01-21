@@ -456,14 +456,15 @@ namespace AtHangar
 					GUILayout.FlexibleSpace();
 					GUILayout.Label("Vessel's Bottom");
 					GUILayout.EndHorizontal();
-					GUILayout.Label("If there are hangars in the vessel, additional sets of arrows show\n" +
-					                "orientation in which a vessel will be launched from each of the hangars", 
-					                GUILayout.ExpandWidth(false));
+					GUILayout.Label("If there are hangars in the vessel with strict launch positioning, " +
+									"additional sets of arrows show orientation in which a vessel will be launched " +
+					                "from each of such hangars", Styles.label,
+					                GUILayout.MaxWidth(eWindowPos.width-40), GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 				}
 				else draw_directions = false;
 			}
 			GUILayout.EndVertical();
-			GUI.DragWindow(new Rect(0, 0, 5000, 20));
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 		
 		//hangar controls GUI
@@ -495,7 +496,7 @@ namespace AtHangar
 			CloseButton();
 			SelectVessel_end();
 			SelectHangar_end();
-			GUI.DragWindow(new Rect(0, 0, 5000, 20));
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 		#endregion
 	
@@ -577,8 +578,10 @@ namespace AtHangar
 				foreach(Part p in parts.Where(p => p.HasModule<HangarMachinery>()))
 				{
 					var h = p.GetComponent<HangarMachinery>();
-					if(h != null)
-						HangarGUI.DrawYZ(h.PartMetric, h.GetLaunchTransform());
+					if(h == null) continue;
+					var t = h.GetSpawnTransform();
+					if(t != null)
+						HangarGUI.DrawYZ(h.PartMetric, t);
 				}
 			}
 			#if DEBUG

@@ -46,6 +46,9 @@ namespace AtHangar
 			return false;
 		}
 
+		public static void DelayPhysicsForSeconds(float dt)
+		{ OrbitPhysicsManager.HoldVesselUnpack(Mathf.CeilToInt(dt/TimeWarp.fixedDeltaTime)+1); }
+
 		public static void UpdateEditorGUI()
 		{ if(EditorLogic.fetch != null)	GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship); }
 
@@ -117,9 +120,6 @@ namespace AtHangar
 				return (units * 1e12f).ToString ("n1") + "pu";
 			return "0.0u"; //effectivly zero
 		}
-
-		public static string formatPercent(float fraction) //FIXME: replace with P1 formatting
-		{ return string.Format("{0:F1}%", fraction*100); }
 
 		public static string formatDimensions(Vector3 size)
 		{ return string.Format("{0:F2}m x {1:F2}m x {2:F2}m", size.x, size.y, size.z); }
@@ -207,5 +207,26 @@ namespace AtHangar
 
 		virtual public void Save(ConfigNode node)
 		{ ConfigNode.CreateConfigFromObject(this, node); }
+	}
+
+	public static class WaitWithPhysics
+	{
+		public static WaitForSeconds ForSeconds(float dt)
+		{
+			Utils.DelayPhysicsForSeconds(dt);
+			return new WaitForSeconds(dt);
+		}
+
+		public static WaitForFixedUpdate ForFixedUpdate()
+		{
+			OrbitPhysicsManager.HoldVesselUnpack(2);
+			return new WaitForFixedUpdate();
+		}
+
+		public static YieldInstruction ForNextUpdate()
+		{
+			Utils.DelayPhysicsForSeconds(TimeWarp.deltaTime);
+			return null;
+		}
 	}
 }

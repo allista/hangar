@@ -141,7 +141,7 @@ namespace AtHangar
 			GUILayout.FlexibleSpace();
 			GUILayout.Label(Utils.formatVolume(tank.Volume), GUILayout.ExpandWidth(true));
 			var usage = tank.Usage;
-			GUILayout.Label("Filled: "+Utils.formatPercent(usage), Styles.fracStyle(usage), GUILayout.Width(95));
+			GUILayout.Label("Filled: "+usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
 			if(tank.Usage > 0) GUILayout.Label("X", Styles.grey, GUILayout.Width(20));
 			else if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(20)))
 				remove_tank_delegate(tank);
@@ -204,7 +204,7 @@ namespace AtHangar
 			close_button();
 			GUILayout.EndVertical();
 			AddTankGUI_end();
-			GUI.DragWindow(new Rect(0, 0, 500, 20));
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 
 		/// <summary>

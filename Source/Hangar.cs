@@ -7,6 +7,19 @@ namespace AtHangar
 	{
 		public ConfigNode ModuleConfig;
 
+		public override string GetInfo()
+		{
+			var info = base.GetInfo();
+			var storage = part.GetModule<HangarStorage>();
+			if(storage != null)
+			{
+				info += storage.AutoPositionVessel?
+					"Free launch positioning\n" :
+					"Strict launch positioning\n";
+			}
+			return info;
+		}
+
 		protected override List<HangarPassage> get_connected_passages()
 		{ return Storage == null ? null : Storage.ConnectedPassages(); }
 
@@ -26,12 +39,11 @@ namespace AtHangar
 				Storage.OnLoad(ModuleConfig);
 				Storage.Setup();
 			}
-			Storage.GetSpawnTransform += GetLaunchTransform;
-			//****************************//
 		}
 
-		protected override Vector3 get_vessel_offset(StoredVessel sv)
+		protected override Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv)
 		{
+
 			return vessel.LandedOrSplashed ? 
 				launch_transform.TransformDirection(-sv.CoG) : 
 				launch_transform.TransformDirection(sv.CoM - sv.CoG);
@@ -44,6 +56,24 @@ namespace AtHangar
 			ModuleConfig = node.HasValue("base_mass")? node : null;
 			//****************************//
 		}
+
+		#if DEBUG
+		[KSPEvent (guiActive = true, guiName = "Check Airlock", active = true)]
+		public void CheckAirlock() 
+		{ 
+			if(part.airlock == null) return;
+			RaycastHit raycastHit;
+			if(Physics.Raycast(part.airlock.transform.position, (part.airlock.transform.position - part.transform.position).normalized, out raycastHit, 1, 32769))
+			{
+				this.Log("Airlock should be blocked:\n" +
+				         "collider 'in front': {0}\n" +
+				         "distance to it: {1}\n",
+				         raycastHit.collider.name,
+				         raycastHit.distance
+				        );
+			}
+		}
+		#endif
 	}
 }
 

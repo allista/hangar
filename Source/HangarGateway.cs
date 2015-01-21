@@ -5,6 +5,9 @@ namespace AtHangar
 {
 	public class HangarGateway : HangarMachinery
 	{
+		[KSPField] public string SpawnTransform;
+		Transform spawn_transform;
+
 		HangarPassage entrance;
 
 		protected override List<HangarPassage> get_connected_passages()
@@ -30,6 +33,10 @@ namespace AtHangar
 		{
 			base.early_setup(state);
 			entrance = part.GetPassage();
+			//get spawn transform
+			if(SpawnTransform != string.Empty)
+				spawn_transform = part.FindModelTransform(SpawnTransform);
+			if(spawn_transform == null) spawn_transform = part.transform;
 		}
 
 		protected override bool try_store_vessel(PackedVessel v)
@@ -45,12 +52,15 @@ namespace AtHangar
 			return true;
 		}
 
-		protected override Vector3 get_vessel_offset(StoredVessel sv)
+		protected override Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv)
 		{
 			return vessel.LandedOrSplashed ? 
 				launch_transform.TransformDirection(-sv.CoG + Vector3.up*sv.size.y/2) : 
 				launch_transform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.size.y/2);
 		}
+
+		protected override Transform get_spawn_transform(PackedVessel pv) { return spawn_transform; }
+		public override Transform GetSpawnTransform() { return null; }
 	}
 }
 

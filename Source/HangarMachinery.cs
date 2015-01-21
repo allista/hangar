@@ -11,17 +11,15 @@ namespace AtHangar
 
 		#region Configuration
 		//hangar properties
-		[KSPField (isPersistant = false)] public string AnimatorID;
+		[KSPField (isPersistant = false)] public string AnimatorID = string.Empty;
 		[KSPField (isPersistant = false)] public float  EnergyConsumption = 0.75f;
 		[KSPField (isPersistant = false)] public bool   NoCrewTransfers;
 		[KSPField (isPersistant = false)] public bool   NoResourceTransfers;
 		[KSPField (isPersistant = false)] public bool   NoGUI;
 		//vessel spawning
-		[KSPField (isPersistant = false)] public float  LaunchHeightOffset;
-		[KSPField (isPersistant = false)] public string LaunchTransform;
-		[KSPField (isPersistant = false)] public string LaunchVelocity;
+		[KSPField (isPersistant = false)] public string LaunchVelocity = string.Empty;
 		[KSPField (isPersistant = true)]  public bool   LaunchWithPunch;
-		[KSPField (isPersistant = false)] public string CheckDockingPorts;
+		[KSPField (isPersistant = false)] public string CheckDockingPorts = string.Empty;
 		#endregion
 
 		#region Managed Storage
@@ -77,9 +75,8 @@ namespace AtHangar
 
 		readonly Dictionary<Guid, MemoryTimer> probed_vessels = new Dictionary<Guid, MemoryTimer>();
 
-		public Vector3 launchVelocity;
-		protected Transform launch_transform;
 		Vessel launched_vessel;
+		public Vector3 launchVelocity;
 		Vector3 deltaV = Vector3.zero;
 		bool change_velocity;
 
@@ -94,14 +91,23 @@ namespace AtHangar
 
 		public override string GetInfo()
 		{
-			var gates = part.Modules.OfType<HangarAnimator>().FirstOrDefault(m => m.AnimatorID == AnimatorID);
+			var info = "";
+			//energy consumption
+			var gates = part.GetAnimator(AnimatorID) as HangarAnimator;
 			if(EnergyConsumption == 0 && (gates == null || gates.EnergyConsumption == 0)) 
-				return "Simple cargo bay\n";
-			var info = "Energy Cosumption:\n";
-			if(EnergyConsumption > 0)
-				info += string.Format("- Hangar: {0}/sec\n", EnergyConsumption);
-			if(gates != null && gates.EnergyConsumption > 0) 
-				info += string.Format("- Doors: {0}/sec\n", gates.EnergyConsumption);
+				info += "Simple cargo bay\n";
+			else
+			{
+				info += "Energy Cosumption:\n";
+				if(EnergyConsumption > 0)
+					info += string.Format("- Hangar: {0}/sec\n", EnergyConsumption);
+				if(gates != null && gates.EnergyConsumption > 0) 
+					info += string.Format("- Doors: {0}/sec\n", gates.EnergyConsumption);
+			}
+			//vessel facilities
+			if(NoCrewTransfers) info += "Crew transfer not available\n";
+			if(NoResourceTransfers) info += "Resources transfer not available\n";
+			if(LaunchVelocity != string.Empty) info += "Has integrated launch system\n";
 			return info;
 		}
 		#endregion
@@ -407,29 +413,9 @@ namespace AtHangar
 
 		#region Restore
 		#region Positioning
-		/// <summary>
-		/// Calculate transform of restored vessel.
-		/// </summary>
-		public Transform GetLaunchTransform()
-		{
-			launch_transform = null;
-			if(LaunchTransform != "")
-				launch_transform = part.FindModelTransform(LaunchTransform);
-			if(launch_transform == null)
-			{
-				Vector3 offset = Vector3.up * LaunchHeightOffset;
-				Transform t = part.transform;
-				var restorePos = new GameObject ();
-				restorePos.transform.position  = t.position;
-				restorePos.transform.position += t.TransformDirection (offset);
-				restorePos.transform.rotation  = t.rotation;
-				launch_transform = restorePos.transform;
-				this.Log("LaunchTransform not found. Using offset.");
-			}
-			return launch_transform;
-		}
-
-		protected abstract Vector3 get_vessel_offset(StoredVessel sv);
+		protected abstract Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv);
+		protected virtual Transform get_spawn_transform(PackedVessel pv) { return Storage.GetSpawnTransform(pv); }
+		public virtual Transform GetSpawnTransform() { return Storage.AutoPositionVessel? null : Storage.GetSpawnTransform(); }
 
 		/// <summary>
 		/// Set vessel orbit, transform, coordinates.
@@ -449,12 +435,13 @@ namespace AtHangar
 			Quaternion proto_rot  = hpv.rotation;
 			Quaternion hangar_rot = vessel.vesselTransform.rotation;
 			//rotate launchTransform.rotation to protovessel's reference frame
-			pv.rotation = proto_rot*hangar_rot.Inverse()*launch_transform.rotation;
+			var spawn_transform = get_spawn_transform(sv);
+			pv.rotation = proto_rot*hangar_rot.Inverse()*spawn_transform.rotation;
 			//set vessel's orbit
 			double UT  = Planetarium.GetUniversalTime();
 			Orbit horb = vessel.orbit;
 			var vorb = new Orbit();
-			Vector3 d_pos = launch_transform.position-vessel.findWorldCenterOfMass()+get_vessel_offset(sv);
+			Vector3 d_pos = spawn_transform.position-vessel.findWorldCenterOfMass()+get_vessel_offset(spawn_transform, sv);
 			Vector3d vpos = horb.pos+new Vector3d(d_pos.x, d_pos.z, d_pos.y);
 			Vector3d vvel = horb.vel;
 			if(LaunchWithPunch && launchVelocity != Vector3.zero)
@@ -463,7 +450,7 @@ namespace AtHangar
 				//:calculate launched vessel velocity
 				float hM = vessel.GetTotalMass();
 				float tM = hM + sv.mass;
-				Vector3 d_vel = launch_transform.TransformDirection(launchVelocity);
+				Vector3 d_vel = part.transform.TransformDirection(launchVelocity);
 				vvel += (Vector3d.zero + d_vel*hM/tM).xzy;
 				//:calculate hangar's vessel velocity
 				Vector3d hvel = horb.vel + (Vector3d.zero + d_vel*(-sv.mass)/tM).xzy;
@@ -477,7 +464,7 @@ namespace AtHangar
 			{
 				//calculate launch offset from vessel bounds
 				//set vessel's position
-				vpos = Vector3d.zero+launch_transform.position+get_vessel_offset(sv);
+				vpos = Vector3d.zero+spawn_transform.position+get_vessel_offset(spawn_transform, sv);
 				pv.longitude = vessel.mainBody.GetLongitude(vpos);
 				pv.latitude  = vessel.mainBody.GetLatitude(vpos);
 				pv.altitude  = vessel.mainBody.GetAltitude(vpos);
@@ -621,7 +608,6 @@ namespace AtHangar
 			//transfer resources
 			transferResources(stored_vessel);
 			//set restored vessel orbit
-			GetLaunchTransform();
 			position_vessel(stored_vessel);
 			//restore vessel
 			stored_vessel.Load();
