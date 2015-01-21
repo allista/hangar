@@ -323,7 +323,7 @@ namespace AtHangar
 	{ 
 		protected override void on_rescale(HangarPassage module, HangarPassage base_module, Scale scale)
 		{
-			module.Setup(true);
+			module.Setup(!scale.FirstTime);
 			foreach(var key in new List<string>(module.Nodes.Keys))
 				module.Nodes[key].Size = Vector3.Scale(base_module.Nodes[key].Size, 
 					new Vector3(scale, scale, 1));
@@ -334,7 +334,7 @@ namespace AtHangar
 	{ 
 		protected override void on_rescale(HangarMachinery module, HangarMachinery base_module, Scale scale)
 		{
-			module.Setup(true);
+			module.Setup(!scale.FirstTime);
 			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect; 
 		}
 	}
