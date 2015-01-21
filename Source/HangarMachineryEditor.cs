@@ -114,7 +114,7 @@ namespace AtHangar
 				selected_window[EditorWindows.EditContent] = false;
 			}
 			GUILayout.EndVertical();
-			GUI.DragWindow(new Rect(0, 0, 500, 20));
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 
 		void hangar_name_editor(int windowID)
@@ -127,7 +127,7 @@ namespace AtHangar
 				selected_window[EditorWindows.EditName] = false;
 			}
 			GUILayout.EndVertical();
-			GUI.DragWindow(new Rect(0, 0, 500, 20));
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 
 		public void OnGUI() 

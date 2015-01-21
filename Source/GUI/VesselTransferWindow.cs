@@ -99,7 +99,7 @@ namespace AtHangar
 			GUILayout.FlexibleSpace();
 			Closed = GUILayout.Button("Close", GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
-			GUI.DragWindow(new Rect(0, 0, 500, 20));
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 
 		public Rect Draw(List<HangarStorage> storages, Rect windowPos, int windowId)
