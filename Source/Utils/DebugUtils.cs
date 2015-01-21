@@ -50,8 +50,7 @@ namespace AtHangar
 				"Center:  {1}\n" +
 				"Extents: {2}\n" +
 				"Min:     {3}\n" +
-				"Max:     {4}\n" +
-				"=========", 
+				"Max:     {4}", 
 				name, b.center, b.extents, b.min, b.max);
 		}
 
