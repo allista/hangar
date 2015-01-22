@@ -542,7 +542,7 @@ namespace AtHangar
 		}
 		#endregion
 
-		bool can_restore()
+		protected virtual bool can_restore(PackedVessel v)
 		{
 			//if hangar is not ready
 			if(hangar_state == HangarState.Inactive) 
@@ -594,7 +594,7 @@ namespace AtHangar
 
 		public void TryRestoreVessel(StoredVessel stored_vessel)
 		{
-			if(!can_restore()) return;
+			if(!can_restore(stored_vessel)) return;
 			//clean up
 			if(!Storage.RemoveVessel(stored_vessel))
 			{
