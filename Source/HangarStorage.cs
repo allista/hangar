@@ -121,10 +121,13 @@ namespace AtHangar
 			if(HangarMetric.Empty) HangarMetric = PartMetric*UsefulSizeRatio;
 		}
 
-		static SortedList<float, int> sort_vector(Vector3 v)
+		static List<KeyValuePair<float, int>> sort_vector(Vector3 v)
 		{
-			var s = new SortedList<float, int>(3);
-			s[v[0]] = 0; s[v[1]] = 1; s[v[2]] = 2;
+			var s = new List<KeyValuePair<float, int>>(3);
+			s.Add(new KeyValuePair<float, int>(v[0], 0));
+			s.Add(new KeyValuePair<float, int>(v[1], 1));
+			s.Add(new KeyValuePair<float, int>(v[2], 2));
+			s.Sort((x, y) => x.Key.CompareTo(y.Key));
 			return s;
 		}
 
@@ -134,9 +137,9 @@ namespace AtHangar
 			{
 				var s_size = sort_vector(HangarMetric.size);
 				var v_size = sort_vector(v.size);
-				var r1 = swaps[s_size.Values[0], v_size.Values[0]];
-				var i2 = s_size.Values[0] == v_size.Values[1]? 2 : 1;
-				var r2 = swaps[s_size.Values[i2], v_size.Values[i2]];
+				var r1 = swaps[s_size[0].Value, v_size[0].Value];
+				var i2 = s_size[0].Value == v_size[1].Value? 2 : 1;
+				var r2 = swaps[s_size[i2].Value, v_size[i2].Value];
 				spawn_transform.localPosition = Vector3.zero;
 				spawn_transform.localRotation = Quaternion.identity;
 				spawn_transform.rotation = part.transform.rotation * r2 * r1;
