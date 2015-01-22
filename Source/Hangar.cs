@@ -43,7 +43,6 @@ namespace AtHangar
 
 		protected override Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv)
 		{
-
 			return vessel.LandedOrSplashed ? 
 				launch_transform.TransformDirection(-sv.CoG) : 
 				launch_transform.TransformDirection(sv.CoM - sv.CoG);
