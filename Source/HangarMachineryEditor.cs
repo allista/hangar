@@ -73,24 +73,21 @@ namespace AtHangar
 			GUILayout.BeginHorizontal();
 			//Vessel selector
 			if(GUILayout.Button("Select Vessel", Styles.normal_button, GUILayout.ExpandWidth(true))) 
-			{
-				var sWindowPos  = new Rect(eWindowPos) { height = 500 };
 				vessel_selector = 
-					new CraftBrowser(sWindowPos, 
+					new CraftBrowser(new Rect(eWindowPos) { height = 500 }, 
 						facility,
 						HighLogic.SaveFolder, "Select a ship to store",
 						vessel_selected,
 						selection_canceled,
 						HighLogic.Skin,
 						EditorLogic.ShipFileImage, true);
-			}
 			GUILayout.EndHorizontal();
 			//hangar info
 			if(ConnectedStorage.Count > 1)
 				HangarGUI.UsedVolumeLabel(TotalUsedVolume, TotalUsedVolumeFrac, "Total Used Volume");
 			HangarGUI.UsedVolumeLabel(UsedVolume, UsedVolumeFrac);
 			//hangar contents
-			List<PackedConstruct> constructs = Storage.GetConstructs();
+			var constructs = Storage.GetConstructs();
 			constructs.Sort((a, b) => a.name.CompareTo(b.name));
 			scroll_view = GUILayout.BeginScrollView(scroll_view, GUILayout.Height(200), GUILayout.Width(windows_width));
 			GUILayout.BeginVertical();
