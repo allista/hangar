@@ -129,6 +129,7 @@
     <Compile Include="HangarContract.cs" />
     <Compile Include="AuxModules\HangarAirbrake.cs" />
     <Compile Include="LimitedHangarStorage.cs" />
+    <Compile Include="AuxModules\LoopAnimatedThrottle.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
