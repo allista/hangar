@@ -250,6 +250,20 @@ if __name__ == '__main__':
                              S=surface(10.75, 0.003, Al_Li),
                              V=[volume(0.8, 'engines', M=0.95, C=2000)])])
     
+    hover_fan  = part('HoverFan', 
+                     [volume(0.076, 'base', C=200, D=0.01,
+                             S=surface(1.228, 0.003, Al_Li)),
+                      volume(0.01, 'motor-fixer', C=200, D=0.01,
+                             S=surface(0.524, 0.003, Al_Li)),
+                      volume(0.023, 'central-fixer', C=200, D=0.01,
+                             S=surface(1.59, 0.003, Al_Li)),
+                      volume(0.118, 'stator', C=200, D=0.01,
+                             S=surface(7.227, 0.003, composits)),
+                      volume(0.08, 'motor', C=2000, M=0.2),
+                      volume(0.002, 'blades', C=200, D=0.01, N=4,
+                             S=surface(0.42, 0.001, composits)),
+                      ])
+    
     sys.exit()
     
     #extensions
