@@ -11,6 +11,7 @@
 
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AtHangar
@@ -21,28 +22,22 @@ namespace AtHangar
 	/// </summary>
 	public class LoopAnimatedThrottle : HangarAnimator
 	{
-		#region Engines Wrapper
-		IEngineStatus   engineS;
-		ModuleEngines   engine;
-		ModuleEnginesFX engineFX;
-		bool eFX;
-
-		float currentThrottle         { get { return eFX? engineFX.currentThrottle : engine.currentThrottle; }}
-		float engineAccelerationSpeed { get { return eFX? engineFX.engineAccelerationSpeed : engine.engineAccelerationSpeed; }}
-		float engineDecelerationSpeed { get { return eFX? engineFX.engineDecelerationSpeed : engine.engineDecelerationSpeed; }}
-		bool  useEngineResponseTime   { get { return eFX? engineFX.useEngineResponseTime : engine.useEngineResponseTime; }}
-		#endregion
+		[KSPField] public string engineID;
+		EngineWrapper engine;
 
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
-			//find the first engine
-			engineS  = part.Modules.OfType<IEngineStatus>().FirstOrDefault();
-			engine   = engineS as ModuleEngines;
-			engineFX = engineS as ModuleEnginesFX;
-			if(engine == null && engineFX == null)
+			//find the engine
+			var engines = part.Modules.OfType<IEngineStatus>();
+			foreach(var e in engines)
+			{
+				var _e = new EngineWrapper(e);
+				if(_e.Valid && _e.engineID == engineID)
+				{ engine = _e; break; }
+			}
+			if(engine == null || !engine.Valid)
 			{ enabled = false; isEnabled = false; return; }
-			eFX = engineFX != null;
 			//no interface
 			OpenEventGUIName  = string.Empty;
 			CloseEventGUIName = string.Empty;
@@ -60,20 +55,46 @@ namespace AtHangar
 
 		public override void Update()
 		{
-			if(speed_multiplier == 0 && !engineS.isOperational) return;
+			if(speed_multiplier == 0 && !engine.isOperational) return;
 			update_speed_multiplier();
 			base.Update();
 		}
 
 		void update_speed_multiplier()
 		{
-			var target = engineS.isOperational ? currentThrottle : 0;
-			if(useEngineResponseTime)
+			var target = engine.isOperational ? engine.currentThrottle : 0;
+			if(engine.useEngineResponseTime)
 			{
-				var speed = speed_multiplier < target? engineAccelerationSpeed : engineDecelerationSpeed;
+				var speed = speed_multiplier < target? engine.engineAccelerationSpeed : engine.engineDecelerationSpeed;
 				speed_multiplier = Mathf.Lerp(speed_multiplier, target, speed * TimeWarp.fixedDeltaTime);
 			}
 			else speed_multiplier = target;
+		}
+	}
+
+	public class EngineWrapper
+	{
+		readonly IEngineStatus   engineS;
+		readonly ModuleEngines   engine;
+		readonly ModuleEnginesFX engineFX;
+		readonly bool eFX;
+
+		public bool  Valid { get { return engine != null || engineFX != null; } }
+		public bool  isOperational { get { return engineS.isOperational; } }
+		public string engineID { get { return eFX? engineFX.engineID : engine.engineID; }}
+		public float currentThrottle         { get { return eFX? engineFX.currentThrottle : engine.currentThrottle; }}
+		public float finalThrust             { get { return eFX? engineFX.finalThrust : engine.finalThrust; }}
+		public float engineAccelerationSpeed { get { return eFX? engineFX.engineAccelerationSpeed : engine.engineAccelerationSpeed; }}
+		public float engineDecelerationSpeed { get { return eFX? engineFX.engineDecelerationSpeed : engine.engineDecelerationSpeed; }}
+		public bool  useEngineResponseTime   { get { return eFX? engineFX.useEngineResponseTime : engine.useEngineResponseTime; }}
+		public List<Transform> thrustTransforms { get { return eFX? engineFX.thrustTransforms : engine.thrustTransforms; }}
+
+		public EngineWrapper(IEngineStatus engine_status)
+		{
+			engineS  = engine_status;
+			engine   = engineS as ModuleEngines;
+			engineFX = engineS as ModuleEnginesFX;
+			eFX = engineFX != null;
 		}
 	}
 }
