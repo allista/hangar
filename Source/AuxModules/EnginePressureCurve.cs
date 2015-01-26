@@ -16,6 +16,11 @@ using UnityEngine;
 
 namespace AtHangar
 {
+	/// <summary>
+	/// This module attaches itself to the ModuleEngines/ModuleEnginesFX with the specified engineID
+	/// and modifies resulting force (not maxThrust or any other engine's properties) according 
+	/// to the provided float curve: force_coefficient(current_static_pressure/ASL_pressure).
+	/// </summary>
 	public class EnginePressureCurve : PartModule
 	{
 		[KSPField] public string engineID;
@@ -23,11 +28,6 @@ namespace AtHangar
 
 		[KSPField(guiActive = true, guiName = "Pressure Factor", guiFormat = "P1")]
 		public float PressureFactor = 1f;
-
-		#if DEBUG
-		[KSPField(guiActive = true, guiName = "Pressure", guiFormat = "F3")]
-		public float pressure;
-		#endif
 
 		EngineWrapper engine;
 
@@ -57,17 +57,11 @@ namespace AtHangar
 		{
 			base.OnFixedUpdate();
 			if(engine.finalThrust <= 0 || part.Rigidbody == null) return;
-			pressure = (float)vessel.staticPressure;//debug
 			PressureFactor = PressureCurve.Evaluate((float)vessel.staticPressure);
 			if(PressureFactor <= 0) return;
 			var transforms = engine.thrustTransforms;
-			var num_transforms = transforms.Count;
-			var thrust = engine.finalThrust / (float)num_transforms * (1 - PressureFactor);
-			for(int i = 0; i < num_transforms; i++)
-			{
-				var transform = transforms[i];
-				part.Rigidbody.AddForceAtPosition(transform.forward * thrust, transform.position, ForceMode.Force);
-			}
+			var thrust = engine.finalThrust / (float)transforms.Count * (1 - PressureFactor);
+			transforms.ForEach(t => part.Rigidbody.AddForceAtPosition(t.forward * thrust, t.position, ForceMode.Force));
 		}
 	}
 }
