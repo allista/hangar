@@ -150,12 +150,7 @@ namespace AtHangar
 
 		public bool VesselFits(PackedVessel v)
 		{
-			Utils.logTransfrorm(spawn_transform);//debug
 			var	position = GetSpawnTransform(v);
-			Utils.logTransfrorm(position);//debug
-			Utils.logBounds("Part", PartMetric.bounds);//debug
-			Utils.logBounds("Hangar space", HangarMetric.bounds);//debug
-			Utils.logBounds("Vessel", v.metric.bounds);//debug
 			return ComputeHull ? 
 				v.metric.FitsAligned(position, hangar_space.transform, hangar_space.sharedMesh) :
 				v.metric.FitsAligned(position, part.partTransform, HangarMetric);
