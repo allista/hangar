@@ -327,6 +327,7 @@ namespace AtHangar
 			for(int i = 0; i < edges.Length; i++) 
 			{
 				Vector3 edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
+				Utils.Log("Metric.FitsAligned.0: edge: {0}", edge);//debug
 				if(other.hull != null) 
 				{ if(!other.hull.Contains(edge)) return false; }
 				else if(!other.bounds.Contains(edge)) return false;
@@ -344,6 +345,7 @@ namespace AtHangar
 		/// http://answers.unity3d.com/questions/611947/am-i-inside-a-volume-without-colliders.html
 		public bool FitsAligned(Transform this_T, Transform other_T, Mesh container)
 		{
+			Utils.Log("Metric.FitsAligned.1: hull: {0}", hull);//debug
 			//get edges in containers reference frame
 			var edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
 			//check each triangle of container
@@ -352,13 +354,17 @@ namespace AtHangar
 			if(triangles.Length/3 > edges.Length)
 			{
 				for(int i = 0; i < edges.Length; i++) 
+				{
 					edges[i] = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
+					Utils.Log("Metric.FitsAligned.1: edge: {0}", edges[i]);//debug
+				}
 				for(int i = 0; i < triangles.Length/3; i++)
 				{
 					var V1 = c_edges[triangles[i*3]];
 					var V2 = c_edges[triangles[i*3+1]];
 					var V3 = c_edges[triangles[i*3+2]];
 					var P  = new Plane(V1, V2, V3);
+					Utils.Log("Metric.FitsAligned.1: plane: {0}, {1}, {2}", V1, V2, V3);
 					foreach(Vector3 edge in edges)
 					{ if(!P.GetSide(edge)) return false; }
 				}
@@ -376,6 +382,7 @@ namespace AtHangar
 				for(int i = 0; i < edges.Length; i++) 
 				{
 					var edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
+					Utils.Log("Metric.FitsAligned.2: edge: {0}", edge);//debug
 					foreach(Plane P in planes)
 					{ if(!P.GetSide(edge)) return false; }
 				}

@@ -33,7 +33,8 @@ namespace AtHangar
 		[KSPField] public bool   AutoPositionVessel;
 		MeshFilter hangar_space;
 		Transform  spawn_transform;
-		public virtual bool ComputeHull { get { return UseHangarSpaceMesh && hangar_space != null; } }
+		public virtual bool ComputeHull 
+		{ get { return Nodes.Count > 0 || UseHangarSpaceMesh && hangar_space != null; } }
 
 		//vessels storage
 		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
@@ -149,7 +150,12 @@ namespace AtHangar
 
 		public bool VesselFits(PackedVessel v)
 		{
+			Utils.logTransfrorm(spawn_transform);//debug
 			var	position = GetSpawnTransform(v);
+			Utils.logTransfrorm(position);//debug
+			Utils.logBounds("Part", PartMetric.bounds);//debug
+			Utils.logBounds("Hangar space", HangarMetric.bounds);//debug
+			Utils.logBounds("Vessel", v.metric.bounds);//debug
 			return ComputeHull ? 
 				v.metric.FitsAligned(position, hangar_space.transform, hangar_space.sharedMesh) :
 				v.metric.FitsAligned(position, part.partTransform, HangarMetric);
@@ -343,7 +349,7 @@ namespace AtHangar
 				//wait for vsl to be launched
 				while(!vsl.loaded) yield return WaitWithPhysics.ForNextUpdate();
 				//store vessel
-				StoreVessel(new StoredVessel(vsl.vessel));
+				StoreVessel(new StoredVessel(vsl.vessel, ComputeHull));
 				//switch to storage vessel before storing
 				FlightGlobals.ForceSetActiveVessel(vessel);
 				//destroy vessel
