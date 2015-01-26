@@ -57,8 +57,7 @@ namespace AtHangar
 		{
 			base.OnFixedUpdate();
 			if(engine.finalThrust <= 0 || part.Rigidbody == null) return;
-			PressureFactor = PressureCurve.Evaluate((float)vessel.staticPressure);
-			if(PressureFactor <= 0) return;
+			PressureFactor = PressureCurve.Evaluate((float)FlightGlobals.getStaticPressure(part.vessel.altitude, part.vessel.mainBody));
 			var transforms = engine.thrustTransforms;
 			var thrust = engine.finalThrust / (float)transforms.Count * (1 - PressureFactor);
 			transforms.ForEach(t => part.Rigidbody.AddForceAtPosition(t.forward * thrust, t.position, ForceMode.Force));
