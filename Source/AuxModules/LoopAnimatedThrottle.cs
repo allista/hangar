@@ -89,6 +89,18 @@ namespace AtHangar
 		public bool  useEngineResponseTime   { get { return eFX? engineFX.useEngineResponseTime : engine.useEngineResponseTime; }}
 		public List<Transform> thrustTransforms { get { return eFX? engineFX.thrustTransforms : engine.thrustTransforms; }}
 
+		public float minThrust
+		{ 
+			get { return eFX? engineFX.minThrust : engine.minThrust; }
+			set { if(eFX) engineFX.minThrust = value; else engine.minThrust = value; }
+		}
+
+		public float maxThrust
+		{ 
+			get { return eFX? engineFX.maxThrust : engine.maxThrust; }
+			set { if(eFX) engineFX.maxThrust = value; else engine.maxThrust = value; }
+		}
+
 		public EngineWrapper(IEngineStatus engine_status)
 		{
 			engineS  = engine_status;
