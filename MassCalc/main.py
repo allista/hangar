@@ -264,6 +264,15 @@ if __name__ == '__main__':
                              S=surface(0.42, 0.001, composits)),
                       ])
     
+    turbogen   = part('TurboGenerator', 
+                     [volume(1.958, 'hull', C=200, D=0.01,
+                             S=surface(13.13, 0.001, Al_Li),
+                             V=[volume(1.5, 'turboshaft', M=0.327, C=1000)]),
+                      volume(0.095, 'compressor', C=200, D=0.01,
+                             S=surface(0.525, 0.003, Al_Li)),
+                      ])
+    
+    
     sys.exit()
     
     #extensions
