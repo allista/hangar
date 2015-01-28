@@ -1,3 +1,14 @@
+//   Utils.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2015 Allis Tauri
+//
+// This work is licensed under the Creative Commons Attribution 4.0 International License. 
+// To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
+// or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,18 +42,18 @@ namespace AtHangar
 		{
 			group.audio = part.gameObject.AddComponent<AudioSource>();
 			group.audio.volume = GameSettings.SHIP_VOLUME;
-			group.audio.rolloffMode = AudioRolloffMode.Linear;
+			group.audio.rolloffMode = AudioRolloffMode.Logarithmic;
 			group.audio.dopplerLevel = 0f;
 			group.audio.panLevel = 1f;
 			group.audio.maxDistance = maxDistance;
 			group.audio.loop = loop;
 			group.audio.playOnAwake = false;
-			if (GameDatabase.Instance.ExistsAudioClip(sndPath))
+			if(GameDatabase.Instance.ExistsAudioClip(sndPath))
 			{
 				group.audio.clip = GameDatabase.Instance.GetAudioClip(sndPath);
 				return true;
 			}
-			ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " has not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
+			ScreenMessager.showMessage(10, "Sound file : " + sndPath + " has not been found, please check your Hangar installation");
 			return false;
 		}
 
