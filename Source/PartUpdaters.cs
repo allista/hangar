@@ -1,5 +1,17 @@
-﻿// This code is based on Procedural Fairings plug-in by Alexey Volynskov, KzPartResizer class
+﻿//   PartUpdaters.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2015 Allis Tauri
+//
+// This work is licensed under the Creative Commons Attribution 4.0 International License. 
+// To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
+// or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+// This code is based on Procedural Fairings plug-in by Alexey Volynskov, KzPartResizer class
 // And on ideas drawn from the TweakScale plugin
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -408,6 +420,14 @@ namespace AtHangar
 		{
 			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.cube * scale.absolute.aspect;
 			module.SetRatesMultiplier(base_module.RatesMultiplier * scale.absolute.cube * scale.absolute.aspect); 
+		}
+	}
+
+	public class EnergyGeneratorUpdater : ModuleUpdater<HangarEnergyGenerator>
+	{
+		protected override void on_rescale(HangarEnergyGenerator module, HangarEnergyGenerator base_module, Scale scale)
+		{
+			module.EnergyProduction = base_module.EnergyProduction * scale.absolute.cube * scale.absolute.aspect;
 		}
 	}
 

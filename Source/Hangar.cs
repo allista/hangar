@@ -1,4 +1,15 @@
-﻿using System.Collections.Generic;
+﻿//   Hangar.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2015 Allis Tauri
+//
+// This work is licensed under the Creative Commons Attribution 4.0 International License. 
+// To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
+// or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AtHangar
@@ -28,10 +39,9 @@ namespace AtHangar
 			base.early_setup(state);
 			Storage = part.GetModule<HangarStorage>();
 			if(Storage == null) 
-			{ 
-				ScreenMessager.showMessage("WARNING: \"{0}\" part has no HangarStorage module.\n" +
-				"The part configuration is INVALID!", part.Title()); 
-				return; 
+			{
+				this.ConfigurationInvalid("\"{0}\" part has no HangarStorage module", part.Title());
+				return;
 			}
 			//deprecated config conversion//
 			if(ModuleConfig != null)

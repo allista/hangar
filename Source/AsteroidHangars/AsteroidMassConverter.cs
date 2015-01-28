@@ -1,4 +1,15 @@
-﻿using System;
+﻿//   AsteroidMassConverter.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2015 Allis Tauri
+//
+// This work is licensed under the Creative Commons Attribution 4.0 International License. 
+// To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
+// or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -43,8 +54,11 @@ namespace AtHangar
 			GameEvents.onVesselWasModified.Add(update_state);
 		}
 
-		void OnDestroy() 
-		{ GameEvents.onVesselWasModified.Remove(update_state); }
+		public override void OnDestroy() 
+		{ 
+			base.OnDestroy();
+			GameEvents.onVesselWasModified.Remove(update_state); 
+		}
 
 		void update_state(Vessel vsl)
 		{ 
@@ -193,18 +207,10 @@ namespace AtHangar
 
 		protected override bool convert()
 		{
-			//get energy
-			socket.RequestTransfer(RatesMultiplier*EnergyConsumption*TimeWarp.fixedDeltaTime);
-			if(!socket.TransferResource()) return true;
-			Rate = socket.Ratio;
-			if(Rate < EnergyRateThreshold) 
-			{
-				ScreenMessager.showMessage("Not enough energy");
-				socket.Clear();
-				return false;
-			}
+			//consume energy, udpate conversion rate and check its value
+			if(!consume_energy()) return true;
 			//try to produce resource
-			var produced = produce(socket.Result);
+			var produced = produce(EnergyConsumption*Rate);
 			//check results
 			if(asteroid.mass <= asteroid_info.MinMass)
 			{
@@ -212,7 +218,7 @@ namespace AtHangar
 				dM_buffer = 0; pump.Clear();
 				return false;
 			}
-			return produced;
+			return produced && above_threshold;
 		}
 
 		protected override void on_start_conversion()
