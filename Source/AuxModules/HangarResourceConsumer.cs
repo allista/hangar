@@ -32,10 +32,16 @@ namespace AtHangar
 			return info;
 		}
 
+		public override void OnLoad(ConfigNode node)
+		{
+			base.OnLoad(node);
+			//check energy consumption; even generators consume energy
+			if(EnergyConsumption <= 0) 
+				EnergyConsumption = 0.01f;
+		}
+
 		protected virtual void setup_resources()
 		{
-			//check energy consumption; even generators consume energy
-			if(EnergyConsumption <= 0) EnergyConsumption = 0.01f;
 			//parse input/output resources
 			input  = ResourceLine.ParseResourcesToList(InputResources);
 			if(input == null) 
@@ -66,8 +72,8 @@ namespace AtHangar
 				if(r.TransferResource(rate) && r.PartialTransfer) 
 				{ 
 					if(skip_failed) 
-						failed += (failed == ""? "" : ", ") + HangarGUI.ParseCamelCase(r.Resource.name);
-					else return HangarGUI.ParseCamelCase(r.Resource.name); 
+						failed += (failed == ""? "" : ", ") + HangarGUI.ParseCamelCase(r.Name);
+					else return HangarGUI.ParseCamelCase(r.Name); 
 				}
 			}
 			return failed;
