@@ -207,18 +207,19 @@ namespace AtHangar
 
 		protected override bool convert()
 		{
-			//consume energy, udpate conversion rate and check its value
+			//consume energy, udpate conversion rate
 			if(!consume_energy()) return true;
-			//try to produce resource
-			var produced = produce(EnergyConsumption*Rate);
-			//check results
+			//check asteroid first
 			if(asteroid.mass <= asteroid_info.MinMass)
 			{
 				ScreenMessager.showMessage("Asteroid is depleted");
 				dM_buffer = 0; pump.Clear();
 				return false;
 			}
-			return produced && above_threshold;
+			//try to produce resource
+			if(!ShuttingOff && Rate >= MinimumRate) 
+				ShuttingOff = produce(Rate * CurrentEnergyDemand * TimeWarp.fixedDeltaTime);
+			return above_threshold;
 		}
 
 		protected override void on_start_conversion()

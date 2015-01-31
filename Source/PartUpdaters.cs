@@ -241,9 +241,10 @@ namespace AtHangar
 
 		public override void OnRescale(Scale scale)
 		{
-			if(!part.GetComponents<EffectBehaviour>()
-				.Any(e => e is ModelMultiParticleFX || e is ModelParticleFX)) return;
-			this.scale = scale;
+			if(part.FindModelComponent<KSPParticleEmitter>() != null ||
+			   part.GetComponents<EffectBehaviour>()
+			   .Any(e => e is ModelMultiParticleFX || e is ModelParticleFX))
+				this.scale = scale;
 		}
 	}
 
@@ -417,18 +418,7 @@ namespace AtHangar
 	public class ResourceConverterUpdater : ModuleUpdater<AnimatedConverterBase>
 	{
 		protected override void on_rescale(AnimatedConverterBase module, AnimatedConverterBase base_module, Scale scale)
-		{
-			module.EnergyConsumption = base_module.EnergyConsumption * scale.absolute.cube * scale.absolute.aspect;
-			module.SetRatesMultiplier(base_module.RatesMultiplier * scale.absolute.cube * scale.absolute.aspect); 
-		}
-	}
-
-	public class EnergyGeneratorUpdater : ModuleUpdater<HangarEnergyGenerator>
-	{
-		protected override void on_rescale(HangarEnergyGenerator module, HangarEnergyGenerator base_module, Scale scale)
-		{
-			module.EnergyProduction = base_module.EnergyProduction * scale.absolute.cube * scale.absolute.aspect;
-		}
+		{ module.SetRatesMultiplier(base_module.RatesMultiplier * scale.absolute.cube * scale.absolute.aspect); }
 	}
 
 	public class TankManagerUpdater : ModuleUpdater<HangarTankManager>

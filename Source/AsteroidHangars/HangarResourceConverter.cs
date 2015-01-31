@@ -79,7 +79,7 @@ namespace AtHangar
 		}
 
 		static float transferred_mass(List<ResourceLine> resources)
-		{ return resources.Aggregate(0f, (m, r) => m+r.Pump.Result*r.Resource.density); }
+		{ return resources.Aggregate(0f, (m, r) => m+r.Pump.Result*r.Density); }
 
 		protected override bool can_convert(bool report = false)
 		{ return true; } //do we need to check something here?
@@ -88,6 +88,7 @@ namespace AtHangar
 		{
 			//consume energy, udpate conversion rate
 			if(!consume_energy()) return true;
+			if(ShuttingOff || Rate < MinimumRate) goto end;
 			//consume input resources
 			var failed = try_transfer(input, Rate);
 			//if not all inputs are present, dump consumed into waste and shut off
@@ -97,17 +98,19 @@ namespace AtHangar
 				{
 					waste.Pump.RequestTransfer(-transferred_mass(input)/waste.Density);
 					if(waste.Pump.TransferResource() && waste.PartialTransfer)
-						ScreenMessager.showMessage("No space left for {0}", waste.Resource.name);
+						ScreenMessager.showMessage("No space left for {0}", waste.Name);
 				}
 				input.ForEach(r => r.Pump.Clear());
 				ScreenMessager.showMessage("Not enough {0}", failed);
-				return false;
+				StopConversion();
+				goto end;
 			}
 			//produce waste
 			if(waste != null && waste.Valid && waste.TransferResource(Rate) && waste.PartialTransfer)
 			{
-				ScreenMessager.showMessage("No space left for {0}", waste.Resource.name);
-				return false;
+				ScreenMessager.showMessage("No space left for {0}", waste.Name);
+				StopConversion();
+				goto end;
 			}
 			failed = try_transfer(output, Rate, true);
 			//if not all outputs are present, shut off
@@ -115,8 +118,9 @@ namespace AtHangar
 			{
 				output.ForEach(r => r.Pump.Clear());
 				ScreenMessager.showMessage("No space self for {0}", failed);
-				return false;
+				StopConversion();
 			}
+			end:
 			return above_threshold;
 		}
 

@@ -16,29 +16,43 @@ namespace AtHangar
 {
 	public class HangarEnergyGenerator : HangarResourceConsumer
 	{
-		[KSPField(guiActiveEditor = true, guiName = "Energy Production", guiUnits = "ec/sec", guiFormat = "F2")] 
-		public float EnergyProduction = 100f;
+		[KSPField] public float EnergyProduction = 100f;
+
+		[KSPField(guiActiveEditor = true, guiName = "Energy Production", guiUnits = "/s", guiFormat = "F2")] 
+		public float CurrentEnergyProduction;
 
 		public override string GetInfo()
 		{
 			setup_resources();
 			var info = base.GetInfo();
-			info += string.Format("Energy Production: {0:F2}/sec\n", EnergyProduction*RatesMultiplier);
+			update_energy_production();
+			info += string.Format("Energy Production: {0:F2}/sec\n", CurrentEnergyProduction);
 			return info;
 		}
 
-		protected override void setup_resources()
+		public override void OnLoad(ConfigNode node)
 		{
-			base.setup_resources();
+			base.OnLoad(node);
 			//check energy production
-			if(EnergyProduction <= 0) EnergyProduction = 0.01f;
+			if(EnergyProduction <= 0) 
+				EnergyProduction = 0.01f;
 		}
 
 		public override void OnStart(StartState state)
 		{
 			Fields["EnergyProduction"].guiName = Title+" Produces";
+			update_energy_production();
 			base.OnStart(state);
 		}
+
+		public override void SetRatesMultiplier(float mult)
+		{
+			base.SetRatesMultiplier(mult);
+			update_energy_production();
+		}
+
+		void update_energy_production()
+		{ CurrentEnergyProduction = EnergyProduction*RatesMultiplier; }
 
 		protected override bool can_convert(bool report = false)
 		{ return true; } //do we need to check something here?
@@ -57,7 +71,7 @@ namespace AtHangar
 			//produce energy only if current Rate is above threshold
 			if(Rate >= MinimumRate)
 			{
-				socket.RequestTransfer(-Rate*RatesMultiplier*EnergyProduction*TimeWarp.fixedDeltaTime);
+				socket.RequestTransfer(-Rate*CurrentEnergyProduction*TimeWarp.fixedDeltaTime);
 				if(socket.TransferResource() && failed == string.Empty)
 					next_rate = Mathf.Max(socket.Ratio, MinimumRate);
 			}
