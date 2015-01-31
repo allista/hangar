@@ -126,10 +126,10 @@ namespace AtHangar
 	public class TemperatureReporter : PartModule
 	{
 		[KSPField(isPersistant=false, guiActiveEditor=true, guiActive=true, guiName="T", guiUnits = "C")]
-		public string temperatureDisplay;
+		public float temperatureDisplay;
 
 		public override void OnUpdate()
-		{ temperatureDisplay = part.temperature.ToString(); }
+		{ temperatureDisplay = part.temperature; }
 	}
 }
 #endif
