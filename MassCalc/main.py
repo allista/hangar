@@ -240,6 +240,14 @@ if __name__ == '__main__':
                                   S=surface(3.97, 0.002, Al_Li)),
                            ])
     
+    krent700   = part('Krent700', 
+                     [volume(20.17, 'hose', C=200, D=0.02,
+                             S=surface(62.916, 0.001, Al_Li),
+                             V=[volume(10.47, 'engine', M=3.54, C=1000)]),
+                      volume(1.206, 'fixer', C=100, D=0.1)])
+    
+    sys.exit()
+    
     rad_sabre  = part('RadialSabre', 
                      [volume(3.727, 'hull', C=200, D=0.02,
                              S=surface(26.07, 0.003, Al_Li),
@@ -271,9 +279,6 @@ if __name__ == '__main__':
                       volume(0.095, 'compressor', C=200, D=0.01,
                              S=surface(0.525, 0.003, Al_Li)),
                       ])
-    
-    
-    sys.exit()
     
     #extensions
     extension  = part('HangarExtension',
