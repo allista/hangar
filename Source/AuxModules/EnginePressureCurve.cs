@@ -26,9 +26,10 @@ namespace AtHangar
 		[KSPField] public string engineID;
 		[KSPField] public FloatCurve PressureCurve;
 
-		[KSPField(guiActive = true, guiName = "Pressure Factor", guiFormat = "P1")]
-		public float PressureFactor = 1f;
+		[KSPField(guiActive = true, guiName = "Actual Thrust", guiFormat = "F1", guiUnits="kN")]
+		public float ActualThrust;
 
+		public float PressureFactor { get; private set; } = 1f;
 		EngineWrapper engine;
 
 		public override void OnAwake()
@@ -59,8 +60,9 @@ namespace AtHangar
 			if(engine.finalThrust <= 0 || part.Rigidbody == null) return;
 			PressureFactor = PressureCurve.Evaluate((float)FlightGlobals.getStaticPressure(part.vessel.altitude, part.vessel.mainBody));
 			var transforms = engine.thrustTransforms;
-			var thrust = engine.finalThrust / (float)transforms.Count * (1 - PressureFactor);
-			transforms.ForEach(t => part.Rigidbody.AddForceAtPosition(t.forward * thrust, t.position, ForceMode.Force));
+			ActualThrust = engine.finalThrust * PressureFactor;
+			var d_thrust = (engine.finalThrust - ActualThrust) / (float)transforms.Count;
+			transforms.ForEach(t => part.Rigidbody.AddForceAtPosition(t.forward * d_thrust, t.position, ForceMode.Force));
 		}
 	}
 }
