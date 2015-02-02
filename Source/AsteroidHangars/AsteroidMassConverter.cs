@@ -218,7 +218,7 @@ namespace AtHangar
 			}
 			//try to produce resource
 			if(!ShuttingOff && Rate >= MinimumRate) 
-				ShuttingOff = produce(Rate * CurrentEnergyDemand * TimeWarp.fixedDeltaTime);
+				ShuttingOff = !produce(Rate * CurrentEnergyDemand * TimeWarp.fixedDeltaTime);
 			return above_threshold;
 		}
 
