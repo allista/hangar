@@ -257,20 +257,19 @@ namespace AtHangar
 			edges.Add(f0.GetEdge(0));
 			var faces = make_pyramid(mv2, edges);
 			Faces.Add(f0); Faces.AddRange(faces);
-			points.Remove(mv1);	 points.Remove(mv2);
-			points.Remove(ml.s); points.Remove(ml.e);
+			points.RemoveAll(v => v.Equals(mv1) || v.Equals(mv2) || v.Equals(ml.s) || v.Equals(ml.e));
 		}
 
 		static void sort_points(IList<Vector3> points, IList<Face> faces)
 		{
+			var num_faces = faces.Count;
 			for(int p = 0; p < points.Count; p++)
 			{ 
-				int num_faces = faces.Count;
 				for(int f = 0; f < num_faces; f++)
 				{ 
 					var face  = faces[f];
 					var point = points[p];
-					float d = face.P.GetDistanceToPoint(point);
+					var d = face.P.GetDistanceToPoint(point);
 					if(d > Face.MinDistance)
 					{ 
 						face.VisiblePoints.Add(point);
