@@ -600,7 +600,7 @@ namespace AtHangar
 				catch (NullReferenceException) { return; }
 				if(parts.Count == 0 || parts[0] == null) return;
 				vessel_metric.DrawCenter(parts[0].partTransform);
-//				Utils.DrawHull(vessel_metric, parts[0].partTransform);
+//				HangarGUI.DrawHull(vessel_metric, parts[0].partTransform);
 			}
 			else 
 			{
