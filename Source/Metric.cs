@@ -80,8 +80,7 @@ namespace AtHangar
 
 		static Vector3[] uniqueVertices(Mesh m)
 		{
-			var v_set = new HashSet<Vector3>();
-			foreach(Vector3 v in m.vertices) v_set.Add(v);
+			var v_set = new HashSet<Vector3>(m.vertices);
 			var new_verts = new Vector3[v_set.Count];
 			v_set.CopyTo(new_verts);
 			return new_verts;
