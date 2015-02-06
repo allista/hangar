@@ -39,6 +39,7 @@ namespace AtHangar
 		//vessels storage
 		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
 		readonly protected VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>();
+		readonly protected List<PackedConstruct> unfit_constructs = new List<PackedConstruct>();
 		public Vector3 Size { get { return HangarMetric.size; } }
 		public float Volume { get { return HangarMetric.volume; } }
 		public int VesselsDocked { get { return packed_constructs.Count+stored_vessels.Count; } }
@@ -157,7 +158,11 @@ namespace AtHangar
 		}
 
 		void try_repack_construct(PackedConstruct pc)
-		{ if(VesselFits(pc)) packed_constructs.TryAdd(pc); }
+		{ 
+			if(!VesselFits(pc) || 
+			   !packed_constructs.TryAdd(pc))
+				unfit_constructs.Add(pc);
+		}
 
 		public override void Setup(bool reset = false)
 		{
@@ -223,6 +228,9 @@ namespace AtHangar
 			return vessels;
 		}
 
+		public List<PackedConstruct> UnfitConstucts { get { return unfit_constructs.ToList(); } }
+		public void RemoveUnfit(PackedConstruct pc) { unfit_constructs.Remove(pc); }
+
 		public void UpdateParams()
 		{
 			stored_vessels.UpdateParams();
@@ -231,6 +239,7 @@ namespace AtHangar
 
 		public void ClearConstructs()
 		{
+			unfit_constructs.Clear();
 			packed_constructs.Clear();
 			set_part_params();
 		}

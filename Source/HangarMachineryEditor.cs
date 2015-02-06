@@ -12,7 +12,8 @@ namespace AtHangar
 		enum EditorWindows { EditContent, EditName, RelocateVessels }
 		readonly Multiplexer<EditorWindows> selected_window = new Multiplexer<EditorWindows>();
 
-		Vector2 scroll_view = Vector2.zero;
+		Vector2 constructs_scroll = Vector2.zero;
+		Vector2 unfit_scroll = Vector2.zero;
 		Rect eWindowPos  = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
 		Rect neWindowPos = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 50);
 		Rect vWindowPos  = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
@@ -89,7 +90,7 @@ namespace AtHangar
 			//hangar contents
 			var constructs = Storage.GetConstructs();
 			constructs.Sort((a, b) => a.name.CompareTo(b.name));
-			scroll_view = GUILayout.BeginScrollView(scroll_view, GUILayout.Height(200), GUILayout.Width(windows_width));
+			constructs_scroll = GUILayout.BeginScrollView(constructs_scroll, GUILayout.Height(200), GUILayout.Width(windows_width));
 			GUILayout.BeginVertical();
 			foreach(PackedConstruct pc in constructs)
 			{
@@ -103,6 +104,27 @@ namespace AtHangar
 			}
 			GUILayout.EndVertical();
 			GUILayout.EndScrollView();
+			//unfit constructs
+			constructs = Storage.UnfitConstucts;
+			if(constructs.Count > 0)
+			{
+				GUILayout.Label("Unfit vessels:", Styles.yellow, GUILayout.ExpandWidth(true));
+				unfit_scroll = GUILayout.BeginScrollView(unfit_scroll, GUILayout.Height(100), GUILayout.Width(windows_width));
+				GUILayout.BeginVertical();
+				foreach(PackedConstruct pc in Storage.UnfitConstucts)
+				{
+					GUILayout.BeginHorizontal();
+					HangarGUI.PackedVesselLabel(pc);
+					if(GUILayout.Button("^", Styles.green_button, GUILayout.Width(25))) 
+					{ if(try_store_vessel(pc.Clone())) Storage.RemoveUnfit(pc); }
+					if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) 
+						Storage.RemoveUnfit(pc);
+					GUILayout.EndHorizontal();
+				}
+				GUILayout.EndVertical();
+				GUILayout.EndScrollView();
+			}
+			//common buttons
 			if(GUILayout.Button("Clear", Styles.red_button, GUILayout.ExpandWidth(true)))
 				Storage.ClearConstructs();
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
@@ -140,9 +162,10 @@ namespace AtHangar
 				{
 					Utils.LockIfMouseOver(eLock, eWindowPos);
 					eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
-						hangar_content_editor,
-						"Hangar Contents Editor",
-						GUILayout.Width(windows_width));
+												  hangar_content_editor,
+												  "Hangar Contents Editor",
+												  GUILayout.Width(windows_width),
+					                              GUILayout.Height(300));
 					HangarGUI.CheckRect(ref eWindowPos);
 				}
 				else 
