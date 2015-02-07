@@ -305,7 +305,7 @@ GameObject:
   - 4: {fileID: 676065283}
   - 33: {fileID: 676065284}
   m_Layer: 0
-  m_Name: mk2-cargo-bay-conversion
+  m_Name: hangar-space
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -332,7 +332,7 @@ MeshFilter:
     type: 3}
   m_PrefabInternal: {fileID: 1924285205}
   m_GameObject: {fileID: 676065282}
-  m_Mesh: {fileID: 4300000, guid: fd871750595e7004189aa10ce7e24a70, type: 3}
+  m_Mesh: {fileID: 4300004, guid: fd871750595e7004189aa10ce7e24a70, type: 3}
 --- !u!1 &724929715
 GameObject:
   m_ObjectHideFlags: 0
@@ -366,7 +366,11 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 1794866435}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 100000, guid: 71a340b3e8e5ac046a6ed093be497dc9, type: 3}
+      propertyPath: m_Name
+      value: hangar-space
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2300002, guid: 71a340b3e8e5ac046a6ed093be497dc9, type: 3}
     - {fileID: 2300000, guid: 71a340b3e8e5ac046a6ed093be497dc9, type: 3}
@@ -412,7 +416,7 @@ GameObject:
   - 4: {fileID: 1246775450}
   - 33: {fileID: 1246775451}
   m_Layer: 0
-  m_Name: mk3-conversion
+  m_Name: hangar-space
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -526,7 +530,7 @@ GameObject:
   - 4: {fileID: 1660833098}
   - 33: {fileID: 1660833100}
   m_Layer: 0
-  m_Name: generic-S1-conversion
+  m_Name: hangar-space
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -653,7 +657,11 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 328647003}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 100002, guid: 6f2f3dbb976db5645b84d568dc4aeb56, type: 3}
+      propertyPath: m_Name
+      value: hangar-space
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2300000, guid: 6f2f3dbb976db5645b84d568dc4aeb56, type: 3}
     - {fileID: 11100000, guid: 6f2f3dbb976db5645b84d568dc4aeb56, type: 3}
@@ -668,7 +676,11 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 194699258}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 100004, guid: fd871750595e7004189aa10ce7e24a70, type: 3}
+      propertyPath: m_Name
+      value: hangar-space
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2300000, guid: fd871750595e7004189aa10ce7e24a70, type: 3}
     - {fileID: 2300002, guid: fd871750595e7004189aa10ce7e24a70, type: 3}

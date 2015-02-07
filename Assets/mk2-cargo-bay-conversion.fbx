@@ -8,12 +8,12 @@ FBXHeaderExtension:  {
 	FBXVersion: 6100
 	CreationTimeStamp:  {
 		Version: 1000
-		Year: 2014
-		Month: 12
-		Day: 04
-		Hour: 11
-		Minute: 43
-		Second: 12
+		Year: 2015
+		Month: 02
+		Day: 08
+		Hour: 01
+		Minute: 24
+		Second: 39
 		Millisecond: 0
 	}
 	Creator: "FBX SDK/FBX Plugins build 20070228"
@@ -21,7 +21,7 @@ FBXHeaderExtension:  {
 		FlagPLE: 0
 	}
 }
-CreationTime: "2014-12-04 11:43:12:000"
+CreationTime: "2015-02-08 01:24:39:000"
 Creator: "Blender version 2.71 (sub 6)"
 
 ; Object definitions
@@ -217,7 +217,7 @@ Objects:  {
 		Culling: "CullingOff"
 		TypeFlags: "Null"
 	}
-	Model: "Model::Mk2-hangar-space", "Mesh" {
+	Model: "Model::hangar-space", "Mesh" {
 		Version: 232
 		Properties60:  {
 			Property: "QuaternionInterpolate", "bool", "",0
@@ -1678,7 +1678,7 @@ Objects:  {
 			Matrix: -1.000000000000000,0.000000150995803,-0.000000000000001,0.000000000000000,0.000000000000023,0.000000162920699,1.000000119209290,0.000000000000000,0.000000150995817,1.000000119209290,-0.000000162920699,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000
 		}
 		PoseNode:  {
-			Node: "Model::Mk2-hangar-space"
+			Node: "Model::hangar-space"
 			Matrix: -0.000000075497901,0.000000000000000,1.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000075497901,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000
 		}
 		PoseNode:  {
@@ -1706,7 +1706,7 @@ Objects:  {
 Relations:  {
 	Model: "Model::launch-position", "Null" {
 	}
-	Model: "Model::Mk2-hangar-space", "Mesh" {
+	Model: "Model::hangar-space", "Mesh" {
 	}
 	Model: "Model::hangar-trigger", "Mesh" {
 	}
@@ -1736,10 +1736,10 @@ Relations:  {
 ;------------------------------------------------------------------
 
 Connections:  {
-	Connect: "OO", "Model::Mk2-hangar-space", "Model::Scene"
-	Connect: "OO", "Model::hangar-trigger", "Model::Mk2-hangar-space"
-	Connect: "OO", "Model::launch-position", "Model::Mk2-hangar-space"
-	Connect: "OO", "Material::mk2CargoBay", "Model::Mk2-hangar-space"
+	Connect: "OO", "Model::hangar-space", "Model::Scene"
+	Connect: "OO", "Model::hangar-trigger", "Model::hangar-space"
+	Connect: "OO", "Model::launch-position", "Model::hangar-space"
+	Connect: "OO", "Material::mk2CargoBay", "Model::hangar-space"
 	Connect: "OO", "Material::unnamed", "Model::hangar-trigger"
 }
 ;Takes and animation section
@@ -1754,7 +1754,7 @@ Takes:  {
 
 		;Models animation
 		;----------------------------------------------------
-		Model: "Model::Mk2-hangar-space" {
+		Model: "Model::hangar-space" {
 			Version: 1.1
 			Channel: "Transform" {
 				Channel: "T" {
