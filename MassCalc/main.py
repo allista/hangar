@@ -243,7 +243,7 @@ if __name__ == '__main__':
     krent700   = part('Krent700', 
                      [volume(20.17, 'hose', C=200, D=0.02,
                              S=surface(62.916, 0.001, Al_Li),
-                             V=[volume(10.47, 'engine', M=3.54, C=1000)]),
+                             V=[volume(10.47, 'engine', M=5.54, C=1000)]),
                       volume(1.206, 'fixer', C=100, D=0.1)])
     
     sys.exit()
