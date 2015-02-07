@@ -74,55 +74,6 @@ NavMeshSettings:
     widthInaccuracy: 16.666666
     heightInaccuracy: 10
   m_NavMesh: {fileID: 0}
---- !u!1 &17322362
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 100004, guid: 6f2f3dbb976db5645b84d568dc4aeb56, type: 3}
-  m_PrefabInternal: {fileID: 1862571037}
-  serializedVersion: 4
-  m_Component:
-  - 4: {fileID: 17322363}
-  - 33: {fileID: 17322364}
-  - 65: {fileID: 17322365}
-  m_Layer: 0
-  m_Name: hangar-trigger
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &17322363
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 400004, guid: 6f2f3dbb976db5645b84d568dc4aeb56, type: 3}
-  m_PrefabInternal: {fileID: 1862571037}
-  m_GameObject: {fileID: 17322362}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1246775450}
-  m_RootOrder: 0
---- !u!33 &17322364
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 3300002, guid: 6f2f3dbb976db5645b84d568dc4aeb56,
-    type: 3}
-  m_PrefabInternal: {fileID: 1862571037}
-  m_GameObject: {fileID: 17322362}
-  m_Mesh: {fileID: 4300002, guid: 6f2f3dbb976db5645b84d568dc4aeb56, type: 3}
---- !u!65 &17322365
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 17322362}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 10}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &163556376
 GameObject:
   m_ObjectHideFlags: 0
@@ -321,7 +272,6 @@ Transform:
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1618936194}
   - {fileID: 724929716}
   m_Father: {fileID: 194699258}
   m_RootOrder: 0
@@ -359,7 +309,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1.00000012, z: 1.00000012}
   m_Children: []
   m_Father: {fileID: 676065283}
-  m_RootOrder: 1
+  m_RootOrder: 0
 --- !u!1001 &742689077
 Prefab:
   m_ObjectHideFlags: 0
@@ -401,7 +351,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1.00000012, z: 1.00000012}
   m_Children: []
   m_Father: {fileID: 1246775450}
-  m_RootOrder: 1
+  m_RootOrder: 0
 --- !u!1 &1246775449
 GameObject:
   m_ObjectHideFlags: 0
@@ -428,7 +378,6 @@ Transform:
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 17322363}
   - {fileID: 1147730866}
   m_Father: {fileID: 328647003}
   m_RootOrder: 0
@@ -467,55 +416,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1660833098}
   m_RootOrder: 1
---- !u!1 &1618936193
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 100000, guid: fd871750595e7004189aa10ce7e24a70, type: 3}
-  m_PrefabInternal: {fileID: 1924285205}
-  serializedVersion: 4
-  m_Component:
-  - 4: {fileID: 1618936194}
-  - 33: {fileID: 1618936196}
-  - 65: {fileID: 1618936195}
-  m_Layer: 0
-  m_Name: hangar-trigger
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1618936194
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 400000, guid: fd871750595e7004189aa10ce7e24a70, type: 3}
-  m_PrefabInternal: {fileID: 1924285205}
-  m_GameObject: {fileID: 1618936193}
-  m_LocalRotation: {x: -2.06346797e-08, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1.00000012, z: 1.00000012}
-  m_Children: []
-  m_Father: {fileID: 676065283}
-  m_RootOrder: 0
---- !u!65 &1618936195
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1618936193}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: .41395399, y: .41395399, z: 3.70000005}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!33 &1618936196
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 3300000, guid: fd871750595e7004189aa10ce7e24a70,
-    type: 3}
-  m_PrefabInternal: {fileID: 1924285205}
-  m_GameObject: {fileID: 1618936193}
-  m_Mesh: {fileID: 4300002, guid: fd871750595e7004189aa10ce7e24a70, type: 3}
 --- !u!1 &1660833097
 GameObject:
   m_ObjectHideFlags: 0
