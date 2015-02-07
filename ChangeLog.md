@@ -5,7 +5,33 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###ChangeLog###
 
-* **v2.0.2.2 - CKAN compatibility**
+* **v2.2.0**
+    * **Spaceplane Hangars**:
+        * Converted stock cargo bays into hangars with limited functionality: no resource transfer, in-editor storage only, single vessel only; they're basically fairings.
+        * Added full-featured heavy hangar that matches Mk3 parts.
+        * Added several aux parts for spaceplanes:
+            * Surface-attachable structural tail to offset control surfaces.
+            * An airbrake.
+            * Engines to haul the Mk3 monster: radial SABRE engine, heavy-duty radial rocket engine and radial high-bypass turbofan.
+            * Radial electric propeller and turboshaft electric generator for hover-craft builds. I recommend to use them with [Throttle Controlled Avionics](https://kerbalstuff.com/mod/510/Throttle%20Controlled%20Avionics%20-%20Continued) mod that I also maintain.
+            * *Note: the turbofan and propeller have additional pressure curves that decrease their thrust at high altitudes. This is not as sophisticated as AJE, but still adds a good measure of realism without additional dependencies.*
+    * **Texture overhaul**:
+        * Retextured everything (*except ground hangars*) in a grey-metallic style, closer to stock look&feel.
+        * Merged/removed 10 big textures and normal maps to decrease memory footprint.
+    * **General changes**:
+        * Added **automatic ship positioning**: stock Cargo Bays, Inline Hangars and the Spaceport do not require stored vessel to be oriented in any special way anymore. If a vessel fits in some orientation it is stored and launched in this orientation. This addresses the problem with storing some very short and wide designs. Thanks to [**Errol**](http://forum.kerbalspaceprogram.com/members/121831-Errol) for pointing me to this issue.
+        * **Changed behavior of resource converters** (including Asteroid Drill):
+            * Conversion Rate now has inertia and changes with finite speed.
+            * Some converters generate heat (proportional to current rate).
+            * When the rate is below Minimum Rate no conversion is performed, but the energy is still consumed (startup phase). This is particularly evident in Mobile Smelter, which starts its conversion at >70% only.
+        * Resource Containers cost more with each additional tank inside them.
+        * Added every part as a test subjects. Plenty of **contracts from AT Idustries**!
+        * FAR/NEAR users: all hangars are now classified as **FAR Cargo Bays**.
+        * [**Kerbas-ad-astra**](https://github.com/Kerbas-ad-astra) added config for **AntennaRange** and corrected some spell errors I made. Thanks!
+        * Made several performance improvements using [ksp-devtools](https://github.com/angavrilov/ksp-devtools).
+        * Fixed numerous bugs.
+
+* v2.0.2.2 - CKAN compatibility
     * Reverted local copying of KAE .dll
     * Hopefully fixed the issue with Hangar.dll loading prior to KSPAPIExtensions.dll. Now it should load even without the local copy of KAE.
     
