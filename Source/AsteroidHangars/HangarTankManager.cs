@@ -130,7 +130,9 @@ namespace AtHangar
 			Styles.Init();
 			if(selected_window[TankWindows.EditTanks])
 			{
-				var title = string.Format("Total Volume: {0}", Utils.formatVolume(Volume));
+				var title = string.Format("Available Volume: {0} of {1}", 
+				                          Utils.formatVolume(Volume - tank_manager.TotalVolume), 
+				                          Utils.formatVolume(Volume));
 				tank_manager.DrawTanksWindow(GetInstanceID(), title, add_tank, remove_tank);
 				if(tank_manager.Closed) selected_window[TankWindows.EditTanks] = false;
 			}
