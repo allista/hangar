@@ -24,6 +24,7 @@ _You may keep the config.xml to save positions of GUI windows._
             * Conversion Rate now has inertia and changes with finite speed.
             * Some converters generate heat (proportional to current rate).
             * When the rate is below Minimum Rate no conversion is performed, but the energy is still consumed (startup phase). This is particularly evident in Mobile Smelter, which starts its conversion at >70% only.
+        * **To Rover Lander** and MK3 Hangar **added a slider** (part menu) **that controls hangar doors**: the less the percentage, the less the doors are opened. It is useful to decrease inclination of the ramp when there's some space underneath the hangar.
         * Resource Containers cost more with each additional tank inside them.
         * Added every part as a test subjects. Plenty of **contracts from AT Idustries**!
         * FAR/NEAR users: all hangars are now classified as **FAR Cargo Bays**.
