@@ -20,6 +20,8 @@ namespace AtHangar
 		[KSPField (isPersistant = false)] public string LaunchVelocity = string.Empty;
 		[KSPField (isPersistant = true)]  public bool   LaunchWithPunch;
 		[KSPField (isPersistant = false)] public string CheckDockingPorts = string.Empty;
+		//other
+		[KSPField (isPersistant = false)] public string Trigger = string.Empty;
 		#endregion
 
 		#region Managed Storage
@@ -199,9 +201,18 @@ namespace AtHangar
 
 		protected virtual void early_setup(StartState state)
 		{
-			//set vessel type
 			EditorLogic el = EditorLogic.fetch;
-			if(el != null) facility = el.ship.shipFacility;
+			if(el != null) 
+			{
+				//set vessel type
+				facility = el.ship.shipFacility;
+				//prevent triggers to catch raycasts
+				if(Trigger != string.Empty)
+				{
+					var triggers = part.FindModelComponents<Collider>(Trigger);
+					foreach(var c in triggers) c.gameObject.layer = 21; //Part Triggers
+				}
+			}
 			//setup hangar name
 			if(HangarName == "_none_") HangarName = part.Title();
 			//initialize resources
