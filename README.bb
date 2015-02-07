@@ -45,7 +45,6 @@ Releases are available at:
 [*][url=https://kerbalstuff.com/mod/270/Hangar][b]Kerbal Stuff[/b][/url] (starting from v1.3.0)
 [*][url=https://github.com/KSP-CKAN/CKAN][b]CKAN[/b][/url] is now officially supported
 [*][url=https://github.com/allista/hangar/releases][b]GitHub[/b][/url] (including beta pre-releases, all releases and source code)[/list]
-
 [B][COLOR=#006400]Before using a hangar, study the list of modules that are integrated into it (RMB on part's icon).[/COLOR][/B][/SIZE]
 Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating.
 
@@ -73,7 +72,7 @@ And some functionality and parts are added if the following mods are installed:
 [list]
 [*][url=http://forum.kerbalspaceprogram.com/threads/40667-0-25-TAC-Life-Support-v0-10-1-10Oct-No-Win64-Support]TAC Life Support [b]v0.10.+[/b][/url] adds life support resources and systems to inhabitable hangars,
 [*][url=http://forum.kerbalspaceprogram.com/threads/83305]RemoteTech[/url] adds RT antennas and SPUs to controllable hangars,
-[*][url=http://forum.kerbalspaceprogram.com/threads/56440]AntennaRange[/url] adds limited data transmitters to all hangars with integrated probe cores (thanks to [Kerbas-ad-astra](https://github.com/Kerbas-ad-astra)),
+[*][url=http://forum.kerbalspaceprogram.com/threads/56440]AntennaRange[/url] adds limited data transmitters to all hangars with integrated probe cores (thanks to [Kerbas-ad-astra]([url]https://github.com/Kerbas-ad-astra[/url])),
 [*][url=http://forum.kerbalspaceprogram.com/threads/54954]Deadly Reentry[/url] adds Ablative Shielding resource to the Heatshields,
 [*][url=http://forum.kerbalspaceprogram.com/threads/59545]Extraplanetary Launchpads[/url] adds a new Heavy Recycler model that fits the style of hangars.
 [*][url=http://forum.kerbalspaceprogram.com/threads/79588]MKS/OKS[/url] adds the Substrate Mixer -- a converter that allows to turn useless Silicates and Waste into a useful Substrate resource.[/list]
@@ -89,6 +88,22 @@ I also want to thank:
 [list][*][url=https://github.com/taniwha-qf]Taniwha[/url] for inspiration and advice.
 [*][url=http://forum.kerbalspaceprogram.com/members/20077-DragonEG]DragonEG[/url] for helping me to fix the friction problem.
 [*][url=https://github.com/Kerbas-ad-astra]Kerbas-ad-astra[/url] for making AntennaRange adaptation.[/list]
-And here are the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:[list][*][url=http://forum.kerbalspaceprogram.com/threads/59545]Extraplanetary Launchpads[/url][*][url=http://forum.kerbalspaceprogram.com/threads/53134-Kerbal-Attachment-System-%28KAS%29-0-4-7-Pipes-as-fuel-lines-and-even-fewer-explosions!]Kerbal Attach System[/url][*][url=http://forum.kerbalspaceprogram.com/threads/39512]Procedural Fairings[/url][*][url=http://forum.kerbalspaceprogram.com/threads/12384]MechJeb2[/url][*][url=http://forum.kerbalspaceprogram.com/threads/23979]Kethane[/url][*][url=http://forum.kerbalspaceprogram.com/threads/50077-0-23-5-Fusebox-electric-charge-tracker-and-build-helper-1-0-released-12-07-14]Fusebox[/url][*][url=http://forum.kerbalspaceprogram.com/threads/60936]CrewManifest[/url][*][url=http://forum.kerbalspaceprogram.com/threads/80234]TweakScale[/url][*][url=http://forum.kerbalspaceprogram.com/threads/24786]Kerbal Alarm Clock[/url][*][url=http://forum.kerbalspaceprogram.com/threads/57988]RealChutes[/url][*][url=http://forum.kerbalspaceprogram.com/threads/83305]RemoteTech[/url][*][url=http://forum.kerbalspaceprogram.com/threads/70676-WIP-Procedural-Parts-The-next-phase-of-Stretchy-SRBs]ProceduralParts[/url][*][url=http://forum.kerbalspaceprogram.com/threads/52896]RCS Sounds[/url][/list]
+A record that I used to create propeller sound effect was obtained at [url=http://www.soundjay.com]Sound Jay[/url].
+
+And here are the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
+[list][*][url=http://forum.kerbalspaceprogram.com/threads/59545]Extraplanetary Launchpads[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/53134-Kerbal-Attachment-System-%28KAS%29-0-4-7-Pipes-as-fuel-lines-and-even-fewer-explosions!]Kerbal Attach System[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/39512]Procedural Fairings[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/12384]MechJeb2[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/23979]Kethane[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/50077-0-23-5-Fusebox-electric-charge-tracker-and-build-helper-1-0-released-12-07-14]Fusebox[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/60936]CrewManifest[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/80234]TweakScale[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/24786]Kerbal Alarm Clock[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/57988]RealChutes[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/83305]RemoteTech[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/70676-WIP-Procedural-Parts-The-next-phase-of-Stretchy-SRBs]ProceduralParts[/url]
+[*][url=http://forum.kerbalspaceprogram.com/threads/52896]RCS Sounds[/url][/list]
+[HR][/HR]
 [url=http://creativecommons.org/licenses/by/4.0/][img]http://i.creativecommons.org/l/by/4.0/88x31.png[/img][/url]
 This work is licensed under a [url=http://creativecommons.org/licenses/by/4.0/]Creative Commons Attribution 4.0 International License[/url].

@@ -99,6 +99,8 @@ I also want to thank:
 * [DragonEG](http://forum.kerbalspaceprogram.com/members/20077-DragonEG) for helping me to fix the friction problem.
 * [Kerbas-ad-astra](https://github.com/Kerbas-ad-astra) for making AntennaRange adaptation.
 
+A record that I used to create propeller sound effect was obtained at [**Sound Jay**](http://www.soundjay.com).
+
 And here are the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
 
 * [Extraplanetary Launchpads](http://forum.kerbalspaceprogram.com/threads/59545)
