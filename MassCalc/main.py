@@ -190,7 +190,6 @@ if __name__ == '__main__':
                       ], 
                      add_mass=0,
                      add_cost=0)
-#     sys.exit()
     
     #utilities
     adapter  = part('Adapter', 
@@ -246,8 +245,6 @@ if __name__ == '__main__':
                              V=[volume(10.47, 'engine', M=5.54, C=1000)]),
                       volume(1.206, 'fixer', C=100, D=0.1)])
     
-    sys.exit()
-    
     rad_sabre  = part('RadialSabre', 
                      [volume(3.727, 'hull', C=200, D=0.02,
                              S=surface(26.07, 0.003, Al_Li),
@@ -271,6 +268,18 @@ if __name__ == '__main__':
                       volume(0.002, 'blades', C=200, D=0.01, N=4,
                              S=surface(0.42, 0.001, composits)),
                       ])
+    
+    def hover_takeoff_weight(thrust, k, size, netto=True):
+        m = hover_fan.mass(size) if netto else 0
+        return (thrust*k*size**2/9.81-m)*4/2.0 
+    
+    def hover_w_vs_s(thrust, k=0.8):
+        print np.array([(s, hover_takeoff_weight(thrust, k, s), hover_takeoff_weight(thrust, k, s, False)) for s in np.arange(0.5, 4.5, 0.5)])
+        print
+        
+    hover_w_vs_s(50); hover_w_vs_s(40); hover_w_vs_s(30); hover_w_vs_s(20);
+    
+    sys.exit()
     
     turbogen   = part('TurboGenerator', 
                      [volume(1.958, 'hull', C=200, D=0.01,
