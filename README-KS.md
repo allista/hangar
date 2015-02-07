@@ -28,7 +28,7 @@ Aside from the hangars themselves the mod provides a set of utility parts that h
 
 * [**WebMoney**](https://funding.wmtransfer.com/hangar-ksp-plugin/donate)
 
-* [![Flattr this](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=allista&url=https%3A%2F%2Fgithub.com%2Fallista%2Fhangar)
+* [**Flattr this**](https://flattr.com/submit/auto?user_id=allista&url=https%3A%2F%2Fgithub.com%2Fallista%2Fhangar)
 
 * [![Gratipay](https://img.shields.io/gratipay/allista.svg)](https://gratipay.com/allista)
 
@@ -44,11 +44,9 @@ _You may keep the config.xml to save positions of GUI windows._
 
 Releases are available from:
 
-* [**GitHub**](https://github.com/allista/hangar/releases)
 * [**Kerbal Stuff**](https://kerbalstuff.com/mod/270/Hangar) (from v1.3.0)
-* [**CKAN**](https://github.com/KSP-CKAN/CKAN) is now **officially** supported
-
-There's also a [**Desaturated Texture Pack**](https://github.com/allista/hangar/releases/download/v2.0.1/DesaturatedTexturePack-v2.0.1.zip) for those who prefer a more stock-like color scheme.
+* [**CKAN**](https://github.com/KSP-CKAN/CKAN) is now officially supported
+* [**GitHub**](https://github.com/allista/hangar/releases) (all releases and the source code)
 
 **Before using a hangar study the list of modules that are integrated into it _(RMB on part's icon)_.**
 Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating.
@@ -58,8 +56,7 @@ Many of the hangars have plenty of modules (like batteries, command modules, fue
     * Dropdown lists show vertical scrollbars when there are too many items. But due to the implemented click-through prevention mechanism the scrollbars cannot be moved by mouse cursor; use mouse wheel instead. _And curse Unity3D for the poor GUI API._
 * Rovers:
     * Rovers stored **in editor** have somewhat smaller dimensions due to inactive suspension of the wheels. So if you pack several rovers **tightly** into a hangar, and than launch one of them, the launched rover sometimes cannot be stored again into that same hangar with the "No room ..." message. Again: it's no bug, calculations are performed correctly, the rover's just got bigger.
-* Mod Conflicts:
-    * **ScienceAlert** (v1.8.2 and v1.8.3) causes ships stored in VAB/SPH to disappear upon launch.
+* Mod Conflicts: none at the moment.
 * Other:
     * Removing Hangar **in career** mode sometimes corrupts the savegame (the user cannot enter VAB/SPH and so on). This is due to a bug in KSP and should also affect any mod that has its own Agent for Contracts. To **fix** such savegame see [**this HOWTO**](https://github.com/allista/hangar/blob/master/SavegameFix-HOWTO.md)
 
@@ -70,9 +67,9 @@ Many of the hangars have plenty of modules (like batteries, command modules, fue
 
 ###Recommended mods
 
-There are many great mods out there that I love and use myself. But the one mode that I strongly recommend to use with the Hangar to improve game experience is the [**Extraplanetary Launchpads**](http://forum.kerbalspaceprogram.com/threads/59545) by [Taniwha](https://github.com/taniwha-qf). For one thing: big ground hangars are not suitable as parts for vessel construction and are too heavy to launch anyway. So the only meaningful way to use them is to build them on site.
-
-Also if you want to avoid many problems when building a rover that you plan to store inside a hangar, I strongly recommend to use the [Select Root](http://forum.kerbalspaceprogram.com/threads/43208) and [Editor Extensions](http://forum.kerbalspaceprogram.com/threads/38768).
+* [Extraplanetary Launchpads](http://forum.kerbalspaceprogram.com/threads/59545): big ground hangars are not suitable as parts for vessel construction and are too heavy to launch anyway. So the only meaningful way to use them is to build them on site.
+* [Throttle Controlled Avionics](https://kerbalstuff.com/mod/510/Throttle%20Controlled%20Avionics%20-%20Continued): if you're planning to build VTOLs and hovercrafts with spaceplane hangars, this mod (which I currently maintain) will help greatly as it ads automatic thrust balancing and altitude control.
+* [Editor Extensions](http://forum.kerbalspaceprogram.com/threads/38768): invaluable for vessel design. Even considering 0.90 editor improvements.
 
 ###Supported mods
 
@@ -82,12 +79,13 @@ And some functionality and parts are added if the following mods are installed:
 
 * [TAC Life Support **v0.10.+**](http://forum.kerbalspaceprogram.com/threads/40667-0-25-TAC-Life-Support-v0-10-1-10Oct-No-Win64-Support) adds life support resources and systems to inhabitable hangars,
 * [RemoteTech](http://forum.kerbalspaceprogram.com/threads/83305) adds RT antennas and SPUs to controllable hangars,
-* [Deadly Reentry](http://forum.kerbalspaceprogram.com/threads/54954) adds Ablative Shielding resource to the Heatshields,
+* [AntennaRange](http://forum.kerbalspaceprogram.com/threads/56440) adds limited data transmitters to all hangars with integrated probe cores (thanks to [Kerbas-ad-astra](https://github.com/Kerbas-ad-astra)),
+* [Deadly Reentry](http://forum.kerbalspaceprogram.com/threads/54954) adds Ablative Shielding resource to heatshields,
 * [Extraplanetary Launchpads](http://forum.kerbalspaceprogram.com/threads/59545) adds a new Heavy Recycler model that fits the style of hangars.
 * [MKS/OKS](http://forum.kerbalspaceprogram.com/threads/79588) adds the Substrate Mixer -- a converter that allows to turn useless Silicates and Waste into a useful Substrate resource.
 
 ###Unsupported Mods
-* [Asteroid Recycling Technologies](http://forum.kerbalspaceprogram.com/threads/91790) is not compatible with the Asteroid Hangars framework. Both mods **can be installed** at the same time, but **you cannot use the same asteroid** both as a hangar and by ART machinery.
+* [Asteroid Recycling Technologies](http://forum.kerbalspaceprogram.com/threads/91790) are not compatible with the Asteroid Hangars framework. Both mods **can be installed** at the same time, but **you cannot use the same asteroid** both as a hangar and by ART machinery.
 
 ***
 
@@ -99,6 +97,7 @@ I also want to thank:
 
 * [Taniwha](https://github.com/taniwha-qf) for inspiration and advice.
 * [DragonEG](http://forum.kerbalspaceprogram.com/members/20077-DragonEG) for helping me to fix the friction problem.
+* [Kerbas-ad-astra](https://github.com/Kerbas-ad-astra) for making AntennaRange adaptation.
 
 And here are the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
 
