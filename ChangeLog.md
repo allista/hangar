@@ -8,7 +8,7 @@ _You may keep the config.xml to save positions of GUI windows._
 * **v2.2.1**
     * Found a workaround for hangar-triggers' behavior in editor: **surface-attachable parts do not snap to triggers anymore**, so you can use use any hangar as a cargo bay (including converted stock bays themselves). Thanks again to [**Errol**](http://forum.kerbalspaceprogram.com/members/121831-Errol) for pointing me to this issue.
     * Added available volume display to Hangar Tank Manager. Now the tank editor's window title looks like `"Available Volume: 34m3 of 117m3"`.
-    * Fixed several minor bugs.
+    * Fixed several minor bugs and corrected all (I hope) spelling errors.
 
 * v2.2.0
     * **Spaceplane Hangars**:
