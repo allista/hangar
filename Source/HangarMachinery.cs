@@ -427,6 +427,7 @@ namespace AtHangar
 		protected abstract Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv);
 		protected virtual Transform get_spawn_transform(PackedVessel pv) { return Storage.GetSpawnTransform(pv); }
 		public virtual Transform GetSpawnTransform() { return Storage.AutoPositionVessel? null : Storage.GetSpawnTransform(); }
+		protected virtual void on_vessel_launch(StoredVessel sv) {}
 
 		/// <summary>
 		/// Set vessel orbit, transform, coordinates.
@@ -434,7 +435,7 @@ namespace AtHangar
 		/// <param name="sv">Stored vessel</param>
 		void position_vessel(StoredVessel sv)
 		{
-			ProtoVessel pv = sv.vessel;
+			var pv = sv.vessel;
 			//state
 			pv.splashed = vessel.Landed;
 			pv.landed   = vessel.Splashed;
@@ -442,29 +443,29 @@ namespace AtHangar
 			//rotation
 			//it is essential to use BackupVessel() instead of vessel.protoVessel, 
 			//because in general the latter does not store the current flight state of the vessel
-			ProtoVessel hpv = vessel.BackupVessel();
-			Quaternion proto_rot  = hpv.rotation;
-			Quaternion hangar_rot = vessel.vesselTransform.rotation;
+			var hpv = vessel.BackupVessel();
+			var proto_rot  = hpv.rotation;
+			var hangar_rot = vessel.vesselTransform.rotation;
 			//rotate launchTransform.rotation to protovessel's reference frame
 			var spawn_transform = get_spawn_transform(sv);
 			pv.rotation = proto_rot*hangar_rot.Inverse()*spawn_transform.rotation;
 			//set vessel's orbit
-			double UT  = Planetarium.GetUniversalTime();
-			Orbit horb = vessel.orbit;
-			var vorb = new Orbit();
-			Vector3 d_pos = spawn_transform.position-vessel.findWorldCenterOfMass()+get_vessel_offset(spawn_transform, sv);
-			Vector3d vpos = horb.pos+new Vector3d(d_pos.x, d_pos.z, d_pos.y);
-			Vector3d vvel = horb.vel;
+			var UT    = Planetarium.GetUniversalTime();
+			var horb  = vessel.orbit;
+			var vorb  = new Orbit();
+			var d_pos = spawn_transform.position-vessel.findWorldCenterOfMass()+get_vessel_offset(spawn_transform, sv);
+			var vpos  = horb.pos+new Vector3d(d_pos.x, d_pos.z, d_pos.y);
+			var vvel  = horb.vel;
 			if(LaunchWithPunch && launchVelocity != Vector3.zero)
 			{
 				//honor the impulse conservation law
 				//:calculate launched vessel velocity
-				float hM = vessel.GetTotalMass();
-				float tM = hM + sv.mass;
-				Vector3 d_vel = part.transform.TransformDirection(launchVelocity);
+				var hM = vessel.GetTotalMass();
+				var tM = hM + sv.mass;
+				var d_vel = part.transform.TransformDirection(launchVelocity);
 				vvel += (Vector3d.zero + d_vel*hM/tM).xzy;
 				//:calculate hangar's vessel velocity
-				Vector3d hvel = horb.vel + (Vector3d.zero + d_vel*(-sv.mass)/tM).xzy;
+				var hvel = horb.vel + (Vector3d.zero + d_vel*(-sv.mass)/tM).xzy;
 				vessel.orbitDriver.SetOrbitMode(OrbitDriver.UpdateMode.UPDATE);
 				horb.UpdateFromStateVectors(horb.pos, hvel, horb.referenceBody, UT);
 			}
@@ -482,7 +483,7 @@ namespace AtHangar
 			}
 		}
 
-		//static coroutine launched from a DontDestroyOnLoad sentinel object allows to execute code while the scene is switching
+		//static coroutine launched from a DontDestroyOnLoad sentinel object allows to execute code while the scene is switched
 		static IEnumerator<YieldInstruction> setup_vessel(UnityEngine.Object sentinel, LaunchedVessel lv)
 		{
 			while(!lv.loaded) yield return null;
@@ -620,6 +621,8 @@ namespace AtHangar
 			transferResources(stored_vessel);
 			//set restored vessel orbit
 			position_vessel(stored_vessel);
+			//let child classes make their modifications
+			on_vessel_launch(stored_vessel);
 			//restore vessel
 			stored_vessel.Load();
 			//transfer crew back to the launched vessel
