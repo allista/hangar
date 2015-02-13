@@ -5,7 +5,12 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###ChangeLog###
 
-* **v2.2.0**
+* **v2.2.1**
+    * Found a workaround for hangar-triggers' behavior in editor: **surface-attachable parts do not snap to triggers anymore**, so you can use use any hangar as a cargo bay (including converted stock bays themselves). Thanks again to [**Errol**](http://forum.kerbalspaceprogram.com/members/121831-Errol) for pointing me to this issue.
+    * Added available volume display to Hangar Tank Manager. Now the tank editor's window title looks like `"Available Volume: 34m3 of 117m3"`.
+    * Fixed several minor bugs.
+
+* v2.2.0
     * **Spaceplane Hangars**:
         * Converted stock cargo bays into hangars with limited functionality: no resource transfer, in-editor storage only, single vessel only; they're basically fairings.
         * Added full-featured heavy hangar that matches Mk3 parts.
@@ -25,6 +30,7 @@ _You may keep the config.xml to save positions of GUI windows._
             * Some converters generate heat (proportional to current rate).
             * When the rate is below Minimum Rate no conversion is performed, but the energy is still consumed (startup phase). This is particularly evident in Mobile Smelter, which starts its conversion at >70% only.
         * **To Rover Lander** and MK3 Hangar **added a slider** (part menu) **that controls hangar doors**: the less the percentage, the less the doors are opened. It is useful to decrease inclination of the ramp when there's some space underneath the hangar.
+        * Added **Unfit vessels list** to hangar content editor window to help in hangar fitting for the payload.
         * Resource Containers cost more with each additional tank inside them.
         * Added every part as a test subjects. Plenty of **contracts from AT Idustries**!
         * FAR/NEAR users: all hangars are now classified as **FAR Cargo Bays**.
