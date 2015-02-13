@@ -2,9 +2,11 @@
 
 cd $(dirname "$0")
 
-#get the latest version by git tag
-version=$(grep AssemblyVersion Source/AssemblyInfo.cs | sed "s:.*\"\(.*\)\".*:\1:")
-archive="Hangar-v$version.zip"
+modname=Hangar
+assembly_info=Source/AssemblyInfo.cs
+
+version=$(grep AssemblyVersion $assembly_info | sed "s:.*\"\(.*\)\".*:\1:")
+archive="$modname-v$version.zip"
 
 #create zip archive
 zip -r -9 Releases/$archive GameData -x "*~" "*/config.xml" "*/ForModders/*" || exit 1
