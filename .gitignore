@@ -24,6 +24,7 @@
 *.meta
 *.mdb
 *.pyc
+*.bak
 /vessel_positioning.txt
 /Source/Hangar.userprefs
 /Library/CurrentLayout.dwlt
