@@ -6,10 +6,12 @@ namespace AtHangar
 {
 	public class HangarFairings : Hangar
 	{
-		bool launch_in_progress;
-
 		[KSPField(isPersistant = true)]
 		public int CrewCapacity = 0;
+
+		bool launch_in_progress;
+		[KSPField] string FxGroup = "decouple";
+		FXGroup FX;
 
 		public override string GetInfo()
 		{
@@ -27,6 +29,7 @@ namespace AtHangar
 			LaunchWithPunch   = true;
 			part.stagingIcon  = "DECOUPLER_HOR";
 			part.CrewCapacity = CrewCapacity;
+			FX = part.findFxGroup(FxGroup);
 		}
 
 		IEnumerator<YieldInstruction> update_crew_capacity()
@@ -85,6 +88,15 @@ namespace AtHangar
 				vessel.patchedConicSolver.maneuverNodes.Clear();
 				vessel.patchedConicSolver.flightPlan.Clear();
 			}
+			//playe FX
+			if(FX != null) 
+			{
+				FX.Burst();
+				//the audio is played anyway, so the delay is needed for particle emitters, 
+				//but I don't think such FX are apropriate here
+				//				var delay = FX.audio != null && FX.audio.clip != null? FX.audio.clip.length : 0.5f;
+				//				yield return new WaitForSeconds(delay);
+			}
 			//turn fairings off
 			Storage.enabled = Storage.isEnabled = false;
 			enabled = isEnabled = false;
@@ -101,8 +113,6 @@ namespace AtHangar
 			while(hangar_gates.Playing) yield return null;
 			//activate the hangar, get the vessel from the storage, set its crew
 			Activate();
-			part.Effect("decouple"); //FIXME: not working
-			yield return new WaitForSeconds(1f);
 			//try to restore vessel and check the result
 			TryRestoreVessel(Storage.GetVessels()[0]);
 		}
