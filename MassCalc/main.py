@@ -193,16 +193,20 @@ if __name__ == '__main__':
     
     fairings_octo = part('FairingsOcto',
                      [volume(0.36, 'hull', C=1, D=0.02,
-                             S=surface(20.6 , 0.002, Al_Li)),
+                             S=surface(20.6 , 0.001, Al_Li)),
                       volume(0.74, 'base', C=1, D=0.02,
                              S=surface(2.23, 0.003, Al_Li),
                              V=[reaction_wheel(0.1),
+                                battery(E=100),
                                 volume(0.1, 'jettison-charge', C=400, M=0.05)]),
                       volume(0.01, 'petals', N=8,
-                             S=surface(1.02, 0.002, Al_Li)),
+                             S=surface(1.02, 0.002, composits)),
                       ], 
                      add_mass=0,
                      add_cost=0)
+    
+    sys.exit()
+    
     #utilities
     adapter  = part('Adapter', 
                      [volume(2.845, 'hull', C=50,
@@ -281,17 +285,17 @@ if __name__ == '__main__':
                              S=surface(0.42, 0.001, composits)),
                       ])
     
-    def hover_takeoff_weight(thrust, k, size, netto=True):
-        m = hover_fan.mass(size) if netto else 0
-        return (thrust*k*size**2/9.81-m)*4/2.0 
-    
-    def hover_w_vs_s(thrust, k=0.8):
-        print np.array([(s, hover_takeoff_weight(thrust, k, s), hover_takeoff_weight(thrust, k, s, False)) for s in np.arange(0.5, 4.5, 0.5)])
-        print
-        
-    hover_w_vs_s(50); hover_w_vs_s(40); hover_w_vs_s(30); hover_w_vs_s(20);
-    
-    sys.exit()
+#     def hover_takeoff_weight(thrust, k, size, netto=True):
+#         m = hover_fan.mass(size) if netto else 0
+#         return (thrust*k*size**2/9.81-m)*4/2.0 
+#     
+#     def hover_w_vs_s(thrust, k=0.8):
+#         print np.array([(s, hover_takeoff_weight(thrust, k, s), hover_takeoff_weight(thrust, k, s, False)) for s in np.arange(0.5, 4.5, 0.5)])
+#         print
+#         
+#     hover_w_vs_s(50); hover_w_vs_s(40); hover_w_vs_s(30); hover_w_vs_s(20);
+#     
+#     sys.exit()
     
     turbogen   = part('TurboGenerator', 
                      [volume(1.958, 'hull', C=200, D=0.01,
