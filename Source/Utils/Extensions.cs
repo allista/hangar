@@ -316,6 +316,9 @@ namespace AtHangar
 	{
 		public static Part GetPart<T>(this Vessel v) where T : PartModule
 		{ return v.parts.FirstOrDefault(p => p.HasModule<T>()); }
+
+		public static bool PartsStarted(this Vessel v)
+		{ return v.parts.TrueForAll(p => p.started); }
 	}
 }
 
