@@ -325,8 +325,7 @@ namespace AtHangar
 			if(!HighLogic.LoadedSceneIsFlight || packed_constructs.Count == 0) 
 			{ Ready = true;	yield break; }
 			//wait for storage.vessel to be loaded
-			var self = new VesselWaiter(vessel);
-			while(!self.loaded) yield return WaitWithPhysics.ForNextUpdate();
+			while(!vessel.PartsStarted()) yield return WaitWithPhysics.ForNextUpdate();
 			while(!enabled) yield return WaitWithPhysics.ForNextUpdate();
 			//wait for other storages to be ready
 			while(!other_storages_ready) yield return WaitWithPhysics.ForNextUpdate();
@@ -347,23 +346,25 @@ namespace AtHangar
 					vessel.landedAt, pc.flag, 
 					FlightDriver.FlightStateCache,
 					new VesselCrewManifest());
-				var vsl = new VesselWaiter(FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1]);
-				FlightGlobals.ForceSetActiveVessel(vsl.vessel);
+				var vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1];
+				FlightGlobals.ForceSetActiveVessel(vsl);
 				Staging.beginFlight();
 				//wait for vsl to be launched
-				while(!vsl.loaded) yield return WaitWithPhysics.ForNextUpdate();
+				while(!vsl.isActiveVessel || !vsl.PartsStarted()) 
+					yield return WaitWithPhysics.ForNextUpdate();
 				//store vessel
-				StoreVessel(new StoredVessel(vsl.vessel, ComputeHull));
+				StoreVessel(new StoredVessel(vsl, ComputeHull));
 				//switch to storage vessel before storing
 				FlightGlobals.ForceSetActiveVessel(vessel);
 				//destroy vessel
-				vsl.vessel.Die();
+				vsl.Die();
 				//wait a 0.1 sec, otherwise the vessel may not be destroyed properly
 				yield return WaitWithPhysics.ForSeconds(0.1f);
 			}
 			//switch back to this.vessel and signal to other waiting storages
 			FlightGlobals.ForceSetActiveVessel(vessel);
-			while(!self.loaded) yield return WaitWithPhysics.ForNextUpdate();
+			while(!vessel.isActiveVessel || !vessel.PartsStarted()) 
+				yield return WaitWithPhysics.ForNextUpdate();
 			Ready = true;
 			//save game afterwards
 			yield return WaitWithPhysics.ForSeconds(0.5f);

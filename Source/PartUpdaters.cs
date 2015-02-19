@@ -406,7 +406,7 @@ namespace AtHangar
 	public class DecoupleUpdater : ModuleUpdater<ModuleDecouple>
 	{
 		protected override void on_rescale(ModuleDecouple module, ModuleDecouple base_module, Scale scale)
-		{ module.ejectionForce = base_module.ejectionForce * scale.absolute; }
+		{ module.ejectionForce = base_module.ejectionForce * scale.absolute.cube; }
 	}
 
 	public class SwitchableTankUpdater : ModuleUpdater<HangarSwitchableTank>
@@ -489,5 +489,20 @@ namespace AtHangar
 	{
 		protected override void on_rescale(ModuleResourceIntake module, ModuleResourceIntake base_module, Scale scale)
 		{ module.area = base_module.area * scale.absolute.quad; }
+	}
+
+	public class HangarFairingsUpdater : ModuleUpdater<HangarFairings>
+	{
+		protected override void on_rescale(HangarFairings module, HangarFairings base_module, Scale scale)
+		{ module.JettisonForce = base_module.JettisonForce * scale.absolute.cube * scale.absolute.aspect; }
+	}
+
+	public class JettisonUpdater : ModuleUpdater<ModuleJettison>
+	{
+		protected override void on_rescale(ModuleJettison module, ModuleJettison base_module, Scale scale)
+		{
+			module.jettisonedObjectMass = base_module.jettisonedObjectMass * scale.absolute.cube * scale.absolute.aspect;
+			module.jettisonForce = base_module.jettisonForce * scale.absolute.cube * scale.absolute.aspect;
+		}
 	}
 }

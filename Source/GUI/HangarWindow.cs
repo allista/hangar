@@ -55,7 +55,8 @@ namespace AtHangar
 		void updateVesselMetric(Vessel vsl = null)
 		{
 			vessel_metric.Clear();
-			if(vsl != null) vessel_metric = new Metric(vsl);
+			if(vsl != null && vsl.loaded) 
+				vessel_metric = new Metric(vsl);
 			else if(EditorLogic.fetch != null)
 			{
 				var parts = new List<Part>();
@@ -146,7 +147,7 @@ namespace AtHangar
 		public override void OnUpdate() 
 		{ 
 			if(!enabled) return;
-			Vessel vsl = current_vessel;
+			var vsl = current_vessel;
 			updateVesselMetric(vsl);
 			BuildHangarList(vsl);
 			UpdateGUIState();
@@ -241,7 +242,7 @@ namespace AtHangar
 		{
 			GUILayout.BeginHorizontal();
 			if(selected_hangar != null 
-				&&  selected_hangar.launchVelocity != Vector3.zero 
+				&&  selected_hangar.LaunchVelocity != Vector3.zero 
 				&& !selected_hangar.vessel.LandedOrSplashed)
 				selected_hangar.LaunchWithPunch = GUILayout.Toggle(selected_hangar.LaunchWithPunch, "Push Vessel Out");
 			if(GUILayout.Button("Launch Vessel", Styles.yellow_button, GUILayout.ExpandWidth(true)))
@@ -410,7 +411,7 @@ namespace AtHangar
 
 		void Select_Vessel(StoredVessel vsl)
 		{
-			vessel_id = vsl.vessel.vesselID;
+			vessel_id = vsl.proto_vessel.vesselID;
 			vessel_list.SelectItem(vessels.IndexOf(vsl));
 			if(vsl != selected_vessel) 
 				selected_hangar.resourceTransferList.Clear();
@@ -505,7 +506,7 @@ namespace AtHangar
 			if(vessel_metric.Empty) return;
 			if(Event.current.type != EventType.Layout) return;
 			base.OnGUI();
-			if(hangars.Count > 0 && selected_hangar.IsControllable && !selected_hangar.NoGUI)
+			if(hangars.Count > 0 && !selected_hangar.vessel.packed && selected_hangar.IsControllable && !selected_hangar.NoGUI)
 			{
 				//controls
 				string hstate = selected_hangar.hangar_state.ToString();
@@ -605,7 +606,7 @@ namespace AtHangar
 			else 
 			{
 				vessel_metric.DrawCenter(FlightGlobals.ActiveVessel.vesselTransform);
-				HangarGUI.DrawPoint(FlightGlobals.ActiveVessel.findLocalCenterOfMass(), 
+				HangarGUI.DrawPoint(FlightGlobals.ActiveVessel.vesselTransform.InverseTransformPoint(FlightGlobals.ActiveVessel.CurrentCoM), 
 								 FlightGlobals.ActiveVessel.vesselTransform, Color.green);
 				HangarGUI.DrawPoint(Vector3.zero, 
 								 FlightGlobals.ActiveVessel.vesselTransform, Color.red);
