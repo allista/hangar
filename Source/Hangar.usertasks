@@ -8,4 +8,6 @@
   <Task file="" description="Test all the previous with AJE." />
   <Task file="" description="Test hangars' bouyancy." completed="True" />
   <Task file="" description="Test Hangars as FAR CargoBays." completed="True" />
+  <Task file="" description="Strip reaction wheel and battery from FairingsOcto" priority="High" />
+  <Task file="" description="Add AntennaRange and RemoteTech to FairingsOcto" />
 </ListOfTask>
