@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AtHangar
 {
-	public class HangarFairings : Hangar
+	public class HangarFairings : Hangar, IPartCostModifier
 	{
-		[KSPField] public string  Fairings = "fairings";
-		[KSPField] public float   FairingsDensity = 0.1f;
+		[KSPField] public string  Fairings          = "fairings";
+		[KSPField] public float   FairingsDensity   = 0.5f; //t/m3
+		[KSPField] public float   FairingsCost      = 20f;  //credits per fairing
 		[KSPField] public Vector3 JettisonDirection = Vector3.up;
-		[KSPField] public float   JettisonForce  = 100f;
-		[KSPField] public double  DebrisLifetime = 600;
+		[KSPField] public float   JettisonForce     = 50f;
+		[KSPField] public double  DebrisLifetime    = 600;
 		Transform[] fairings;
 
 		[KSPField] public string  FxGroup = "decouple";
@@ -29,6 +31,13 @@ namespace AtHangar
 			return info;
 		}
 
+		public float GetModuleCost(float default_cost) 
+		{ 
+			if(fairings != null && jettisoned) 
+				return -fairings.Length * FairingsCost;
+			return 0f;
+		}
+
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
@@ -36,6 +45,7 @@ namespace AtHangar
 			LaunchWithPunch   = true;
 			part.stagingIcon  = "DECOUPLER_HOR";
 			part.CrewCapacity = CrewCapacity;
+			Events["EditName"].active = false;
 			FX = part.findFxGroup(FxGroup);
 			fairings = part.FindModelTransforms(Fairings);
 			if(fairings != null && jettisoned)
@@ -45,15 +55,11 @@ namespace AtHangar
 
 		IEnumerator<YieldInstruction> update_crew_capacity()
 		{
-			if(!HighLogic.LoadedSceneIsEditor) yield break;
-			this.Log("starting update_crew_capacity");//debug
+			if(!HighLogic.LoadedSceneIsEditor || Storage == null) yield break;
+			while(!Storage.Ready) yield return null;
 			while(true)
 			{
-				this.Log("updating crew capacity: Storage {0}", Storage);//debug
-				var vsl = Storage != null && Storage.VesselsDocked > 0 ? 
-					Storage.GetConstructs()[0] : null;
-				this.Log("updating crew capacity: vsl {0}, capacity {1}, saved {2}", //debug
-					vsl, vsl == null? -1 : vsl.CrewCapacity, CrewCapacity);
+				var vsl = Storage.VesselsDocked > 0 ? Storage.GetConstructs()[0] : null;
 				var capacity = vsl != null? vsl.CrewCapacity : 0;
 				if(capacity != part.partInfo.partPrefab.CrewCapacity)
 					update_crew_capacity(capacity);
@@ -64,9 +70,9 @@ namespace AtHangar
 		void update_crew_capacity(int capacity)
 		{
 			part.partInfo.partPrefab.CrewCapacity = part.CrewCapacity = CrewCapacity = capacity;
-			this.Log("prefab.CrewCapacity {0}", part.partInfo.partPrefab.CrewCapacity);//debug
+			ShipConstruction.ShipConfig = EditorLogic.fetch.ship.SaveShip();
 			ShipConstruction.ShipManifest = HighLogic.CurrentGame.CrewRoster.DefaultCrewForVessel(ShipConstruction.ShipConfig);
-			CMAssignmentDialog.Instance.RefreshCrewLists(ShipConstruction.ShipManifest, false, true);
+			CMAssignmentDialog.Instance.RefreshCrewLists(ShipConstruction.ShipManifest, true, true);
 			Utils.UpdateEditorGUI();
 		}
 
@@ -82,18 +88,10 @@ namespace AtHangar
 			if(FX != null) FX.Burst();
 			foreach(var f in fairings)
 			{
-				var rb = f.gameObject.AddComponent<Rigidbody>();
-				rb.angularVelocity = part.rigidbody.angularVelocity;
-				rb.velocity = part.rigidbody.velocity + 
-					Vector3.Cross(vessel.CurrentCoM - part.rigidbody.worldCenterOfMass, 
-					              rb.angularVelocity);
-				rb.SetDensity(FairingsDensity);
-				rb.useGravity = true;
-				f.parent = null;
+				var debris = Debris.SetupOnTransform(vessel, part, f, FairingsDensity, FairingsCost, DebrisLifetime);
 				var force = f.TransformDirection(JettisonDirection) * JettisonForce * 0.5f;
-				rb.AddForceAtPosition(force, f.position, ForceMode.Force);
+				debris.rigidbody.AddForceAtPosition(force, f.position, ForceMode.Force);
 				part.rigidbody.AddForceAtPosition(-force, f.position, ForceMode.Force);
-				Debris.SetupOnGO(f.gameObject, "FairingsDebris", DebrisLifetime);
 			}
 			jettisoned = true;
 		}
@@ -108,7 +106,8 @@ namespace AtHangar
 			sv.proto_vessel.ctrlState    = this_vsl.ctrlState;
 			sv.proto_vessel.actionGroups = this_vsl.actionGroups;
 			//transfer the flight plan
-			if(vessel.patchedConicSolver.maneuverNodes.Count > 0)
+			if(vessel.patchedConicSolver != null &&
+				vessel.patchedConicSolver.maneuverNodes.Count > 0)
 			{
 				var nearest_node = vessel.patchedConicSolver.maneuverNodes[0];
 				var new_orbit = sv.proto_vessel.orbitSnapShot.Load();
@@ -165,42 +164,111 @@ namespace AtHangar
 		}
 	}
 
-	public class Debris : Vessel
+	public class Debris : PartModule, IPartCostModifier
 	{
-		IEnumerator<YieldInstruction> check_distance()
+		const string DEBRIS_PART = "GenericDebris";
+
+		[KSPField(isPersistant = true)] public string original_part_name = string.Empty;
+		[KSPField(isPersistant = true)] public string debris_transform_name = string.Empty;
+		[KSPField(isPersistant = true)] public float  saved_cost, saved_mass = -1f;
+		[KSPField(isPersistant = true)] public float  size = -1f, aspect = -1f;
+		[KSPField(isPersistant = true)] public Quaternion local_rotation = Quaternion.identity;
+
+		public Transform model;
+
+		public float GetModuleCost(float default_cost) { return saved_cost; }
+
+		public override void OnInitialize()
 		{
-			while(true)
+			if(saved_mass < 0) saved_mass = part.mass;
+			else part.mass = saved_mass;
+			if(model == null &&	original_part_name != string.Empty && debris_transform_name != string.Empty)
 			{
-				var fg = FlightGlobals.fetch;
-				if(fg == null) { Die(); yield break; }
-				if(fg.activeVessel == null) { Die(); yield break; }
-				if(Vector3.Distance(fg.activeVessel.transform.position, transform.position) > unloadDistance*0.9f)
-				{ Die(); yield break; }
-				yield return new WaitForSeconds(0.1f);
+				var info = PartLoader.getPartInfoByName(original_part_name);
+				if(info == null) 
+				{ 
+					this.Log("WARNING: {0} part was not found in the database!", original_part_name);
+					return;
+				}
+				var original_part = (Part)Instantiate(info.partPrefab);
+				model = original_part.FindModelTransform(debris_transform_name);
+				if(model == null) 
+				{ 
+					this.Log("WARNING: {0} part does not have {1} transform!", original_part_name, debris_transform_name);
+					return;
+				}
+				var base_model = part.transform.GetChild(0);
+				model.SetParent(base_model);
+				model.localRotation = local_rotation;
+				base_model.localScale = PartUpdaterBase.ScaleVector(Vector3.one, size, aspect);
+				base_model.hasChanged = true;
+				Destroy(original_part.gameObject);
 			}
 		}
 
-		public void Setup(string vessel_name, double lifetime)
+		public static Part SetupOnTransform(Vessel original_vessel, Part original_part, 
+		                                    Transform debris_transform, 
+		                                    float density, float cost, double lifetime)
 		{
-			name = vesselName = vessel_name;
-			Initialize();
-			DiscoveryInfo.SetLastObservedTime(Planetarium.GetUniversalTime());
-			DiscoveryInfo.SetUnobservedLifetime(lifetime);
-			DiscoveryInfo.SetUntrackedObjectSize(UntrackedObjectClass.A);
-			DiscoveryInfo.SetLevel(DiscoveryLevels.None);
-			StartCoroutine(check_distance());
-		}
-
-		public static Debris SetupOnGO(GameObject host, string part_prefab, double lifetime)
-		{
-			var part = host.AddComponent<Part>();
-			part.partInfo = PartLoader.getPartInfoByName(part_prefab);
-			part.srfAttachNode = new AttachNode();
-			part.attachRules = AttachRules.Parse("0,0,0,0,0");
-			part.mass = host.rigidbody.mass;
-			var debris = host.AddComponent<Debris>();
-			debris.Setup(HangarGUI.ParseCamelCase(part_prefab), lifetime);
-			return debris;
+			//get the part form DB
+			var info = PartLoader.getPartInfoByName(DEBRIS_PART);
+			if(info == null) return null;
+			var part = (Part)Instantiate(info.partPrefab);
+			//set part's transform and parent the debris to the part
+			part.transform.position = debris_transform.position;
+			part.transform.rotation = original_part.transform.rotation;
+			debris_transform.parent = part.transform.GetChild(0);
+			debris_transform.localPosition = Vector3.zero;
+			//initialize the part
+			part.gameObject.SetActive(true);
+			part.physicalSignificance = Part.PhysicalSignificance.NONE;
+			part.PromoteToPhysicalPart();
+			part.rigidbody.SetDensity(density);
+			part.mass   = part.rigidbody.mass;
+			part.orgPos = Vector3.zero;
+			part.orgRot = Quaternion.identity;
+			//set part's velocities
+			part.rigidbody.angularVelocity = original_part.rigidbody.angularVelocity;
+			part.rigidbody.velocity = original_part.rigidbody.velocity + 
+				Vector3.Cross(original_vessel.CurrentCoM - original_part.rigidbody.worldCenterOfMass, 
+				              part.rigidbody.angularVelocity);
+			//initialize Debris module
+			var debris = part.GetModule<Debris>();
+			if(debris == null) 
+			{ 
+				Utils.Log("WARNING: {0} part does not have Debris module!", DEBRIS_PART);
+				Destroy(part.gameObject); return null; 
+			}
+			debris.saved_cost = cost;
+			debris.original_part_name = original_part.partInfo.name;
+			debris.debris_transform_name = debris_transform.name;
+			debris.model = debris_transform;
+			debris.local_rotation = debris_transform.localRotation;
+			var resizer = original_part.GetModule<HangarPartResizer>();
+			if(resizer != null)
+			{
+				debris.size = resizer.size/resizer.orig_size;
+				debris.aspect = resizer.aspect;
+			}
+			//initialize the vessel
+			var vessel = part.gameObject.AddComponent<Vessel>();
+			vessel.name = vessel.vesselName = "Debris";
+			vessel.id = Guid.NewGuid();
+			vessel.Initialize();
+			//setup ids and flag
+			part.flightID = original_part.flightID;
+			part.missionID = original_part.missionID;
+			part.launchID = original_part.launchID;
+			part.flagURL = original_part.flagURL;
+			//setup discovery info
+			vessel.DiscoveryInfo.SetLastObservedTime(Planetarium.GetUniversalTime());
+			vessel.DiscoveryInfo.SetUnobservedLifetime(lifetime);
+			vessel.DiscoveryInfo.SetUntrackedObjectSize(UntrackedObjectClass.A);
+			vessel.DiscoveryInfo.SetLevel(DiscoveryLevels.Owned);
+			//inform the game about the new vessel
+			GameEvents.onNewVesselCreated.Fire(vessel);
+			//return the part
+			return part;
 		}
 	}
 }
