@@ -362,11 +362,11 @@ namespace AtHangar
 	{
 		protected override void on_rescale(ModuleReactionWheel module, ModuleReactionWheel base_module, Scale scale)
 		{
-			module.PitchTorque  = base_module.PitchTorque * scale.absolute.cube * scale.absolute.aspect;
-			module.YawTorque    = base_module.YawTorque   * scale.absolute.cube * scale.absolute.aspect;
-			module.RollTorque   = base_module.RollTorque  * scale.absolute.cube * scale.absolute.aspect;
+			module.PitchTorque  = base_module.PitchTorque * scale.absolute.quad * scale.absolute.aspect;
+			module.YawTorque    = base_module.YawTorque   * scale.absolute.quad * scale.absolute.aspect;
+			module.RollTorque   = base_module.RollTorque  * scale.absolute.quad * scale.absolute.aspect;
 			var input_resources = base_module.inputResources.ToDictionary(r => r.name);
-			module.inputResources.ForEach(r => r.rate = input_resources[r.name].rate * scale.absolute.cube * scale.absolute.aspect);
+			module.inputResources.ForEach(r => r.rate = input_resources[r.name].rate * scale.absolute.quad * scale.absolute.aspect);
 		}
 	}
 
@@ -494,7 +494,10 @@ namespace AtHangar
 	public class HangarFairingsUpdater : ModuleUpdater<HangarFairings>
 	{
 		protected override void on_rescale(HangarFairings module, HangarFairings base_module, Scale scale)
-		{ module.JettisonForce = base_module.JettisonForce * scale.absolute.cube * scale.absolute.aspect; }
+		{ 
+			module.JettisonForce = base_module.JettisonForce * scale.absolute.cube * scale.absolute.aspect;
+			module.FairingsCost = base_module.FairingsCost * scale.absolute.cube * scale.absolute.aspect;
+		}
 	}
 
 	public class JettisonUpdater : ModuleUpdater<ModuleJettison>
