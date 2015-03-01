@@ -70,8 +70,8 @@ namespace AtHangar
 			base.OnStart(state);
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
-				init_limit(MIN_SIZE, ref minSize, Mathf.Min(topSize, bottomSize), (a, b) => a < b);
-				init_limit(MAX_SIZE, ref maxSize, Mathf.Max(topSize, bottomSize), (a, b) => a > b);
+				init_limit(HangarConfig.Globals.MinSize, ref minSize, Mathf.Min(topSize, bottomSize));
+				init_limit(HangarConfig.Globals.MaxSize, ref maxSize, Mathf.Max(topSize, bottomSize));
 				//setup sliders
 				setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
 				setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);

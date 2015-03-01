@@ -134,18 +134,6 @@ namespace AtHangar
 			name = proto_vessel.vesselName;
 			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(proto_vessel);
 		}
-
-		public void Load()
-		{
-			proto_vessel.Load(HighLogic.CurrentGame.flightState);
-			GameEvents.onNewVesselCreated.Fire(proto_vessel.vesselRef);
-			if(proto_vessel.landed || proto_vessel.splashed)
-			{
-				Utils.Log("Loading landed/splashed vesse");//debug
-				proto_vessel.vesselRef.Load();
-				GameEvents.onVesselLoaded.Fire(proto_vessel.vesselRef);
-			}
-		}
 	}
 }
 

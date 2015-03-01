@@ -23,6 +23,11 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="Custom" name="Run Gendarme" command="gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}" workingdir="${ProjectDir}" externalConsole="True" />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -31,6 +36,11 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="AfterBuild" command="gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}" workingdir="${ProjectDir}" externalConsole="True" />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System">
@@ -134,6 +144,7 @@
     <Compile Include="AuxModules\EnginePressureCurve.cs" />
     <Compile Include="AuxModules\HangarEnergyGenerator.cs" />
     <Compile Include="AuxModules\HangarResourceConsumer.cs" />
+    <Compile Include="Utils\HangarConfig.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

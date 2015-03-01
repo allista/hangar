@@ -107,7 +107,7 @@ namespace AtHangar
 					if(m.renderer == null || !m.renderer.enabled) continue;
 					//skip meshes from the blacklist
 					bool skip_mesh = false;
-					foreach(string mesh_name in HangarConfig.MeshesToSkip)
+					foreach(string mesh_name in HangarConfig.Globals.MeshesToSkipList)
 					{
 						if(mesh_name == "") continue;
 						skip_mesh = m.name.IndexOf(mesh_name, StringComparison.OrdinalIgnoreCase) >= 0;
