@@ -152,6 +152,10 @@ namespace AtHangar
 			}
 			Debug.Log(string.Format("[Hangar] "+msg, args)); 
 		}
+
+		//from http://stackoverflow.com/questions/716399/c-sharp-how-do-you-get-a-variables-name-as-it-was-physically-typed-in-its-dec
+		//second answer
+		public static string PropertyName<T>(T obj) { return typeof(T).GetProperties()[0].Name; }
 	}
 
 	class MemoryTimer : IEnumerator<YieldInstruction>
