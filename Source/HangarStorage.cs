@@ -37,6 +37,8 @@ namespace AtHangar
 		{ get { return Nodes.Count > 0 || UseHangarSpaceMesh && hangar_space != null; } }
 
 		//vessels storage
+		readonly static string SCIENCE_DATA = typeof(ScienceData).Name;
+		readonly List<ConfigNode> stored_vessels_science = new List<ConfigNode>();
 		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
 		readonly protected VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>();
 		readonly protected List<PackedConstruct> unfit_constructs = new List<PackedConstruct>();
@@ -213,6 +215,12 @@ namespace AtHangar
 		}
 
 		public virtual float GetModuleCost(float default_cost) { return VesselsCost; }
+
+		public override void OnAwake()
+		{ GameEvents.OnVesselRecoveryRequested.Add(onVesselRecoveryRequested); }
+
+		public void OnDestroy()
+		{ GameEvents.OnVesselRecoveryRequested.Remove(onVesselRecoveryRequested); }
 		#endregion
 
 		#region Content Management
@@ -368,7 +376,21 @@ namespace AtHangar
 			Ready = true;
 			//save game afterwards
 			yield return WaitWithPhysics.ForSeconds(0.5f);
+			FlightDriver.PostInitState = new GameBackup(HighLogic.CurrentGame);
 			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
+		}
+
+		void onVesselRecoveryRequested(Vessel v)
+		{
+			if(v != vessel) return;
+			stored_vessels_science.Clear();
+			foreach(var sv in stored_vessels.Values)
+				foreach(var p in sv.proto_vessel.protoPartSnapshots)
+					foreach(var pm in p.modules)
+					{
+						var s = pm.moduleValues.GetNode(SCIENCE_DATA);
+						if(s != null) stored_vessels_science.Add(s);
+					}
 		}
 		#endregion
 
@@ -381,6 +403,9 @@ namespace AtHangar
 				stored_vessels.Save(node.AddNode("STORED_VESSELS"));
 			if(packed_constructs.Count > 0)
 				packed_constructs.Save(node.AddNode("PACKED_CONSTRUCTS"));
+			//save science data of stored ships
+			if(stored_vessels_science.Count > 0)
+				stored_vessels_science.ForEach(n => node.AddNode(n));
 		}
 
 		public override void OnLoad(ConfigNode node)
@@ -391,6 +416,11 @@ namespace AtHangar
 				stored_vessels.Load(node.GetNode("STORED_VESSELS"));
 			if(node.HasNode("PACKED_CONSTRUCTS"))
 				packed_constructs.Load(node.GetNode("PACKED_CONSTRUCTS"));
+			//restore science data
+			stored_vessels_science.Clear();
+			foreach(var n in node.GetNodes(SCIENCE_DATA))
+				stored_vessels_science.Add(n);
+
 		}
 		#endregion
 
