@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace AtHangar
@@ -49,6 +50,19 @@ namespace AtHangar
 		/// Sorted list of tank type names.
 		/// </summary>
 		public static IList<string> TankTypeNames { get { return TankTypes.Keys; } }
+
+		/// <summary>
+		/// Returns info string describing available tank types
+		/// </summary>
+		public static string TypesInfo
+		{
+			get
+			{
+				var info = "Available Tank Types:\n";
+				info += TankTypeNames.Aggregate("", (i, t) => i+"- "+t+"\n");
+				return info;
+			}
+		}
 		#endregion
 
 		new public const string NODE_NAME = "TANKTYPE";
