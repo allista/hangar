@@ -18,9 +18,9 @@ namespace AtHangar
 		readonly List<HangarSwitchableTank> tanks = new List<HangarSwitchableTank>();
 		int max_id = -1;
 
+		[Persistent] public bool AddRemoveEnabled = true;
+		[Persistent] public bool TypeChangeEnabled = true;
 		public bool EnablePartControls;
-		public bool AddRemoveEnabled = true;
-		public bool TypeChangeEnabled = true;
 
 		public int TanksCount { get { return tanks.Count; } }
 		public float TotalVolume { get { return tanks.Aggregate(0f, (v, t) => v+t.Volume); } }

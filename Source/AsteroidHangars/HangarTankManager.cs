@@ -72,8 +72,6 @@ namespace AtHangar
 			if(tank_manager != null) return;
 			tank_manager = new SwitchableTankManager(this);
 			tank_manager.EnablePartControls = !HighLogic.LoadedSceneIsEditor;
-			tank_manager.AddRemoveEnabled = AddRemoveEnabled;
-			tank_manager.TypeChangeEnabled = TypeChangeEnabled;
 			tank_manager.Load(ModuleSave);
 			var used_volume = tank_manager.TotalVolume;
 			if(used_volume > Volume) 
