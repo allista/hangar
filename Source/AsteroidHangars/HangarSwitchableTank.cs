@@ -14,8 +14,22 @@ namespace AtHangar
 	/// </summary>
 	public class HangarSwitchableTank : PartModule, IPartCostModifier
 	{
-		const string   MANAGED = "RES";
-		const string UNMANAGED = "N/A";
+		const string   RES_MANAGED = "RES";
+		const string RES_UNMANAGED = "N/A";
+
+		bool enable_part_controls = true;
+		public bool EnablePartControls 
+		{ 
+			get { return enable_part_controls; } 
+			set 
+			{ 
+				enable_part_controls = value; 
+				init_type_control(); 
+				if(tank_type != null)
+					init_res_control();
+			}
+		}
+		[KSPField(isPersistant = true)] public int id = -1;
 
 		/// <summary>
 		/// If a tank type can be selected in editor.
@@ -46,7 +60,7 @@ namespace AtHangar
 		/// <summary>
 		/// The name of a currently selected resource. Can be changed in flight if resource amount is zero.
 		/// </summary>
-		[KSPField(isPersistant = true, guiActive = true, guiActiveEditor = true, guiName = MANAGED)]
+		[KSPField(isPersistant = true, guiActive = true, guiActiveEditor = true, guiName = RES_MANAGED)]
 		[UI_ChooseOption]
 		public string CurrentResource = string.Empty;
 		PartResource current_resource;
@@ -62,11 +76,8 @@ namespace AtHangar
 		public override string GetInfo()
 		{
 			var info = "";
-			if(ChooseTankType)
-			{
-				info += "Available Tank Types:\n";
-				info += SwitchableTankType.TankTypeNames.Aggregate("", (i, t) => i+"- "+t+"\n");
-			}
+			if(ChooseTankType) 
+				info += SwitchableTankType.TypesInfo;
 			if(!init_tank_type()) return info;
 			info += tank_type.Info;
 			init_tank_volume();
@@ -88,7 +99,6 @@ namespace AtHangar
 
 		public override void OnStart(StartState state)
 		{
-			base.OnStart(state);
 			//get other tanks in this part
 			other_tanks.AddRange(from t in part.Modules.OfType<HangarSwitchableTank>()
 								 where t != this select t);
@@ -96,16 +106,7 @@ namespace AtHangar
 			part_menu = part.FindActionWindow();
 			//initialize tank type chooser
 			HangarGUI.EnableField(Fields["TankType"], false);
-			if( ChooseTankType &&
-				state == StartState.Editor &&
-				SwitchableTankType.TankTypes.Count > 1)
-			{
-				var names = SwitchableTankType.TankTypeNames;
-				var tank_types = names.ToArray();
-				var tank_names = names.Select(HangarGUI.ParseCamelCase).ToArray();
-				HangarGUI.SetupChooser(tank_names, tank_types, Fields["TankType"]);
-				HangarGUI.EnableField(Fields["TankType"]);
-			}
+			if(state == StartState.Editor) init_type_control();
 			init_tank_type();
 			init_tank_volume();
 			switch_resource();
@@ -192,6 +193,26 @@ namespace AtHangar
 			else this.Log("WARNING: init_tank_volume is called before init_tank_type");
 		}
 
+		void init_type_control()
+		{
+			if(!enable_part_controls || !ChooseTankType || 
+			   SwitchableTankType.TankTypes.Count <= 1) return;
+			var names = SwitchableTankType.TankTypeNames;
+			var tank_types = names.ToArray();
+			var tank_names = names.Select(HangarGUI.ParseCamelCase).ToArray();
+			HangarGUI.SetupChooser(tank_names, tank_types, Fields["TankType"]);
+			HangarGUI.EnableField(Fields["TankType"]);
+		}
+
+		void init_res_control()
+		{
+			if(!enable_part_controls || tank_type.Resources.Count <= 1) return;
+			var res_values = tank_type.ResourceNames.ToArray();
+			var res_names  = tank_type.ResourceNames.Select(HangarGUI.ParseCamelCase).ToArray();
+			HangarGUI.SetupChooser(res_names, res_values, Fields["CurrentResource"]);
+			HangarGUI.EnableField(Fields["CurrentResource"]);
+		}
+
 		bool init_tank_type()
 		{
 			//check if the tank is in use
@@ -216,13 +237,7 @@ namespace AtHangar
 			HangarGUI.EnableField(Fields["CurrentResource"], false);
 			if(tank_type == null) return false;
 			//initialize new tank UI if needed
-			if(tank_type.Resources.Count > 1)
-			{
-				var res_values = tank_type.ResourceNames.ToArray();
-				var res_names  = tank_type.ResourceNames.Select(HangarGUI.ParseCamelCase).ToArray();
-				HangarGUI.SetupChooser(res_names, res_values, Fields["CurrentResource"]);
-				HangarGUI.EnableField(Fields["CurrentResource"]);
-			}
+			init_res_control();
 			//initialize current resource
 			if(CurrentResource == string.Empty || 
 				!tank_type.Resources.ContainsKey(CurrentResource)) 
@@ -259,14 +274,14 @@ namespace AtHangar
 			if(resource_in_use(CurrentResource)) 
 			{
 				ScreenMessager.showMessage(6, "A part cannot have more than one resource of any type");
-				Fields["CurrentResource"].guiName = UNMANAGED;
+				Fields["CurrentResource"].guiName = RES_UNMANAGED;
 				update_part_menu();
 				return false;
 			}
-			Fields["CurrentResource"].guiName = MANAGED;
+			Fields["CurrentResource"].guiName = RES_MANAGED;
 			//get definition of the next not-managed resource
 			var res = tank_type[CurrentResource];
-			//calculate maxAmount
+			//calculate maxAmount (FIXME)
 			var maxAmount = Volume*res.UnitsPerLiter*1000f;
 			//if there is such resource already, just plug it in
 			var part_res = part.Resources[res.Name];
