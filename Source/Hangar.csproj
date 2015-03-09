@@ -145,6 +145,7 @@
     <Compile Include="AuxModules\HangarEnergyGenerator.cs" />
     <Compile Include="AuxModules\HangarResourceConsumer.cs" />
     <Compile Include="Utils\HangarConfig.cs" />
+    <Compile Include="AuxModules\PathFinder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
