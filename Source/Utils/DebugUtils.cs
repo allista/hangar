@@ -106,6 +106,9 @@ namespace AtHangar
 		public NamedStopwatch(string name)
 		{ this.name = name; }
 
+		public double ElapsedSecs 
+		{ get { return sw.ElapsedTicks/(double)System.Diagnostics.Stopwatch.Frequency; } }
+
 		public void Start()
 		{
 			Utils.Log("{0}: start counting time", name);
