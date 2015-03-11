@@ -35,13 +35,49 @@ namespace AtHangar
 		[KSPField(isPersistant=true, guiActive=true, guiName="Distance", guiFormat="F4", guiUnits = "arc.s")]
 		public float Distance;
 
-		[KSPField(isPersistant=true, guiActive=true, guiName="T", guiFormat="S4")]
+		[KSPField(isPersistant=true, guiActive=true, guiName="Ck", guiFormat="F3")]
 		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0.001f, maxValue=0.999f, incrementLarge=0.1f, incrementSmall=0.01f, incrementSlide=0.001f)]
-		public float T = 0.5f;
+		public float Ck = 0.5f;
 
-		[KSPField(isPersistant=true, guiActive=true, guiName="D", guiFormat="F4", guiUnits = "deg")]
-		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0.001f, maxValue=1f, incrementLarge=0.05f, incrementSmall=0.01f, incrementSlide=0.001f)]
-		public float D = 0.04f;
+		[KSPField(isPersistant=true, guiActive=true, guiName="Bk", guiFormat="F3")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0.001f, maxValue=0.999f, incrementLarge=0.1f, incrementSmall=0.01f, incrementSlide=0.001f)]
+		public float Bk = 0.5f;
+
+		[KSPField(isPersistant=true, guiActive=true, guiName="Ek", guiFormat="F3")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0.001f, maxValue=0.999f, incrementLarge=0.1f, incrementSmall=0.01f, incrementSlide=0.001f)]
+		public float Ek = 0.5f;
+
+		[KSPField(isPersistant=true, guiActive=true, guiName="Sk", guiFormat="F3")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0f, maxValue=1f, incrementLarge=0.1f, incrementSmall=0.01f, incrementSlide=0.001f)]
+		public float Sk = 0.5f;
+
+		[KSPField(isPersistant=true, guiActive=true, guiName="Fk", guiFormat="F3")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0f, maxValue=1f, incrementLarge=0.1f, incrementSmall=0.01f, incrementSlide=0.001f)]
+		public float Fk = 0.5f;
+
+		[KSPField(isPersistant=true, guiActive=true, guiName="Ak", guiFormat="F3")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0.01f, maxValue=2f, incrementLarge=0.1f, incrementSmall=0.01f, incrementSlide=0.001f)]
+		public float Ak = 1f;
+
+		[KSPField(isPersistant=true, guiActive=true, guiName="Hk", guiFormat="F3")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0.001f, maxValue=1f, incrementLarge=0.1f, incrementSmall=0.01f, incrementSlide=0.001f)]
+		public float Hk = 0.1f;
+
+		[KSPField(isPersistant=true, guiActive=true, guiName="Ik", guiFormat="F3")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0.001f, maxValue=1f, incrementLarge=0.1f, incrementSmall=0.01f, incrementSlide=0.001f)]
+		public float Ik = 0.1f;
+
+		[KSPField(isPersistant=true, guiActive=true, guiName="seed", guiFormat="F0")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0f, maxValue=1000000f, incrementLarge=1000000f, incrementSmall=1000000f, incrementSlide=1f)]
+		public float seed = 42f;
+
+		[KSPField(isPersistant=true, guiActive=true, guiName="back step", guiFormat="F0")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=1f, maxValue=1000f, incrementLarge=100f, incrementSmall=10f, incrementSlide=1f)]
+		public float back_step = 42f;
+
+		[KSPField(isPersistant=true, guiActive=true, guiName="D", guiFormat="F1", guiUnits = "m")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=1f, maxValue=1000f, incrementLarge=100f, incrementSmall=10f, incrementSlide=1f)]
+		public float D = 50f;
 
 		[KSPField(isPersistant=true, guiActive=true, guiName="N", guiFormat="F")]
 		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=1000f, maxValue=1000000f, incrementLarge=100000f, incrementSmall=10000f, incrementSlide=1000f)]
@@ -66,7 +102,11 @@ namespace AtHangar
 
 			var start = new Vector2d(vessel.latitude, vessel.longitude);
 			var end = new Vector2d(target.latitude, target.longitude);
-			walker = new SurfaceWalker(vessel.mainBody, T);
+			walker = new SurfaceWalker(vessel.mainBody);
+			walker.Fk = Fk; walker.Bk = Bk; walker.Ck = Ck;
+			walker.Ek = Ek; walker.Sk = Sk; walker.Ak = Ak;
+			walker.Hk = Hk; walker.Ik = Ik; walker.back_step = (int)back_step;
+			walker.seed = (int)seed;
 			walk = walker.Walk(start, end, D, (int)N);
 			start_time = Planetarium.GetUniversalTime();
 			StartCoroutine(walk);
@@ -75,7 +115,7 @@ namespace AtHangar
 		[KSPEvent (guiActive = true, guiName = "Build Map", active = true)]
 		public void BuildMap() 
 		{
-			var w = new SurfaceWalker(vessel.mainBody, T);
+			var w = new SurfaceWalker(vessel.mainBody);
 			w.BuildFullMap(0.5, string.Format("../MassCalc/{0}_map", vessel.mainBody.bodyName));
 		}
 
@@ -120,17 +160,19 @@ namespace AtHangar
 		{
 			const double max_angle = 15;
 			double delta = 1e-2;
-			double T;
+			public double Fk, Bk, Ck, Ek, Sk, Ak, Hk, Ik;
+			public int seed, back_step;
 
 			CelestialBody body;
 			Neighbour[] neighbours = new Neighbour[8];
 			MapNode start, end;
+			double distance, cur_dist, frac_dist, inv_frac_dist, smoothing;
 
 			MapNode current { get { return Path.Empty? start : Path.Last; } }
 			MapNode previous { get { return Path.Multinode? Path.Last.prev: start; } }
 
 			HashSet<MapNode> closed = new HashSet<MapNode>();
-			public MapPath Path;
+			public MapPath Path, FullPath;
 			public bool Walking { get; private set; }
 			public bool PathFound { get; private set; }
 			public Vector2d Delta { get; private set; }
@@ -138,21 +180,19 @@ namespace AtHangar
 			public Vector2d Start { get { return start != null? start.pos : Vector2d.zero; }}
 			public Vector2d End { get { return end != null? end.pos : Vector2d.zero; }}
 
-			public SurfaceWalker(CelestialBody body, double T = 0.1)
+			public SurfaceWalker(CelestialBody body)
 			{
 				this.body = body;
 				Path = new MapPath(body);
-				if(T <= 0) T = 1e-5; //heavily guided
-				else if(T > 1) T = 1; //completely random
-				this.T = T;
+				FullPath = new MapPath(body);//debug
 			}
 
 			bool update_neighbours()
 			{
 				var c  = current;
 				var p  = previous;
-				var de = c.DistanceTo(end).magnitude;
 				var ds = c.DistanceTo(start).magnitude;
+				var t  = Path.Tail((int)Math.Ceiling(smoothing*frac_dist))?? p;
 				var total_p = 0.0;
 				var ind = 0;
 				for(int i = -1; i < 2; i++)
@@ -161,19 +201,17 @@ namespace AtHangar
 						if(i == 0 && j == 0) continue;
 						var n  = new Neighbour(new MapNode(c.lat+i*delta, c.lon+j*delta, body));
 						if(Path.Multinode && n.node.SameAs(p)) 
-						{ n.node = p; n.isPrevious = true; } //n.prob *= T; }
-						var incline_mod = step_incline_mod(c, n.node);
+						{ n.node = p; n.isPrevious = true; }
+						var incline_mod = step_incline_mod(c, n.node, cur_dist);
 						if(incline_mod > 0)
 						{
 							if(closed.Contains(n.node))
-								n.prob *= T;
+								n.prob *= Ck;
+							else if(Path.Multinode && 
+							        Vector2d.Dot(t.DistanceTo(c), c.DistanceTo(n.node)) <= 0)
+								n.prob *= Bk;
 							else
-							{
-								n.prob *= incline_mod;
-								n.prob *= delta_prob(n.node, de, ds);
-//									(i, de.x);
-//								n.prob *= delta_prob(j, de.y);
-							}
+								n.prob *= incline_mod*delta_prob(n.node, cur_dist, ds)/Bk;
 						} else n.prob = 0;
 						total_p += n.prob;
 						neighbours[ind++] = n;
@@ -181,50 +219,33 @@ namespace AtHangar
 				if(total_p.Equals(0)) return false;
 				for(int i = 0; i < 8; i++) neighbours[i].prob /= total_p;
 				Array.Sort(neighbours, (a, b) => a.prob.CompareTo(b.prob));
-				//				Utils.Log("Neighbours:\n{0}", 
-				//				          neighbours.Aggregate("", 
-				//				                               (s, n) => 
-				//				                               s+string.Format("delta {0}, {1}; prob {2}\n", end.lat-n.node.lat, end.lon-n.node.lon, n.prob)));
 				return true;
-			}
-
-			double delta_prob(int i, double d)
-			{
-				if(Math.Abs(d) < delta) 
-					return i == 0 ? Math.Sqrt(1/T) : 0.9;
-				if(i == 0) return 1;
-				return i * d > 0 ? Math.Sqrt(1/T) : 0.9;
 			}
 
 			double delta_prob(MapNode n, double de, double ds)
 			{
-				var nds = n.DistanceTo(start).magnitude;
 				var nde = n.DistanceTo(end).magnitude;
-				if(Math.Abs(nde - de) < MapNode.eps) return 1;
-				if(nde < de) return Math.Sqrt(1/T) ;
-				if(nds < ds) return 0.6;
-				return 0.8;
+				if(nde < de) return 1 + Math.Pow((de-nde)/delta/1.4142137, 0.5+Fk);
+
+				var nds = n.DistanceTo(start).magnitude;
+				return nds < ds ? (1 - Math.Pow((ds-nds)/delta/1.4142137, 0.5+Sk)) * Ek : Ek;
 			}
 
-			double step_incline_mod(MapNode p1, MapNode p2)
+			double step_incline_mod(MapNode p1, MapNode p2, double de)
 			{
 				if(body.ocean && p2.height < 0) return 0;
 				var wp1 = body.GetWorldSurfacePosition(p1.lat, p1.lon, 0);
 				var wp2 = body.GetWorldSurfacePosition(p2.lat, p2.lon, 0);
 				var tan = (p2.height-p1.height)/(wp2-wp1).magnitude;
-				//				Utils.Log("Step angle: {0}", Math.Atan(Math.Abs(tan))*Mathf.Rad2Deg); //debug
+//				var dir = (end.height-p1.height);
 				var mod = (max_angle-Math.Atan(Math.Abs(tan))*Mathf.Rad2Deg)/max_angle;
-				return mod > 0? Math.Sqrt(mod + T) : 0;
+				return mod > 0? Math.Pow(mod, Ak) : 0;
 			}
 
 			public IEnumerator<YieldInstruction> Walk(Vector2d start_point, Vector2d end_point, double d = 0.01, int max_steps = 10000)
 			{
 				if(max_steps < 1000) max_steps = 1000;
-				delta = d;
-				//				delta = (end_point-start_point).magnitude/max_steps*100;
-				//				if(delta > 0.1) delta = 0.1;
-				//				else if(delta < 0.001) delta = 0.001;
-				//				Utils.Log("max_steps: {0}; delta: {1}", max_steps, delta);//debug
+				delta = d/body.Radius * Mathf.Rad2Deg;
 				if(Math.Abs(end_point.y - start_point.y) > 180)
 				{
 					if(end_point.y > start_point.y) end_point.y -= 360;
@@ -232,11 +253,12 @@ namespace AtHangar
 				}
 				start = new MapNode(start_point, body);
 				end = new MapNode(end_point, body);
+				distance = start.DistanceTo(end).magnitude;
+				smoothing = Ik/delta;
 				closed.Clear(); 
-				Path.Clear(); 
-				Path.Add(start);
-				var end_delta_sqr = delta*delta*8;
-				var R = new System.Random();
+				Path.Clear(); FullPath.Clear();//debug
+				Path.Add(start); FullPath.Add(new MapNode(start.pos, body));//debug
+				var R = new System.Random(seed);
 				var batch = batch_size;
 				Steps = max_steps;
 				yield return null;
@@ -244,8 +266,11 @@ namespace AtHangar
 				while(Steps > 0)
 				{
 					Delta = current.DistanceTo(end);
+					cur_dist = Delta.magnitude;
+					frac_dist = Math.Pow(cur_dist/distance, Hk);
+//					inv_frac_dist = 1-frac_dist > 1e-5? 1-frac_dist : 1e-5;
 					//					Utils.Log("Global delta: {0}", Delta);//debug
-					if(Delta.sqrMagnitude <= end_delta_sqr)
+					if(cur_dist <= delta*2)
 					{ Path.Add(end); Delta = Vector2d.zero; PathFound = true; break; }
 					if(!update_neighbours()) { Utils.Log("No suitable neighbours found!"); break; }//debug
 					var sample = R.NextDouble();
@@ -256,14 +281,25 @@ namespace AtHangar
 						sample -= n.prob;
 					}
 					if(next.isPrevious) 
-						Path.MakeLast(next.node).ToList().ForEach(n => closed.Add(n));
+					{
+//						Utils.Log("Neighbours:\n{0}", //debug
+//						          neighbours.Aggregate("", 
+//						                       		   (s, n) => 
+//						                               s+string.Format("delta {0}, {1}; prob {2}; prev {3}\n", 
+//						                                               end.lat-n.node.lat, end.lon-n.node.lon, n.prob, n.isPrevious)));
+//						closed.Add(current);
+//						Path.MakeLast(previous);
+						var t = Path.Tail((int)Math.Ceiling(back_step*frac_dist))?? previous;
+						Path.MakeLast(t).ToList().ForEach(n => closed.Add(n));
+//						Utils.Log("Step back!\nClosed nodes: {0}\nChoosed the neighbour with P={1}", closed.Count, next.prob);  //debug
+					}
 					else 
 					{ 
 						var node = Path.Find(next.node);
-						if(node == null) Path.Add(next.node); 
+						if(node == null) Path.Add(next.node);
 						else Path.MakeLast(node).ToList().ForEach(n => closed.Add(n));
-						//						Utils.Log("Closed nodes: {0}\nChoose neighbour with P={1}", closed.Count, next.prob);  //debug
 					}
+					FullPath.Add(new MapNode(next.node.pos, body));//debug
 					Steps--;
 					batch--;
 					if(batch <= 0)
@@ -307,7 +343,7 @@ Map = np.array([");
 import numpy as np
 path = np.array([");
 					file.WriteLine(string.Format("[{0}, {1}],", start.lat, start.lon));
-					foreach(var p in Path)
+					foreach(var p in FullPath)//debug
 						file.WriteLine(string.Format("[{0}, {1}],", p.lat, p.lon));
 					file.WriteLine(string.Format("[{0}, {1}],", end.lat, end.lon));
 					file.WriteLine("])");
@@ -421,6 +457,17 @@ path = np.array([");
 						c = c.prev;
 					} 
 					return null;
+				}
+
+				public MapNode Tail(int i)
+				{
+					var c = Last;
+					while(c != null && i > 0) 
+					{
+						c = c.prev;
+						i--;
+					} 
+					return c;
 				}
 
 				public IEnumerable<MapNode> MakeLast(MapNode n)
