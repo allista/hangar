@@ -21,13 +21,13 @@ namespace AtHangar
 {
 	public class PathFinder : PartModule
 	{
-		const int batch_size = 100;
-		SurfaceWalker walker;
-		IEnumerator<YieldInstruction> walk;
+		const int batch_size = 10;
+		readonly List<SurfaceWalker> walkers = new List<SurfaceWalker>();
+		readonly List<IEnumerator<YieldInstruction>> walks = new List<IEnumerator<YieldInstruction>>();
+		readonly NamedStopwatch timer = new NamedStopwatch("PathFinder");
 
 		[KSPField(isPersistant=true, guiActive=true, guiName="Time", guiFormat = "F1", guiUnits = "s")]
 		public float Time;
-		public double start_time;
 
 		[KSPField(isPersistant=true, guiActive=true, guiName="Steps")]
 		public int Steps;
@@ -67,9 +67,9 @@ namespace AtHangar
 		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0.001f, maxValue=1f, incrementLarge=0.1f, incrementSmall=0.01f, incrementSlide=0.001f)]
 		public float Ik = 0.1f;
 
-		[KSPField(isPersistant=true, guiActive=true, guiName="seed", guiFormat="F0")]
-		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=0f, maxValue=1000000f, incrementLarge=1000000f, incrementSmall=1000000f, incrementSlide=1f)]
-		public float seed = 42f;
+		[KSPField(isPersistant=true, guiActive=true, guiName="walkers", guiFormat="F0")]
+		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=1f, maxValue=100f, incrementLarge=10f, incrementSmall=2f, incrementSlide=1f)]
+		public float num_walks = 5f;
 
 		[KSPField(isPersistant=true, guiActive=true, guiName="back step", guiFormat="F0")]
 		[UI_FloatEdit(scene=UI_Scene.Flight, minValue=1f, maxValue=1000f, incrementLarge=100f, incrementSmall=10f, incrementSlide=1f)]
@@ -92,7 +92,7 @@ namespace AtHangar
 		[KSPEvent (guiActive = true, guiName = "Build Route", active = true)]
 		public void BuildRoute() 
 		{
-			if(walker != null) return;
+			if(walkers.Count > 0) return;
 			if(vessel.targetObject == null)
 			{ ScreenMessager.showMessage("Build Route: no target"); return; }
 			var target = vessel.targetObject.GetVessel();
@@ -102,14 +102,18 @@ namespace AtHangar
 
 			var start = new Vector2d(vessel.latitude, vessel.longitude);
 			var end = new Vector2d(target.latitude, target.longitude);
-			walker = new SurfaceWalker(vessel.mainBody);
-			walker.Fk = Fk; walker.Bk = Bk; walker.Ck = Ck;
-			walker.Ek = Ek; walker.Sk = Sk; walker.Ak = Ak;
-			walker.Hk = Hk; walker.Ik = Ik; walker.back_step = (int)back_step;
-			walker.seed = (int)seed;
-			walk = walker.Walk(start, end, D, (int)N);
-			start_time = Planetarium.GetUniversalTime();
-			StartCoroutine(walk);
+			timer.Reset(); timer.Start(); Time = 0;
+			for(int i = 0; i<num_walks; i++)
+			{
+				var walker = new SurfaceWalker(vessel.mainBody);
+				walker.Fk = Fk; 
+				walker.Bk = Bk; walker.Ck = Ck;
+				walker.Ek = Ek; walker.Sk = Sk/(i+1); walker.Ak = Ak/(i+1);
+				walker.Hk = Hk; walker.Ik = Ik; walker.back_step = (int)back_step;
+				var walk = walker.Walk(start, end, D, (int)N);
+				walkers.Add(walker); walks.Add(walk);
+				StartCoroutine(walk);
+			}
 		}
 
 		[KSPEvent (guiActive = true, guiName = "Build Map", active = true)]
@@ -124,22 +128,22 @@ namespace AtHangar
 			while(true)
 			{
 				yield return new WaitForSeconds(0.1f);
-				if(walker == null) continue;
-				Steps = walker.Steps;
-				Distance = (float)walker.Delta.magnitude*60;
-				Time = (float)(Planetarium.GetUniversalTime()-start_time);
-				if(walker.PathFound || walker.Steps <= 0)
+				if(walkers.Count == 0) continue;
+				Steps = walkers.Max(w => w.Steps);
+				Distance = (float)walkers.Min(w => w.Delta.magnitude*60);
+				Time = (float)timer.ElapsedSecs;
+				if(walkers.Any(w => w.PathFound) || walkers.All(w => w.Steps <= 0))
 				{
+					walks.ForEach(StopCoroutine);
 					yield return null;
-					Utils.Log("BuildRoute:\n" +
-					          "Succeded: {0}\n" +
-					          "Final Delta: {1}", walker.PathFound, walker.Delta); //debug
+					var walker = walkers.Find(w => w.PathFound)?? walkers.SelectMax(w => 1/(float)w.Delta.magnitude);
 					walker.SavePath("../MassCalc/path");
 					yield return null;
 					var lat_ext = walker.Path.Select(n => n.lat).ToList();
 					lat_ext.Add(walker.Start.x);
 					lat_ext.Add(walker.End.x);
 					lat_ext.Sort();
+					yield return null;
 					var lon_ext = walker.Path.Select(n => n.lon).ToList();
 					lon_ext.Add(walker.Start.y);
 					lon_ext.Add(walker.End.y);
@@ -151,17 +155,18 @@ namespace AtHangar
 						lat_ext[0]-1, lat_ext[lat_ext.Count-1]+1,
 						lon_ext[0]-1, lon_ext[lat_ext.Count-1]+1,
 						map_delta, "../MassCalc/Current_map");
-					walker = null;
+					walkers.Clear(); walks.Clear();
+					timer.Stop();
 				}
 			}
 		}
 
 		class SurfaceWalker
 		{
-			const double max_angle = 15;
-			double delta = 1e-2;
+			const double max_angle = 20;
+			double delta = 20;
 			public double Fk, Bk, Ck, Ek, Sk, Ak, Hk, Ik;
-			public int seed, back_step;
+			public int back_step;
 
 			CelestialBody body;
 			Neighbour[] neighbours = new Neighbour[8];
@@ -183,8 +188,8 @@ namespace AtHangar
 			public SurfaceWalker(CelestialBody body)
 			{
 				this.body = body;
-				Path = new MapPath(body);
-				FullPath = new MapPath(body);//debug
+				Path = new MapPath();
+				FullPath = new MapPath();//debug
 			}
 
 			bool update_neighbours()
@@ -199,7 +204,7 @@ namespace AtHangar
 					for(int j = -1; j < 2; j++)
 					{
 						if(i == 0 && j == 0) continue;
-						var n  = new Neighbour(new MapNode(c.lat+i*delta, c.lon+j*delta, body));
+						var n  = new Neighbour(new MapNode(c.lat+i*delta, c.lon+j*delta));
 						if(Path.Multinode && n.node.SameAs(p)) 
 						{ n.node = p; n.isPrevious = true; }
 						var incline_mod = step_incline_mod(c, n.node, cur_dist);
@@ -233,16 +238,14 @@ namespace AtHangar
 
 			double step_incline_mod(MapNode p1, MapNode p2, double de)
 			{
+				p2.Init(body);
 				if(body.ocean && p2.height < 0) return 0;
-				var wp1 = body.GetWorldSurfacePosition(p1.lat, p1.lon, 0);
-				var wp2 = body.GetWorldSurfacePosition(p2.lat, p2.lon, 0);
-				var tan = (p2.height-p1.height)/(wp2-wp1).magnitude;
-//				var dir = (end.height-p1.height);
+				var tan = (p2.height-p1.height)/(p2.wpos-p1.wpos).magnitude;
 				var mod = (max_angle-Math.Atan(Math.Abs(tan))*Mathf.Rad2Deg)/max_angle;
 				return mod > 0? Math.Pow(mod, Ak*frac_dist) : 0;
 			}
 
-			public IEnumerator<YieldInstruction> Walk(Vector2d start_point, Vector2d end_point, double d = 0.01, int max_steps = 10000)
+			public IEnumerator<YieldInstruction> Walk(Vector2d start_point, Vector2d end_point, double d = 10, int max_steps = 10000)
 			{
 				if(max_steps < 1000) max_steps = 1000;
 				delta = d/body.Radius * Mathf.Rad2Deg;
@@ -251,14 +254,14 @@ namespace AtHangar
 					if(end_point.y > start_point.y) end_point.y -= 360;
 					else end_point.y += 360;
 				}
-				start = new MapNode(start_point, body);
-				end = new MapNode(end_point, body);
+				start = new MapNode(start_point); start.Init(body);
+				end = new MapNode(end_point); end.Init(body);
 				distance = start.DistanceTo(end).magnitude;
 				smoothing = Ik/delta;
 				closed.Clear(); 
 				Path.Clear(); FullPath.Clear();//debug
-				Path.Add(start); FullPath.Add(new MapNode(start.pos, body));//debug
-				var R = new System.Random(seed);
+				Path.Add(start); FullPath.Add(new MapNode(start.pos));//debug
+				var R = new System.Random();
 				var batch = batch_size;
 				Steps = max_steps;
 				yield return null;
@@ -267,7 +270,7 @@ namespace AtHangar
 				{
 					Delta = current.DistanceTo(end);
 					cur_dist = Delta.magnitude;
-					frac_dist = Math.Pow(cur_dist/distance, Hk);
+					frac_dist = cur_dist > distance? 1: Math.Pow(cur_dist/distance, Hk);
 //					inv_frac_dist = 1-frac_dist > 1e-5? 1-frac_dist : 1e-5;
 					//					Utils.Log("Global delta: {0}", Delta);//debug
 					if(cur_dist <= delta*2)
@@ -287,11 +290,8 @@ namespace AtHangar
 //						                       		   (s, n) => 
 //						                               s+string.Format("delta {0}, {1}; prob {2}; prev {3}\n", 
 //						                                               end.lat-n.node.lat, end.lon-n.node.lon, n.prob, n.isPrevious)));
-//						closed.Add(current);
-//						Path.MakeLast(previous);
 						var t = Path.Tail((int)Math.Ceiling(back_step*frac_dist)+1)?? previous;
 						Path.MakeLast(t).ToList().ForEach(n => closed.Add(n));
-//						Utils.Log("Step back!\nClosed nodes: {0}\nChoosed the neighbour with P={1}", closed.Count, next.prob);  //debug
 					}
 					else 
 					{ 
@@ -299,7 +299,7 @@ namespace AtHangar
 						if(node == null) Path.Add(next.node);
 						else Path.MakeLast(node).ToList().ForEach(n => closed.Add(n));
 					}
-					FullPath.Add(new MapNode(next.node.pos, body));//debug
+					FullPath.Add(new MapNode(next.node.pos));//debug
 					Steps--;
 					batch--;
 					if(batch <= 0)
@@ -309,6 +309,7 @@ namespace AtHangar
 					}
 				}
 				Walking = false;
+				closed.Clear();
 			}
 
 			public void BuildFullMap(double d, string filename)
@@ -326,7 +327,7 @@ Map = np.array([");
 						file.WriteLine("[");
 						for(double lon = lon_min; lon < lon_max; lon += d)
 						{
-							var n = new MapNode(lat, lon, body);
+							var n = new MapNode(lat, lon); n.Init(body);
 							file.WriteLine(string.Format("[{0}, {1}, {2}],", n.lat, n.lon, n.height));
 						}
 						file.WriteLine("],");
@@ -354,29 +355,33 @@ path = np.array([");
 			{
 				public const double eps = 1e-5;
 
-				CelestialBody body;
 				public readonly Vector2d pos;
-				public readonly double height;
+				bool inited;
+				public Vector3d wpos { get; private set; }
+				public double height { get; private set; }
 				public double lat { get { return pos.x; } }
 				public double lon { get { return pos.y; } }
 				public Vector3d pos3d { get { return new Vector3d(pos.x, pos.y, height); } }
 
 				public MapNode prev, next;
 
-				double get_height(Vector2d p)
-				{ return body.pqsController.GetSurfaceHeight(body.GetRelSurfaceNVector(p.x, p.y))-body.Radius; }
+				public void Init(CelestialBody body)
+				{ 
+					if(inited) return;
+					height = body.pqsController.GetSurfaceHeight(body.GetRelSurfaceNVector(pos.x, pos.y))-body.Radius;
+					wpos = body.GetWorldSurfacePosition(lat, lon, 0);
+					inited = true;
+				}
 
-				public MapNode(Vector2d pos, CelestialBody body)
+				public MapNode(Vector2d pos)
 				{
-					this.body = body;
 					this.pos = pos;
-					height = get_height(pos);
 					prev = null;
 					next = null;
 				}
 
-				public MapNode(double lat, double lon, CelestialBody body)
-					: this(new Vector2d(lat, lon), body) {}
+				public MapNode(double lat, double lon)
+					: this(new Vector2d(lat, lon)) {}
 
 				public bool SameAs(MapNode other)
 				{
@@ -412,27 +417,10 @@ path = np.array([");
 
 			public class MapPath : IEnumerable<MapNode>
 			{
-				CelestialBody body;
 				public MapNode First { get; private set; }
 				public MapNode Last { get; private set; }
 				public bool Empty { get { return First == null; } }
 				public bool Multinode { get { return First != Last; } }
-
-				public MapPath(CelestialBody body) { this.body = body; }
-
-				public MapNode Add(double lat, double lon, double h)
-				{
-					var n = new MapNode(lat, lon, body);
-					Add(n);
-					return n;
-				}
-
-				public MapNode Add(Vector2d pos, double h)
-				{
-					var n = new MapNode(pos, body);
-					Add(n);
-					return n;
-				}
 
 				public void Add(MapNode n)
 				{
