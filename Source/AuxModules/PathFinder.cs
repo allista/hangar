@@ -192,7 +192,7 @@ namespace AtHangar
 				var c  = current;
 				var p  = previous;
 				var ds = c.DistanceTo(start).magnitude;
-				var t  = Path.Tail((int)Math.Ceiling(smoothing*frac_dist))?? p;
+				var t  = Path.Tail((int)Math.Ceiling(smoothing*frac_dist)+1)?? p;
 				var total_p = 0.0;
 				var ind = 0;
 				for(int i = -1; i < 2; i++)
@@ -211,7 +211,7 @@ namespace AtHangar
 							        Vector2d.Dot(t.DistanceTo(c), c.DistanceTo(n.node)) <= 0)
 								n.prob *= Bk;
 							else
-								n.prob *= incline_mod*delta_prob(n.node, cur_dist, ds)/Bk;
+								n.prob *= incline_mod*delta_prob(n.node, cur_dist, ds)/Bk/Ck;
 						} else n.prob = 0;
 						total_p += n.prob;
 						neighbours[ind++] = n;
@@ -239,7 +239,7 @@ namespace AtHangar
 				var tan = (p2.height-p1.height)/(wp2-wp1).magnitude;
 //				var dir = (end.height-p1.height);
 				var mod = (max_angle-Math.Atan(Math.Abs(tan))*Mathf.Rad2Deg)/max_angle;
-				return mod > 0? Math.Pow(mod, Ak) : 0;
+				return mod > 0? Math.Pow(mod, Ak*frac_dist) : 0;
 			}
 
 			public IEnumerator<YieldInstruction> Walk(Vector2d start_point, Vector2d end_point, double d = 0.01, int max_steps = 10000)
@@ -289,7 +289,7 @@ namespace AtHangar
 //						                                               end.lat-n.node.lat, end.lon-n.node.lon, n.prob, n.isPrevious)));
 //						closed.Add(current);
 //						Path.MakeLast(previous);
-						var t = Path.Tail((int)Math.Ceiling(back_step*frac_dist))?? previous;
+						var t = Path.Tail((int)Math.Ceiling(back_step*frac_dist)+1)?? previous;
 						Path.MakeLast(t).ToList().ForEach(n => closed.Add(n));
 //						Utils.Log("Step back!\nClosed nodes: {0}\nChoosed the neighbour with P={1}", closed.Count, next.prob);  //debug
 					}
