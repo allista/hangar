@@ -108,7 +108,7 @@ namespace AtHangar
 				var walker = new SurfaceWalker(vessel.mainBody);
 				walker.Fk = Fk; 
 				walker.Bk = Bk; walker.Ck = Ck;
-				walker.Ek = Ek; walker.Sk = Sk/(i+1); walker.Ak = Ak/(i+1);
+				walker.Ek = Ek; walker.Sk = Sk; walker.Ak = Ak/(i+1);
 				walker.Hk = Hk; walker.Ik = Ik; walker.back_step = (int)back_step;
 				var walk = walker.Walk(start, end, D, (int)N);
 				walkers.Add(walker); walks.Add(walk);
@@ -177,7 +177,8 @@ namespace AtHangar
 			MapNode previous { get { return Path.Multinode? Path.Last.prev: start; } }
 
 			HashSet<MapNode> closed = new HashSet<MapNode>();
-			public MapPath Path, FullPath;
+			Vector2d closed_center = Vector2d.zero;
+			public MapPath Path, FullPath;//debug
 			public bool Walking { get; private set; }
 			public bool PathFound { get; private set; }
 			public Vector2d Delta { get; private set; }
@@ -196,8 +197,12 @@ namespace AtHangar
 			{
 				var c  = current;
 				var p  = previous;
-				var ds = c.DistanceTo(start).magnitude;
 				var t  = Path.Tail((int)Math.Ceiling(smoothing*frac_dist)+1)?? p;
+				var t1 = Path.Tail((int)Math.Ceiling(smoothing*2*frac_dist))?? p;
+				var cs = c.DistanceTo(start).magnitude;
+				var t1c = t1.DistanceTo(c);
+				var tc = t.DistanceTo(c);
+				var can_go_forward = false;
 				var total_p = 0.0;
 				var ind = 0;
 				for(int i = -1; i < 2; i++)
@@ -210,30 +215,50 @@ namespace AtHangar
 						var incline_mod = step_incline_mod(c, n.node, cur_dist);
 						if(incline_mod > 0)
 						{
+							n.cn = c.DistanceTo(n.node);
 							if(closed.Contains(n.node))
 								n.prob *= Ck;
-							else if(Path.Multinode && 
-							        Vector2d.Dot(t.DistanceTo(c), c.DistanceTo(n.node)) <= 0)
+							else if(Path.Multinode && Vector2d.Dot(tc, n.cn) <= 0)
 								n.prob *= Bk;
 							else
-								n.prob *= incline_mod*delta_prob(n.node, cur_dist, ds)/Bk/Ck;
+							{
+								n.prob *= incline_mod/Bk/Ck;
+								var step_mod = delta_prob(n.node, cs);
+								if(step_mod > 1) n.isForward = can_go_forward = true;
+								n.prob *= step_mod;
+							}
 						} else n.prob = 0;
-						total_p += n.prob;
 						neighbours[ind++] = n;
 					}
+				for(int i = 0; i < 8; i++)
+				{
+					var n = neighbours[i];
+					if(!can_go_forward && !n.isForward && n.prob > 0 && 
+					   closed.Count > 0 && Path.Multinode && 
+					   Vector2d.Dot(t1c, n.cn) > 0)
+						n.prob *= 1+frac_dist;
+					total_p += n.prob;
+				}
 				if(total_p.Equals(0)) return false;
 				for(int i = 0; i < 8; i++) neighbours[i].prob /= total_p;
 				Array.Sort(neighbours, (a, b) => a.prob.CompareTo(b.prob));
+//				if(!can_go_forward && closed.Count > 0)
+//					Utils.Log("Neighbours:\ncc {0}\n{1}", //debug
+//					          t1c,
+//					          neighbours.Aggregate("", 
+//			                                       (s, n) => 
+//					                               s+string.Format("cc->cn {0}, prob {1}; fwd {2}\n", 
+//					                                               Vector2d.Dot(t1c, n.cn), n.prob, n.isForward)));
 				return true;
 			}
 
-			double delta_prob(MapNode n, double de, double ds)
+			double delta_prob(MapNode n, double cs)
 			{
 				var nde = n.DistanceTo(end).magnitude;
-				if(nde < de) return 1 + Math.Pow((de-nde)/delta/1.4142137, 0.5+Fk);
+				if(nde < cur_dist) return 1 + Math.Pow((cur_dist-nde)/delta/1.4142137, 0.5+Fk);
 
 				var nds = n.DistanceTo(start).magnitude;
-				return nds < ds ? (1 - Math.Pow((ds-nds)/delta/1.4142137, 0.5+Sk)) * Ek : Ek;
+				return nds < cs ? (1 - Math.Pow((cs-nds)/delta/1.4142137, 0.5+Sk)) * Ek : Ek;
 			}
 
 			double step_incline_mod(MapNode p1, MapNode p2, double de)
@@ -243,6 +268,16 @@ namespace AtHangar
 				var tan = (p2.height-p1.height)/(p2.wpos-p1.wpos).magnitude;
 				var mod = (max_angle-Math.Atan(Math.Abs(tan))*Mathf.Rad2Deg)/max_angle;
 				return mod > 0? Math.Pow(mod, Ak*frac_dist) : 0;
+			}
+
+			void close(IEnumerable<MapNode> nodes)
+			{
+				foreach(var n in nodes)
+				{
+//					var N = closed.Count;
+//					closed_center = closed_center*N/(N+1) + n.pos/(N+1);
+					closed.Add(n);
+				}
 			}
 
 			public IEnumerator<YieldInstruction> Walk(Vector2d start_point, Vector2d end_point, double d = 10, int max_steps = 10000)
@@ -277,27 +312,30 @@ namespace AtHangar
 					{ Path.Add(end); Delta = Vector2d.zero; PathFound = true; break; }
 					if(!update_neighbours()) { Utils.Log("No suitable neighbours found!"); break; }//debug
 					var sample = R.NextDouble();
-					var next = new Neighbour();
+					Neighbour next = null;
 					foreach(var n in neighbours)
 					{ 
 						if(n.prob >= sample) { next = n; break; } 
 						sample -= n.prob;
 					}
-					if(next.isPrevious) 
-					{
+//					if(next == null)
 //						Utils.Log("Neighbours:\n{0}", //debug
 //						          neighbours.Aggregate("", 
-//						                       		   (s, n) => 
-//						                               s+string.Format("delta {0}, {1}; prob {2}; prev {3}\n", 
-//						                                               end.lat-n.node.lat, end.lon-n.node.lon, n.prob, n.isPrevious)));
+//						                                   (s, n) => 
+//						                                   s+string.Format("delta {0}, {1}; prob {2}; prev {3}\n", 
+//						                                                   end.lat-n.node.lat, end.lon-n.node.lon, n.prob, n.isPrevious)));
+					if(next.isPrevious) 
+					{
 						var t = Path.Tail((int)Math.Ceiling(back_step*frac_dist)+1)?? previous;
-						Path.MakeLast(t).ToList().ForEach(n => closed.Add(n));
+//						Path.MakeLast(t).ToList().ForEach(n => closed.Add(n));
+						close(Path.MakeLast(t));
 					}
 					else 
 					{ 
 						var node = Path.Find(next.node);
 						if(node == null) Path.Add(next.node);
-						else Path.MakeLast(node).ToList().ForEach(n => closed.Add(n));
+						else close(Path.MakeLast(node));
+//							Path.MakeLast(node).ToList().ForEach(n => closed.Add(n));
 					}
 					FullPath.Add(new MapNode(next.node.pos));//debug
 					Steps--;
@@ -480,25 +518,15 @@ path = np.array([");
 				IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
 			}
 
-			struct Neighbour
+			class Neighbour
 			{
 				public MapNode node;
-				public double prob;
-				public bool isPrevious;
+				public double prob = 1;
+				public bool isPrevious, isForward;
+				public Vector2d cn;
 
-				public Neighbour()
-				{
-					node = null;
-					prob = -1;
-					isPrevious = false;
-				}
-
-				public Neighbour(MapNode n) 
-				{ 
-					node = n;
-					prob = 1;
-					isPrevious = false;
-				}
+				public Neighbour(MapNode n)
+				{ node = n; }
 			}
 		}
 	}
