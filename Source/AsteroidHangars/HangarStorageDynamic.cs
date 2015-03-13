@@ -25,7 +25,9 @@ namespace AtHangar
 		{
 			var cost = base.GetModuleCost(default_cost);
 			var res = PartResourceLibrary.Instance.GetDefinition(BuildTanksFrom);
-			return res == null ? cost : cost + TanksMass / res.density * res.unitCost;
+			if(res != null) cost += TanksMass/res.density*res.unitCost;
+			if(tank_manager != null) cost += tank_manager.TotalCost;
+			return cost;
 		}
 
 		protected override void early_setup(StartState state)
