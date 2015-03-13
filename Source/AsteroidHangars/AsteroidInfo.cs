@@ -6,6 +6,7 @@ namespace AtHangar
 	public class AsteroidInfo : PartModule
 	{
 		const string USI_PotatoInfoName = "USI_PotatoInfo";
+		const string REGO_ModuleAsteroidInfoName = "REGO_ModuleAsteroidInfo";
 		const float min_mass_ratio = 0.3f;
 
 		[KSPField(isPersistant = true)] public float OrigMass = -1f;
@@ -46,7 +47,11 @@ namespace AtHangar
 		public void LockAsteroid()
 		{
 			Locked = true;
-			try { part.Modules.Remove(part.Modules[USI_PotatoInfoName]); }
+			try 
+			{ 
+				part.Modules.Remove(part.Modules[USI_PotatoInfoName]); 
+				part.Modules.Remove(part.Modules[REGO_ModuleAsteroidInfoName]); 
+			}
 			catch {}
 		}
 
@@ -59,6 +64,12 @@ namespace AtHangar
 					var USI_PotatoInfo = part.Modules[USI_PotatoInfoName];
 					var explored = USI_PotatoInfo.Fields["Explored"];
 					return !(bool)explored.host;
+				} catch {}
+				try
+				{
+					var REGO_ModuleAsteroidInfo = part.Modules[REGO_ModuleAsteroidInfoName];
+					var massThreshold = REGO_ModuleAsteroidInfo.Fields["massThreshold"];
+					return (float)massThreshold.host <= 0;
 				} catch {}
 				return true;
 			}
