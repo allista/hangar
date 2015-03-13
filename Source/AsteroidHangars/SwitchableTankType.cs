@@ -80,6 +80,10 @@ namespace AtHangar
 		/// The portion of a part's volume the tank can use.
 		/// </summary>
 		[Persistent] public float  UsefulVolumeRatio = 0.8f;
+		/// <summary>
+		/// The cost of a tank of this type per tank volume.
+		/// </summary>
+		[Persistent] public float  TankCostPerVolume = 10f;
 
 		public SortedList<string, TankResource> Resources { get; private set; }
 		public bool Valid { get { return Resources != null && Resources.Count > 0; } }
