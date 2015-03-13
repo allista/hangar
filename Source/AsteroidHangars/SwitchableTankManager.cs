@@ -24,7 +24,7 @@ namespace AtHangar
 
 		public int TanksCount { get { return tanks.Count; } }
 		public float TotalVolume { get { return tanks.Aggregate(0f, (v, t) => v+t.Volume); } }
-		public float TotalCost { get { return tanks.Aggregate(0f, (c, t) => c+t.Volume*t.Type.TankCostPerVolume); } }
+		public float TotalCost { get { return tanks.Aggregate(0f, (c, t) => c+t.Cost); } }
 		public IEnumerable<float> TanksVolumes { get { return tanks.Select(t => t.Volume); } }
 		public HangarSwitchableTank GetTank(int id) { return tanks.Find(t => t.id == id); }
 

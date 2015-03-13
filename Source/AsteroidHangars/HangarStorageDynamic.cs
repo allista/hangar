@@ -26,7 +26,7 @@ namespace AtHangar
 			var cost = base.GetModuleCost(default_cost);
 			var res = PartResourceLibrary.Instance.GetDefinition(BuildTanksFrom);
 			if(res != null) cost += TanksMass/res.density*res.unitCost;
-			if(tank_manager != null) cost += tank_manager.TotalCost;
+//			if(tank_manager != null) cost += tank_manager.TotalCost;
 			return cost;
 		}
 

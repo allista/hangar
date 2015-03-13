@@ -55,6 +55,11 @@ namespace AtHangar
 		{
 			var res_col = new Col();
 			if(string.IsNullOrEmpty(resources)) return res_col;
+			//remove comments
+			var comment = resources.IndexOf("//");
+			if(comment >= 0) resources = resources.Remove(comment);
+			if(resources == string.Empty) return res_col;
+			//parse resource definitions
 			foreach(var res_str in resources.Split(new []{';'}, 
 					StringSplitOptions.RemoveEmptyEntries))
 			{

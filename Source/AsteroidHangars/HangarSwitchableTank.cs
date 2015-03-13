@@ -52,6 +52,11 @@ namespace AtHangar
 		[KSPField(isPersistant = true)] public float Volume = -1f;
 
 		/// <summary>
+		/// Cost of an empty tank of current type and volume
+		/// </summary>
+		public float Cost { get { return tank_type != null? Volume*tank_type.TankCostPerVolume : 0; } }
+
+		/// <summary>
 		/// The initial partial amount of the CurrentResource.
 		/// Should be in the [0, 1] interval.
 		/// </summary>
@@ -87,8 +92,8 @@ namespace AtHangar
 
 		public float GetModuleCost(float default_cost) 
 		{ 
-			return current_resource == null? 0f 
-					: (float)current_resource.maxAmount*current_resource.info.unitCost;
+			return Cost + (current_resource == null? 0f 
+			               : (float)current_resource.maxAmount*current_resource.info.unitCost);
 		}
 
 		public override void OnAwake()
@@ -96,6 +101,8 @@ namespace AtHangar
 			base.OnAwake();
 			PartMessageService.Register(this);
 		}
+
+		void OnDestroy() { Utils.UpdateEditorGUI(); }
 
 		public override void OnStart(StartState state)
 		{
@@ -107,9 +114,8 @@ namespace AtHangar
 			//initialize tank type chooser
 			HangarGUI.EnableField(Fields["TankType"], false);
 			if(state == StartState.Editor) init_type_control();
-			init_tank_type();
 			init_tank_volume();
-			switch_resource();
+			init_tank_type();
 			StartCoroutine(slow_update());
 		}
 
@@ -184,14 +190,11 @@ namespace AtHangar
 			part_menu = part.FindActionWindow();
 			if(part_menu != null)
 				part_menu.displayDirty = true;
+			Utils.UpdateEditorGUI();
 		}
 
 		void init_tank_volume()
-		{
-			if(Volume > 0) return;
-			if(tank_type != null) Volume = Metric.Volume(part)*tank_type.UsefulVolumeRatio;
-			else this.Log("WARNING: init_tank_volume is called before init_tank_type");
-		}
+		{ if(Volume < 0) Volume = Metric.Volume(part); }
 
 		void init_type_control()
 		{
@@ -235,6 +238,7 @@ namespace AtHangar
 					TankType, this.Title());
 			//switch off the UI
 			HangarGUI.EnableField(Fields["CurrentResource"], false);
+			Utils.UpdateEditorGUI();
 			if(tank_type == null) return false;
 			//initialize new tank UI if needed
 			init_res_control();
@@ -242,6 +246,7 @@ namespace AtHangar
 			if(CurrentResource == string.Empty || 
 				!tank_type.Resources.ContainsKey(CurrentResource)) 
 				CurrentResource = tank_type.DefaultResource.Name;
+			switch_resource();
 			return true;
 		}
 
@@ -275,14 +280,14 @@ namespace AtHangar
 			{
 				ScreenMessager.showMessage(6, "A part cannot have more than one resource of any type");
 				Fields["CurrentResource"].guiName = RES_UNMANAGED;
-				update_part_menu();
+				if(update_menu) update_part_menu();
 				return false;
 			}
 			Fields["CurrentResource"].guiName = RES_MANAGED;
 			//get definition of the next not-managed resource
 			var res = tank_type[CurrentResource];
 			//calculate maxAmount (FIXME)
-			var maxAmount = Volume*res.UnitsPerLiter*1000f;
+			var maxAmount = Volume * tank_type.UsefulVolumeRatio * res.UnitsPerLiter*1000f;
 			//if there is such resource already, just plug it in
 			var part_res = part.Resources[res.Name];
 			if(part_res != null) 
@@ -347,8 +352,9 @@ namespace AtHangar
 		public static string Info(ConfigNode n)
 		{
 			var ti = new SwitchableTankInfo(); ti.Load(n);
-			var info = string.Format(" - {0} {1}, {2:F1Cr}", ti.TankType, Utils.formatVolume(ti.Volume), ti.Cost);
-			if(ti.CurrentResource != string.Empty) info += " "+ti.CurrentResource;
+			var info = " - " + ti.TankType;
+			if(ti.CurrentResource != string.Empty) info += " : "+ti.CurrentResource;
+			info += string.Format("\n      {0} {1:F1} Cr", Utils.formatVolume(ti.Volume), ti.Cost);
 			return info+"\n";
 		}
 	}
