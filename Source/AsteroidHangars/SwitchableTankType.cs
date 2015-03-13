@@ -79,7 +79,7 @@ namespace AtHangar
 		/// <summary>
 		/// The portion of a part's volume the tank can use.
 		/// </summary>
-		[Persistent] public float  UsefulVolumeRatio = 0.8f;
+		[Persistent] public float  UsefulVolumeRatio = 1f;
 		/// <summary>
 		/// The cost of a tank of this type per tank volume.
 		/// </summary>
