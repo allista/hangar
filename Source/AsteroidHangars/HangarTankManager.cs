@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public class HangarTankManager : PartModule, ITankManager, ISerializationCallbackReceiver //, IPartCostModifier
+	public class HangarTankManager : PartModule, ITankManager, ISerializationCallbackReceiver
 	{
 		#region Config
 		/// <summary>
@@ -27,8 +27,6 @@ namespace AtHangar
 		#region Tanks
 		SwitchableTankManager tank_manager;
 		public SwitchableTankManager GetTankManager() { return tank_manager; }
-
-//		public float GetModuleCost(float default_cost) { return tank_manager != null? tank_manager.TotalCost : 0; }
 
 		public override string GetInfo()
 		{ 
