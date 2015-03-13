@@ -325,5 +325,32 @@ namespace AtHangar
 			}
 		}
 	}
+
+	public class SwitchableTankInfo : ConfigNodeObject
+	{
+		[Persistent] public float  Volume;
+		[Persistent] public string TankType;
+		[Persistent] public string CurrentResource;
+
+		public SwitchableTankType Type 
+		{ get { return SwitchableTankType.TankTypes[TankType]; }}
+
+		public float Cost 
+		{ 
+			get 
+			{ 
+				var t = Type;
+				return t == null ? 0 : Volume * t.TankCostPerVolume;
+			}
+		}
+
+		public static string Info(ConfigNode n)
+		{
+			var ti = new SwitchableTankInfo(); ti.Load(n);
+			var info = string.Format(" - {0} {1}, {2:F1Cr}", ti.TankType, Utils.formatVolume(ti.Volume), ti.Cost);
+			if(ti.CurrentResource != string.Empty) info += " "+ti.CurrentResource;
+			return info+"\n";
+		}
+	}
 }
 
