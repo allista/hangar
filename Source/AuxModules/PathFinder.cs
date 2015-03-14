@@ -177,7 +177,7 @@ namespace AtHangar
 			MapNode previous { get { return Path.Multinode? Path.Last.prev: start; } }
 
 			HashSet<MapNode> closed = new HashSet<MapNode>();
-			Vector2d closed_center = Vector2d.zero;
+			MovingAverageV2 current_walk_center;
 			public MapPath Path, FullPath;//debug
 			public bool Walking { get; private set; }
 			public bool PathFound { get; private set; }
@@ -198,9 +198,10 @@ namespace AtHangar
 				var c  = current;
 				var p  = previous;
 				var t  = Path.Tail((int)Math.Ceiling(smoothing*frac_dist)+1)?? p;
-				var t1 = Path.Tail((int)Math.Ceiling(smoothing*2*frac_dist))?? p;
+//				var t1 = Path.Tail((int)Math.Ceiling(smoothing*2*frac_dist))?? p;
 				var cs = c.DistanceTo(start).magnitude;
-				var t1c = t1.DistanceTo(c);
+				var cc = c.pos-current_walk_center;
+//				var t1c = t1.DistanceTo(c);
 				var tc = t.DistanceTo(c);
 				var can_go_forward = false;
 				var total_p = 0.0;
@@ -234,9 +235,9 @@ namespace AtHangar
 				{
 					var n = neighbours[i];
 					if(!can_go_forward && !n.isForward && n.prob > 0 && 
-					   closed.Count > 0 && Path.Multinode && 
-					   Vector2d.Dot(t1c, n.cn) > 0)
-						n.prob *= 1+frac_dist;
+					   current_walk_center.Valid && 
+					   Vector2d.Dot(cc, n.cn) > 0)
+						n.prob *= 1+frac_dist*100;
 					total_p += n.prob;
 				}
 				if(total_p.Equals(0)) return false;
@@ -296,6 +297,7 @@ namespace AtHangar
 				closed.Clear(); 
 				Path.Clear(); FullPath.Clear();//debug
 				Path.Add(start); FullPath.Add(new MapNode(start.pos));//debug
+				current_walk_center = new MovingAverageV2(back_step);
 				var R = new System.Random();
 				var batch = batch_size;
 				Steps = max_steps;
@@ -337,6 +339,7 @@ namespace AtHangar
 						else close(Path.MakeLast(node));
 //							Path.MakeLast(node).ToList().ForEach(n => closed.Add(n));
 					}
+					current_walk_center.Add(next.node.pos);
 					FullPath.Add(new MapNode(next.node.pos));//debug
 					Steps--;
 					batch--;
@@ -527,6 +530,33 @@ path = np.array([");
 
 				public Neighbour(MapNode n)
 				{ node = n; }
+			}
+
+			class MovingAverageV2
+			{
+				readonly int width;
+				Queue<Vector2d> window;
+				Vector2d value;
+
+				public bool Valid { get { return window.Count > 0; }}
+
+				public MovingAverageV2(int width)
+				{ 
+					this.width = width; 
+					window = new Queue<Vector2d>(width);
+				}
+
+				public void Add(Vector2d v)
+				{
+					var total = value*window.Count;
+					if(window.Count == width)
+						total -= window.Dequeue();
+					window.Enqueue(v);
+					value = (total+v)/window.Count;
+				}
+
+				public static implicit operator Vector2d(MovingAverageV2 mv)
+				{ return mv.value; }
 			}
 		}
 	}
