@@ -159,7 +159,7 @@ namespace AtHangar
 
 		//state
 		float old_size  = -1;
-		Vector3 old_local_scale;
+		Vector3 old_local_scale, orig_local_scale;
 		[KSPField(isPersistant=true)] public float orig_size = -1;
 		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect, just_loaded); } }
 		float orig_cost;
@@ -196,6 +196,7 @@ namespace AtHangar
 			}
 			old_size  = size;
 			orig_cost = specificCost.x+specificCost.y+specificCost.z; //specificCost.w is eliminated anyway
+			orig_local_scale = model.localScale;
 			create_updaters();
 		}
 
@@ -229,7 +230,7 @@ namespace AtHangar
 			if(model == null) return;
 			Scale _scale = scale;
 			//change model scale
-			model.localScale = ScaleVector(Vector3.one, _scale, _scale.aspect);
+			model.localScale = ScaleVector(orig_local_scale, _scale, _scale.aspect);
 			model.hasChanged = true;
 			part.transform.hasChanged = true;
 			//recalculate mass and cost
