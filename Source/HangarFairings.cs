@@ -124,6 +124,8 @@ namespace AtHangar
 			//turn everything off
 			Storage.enabled = Storage.isEnabled = false;
 			Events["LaunchVessel"].active = Actions["LaunchVesselAction"].active = false;
+			//this event is catched by FlightLogger
+			GameEvents.onStageSeparation.Fire(new EventReport(FlightEvents.STAGESEPARATION, part, null, null, Staging.CurrentStage, string.Empty));
 		}
 
 		IEnumerator<YieldInstruction> delayed_launch()
@@ -143,6 +145,9 @@ namespace AtHangar
 			Activate();
 			//try to restore vessel and check the result
 			TryRestoreVessel(Storage.GetVessels()[0]);
+			//if jettisoning has failed, deactivate the part
+			//otherwise on resume the part is activated automatically
+			if(!jettisoned) part.deactivate();
 			launch_in_progress = false;
 		}
 
