@@ -327,7 +327,13 @@ namespace AtHangar
 		StoredVessel try_store_vessel(Vessel vsl)
 		{
 			//check vessel crew
-			if(vsl.GetCrewCount() > vessel.GetCrewCapacity()-vessel.GetCrewCount())
+			var vsl_crew = vsl.GetCrewCount();
+			if(NoCrewTransfers && vsl_crew > 0)
+			{
+				ScreenMessager.showMessage("Crew cannot enter through this hangar. Leave your ship before docking.");
+				return null;
+			}
+			if(vsl_crew > vessel.GetCrewCapacity()-vessel.GetCrewCount())
 			{
 				ScreenMessager.showMessage("Not enough space for the crew of a docking vessel");
 				return null;
@@ -342,13 +348,6 @@ namespace AtHangar
 			foreach(MemoryTimer timer in probed_vessels.Values)
 				StopCoroutine(timer);
 			probed_vessels.Clear();
-		}
-
-		static IEnumerator<YieldInstruction> delayed_spawn_crew(Vessel vsl)
-		{
-			while(!vsl.PartsStarted()) yield return null;
-			yield return new WaitForSeconds(0.5f);
-			vsl.SpawnCrew();
 		}
 
 		/// <summary>
@@ -394,7 +393,6 @@ namespace AtHangar
 			//destroy vessel
 			vsl.Die();
 			ScreenMessager.showMessage("\"{0}\" has been docked inside the hangar", stored_vessel.name);
-			StartCoroutine(delayed_spawn_crew(vessel));
 		}
 
 		//called every frame while part collider is touching the trigger
