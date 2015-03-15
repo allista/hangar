@@ -5,7 +5,17 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###ChangeLog###
 
-* **v2.2.1**
+* **v2.3.0**
+    * Added **Fairing Hangar** which could be used to encapsulate upper stage to reduce part count. It is activated through staging, automatically changes its crew capacity to accommodate the crew of the upper stage, and transfers maneuver nodes and control state when the upper stage is launched.
+    * Added **Science Recovery** to hangars: if you recover a vessel with a hangar, inside which another vessel with collected science data is stored, this science data is also recovered.
+    * [**Thorbane**](http://forum.kerbalspaceprogram.com/members/78247-Thorbane) added **support of USI** (MKS/OKS, FFT, Karbonite, Karbonite+) **and initial support of KSPI to Switchable Tanks**.
+    * Different **Tank Types have different cost** per volume now.
+    * Reworked vessel launch framework: works faster, no more scene switching (black screen).
+    * Rebalanced integrated reaction wheels. Their torque and mass change less when they're resized.
+    * Fixed several bugs in Switchable Tanks, including the clone/mirror bug. The drawback, though, is that in editor you can only change tank types and resources through the Tank Manager interface now. Thanks to [Thorbane](http://forum.kerbalspaceprogram.com/members/78247-Thorbane) for the report!
+    * Fixed the problem with resized heat-shields.
+
+* v2.2.1
     * Found a workaround for hangar-triggers' behavior in editor: **surface-attachable parts do not snap to triggers anymore**, so you can use use any hangar as a cargo bay (including converted stock bays themselves). Thanks again to [**Errol**](http://forum.kerbalspaceprogram.com/members/121831-Errol) for pointing me to this issue.
     * Added available volume display to Hangar Tank Manager. Now the tank editor's window title looks like `"Available Volume: 34m3 of 117m3"`.
     * Fixed several minor bugs and corrected all (I hope) spelling errors.
