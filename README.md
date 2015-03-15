@@ -94,6 +94,7 @@ I also want to thank:
 * [Taniwha](https://github.com/taniwha-qf) for inspiration and advice.
 * [DragonEG](http://forum.kerbalspaceprogram.com/members/20077-DragonEG) for helping me to fix the friction problem.
 * [Kerbas-ad-astra](https://github.com/Kerbas-ad-astra) for making AntennaRange adaptation.
+* [Thorbane](http://forum.kerbalspaceprogram.com/members/78247-Thorbane) for making Switchable Tank Type configs for support of USI (MKS/OKS, FFT, Karbonite, Karbonite+) and initial support of KSPI to Switchable Tanks.
 
 A record that I used to create propeller sound effect was obtained at [**Sound Jay**](http://www.soundjay.com).
 

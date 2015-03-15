@@ -87,7 +87,8 @@ And some functionality and parts are added if the following mods are installed:
 I also want to thank:
 [list][*][url=https://github.com/taniwha-qf]Taniwha[/url] for inspiration and advice.
 [*][url=http://forum.kerbalspaceprogram.com/members/20077-DragonEG]DragonEG[/url] for helping me to fix the friction problem.
-[*][url=https://github.com/Kerbas-ad-astra]Kerbas-ad-astra[/url] for making AntennaRange adaptation.[/list]
+[*][url=https://github.com/Kerbas-ad-astra]Kerbas-ad-astra[/url] for making AntennaRange adaptation.
+[*] [url=http://forum.kerbalspaceprogram.com/members/78247-Thorbane]Thorbane[/url] for making Switchable Tank Type configs for support of USI (MKS/OKS, FFT, Karbonite, Karbonite+) and initial support of KSPI to Switchable Tanks.[/list]
 A record that I used to create propeller sound effect was obtained at [url=http://www.soundjay.com]Sound Jay[/url].
 
 And here are the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
