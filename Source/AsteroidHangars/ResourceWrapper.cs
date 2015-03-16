@@ -65,7 +65,7 @@ namespace AtHangar
 			{
 				var res = new Res();
 				res.LoadDefinition(res_str.Trim());
-				if(!res.Valid) return null;
+				if(!res.Valid) continue;
 				add_to_collection(res_col, res);
 			}
 			return res_col;
