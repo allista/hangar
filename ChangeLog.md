@@ -5,7 +5,10 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###ChangeLog###
 
-* **v2.3.0**
+* **v2.3.0.2**
+    * A hotfix for the Components tank type by [**Thorbane**](http://forum.kerbalspaceprogram.com/members/78247-Thorbane).
+
+* v2.3.0
     * Added **Fairing Hangar** which could be used to encapsulate upper stage to reduce part count. It is activated through staging, automatically changes its crew capacity to accommodate the crew of the upper stage, and transfers maneuver nodes and control state when the upper stage is launched.
     * Added **Science Recovery** to hangars: if you recover a vessel with a hangar, inside which another vessel with collected science data is stored, this science data is also recovered.
     * [**Thorbane**](http://forum.kerbalspaceprogram.com/members/78247-Thorbane) added **support of USI** (MKS/OKS, FFT, Karbonite, Karbonite+) **and initial support of KSPI to Switchable Tanks**.
