@@ -23,13 +23,13 @@ if __name__ == '__main__':
     scales = np.arange(0.5, 4.1, 0.5)
     
     inline1   = part('InlineHangar',
-                     [volume(9.4, 'hull', 
-                             C=1, D=0.02, 
+                     [volume(9.4, 'hull', C=1, D=0.02, 
                              S=surface(66.444, 0.004, Al_Li),
                              V=[volume(3.93, 'machinery', C=850, M=0.430)]),
                       volume(0.659*2, 'doors', C=1, D=0.02,
                              S=surface(9.32*2, 0.003, Al_Li)),
                       ],
+                     size = 2,
                      add_mass=0,
                      add_cost=200) #docking port
     
@@ -45,8 +45,27 @@ if __name__ == '__main__':
                       volume(4.05, 'doors', C=1, D=0.02, N=2,
                              S=surface(35.94, 0.004, Al_Li)),
                       ], 
+                     size = 2,
                      add_mass=0,
                      add_cost=280) #docking port
+    
+    radial_hangar = part('RadialHangar',
+                     [volume(19.36, 'hull', C=1, D=0.02,
+                             S=surface(224.795, 0.004, Al_Li),
+                             V=[volume(10.38, 'machinery', C=1100, M=0.9)]),
+                      volume(4.58, 'base', C=1, D=0.02,
+                             S=surface(26.47, 0.004, Al_Li)),
+                      volume(0.55, 'doors', C=1, D=0.02, N=2,
+                             S=surface(16.08, 0.004, Al_Li)),
+                      ], 
+                         size = 2,
+                     add_mass=0,
+                     add_cost=0)
+    
+    inline1.print_masses()
+    inline2.print_masses()
+    radial_hangar.print_masses()
+    sys.exit()
 
     spaceport = part('Spaceport', 
                      [volume(366.046, 'hull', C=2, D=0.01,
@@ -69,6 +88,7 @@ if __name__ == '__main__':
                       volume(1.64, 'doors', C=2, D=0.01, N=2,
                              S=surface(28.94, 0.007, composits)),
                               ],
+                     size = 3,
                      add_mass=4+0.08, #cockpit, probe core
                      add_cost=980 + 300 + 4000 + 3400,  #DockPort + Light + Cockpit + probe core
                      res_cost=2400) #Monoprop
