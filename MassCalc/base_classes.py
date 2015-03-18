@@ -247,4 +247,5 @@ class part(collections.Iterable):
     def print_masses(self, _from=0.5, _to=4.0, step=0.5):
         for s in np.arange(_from, _to+step/2.0, step):
             print s, self.mass(s)
+        print ''
 #end class
