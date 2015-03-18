@@ -17,7 +17,7 @@ using System.Reflection;
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,
 // and "{Major}.{Minor}.{Build}.*" will update just the revision.
 
-[assembly: AssemblyVersion("2.3.0.1")]
+[assembly: AssemblyVersion("2.3.1")]
 [assembly: KSPAssembly("Hangar", 2, 3)]
 //TODO: enable this when KAE pull in my request
 //[assembly: KSPAssemblyDependency("KSPAPIExtensions", 1, 7)]
