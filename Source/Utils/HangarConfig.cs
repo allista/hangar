@@ -45,6 +45,7 @@ namespace AtHangar
 		//store vessel
 		[Persistent] public float  MaxSqrRelVelocity     = 1f;    //m/s
 		[Persistent] public float  MaxSqrRelAcceleration = 0.01f; //m/s2
+		[Persistent] public bool   EnableVesselPacking   = true;
 		//restore vessel
 		[Persistent] public float  MaxSqrAngularVelocity = 0.01f; //5.73 deg/s
 		[Persistent] public float  MaxSqrSurfaceVelocity = 0.01f; //m/s

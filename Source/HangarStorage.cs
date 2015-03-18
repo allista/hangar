@@ -39,8 +39,8 @@ namespace AtHangar
 		//vessels storage
 		readonly static string SCIENCE_DATA = typeof(ScienceData).Name;
 		readonly List<ConfigNode> stored_vessels_science = new List<ConfigNode>();
-		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
-		readonly protected VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>();
+		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>(HangarConfig.Globals.EnableVesselPacking);
+		readonly protected VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>(HangarConfig.Globals.EnableVesselPacking);
 		readonly protected List<PackedConstruct> unfit_constructs = new List<PackedConstruct>();
 		public Vector3 Size { get { return HangarMetric.size; } }
 		public float Volume { get { return HangarMetric.volume; } }
