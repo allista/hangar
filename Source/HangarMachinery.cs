@@ -488,19 +488,34 @@ namespace AtHangar
 
 		IEnumerator<YieldInstruction> wait_for_launched_vessel(Vessel vsl)
 		{
-			if(!vessel.LandedOrSplashed) yield break;
-			var rot = vsl.transform.rotation;
-			var pos = vsl.transform.position;
-			while(vsl.packed) 
+			if(vessel.LandedOrSplashed)
 			{
-				rot = vsl.transform.rotation;
-				pos = vsl.transform.position;
-				vsl.GoOffRails();
-				if(!vsl.packed) break;
-				yield return null;
+				var pos = vsl.transform.position;
+				var rot = vsl.transform.rotation;
+				while(vsl.packed) 
+				{
+					rot = vsl.transform.rotation;
+					pos = vsl.transform.position;
+					vsl.GoOffRails();
+					if(!vsl.packed) break;
+					yield return null;
+				}
+				vsl.SetPosition(pos);
+				vsl.SetRotation(rot);
 			}
-			vsl.SetPosition(pos);
-			vsl.SetRotation(rot);
+			else
+			{
+				var dpos = vsl.orbit.pos-vessel.orbit.pos;
+				vsl.orbitDriver.SetOrbitMode(OrbitDriver.UpdateMode.UPDATE);
+				while(vsl.packed) 
+				{
+					vsl.orbit.pos = vessel.orbit.pos+dpos;
+					vsl.GoOffRails();
+					if(!vsl.packed) break;
+					yield return null;
+				}
+				vsl.orbitDriver.SetOrbitMode(OrbitDriver.UpdateMode.TRACK_Phys);
+			}
 		}
 		#endregion
 
