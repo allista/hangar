@@ -5,7 +5,12 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###ChangeLog###
 
-* **v2.3.0.2**
+* **v2.3.1**
+    * Fixed the problem with vessels launched from orbits around distant planets.
+    * Fixed the problem with the scale of cloned/mirrored parts.
+    * Added Radial Hangar in an optional package.
+
+* v2.3.0.2
     * A hotfix for the Components tank type by [**Thorbane**](http://forum.kerbalspaceprogram.com/members/78247-Thorbane).
 
 * v2.3.0

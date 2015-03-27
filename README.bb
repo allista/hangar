@@ -44,7 +44,9 @@ Releases are available at:
 [SIZE=3][list]
 [*][url=https://kerbalstuff.com/mod/270/Hangar][b]Kerbal Stuff[/b][/url] (starting from v1.3.0)
 [*][url=https://github.com/KSP-CKAN/CKAN][b]CKAN[/b][/url] is now officially supported
-[*][url=https://github.com/allista/hangar/releases][b]GitHub[/b][/url] (including beta pre-releases, all releases and source code)[/list]
+[*][url=https://github.com/allista/hangar/releases][b]GitHub[/b][/url] (including beta pre-releases, all releases and source code)
+[*] Optional Packages:
+[list][*] [url=https://github.com/allista/hangar/releases/tag/v2.3.1]Radial Hangar part[/url][/list][/list]
 [B][COLOR=#006400]Before using a hangar, study the list of modules that are integrated into it (RMB on part's icon).[/COLOR][/B][/SIZE]
 Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating.
 
