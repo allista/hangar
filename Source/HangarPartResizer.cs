@@ -158,11 +158,13 @@ namespace AtHangar
 		[KSPField] public Vector4 specificCost = new Vector4(1.0f, 1.0f, 1.0f, 0f);
 
 		//state
-		float old_size  = -1;
-		Vector3 old_local_scale, orig_local_scale;
 		[KSPField(isPersistant=true)] public float orig_size = -1;
-		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect, just_loaded); } }
+		[KSPField(isPersistant = true)] public Vector3 orig_local_scale;
+		Vector3 old_local_scale;
+		float old_size  = -1;
 		float orig_cost;
+
+		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect, just_loaded); } }
 		
 		#region PartUpdaters
 		readonly List<PartUpdater> updaters = new List<PartUpdater>();
@@ -196,7 +198,8 @@ namespace AtHangar
 			}
 			old_size  = size;
 			orig_cost = specificCost.x+specificCost.y+specificCost.z; //specificCost.w is eliminated anyway
-			orig_local_scale = model.localScale;
+			if(orig_local_scale == Vector3.zero || !part.isClone)
+				orig_local_scale = model.localScale;
 			create_updaters();
 		}
 
