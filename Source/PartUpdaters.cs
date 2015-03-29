@@ -428,7 +428,7 @@ namespace AtHangar
 		protected override void on_rescale(ModulePair<HangarTankManager> mp, Scale scale)
 		{ 
 			mp.module.RescaleTanks(scale.relative.cube * scale.relative.aspect); 
-			mp.module.Volume *= scale.relative.cube * scale.relative.aspect;
+			mp.module.Volume = mp.base_module.Volume * scale.absolute.cube * scale.absolute.aspect;
 		}
 	}
 
