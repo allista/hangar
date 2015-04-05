@@ -436,11 +436,11 @@ namespace AtHangar
 			pv.rotation = vessel.mainBody.bodyTransform.rotation.Inverse() * spawn_transform.rotation;
 			//set vessel's orbit
 			var UT    = Planetarium.GetUniversalTime();
-			var horb  = vessel.orbitDriver.orbit;
+			var horb  = vessel.orbit;
 			var vorb  = new Orbit();
 			var d_pos = spawn_transform.position-vessel.CurrentCoM+get_vessel_offset(spawn_transform, sv);
-			var vpos  = horb.pos - horb.GetRotFrameVel(horb.referenceBody)*TimeWarp.fixedDeltaTime + new Vector3d(d_pos.x, d_pos.z, d_pos.y);
-			var vvel  = horb.vel;
+			var vpos  = horb.pos + new Vector3d(d_pos.x, d_pos.z, d_pos.y) - horb.GetRotFrameVel(horb.referenceBody)*TimeWarp.fixedDeltaTime;
+			var vvel  = horb.getOrbitalVelocityAtUT(UT+TimeWarp.fixedDeltaTime);
 			if(LaunchWithPunch && LaunchVelocity != Vector3.zero)
 			{
 				//honor the momentum conservation law
@@ -448,7 +448,8 @@ namespace AtHangar
 				var hM = vessel.GetTotalMass();
 				var tM = hM + sv.mass;
 				var d_vel = part.transform.TransformDirection(LaunchVelocity);
-				vvel += (Vector3d.zero + d_vel*hM/tM).xzy;
+				sv.dV = (Vector3d.zero + d_vel*hM/tM);
+				vvel += sv.dV.xzy;
 				//:calculate hangar's vessel velocity
 				deltaV = d_vel*(-sv.mass)/tM; 
 				change_velocity = true;
@@ -463,12 +464,6 @@ namespace AtHangar
 				pv.latitude  = vessel.mainBody.GetLatitude(vpos);
 				pv.altitude  = vessel.mainBody.GetAltitude(vpos);
 			}
-		}
-
-		void load_vessel(StoredVessel sv)
-		{
-			sv.proto_vessel.Load(HighLogic.CurrentGame.flightState);
-			StartCoroutine(wait_for_launched_vessel(sv.vessel));
 		}
 
 		void onVesselGoOffRails(Vessel vsl)
@@ -486,8 +481,11 @@ namespace AtHangar
 			launched_vessel.vessel.parts.ForEach(p => p.partTransform = p.transform);
 		}
 
-		IEnumerator<YieldInstruction> wait_for_launched_vessel(Vessel vsl)
+		IEnumerator<YieldInstruction> launch_vessel(StoredVessel sv)
 		{
+			sv.proto_vessel.Load(HighLogic.CurrentGame.flightState);
+			launched_vessel = sv;
+			var vsl = sv.vessel;
 			if(vessel.LandedOrSplashed)
 			{
 				var pos = vsl.transform.position;
@@ -505,18 +503,41 @@ namespace AtHangar
 			}
 			else
 			{
-				var dpos = vsl.orbit.pos-vessel.orbit.pos;
-				vsl.orbitDriver.SetOrbitMode(OrbitDriver.UpdateMode.UPDATE);
+				vsl.Load();
+				disable_collisions();
+				var spawn_transform = get_spawn_transform(sv);
+				var spos = spawn_transform.position+get_vessel_offset(spawn_transform, sv)
+					-vsl.transform.TransformDirection(sv.CoM);
+				var svel = part.rb.velocity+sv.dV;
+				var vvel = vessel.rb_velocity;
 				while(vsl.packed) 
 				{
-					vsl.orbit.pos = vessel.orbit.pos+dpos;
+					this.Log("dP:\n{0}\ndV:\n{1}\n{2}\n{3}",
+					         spos-spawn_transform.position,
+					         vsl.orbit.vel-vessel.orbit.vel,
+					         vsl.rb_velocity-vessel.rb_velocity,
+					         svel-part.rb.velocity+(vessel.rb_velocity-vvel));
+					vsl.SetPosition(spos);
 					vsl.GoOffRails();
 					if(!vsl.packed) break;
-					yield return null;
+					spos += (svel+vessel.rb_velocity-vvel)*TimeWarp.fixedDeltaTime;
+					yield return new WaitForFixedUpdate();
 				}
-				vsl.orbitDriver.SetOrbitMode(OrbitDriver.UpdateMode.TRACK_Phys);
+				foreach(var p in vsl.parts)
+				{ if(p.rb != null) p.rb.velocity = (svel+vessel.rb_velocity-vvel); }
+				disable_collisions(false);
+				for(int i=0; i< 10; i++)
+				{
+					this.Log("dV{0}:\n{1}\n{2}", i, 
+					         vsl.orbit.vel-vessel.orbit.vel,
+					         vsl.rb_velocity-vessel.rb_velocity);
+					yield return new WaitForFixedUpdate();
+				}
 			}
 		}
+
+		protected virtual void disable_collisions(bool disable=true)
+		{ vessel.parts.ForEach(p => p.SetDetectCollisions(!disable)); }
 		#endregion
 
 		#region Resources
@@ -654,8 +675,7 @@ namespace AtHangar
 			List<ProtoCrewMember> crew_to_transfer = CrewTransfer.delCrew(vessel, stored_vessel.crew);
 			CrewTransfer.addCrew(stored_vessel.proto_vessel, crew_to_transfer);
 			//restore vessel
-			launched_vessel = stored_vessel;
-			load_vessel(stored_vessel);
+			StartCoroutine(launch_vessel(stored_vessel));
 		}
 		#endregion
 

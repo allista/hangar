@@ -22,6 +22,7 @@ namespace AtHangar
 
 		[KSPField(isPersistant = true)]
 		public bool jettisoned, launch_in_progress;
+		List<Part> debris;
 
 		public override string GetInfo()
 		{
@@ -86,14 +87,22 @@ namespace AtHangar
 		{
 			if(fairings == null || jettisoned) return;
 			if(FX != null) FX.Burst();
+			debris = new List<Part>();
 			foreach(var f in fairings)
 			{
-				var debris = Debris.SetupOnTransform(vessel, part, f, FairingsDensity, FairingsCost, DebrisLifetime);
+				var d = Debris.SetupOnTransform(vessel, part, f, FairingsDensity, FairingsCost, DebrisLifetime);
 				var force = f.TransformDirection(JettisonDirection) * JettisonForce * 0.5f;
-				debris.rigidbody.AddForceAtPosition(force, f.position, ForceMode.Force);
+				d.rigidbody.AddForceAtPosition(force, f.position, ForceMode.Force);
 				part.rigidbody.AddForceAtPosition(-force, f.position, ForceMode.Force);
+				debris.Add(d);
 			}
 			jettisoned = true;
+		}
+
+		protected override void disable_collisions(bool disable = true)
+		{
+			base.disable_collisions(disable);
+			if(debris != null) debris.ForEach(p => p.SetDetectCollisions(!disable));
 		}
 
 		protected override void on_vessel_launch(StoredVessel sv)
