@@ -512,11 +512,6 @@ namespace AtHangar
 				var vvel = vessel.rb_velocity;
 				while(vsl.packed) 
 				{
-					this.Log("dP:\n{0}\ndV:\n{1}\n{2}\n{3}",
-					         spos-spawn_transform.position,
-					         vsl.orbit.vel-vessel.orbit.vel,
-					         vsl.rb_velocity-vessel.rb_velocity,
-					         svel-part.rb.velocity+(vessel.rb_velocity-vvel));
 					vsl.SetPosition(spos);
 					vsl.GoOffRails();
 					if(!vsl.packed) break;
@@ -526,13 +521,6 @@ namespace AtHangar
 				foreach(var p in vsl.parts)
 				{ if(p.rb != null) p.rb.velocity = (svel+vessel.rb_velocity-vvel); }
 				disable_collisions(false);
-				for(int i=0; i< 10; i++)
-				{
-					this.Log("dV{0}:\n{1}\n{2}", i, 
-					         vsl.orbit.vel-vessel.orbit.vel,
-					         vsl.rb_velocity-vessel.rb_velocity);
-					yield return new WaitForFixedUpdate();
-				}
 			}
 		}
 
