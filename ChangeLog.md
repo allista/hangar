@@ -5,7 +5,10 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###ChangeLog###
 
-* **v2.3.1**
+* **v2.3.1.1**
+    * Second fix for the problem with vessels launched from orbits around distant planets. I hope the issue is gone for good now.
+
+* v2.3.1
     * Fixed the problem with vessels launched from orbits around distant planets.
     * Fixed the problem with the scale of cloned/mirrored parts.
     * Added Radial Hangar in an optional package.
