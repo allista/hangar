@@ -7,74 +7,6 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public class Node
-	{
-		//size, position and stored vessel
-		public Vector3 pos  = Vector3.zero;
-		public Vector3 size = Vector3.zero;
-		public Guid vid = Guid.Empty;
-		
-		//children
-		public Node first  = null;
-		public Node second = null;
-		
-		public Node() {}
-		public Node(Vector3 pos, Vector3 size)
-		{
-			this.pos  = new Vector3(pos.x, pos.y, pos.z);
-			this.size = new Vector3(size.x, size.y, size.z);
-		}
-		public Node(Metric space) : this(Vector3.zero, space.size) { }
-		public Node(Node n) : this(n.pos, n.size) {}
-
-		//all possible rotations of "s" are considered
-		public static bool operator>(Node n, Vector3 s)
-		{ 
-			float[] nd = { n.size.x, n.size.y, n.size.z };
-			float[] sd = { s.x, s.y, s.z };
-			Array.Sort(nd); Array.Sort(sd);
-			return nd[0] > sd[0] && nd[1] > sd[1] && nd[2] > sd[2]; 
-		}
-
-		//all possible rotations of "s" are considered
-		public static bool operator<(Node n, Vector3 s)
-		{ 
-			float[] nd = { n.size.x, n.size.y, n.size.z };
-			float[] sd = { s.x, s.y, s.z };
-			Array.Sort(nd); Array.Sort(sd);
-			return nd[0] < sd[0] || nd[1] < sd[1] || nd[2] < sd[2]; 
-		}
-
-
-		/// <summary>
-		/// Compares size of the node with a given vector, 
-		/// considering all permutations of coordinates.
-		/// </summary>
-		/// <param name="s">A vector to which the node is compared</param>
-		public bool Matches(Vector3 s)
-		{ 
-			float[] nd = { size.x, size.y, size.z };
-			float[] sd = { s.x, s.y, s.z };
-			Array.Sort(nd); Array.Sort(sd);
-			return nd[0] == sd[0] && nd[1] == sd[1] && nd[2] == sd[2];
-		}
-		
-		public void Save(ConfigNode node, bool debug = true)
-		{
-			node.AddValue("pos", ConfigNode.WriteVector(pos));
-			node.AddValue("size", ConfigNode.WriteVector(size));
-			if(first != null)
-			{
-				ConfigNode f_node = node.AddNode("FIRST");
-				ConfigNode s_node = node.AddNode("SECOND");
-				first.Save(f_node, false); second.Save(s_node, false);
-			}
-			else node.AddValue("vid", vid);
-			if(debug) Debug.Log(node);
-		}
-	}
-
-
 	public abstract class PackedVessel 
 	{ 
 		public Metric metric; 
@@ -91,17 +23,18 @@ namespace AtHangar
 		public abstract void Load(ConfigNode node);
 	}
 
-
 	public class VesselsPack<V> : IEnumerable<PackedVessel> where V : PackedVessel, new()
 	{
 		Dictionary<Guid, V> stored_vessels = new Dictionary<Guid, V>();
-		public Metric space = new Metric();
+		public Metric space;
 
+		public bool  UsePacking = true;
 		public float VesselsMass;
 		public float VesselsCost;
 		public float UsedVolume;
-		
+
 		public VesselsPack() {}
+		public VesselsPack(bool use_packing) { UsePacking = use_packing; }
 		public VesselsPack(Metric space) { this.space = space; }
 
 		#region Packing
@@ -220,9 +153,13 @@ namespace AtHangar
 
 		public bool CanAdd(V vsl)
 		{
-			var vessels = Values;
-			vessels.Add(vsl);
-			return pack(vessels);
+			if(UsePacking)
+			{
+				var vessels = Values;
+				vessels.Add(vsl);
+				return pack(vessels);
+			}
+			return space.volume-UsedVolume-vsl.volume >= 0;
 		}
 
 		public bool TryAdd(V vsl)
@@ -245,8 +182,6 @@ namespace AtHangar
 			vessels.ForEach(ForceAdd);
 		}
 
-		public List<V> Repack() { return pack_some(Values); }
-		
 		public bool Remove(V vsl) 
 		{ 
 			if(stored_vessels.Remove(vsl.id))
@@ -296,6 +231,73 @@ namespace AtHangar
 		}
 		#endregion
 		#endregion
+
+		public class Node
+		{
+			//size, position and stored vessel
+			public Vector3 pos  = Vector3.zero;
+			public Vector3 size = Vector3.zero;
+			public Guid vid = Guid.Empty;
+
+			//children
+			public Node first  = null;
+			public Node second = null;
+
+			public Node() {}
+			public Node(Vector3 pos, Vector3 size)
+			{
+				this.pos  = new Vector3(pos.x, pos.y, pos.z);
+				this.size = new Vector3(size.x, size.y, size.z);
+			}
+			public Node(Metric space) : this(Vector3.zero, space.size) { }
+			public Node(Node n) : this(n.pos, n.size) {}
+
+			//all possible rotations of "s" are considered
+			public static bool operator>(Node n, Vector3 s)
+			{ 
+				float[] nd = { n.size.x, n.size.y, n.size.z };
+				float[] sd = { s.x, s.y, s.z };
+				Array.Sort(nd); Array.Sort(sd);
+				return nd[0] > sd[0] && nd[1] > sd[1] && nd[2] > sd[2]; 
+			}
+
+			//all possible rotations of "s" are considered
+			public static bool operator<(Node n, Vector3 s)
+			{ 
+				float[] nd = { n.size.x, n.size.y, n.size.z };
+				float[] sd = { s.x, s.y, s.z };
+				Array.Sort(nd); Array.Sort(sd);
+				return nd[0] < sd[0] || nd[1] < sd[1] || nd[2] < sd[2]; 
+			}
+
+
+			/// <summary>
+			/// Compares size of the node with a given vector, 
+			/// considering all permutations of coordinates.
+			/// </summary>
+			/// <param name="s">A vector to which the node is compared</param>
+			public bool Matches(Vector3 s)
+			{ 
+				float[] nd = { size.x, size.y, size.z };
+				float[] sd = { s.x, s.y, s.z };
+				Array.Sort(nd); Array.Sort(sd);
+				return nd[0] == sd[0] && nd[1] == sd[1] && nd[2] == sd[2];
+			}
+
+			public void Save(ConfigNode node, bool debug = true)
+			{
+				node.AddValue("pos", ConfigNode.WriteVector(pos));
+				node.AddValue("size", ConfigNode.WriteVector(size));
+				if(first != null)
+				{
+					ConfigNode f_node = node.AddNode("FIRST");
+					ConfigNode s_node = node.AddNode("SECOND");
+					first.Save(f_node, false); second.Save(s_node, false);
+				}
+				else node.AddValue("vid", vid);
+				if(debug) Debug.Log(node);
+			}
+		}
 	}
 }
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using KSPAPIExtensions;
-using KSPAPIExtensions.PartMessage;
 
 namespace AtHangar
 {
@@ -27,11 +26,6 @@ namespace AtHangar
 		[KSPField] public string TopNodeName    = "top";
 		[KSPField] public string BottomNodeName = "bottom";
 
-		//KAE stuff
-		[PartMessageEvent] public event PartModelChanged ModelChanged;
-		[PartMessageEvent] public event PartColliderChanged ColliderChanged;
-		void RaiseModelAndColliderChanged() { ModelChanged(); ColliderChanged(); }
-
 		//state
 		public  State<TruncatedCone> body;
 		Vector2 size { get { return new Vector2(topSize, bottomSize); } }
@@ -56,12 +50,6 @@ namespace AtHangar
 			return base.GetInfo();
 		}
 
-		public override void OnAwake()
-		{
-			base.OnAwake();
-			PartMessageService.Register(this);
-		}
-
 		protected override void SaveDefaults()
 		{
 			base.SaveDefaults();
@@ -82,8 +70,8 @@ namespace AtHangar
 			base.OnStart(state);
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
-				init_limit(MIN_SIZE, ref minSize, Mathf.Min(topSize, bottomSize), (a, b) => a < b);
-				init_limit(MAX_SIZE, ref maxSize, Mathf.Max(topSize, bottomSize), (a, b) => a > b);
+				init_limit(HangarConfig.Globals.MinSize, ref minSize, Mathf.Min(topSize, bottomSize));
+				init_limit(HangarConfig.Globals.MaxSize, ref maxSize, Mathf.Max(topSize, bottomSize));
 				//setup sliders
 				setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
 				setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
@@ -149,7 +137,6 @@ namespace AtHangar
 			body_collider.sharedMesh = collider_mesh;
 			body_collider.enabled = false;
 			body_collider.enabled = true;
-			RaiseModelAndColliderChanged();
 		}
 
 		void update_nodes()

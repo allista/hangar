@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public class HangarStorageDynamic : HangarStorage
+	public class HangarStorageDynamic : HangarStorage, ITankManager, ISerializationCallbackReceiver
 	{
 		[KSPField(isPersistant = true)] public float TotalVolume;
 		[KSPField(isPersistant = true)] public Vector3 StorageSize;
@@ -19,6 +19,16 @@ namespace AtHangar
 		ResourcePump metal_pump;
 		float max_side;
 
+		public SwitchableTankManager GetTankManager() { return tank_manager; }
+
+		public override float GetModuleCost(float default_cost)
+		{
+			var cost = base.GetModuleCost(default_cost);
+			var res = PartResourceLibrary.Instance.GetDefinition(BuildTanksFrom);
+			if(res != null) cost += TanksMass/res.density*res.unitCost;
+			return cost;
+		}
+
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
@@ -28,7 +38,7 @@ namespace AtHangar
 			//init tank manager
 			if(HasTankManager)
 			{
-				tank_manager = new SwitchableTankManager(part);
+				tank_manager = new SwitchableTankManager(this);
 				if(ModuleSave.HasNode(SwitchableTankManager.NODE_NAME))
 					tank_manager.Load(ModuleSave.GetNode(SwitchableTankManager.NODE_NAME));
 				Events["EditTanks"].active = true;
@@ -88,6 +98,14 @@ namespace AtHangar
 				tank_manager.Save(node.AddNode(SwitchableTankManager.NODE_NAME));
 		}
 
+		public void OnBeforeSerialize()
+		{
+			if(tank_manager == null) return;
+			ModuleSave = new ConfigNode();
+			Save(ModuleSave);
+		}
+		public void OnAfterDeserialize() {}
+
 		#region Tanks
 		public void RescaleTanks(float relative_scale)
 		{ if(tank_manager != null) tank_manager.RescaleTanks(relative_scale); }
@@ -142,7 +160,7 @@ namespace AtHangar
 		float _add_tank_last_volume, _add_tank_metal;
 		float add_tank(string tank_type, float volume)
 		{
-			if(volume != _add_tank_last_volume)
+			if(!volume.Equals(_add_tank_last_volume))
 				_add_tank_metal = metal_for_tank(volume);
 			_add_tank_last_volume = volume;
 			GUILayout.Label(Utils.formatUnits(_add_tank_metal), GUILayout.Width(50));

@@ -23,7 +23,7 @@ namespace AtHangar
 			if(GUILayout.Button("Yes", Styles.green_button, GUILayout.Width(70))) Result = Answer.Yes;
 			GUILayout.EndHorizontal();
 			GUILayout.EndVertical();
-			GUI.DragWindow(new Rect(0, 0, Screen.width, 50));
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 
 		public Rect Show(string message, string title = "Warning")

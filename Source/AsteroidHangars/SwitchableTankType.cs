@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace AtHangar
@@ -49,6 +50,19 @@ namespace AtHangar
 		/// Sorted list of tank type names.
 		/// </summary>
 		public static IList<string> TankTypeNames { get { return TankTypes.Keys; } }
+
+		/// <summary>
+		/// Returns info string describing available tank types
+		/// </summary>
+		public static string TypesInfo
+		{
+			get
+			{
+				var info = "Available Tank Types:\n";
+				info += TankTypeNames.Aggregate("", (i, t) => i+"- "+t+"\n");
+				return info;
+			}
+		}
 		#endregion
 
 		new public const string NODE_NAME = "TANKTYPE";
@@ -65,7 +79,11 @@ namespace AtHangar
 		/// <summary>
 		/// The portion of a part's volume the tank can use.
 		/// </summary>
-		[Persistent] public float  UsefulVolumeRatio = 0.8f;
+		[Persistent] public float  UsefulVolumeRatio = 1f;
+		/// <summary>
+		/// The cost of a tank of this type per tank volume.
+		/// </summary>
+		[Persistent] public float  TankCostPerVolume = 10f;
 
 		public SortedList<string, TankResource> Resources { get; private set; }
 		public bool Valid { get { return Resources != null && Resources.Count > 0; } }

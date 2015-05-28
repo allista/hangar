@@ -23,6 +23,11 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="Custom" name="Run Gendarme" command="gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}" workingdir="${ProjectDir}" externalConsole="True" />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -31,11 +36,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="AfterBuild" command="gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}" workingdir="${ProjectDir}" externalConsole="True" />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KSPAPIExtensions">
-      <HintPath>..\KSPAPIExtensions.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <HintPath>..\KSP_test_0.90\KSP_Data\Managed\System.dll</HintPath>
       <Private>False</Private>
@@ -71,6 +78,9 @@
     <Reference Include="TDx.TDxInput">
       <HintPath>..\KSP_test_0.90\KSP_Data\Managed\TDx.TDxInput.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="KSPAPIExtensions">
+      <HintPath>..\KSPAPIExtensions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -127,7 +137,14 @@
     <Compile Include="AsteroidHangars\SwitchableTankManager.cs" />
     <Compile Include="AsteroidHangars\HangarTankManager.cs" />
     <Compile Include="HangarContract.cs" />
+    <Compile Include="AuxModules\HangarAirbrake.cs" />
     <Compile Include="LimitedHangarStorage.cs" />
+    <Compile Include="HangarFairings.cs" />
+    <Compile Include="AuxModules\LoopAnimatedThrottle.cs" />
+    <Compile Include="AuxModules\EnginePressureCurve.cs" />
+    <Compile Include="AuxModules\HangarEnergyGenerator.cs" />
+    <Compile Include="AuxModules\HangarResourceConsumer.cs" />
+    <Compile Include="Utils\HangarConfig.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

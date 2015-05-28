@@ -1,4 +1,15 @@
-﻿using System;
+﻿//   HangarResourceConverter.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2015 Allis Tauri
+//
+// This work is licensed under the Creative Commons Attribution 4.0 International License. 
+// To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
+// or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -9,13 +20,11 @@ namespace AtHangar
 	/// Always requires electricity.
 	/// Conserves total mass by producing WasteResource if nesessary.
 	/// </summary>
-	public class HangarResourceConverter : AnimatedConverterBase
+	public class HangarResourceConverter : HangarResourceConsumer
 	{
 		[KSPField] public string WasteResource = "Waste";
-		[KSPField] public string InputResources;
 		[KSPField] public string OutputResources;
 
-		List<ResourceLine> input;
 		List<ResourceLine> output;
 		ResourceLine waste;
 
@@ -23,11 +32,6 @@ namespace AtHangar
 		{
 			setup_resources();
 			var info = base.GetInfo();
-			if(input != null && input.Count > 0)
-			{
-				info += "Inputs:\n";
-				info += input.Aggregate("", (s, r) => s+"- "+r.Info+'\n');
-			}
 			if(output != null && output.Count > 0)
 			{
 				info += "Outputs:\n";
@@ -38,36 +42,19 @@ namespace AtHangar
 			return info;
 		}
 
-		void configuration_is_invalid(string msg)
-		{
-			ScreenMessager.showMessage(6, "WARNING: {0}.\n" +
-				"Configuration of \"{1}\" is INVALID.", msg, this.Title());
-			enabled = isEnabled = false;
-			return;
-		}
-
 		static float mass_flow(ICollection<ResourceLine> resources)
 		{
 			if(resources == null || resources.Count == 0) return 0;
 			return resources.Aggregate(0f, (f, r) => f+r.Rate);
 		}
 
-		void setup_resources()
+		protected override void setup_resources()
 		{
-			//check energy consumption
-			if(EnergyConsumption <= 0) EnergyConsumption = 0.01f;
-			//parse input/output resources
-			input  = ResourceLine.ParseResourcesToList(InputResources);
-			if(input == null) 
-			{ 
-				configuration_is_invalid("unable to initialize INPUT resources"); 
-				return; 
-			}
-			input.ForEach(r => r.InitializePump(part, RatesMultiplier));
+			base.setup_resources();
 			output = ResourceLine.ParseResourcesToList(OutputResources);
 			if(output == null)
 			{ 
-				configuration_is_invalid("unable to initialize OUTPUT resources"); 
+				this.ConfigurationInvalid("unable to initialize OUTPUT resources"); 
 				return; 
 			}
 			output.ForEach(r => r.InitializePump(part, -RatesMultiplier));
@@ -75,7 +62,7 @@ namespace AtHangar
 			var net_mf = mass_flow(input) + mass_flow(output);
 			if(net_mf < 0)
 			{
-				configuration_is_invalid("the mass flow of input resources is less then that of output resources");
+				this.ConfigurationInvalid("the mass flow of input resources is less then that of output resources");
 				return;
 			}
 			if(net_mf > 0) //initialize waste resource
@@ -84,79 +71,46 @@ namespace AtHangar
 				if(waste_res == null) return;
 				if(waste_res.density == 0)
 				{
-					configuration_is_invalid("WasteResource should have non-zero density");
+					this.ConfigurationInvalid("WasteResource should have non-zero density");
 					return;
 				}
 				waste = new ResourceLine(part, waste_res, -net_mf);
 			}
 		}
 
-		public override void OnStart(StartState state)
-		{
-			base.OnStart(state);
-			setup_resources();
-		}
-
-		public override void SetRatesMultiplier(float mult)
-		{
-			base.SetRatesMultiplier(mult);
-			setup_resources();
-		}
-
 		static float transferred_mass(List<ResourceLine> resources)
-		{ return resources.Aggregate(0f, (m, r) => m+r.Pump.Result*r.Resource.density); }
-
-		static string try_transfer(List<ResourceLine> resources, float rate = 1f, bool skip_failed = false)
-		{
-			string failed = "";
-			foreach(var r in resources)
-			{
-				if(r.TransferResource(rate) && r.PartialTransfer) 
-				{ 
-					if(skip_failed) 
-						failed += (failed == string.Empty? " " : "") 
-							+ r.Resource.name;
-					else return r.Resource.name; 
-				}
-			}
-			return failed;
-		}
+		{ return resources.Aggregate(0f, (m, r) => m+r.Pump.Result*r.Density); }
 
 		protected override bool can_convert(bool report = false)
 		{ return true; } //do we need to check something here?
 
 		protected override bool convert()
 		{
-			//consume energy
-			socket.RequestTransfer(EnergyConsumption*TimeWarp.fixedDeltaTime);
-			if(!socket.TransferResource()) return true;
-			Rate = socket.Ratio;
-			if(Rate < EnergyRateThreshold) 
-			{
-				ScreenMessager.showMessage("Not enough energy");
-				socket.Clear(); 
-				return false; 
-			}
+			//consume energy, udpate conversion rate
+			if(!consume_energy()) return true;
+			if(ShuttingOff || Rate < MinimumRate) goto end;
 			//consume input resources
 			var failed = try_transfer(input, Rate);
 			//if not all inputs are present, dump consumed into waste and shut off
 			if(failed != string.Empty)
 			{
-				if(waste.Valid)
+				if(waste != null && waste.Valid)
 				{
 					waste.Pump.RequestTransfer(-transferred_mass(input)/waste.Density);
 					if(waste.Pump.TransferResource() && waste.PartialTransfer)
-						ScreenMessager.showMessage("No space left for {0}", waste.Resource.name);
+						ScreenMessager.showMessage("No space left for {0}", waste.Name);
 				}
 				input.ForEach(r => r.Pump.Clear());
 				ScreenMessager.showMessage("Not enough {0}", failed);
-				return false;
+				StopConversion();
+				goto end;
 			}
 			//produce waste
-			if(waste.Valid && waste.TransferResource(Rate) && waste.PartialTransfer)
+			if(waste != null && waste.Valid && waste.TransferResource(Rate) && waste.PartialTransfer)
 			{
-				ScreenMessager.showMessage("No space left for {0}", waste.Resource.name);
-				return false;
+				ScreenMessager.showMessage("No space left for {0}", waste.Name);
+				StopConversion();
+				goto end;
 			}
 			failed = try_transfer(output, Rate, true);
 			//if not all outputs are present, shut off
@@ -164,68 +118,13 @@ namespace AtHangar
 			{
 				output.ForEach(r => r.Pump.Clear());
 				ScreenMessager.showMessage("No space self for {0}", failed);
-				return false;
+				StopConversion();
 			}
-			return true;
+			end:
+			return above_threshold;
 		}
 
 		protected override void on_start_conversion() {}
 		protected override void on_stop_conversion() {}
-	}
-
-	public class ResourceLine : ResourceWrapper<ResourceLine>
-	{
-		/// <summary>
-		/// Gets the density in tons/unit.
-		/// </summary>
-		public float Density { get { return Resource.density; } }
-		/// <summary>
-		/// Gets conversion rate in tons/sec.
-		/// </summary>
-		public float Rate    { get; private set; }
-		/// <summary>
-		/// Gets conversion rate in units/sec.
-		/// </summary>
-		public float URate   { get; private set; } //u/sec
-
-		public ResourcePump Pump { get; private set; }
-
-		public ResourceLine() {}
-		public ResourceLine(Part part, PartResourceDefinition res_def, float rate)
-		{ 
-			Resource = res_def; 
-			Rate = rate;
-			if(res_def != null) 
-			{
-				Pump = new ResourcePump(part, res_def.id);
-				URate = rate/res_def.density;
-			}
-		}
-
-		public void InitializePump(Part part, float rate_multiplier)
-		{ 
-			Pump   = new ResourcePump(part, Resource.id);
-			Rate  *= rate_multiplier;
-			URate *= rate_multiplier;
-		}
-
-		public override void LoadDefinition(string resource_definition)
-		{
-			var rate = load_definition(resource_definition);
-			if(!Valid) return;
-			Rate  = rate;
-			URate = rate/Resource.density;
-		}
-
-		public bool TransferResource(float rate = 1f)
-		{
-			Pump.RequestTransfer(rate*URate*TimeWarp.fixedDeltaTime);
-			return Pump.TransferResource();
-		}
-
-		public bool PartialTransfer { get { return Pump.PartialTransfer; } }
-
-		public string Info
-		{ get { return string.Format("{0}: {1}/sec", Resource.name, Utils.formatUnits(URate)); } }
 	}
 }

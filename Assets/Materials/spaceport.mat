@@ -37,16 +37,16 @@ Material:
     m_Floats:
       data:
         first:
+          name: _Shininess
+        second: .79433471
+      data:
+        first:
           name: _Opacity
         second: 1
       data:
         first:
           name: _RimFalloff
         second: .00999999978
-      data:
-        first:
-          name: _Shininess
-        second: .078125
     m_Colors:
       data:
         first:
@@ -54,13 +54,13 @@ Material:
         second: {r: .800000012, g: .800000012, b: .800000012, a: 1}
       data:
         first:
+          name: _SpecColor
+        second: {r: .20588237, g: .20588237, b: .20588237, a: 1}
+      data:
+        first:
           name: _RimColor
         second: {r: 0, g: 0, b: 0, a: 0}
       data:
         first:
-          name: _SpecColor
-        second: {r: 0, g: 0, b: 0, a: 1}
-      data:
-        first:
           name: _EmissiveColor
-        second: {r: .53725493, g: .529411793, b: 1, a: 1}
+        second: {r: 1, g: .889655232, b: 0, a: 1}

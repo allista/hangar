@@ -80,8 +80,7 @@ namespace AtHangar
 
 		static Vector3[] uniqueVertices(Mesh m)
 		{
-			var v_set = new HashSet<Vector3>();
-			foreach(Vector3 v in m.vertices) v_set.Add(v);
+			var v_set = new HashSet<Vector3>(m.vertices);
 			var new_verts = new Vector3[v_set.Count];
 			v_set.CopyTo(new_verts);
 			return new_verts;
@@ -108,7 +107,7 @@ namespace AtHangar
 					if(m.renderer == null || !m.renderer.enabled) continue;
 					//skip meshes from the blacklist
 					bool skip_mesh = false;
-					foreach(string mesh_name in HangarConfig.MeshesToSkip)
+					foreach(string mesh_name in HangarConfig.Globals.MeshesToSkipList)
 					{
 						if(mesh_name == "") continue;
 						skip_mesh = m.name.IndexOf(mesh_name, StringComparison.OrdinalIgnoreCase) >= 0;
@@ -324,12 +323,12 @@ namespace AtHangar
 		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
 		{
 			var edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
-			foreach(Vector3 edge in edges)
+			for(int i = 0; i < edges.Length; i++) 
 			{
-				Vector3 _edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edge-center));
+				Vector3 edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
 				if(other.hull != null) 
-				{ if(!other.hull.Contains(_edge)) return false; }
-				else if(!other.bounds.Contains(_edge)) return false;
+				{ if(!other.hull.Contains(edge)) return false; }
+				else if(!other.bounds.Contains(edge)) return false;
 			}
 			return true;
 		}
@@ -375,7 +374,7 @@ namespace AtHangar
 				}
 				for(int i = 0; i < edges.Length; i++) 
 				{
-					Vector3 edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
+					var edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
 					foreach(Plane P in planes)
 					{ if(!P.GetSide(edge)) return false; }
 				}

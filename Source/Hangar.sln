@@ -5,12 +5,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hangar", "Hangar.csproj", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KSP-AVC-updater", "KSP-AVC-updater\KSP-AVC-updater.csproj", "{A1DAE496-7A38-46F3-A450-D32F34C90416}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DecodeResources", "DecodeResources\DecodeResources.csproj", "{2945DE97-3C4F-4D82-862E-51D67C3B274E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2945DE97-3C4F-4D82-862E-51D67C3B274E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2945DE97-3C4F-4D82-862E-51D67C3B274E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2945DE97-3C4F-4D82-862E-51D67C3B274E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2945DE97-3C4F-4D82-862E-51D67C3B274E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{382B8257-AD02-4655-B7C7-B54F56C2957B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{382B8257-AD02-4655-B7C7-B54F56C2957B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{382B8257-AD02-4655-B7C7-B54F56C2957B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -21,7 +27,6 @@ Global
 		{A1DAE496-7A38-46F3-A450-D32F34C90416}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Hangar.csproj
 		Policies = $0
 		$0.NameConventionPolicy = $1
 		$1.Rules = $2
@@ -151,7 +156,7 @@ Global
 		$24.DirectoryNamespaceAssociation = None
 		$24.ResourceNamePolicy = FileFormatDefault
 		$0.StandardHeader = $25
-		$25.Text = 
+		$25.Text = @  ${FileName}\n \n Author:\n      ${AuthorName} <${AuthorEmail}>\n\n Copyright (c) ${Year} ${CopyrightHolder}\n\nThis work is licensed under the Creative Commons Attribution 4.0 International License. \nTo view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ \nor send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 		$25.IncludeInNewFiles = True
 		$0.VersionControlPolicy = $26
 		$26.inheritsSet = Mono

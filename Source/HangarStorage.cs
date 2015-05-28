@@ -7,8 +7,17 @@ namespace AtHangar
 {
 	public class HangarStorage : HangarPassage, IPartCostModifier, IControllableModule
 	{
-		[KSPField] public string HangarSpace = string.Empty;
-		[KSPField] public float UsefulSizeRatio = 0.9f; //in case no HangarSpace is provided and the part metric is used
+		#region Auto Vessel Rotation
+		static readonly Quaternion xyrot = Quaternion.Euler(0, 0, 90);
+		static readonly Quaternion xzrot = Quaternion.Euler(0, 90, 0);
+		static readonly Quaternion yzrot = Quaternion.Euler(90, 0, 0);
+		static readonly Quaternion[,] swaps = 
+		{
+			{Quaternion.identity, 	xyrot, 					xzrot}, 
+			{xyrot.Inverse(), 		Quaternion.identity, 	yzrot}, 
+			{xzrot.Inverse(), 		yzrot.Inverse(), 		Quaternion.identity}
+		};
+		#endregion
 
 		#region Internals
 		//metrics
@@ -17,14 +26,22 @@ namespace AtHangar
 		public Metric HangarMetric { get; protected set; }
 
 		//hangar space
-		[KSPField (isPersistant = false)] public bool UseHangarSpaceMesh;
+		[KSPField] public string HangarSpace = string.Empty;
+		[KSPField] public string SpawnTransform;
+		[KSPField] public bool   UseHangarSpaceMesh;
+		[KSPField] public float  UsefulSizeRatio = 0.9f; //in case no HangarSpace is provided and the part metric is used
+		[KSPField] public bool   AutoPositionVessel;
 		MeshFilter hangar_space;
-		public virtual bool ComputeHull { get { return hangar_space != null; } }
-		public Func<Transform> GetSpawnTransform;
+		Transform  spawn_transform;
+		public virtual bool ComputeHull 
+		{ get { return Nodes.Count > 0 || UseHangarSpaceMesh && hangar_space != null; } }
 
 		//vessels storage
-		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>();
-		readonly protected VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>();
+		readonly static string SCIENCE_DATA = typeof(ScienceData).Name;
+		readonly List<ConfigNode> stored_vessels_science = new List<ConfigNode>();
+		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>(HangarConfig.Globals.EnableVesselPacking);
+		readonly protected VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>(HangarConfig.Globals.EnableVesselPacking);
+		readonly protected List<PackedConstruct> unfit_constructs = new List<PackedConstruct>();
 		public Vector3 Size { get { return HangarMetric.size; } }
 		public float Volume { get { return HangarMetric.volume; } }
 		public int VesselsDocked { get { return packed_constructs.Count+stored_vessels.Count; } }
@@ -83,8 +100,17 @@ namespace AtHangar
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
-			if(UseHangarSpaceMesh && HangarSpace != string.Empty)
+			if(HangarSpace != string.Empty)
 				hangar_space = part.FindModelComponent<MeshFilter>(HangarSpace);
+			if(SpawnTransform != string.Empty)
+				spawn_transform = part.FindModelTransform(SpawnTransform);
+			if(spawn_transform == null)
+			{
+				var launch_empty = new GameObject();
+				var parent = hangar_space != null? hangar_space.transform : part.transform;
+				launch_empty.transform.SetParent(parent);
+				spawn_transform = launch_empty.transform;
+			}
 			build_storage_checklist();
 		}
 
@@ -99,17 +125,46 @@ namespace AtHangar
 			if(HangarMetric.Empty) HangarMetric = PartMetric*UsefulSizeRatio;
 		}
 
+		static List<KeyValuePair<float, int>> sort_vector(Vector3 v)
+		{
+			var s = new List<KeyValuePair<float, int>>(3);
+			s.Add(new KeyValuePair<float, int>(v[0], 0));
+			s.Add(new KeyValuePair<float, int>(v[1], 1));
+			s.Add(new KeyValuePair<float, int>(v[2], 2));
+			s.Sort((x, y) => x.Key.CompareTo(y.Key));
+			return s;
+		}
+
+		public Transform GetSpawnTransform(PackedVessel v = null)
+		{
+			if(AutoPositionVessel && v != null) 
+			{
+				var s_size = sort_vector(HangarMetric.size);
+				var v_size = sort_vector(v.size);
+				var r1 = swaps[s_size[0].Value, v_size[0].Value];
+				var i2 = s_size[0].Value == v_size[1].Value? 2 : 1;
+				var r2 = swaps[s_size[i2].Value, v_size[i2].Value];
+				spawn_transform.localPosition = Vector3.zero;
+				spawn_transform.localRotation = Quaternion.identity;
+				spawn_transform.rotation = part.transform.rotation * r2 * r1;
+			}
+			return spawn_transform;
+		}
+
 		public bool VesselFits(PackedVessel v)
 		{
-			if(GetSpawnTransform == null) return true;
-			var	position = GetSpawnTransform();
-			return hangar_space == null ? 
-				v.metric.FitsAligned(position, part.partTransform, HangarMetric) : 
-				v.metric.FitsAligned(position, hangar_space.transform, hangar_space.sharedMesh);
+			var	position = GetSpawnTransform(v);
+			return ComputeHull ? 
+				v.metric.FitsAligned(position, hangar_space.transform, hangar_space.sharedMesh) :
+				v.metric.FitsAligned(position, part.partTransform, HangarMetric);
 		}
 
 		void try_repack_construct(PackedConstruct pc)
-		{ if(VesselFits(pc)) packed_constructs.TryAdd(pc); }
+		{ 
+			if(!VesselFits(pc) || 
+			   !packed_constructs.TryAdd(pc))
+				unfit_constructs.Add(pc);
+		}
 
 		public override void Setup(bool reset = false)
 		{
@@ -155,11 +210,17 @@ namespace AtHangar
 			_stored_vessels = VesselsDocked.ToString();
 			_stored_mass    = Utils.formatMass(VesselsMass);
 			_stored_cost    = VesselsCost.ToString();
-			_used_volume    = Utils.formatPercent(UsedVolumeFrac);
+			_used_volume    = UsedVolumeFrac.ToString("P1");
 			on_set_part_params();
 		}
 
-		public float GetModuleCost(float default_cost) { return VesselsCost; }
+		public virtual float GetModuleCost(float default_cost) { return VesselsCost; }
+
+		public override void OnAwake()
+		{ GameEvents.OnVesselRecoveryRequested.Add(onVesselRecoveryRequested); }
+
+		public void OnDestroy()
+		{ GameEvents.OnVesselRecoveryRequested.Remove(onVesselRecoveryRequested); }
 		#endregion
 
 		#region Content Management
@@ -175,6 +236,9 @@ namespace AtHangar
 			return vessels;
 		}
 
+		public List<PackedConstruct> UnfitConstucts { get { return unfit_constructs.ToList(); } }
+		public void RemoveUnfit(PackedConstruct pc) { unfit_constructs.Remove(pc); }
+
 		public void UpdateParams()
 		{
 			stored_vessels.UpdateParams();
@@ -183,6 +247,7 @@ namespace AtHangar
 
 		public void ClearConstructs()
 		{
+			unfit_constructs.Clear();
 			packed_constructs.Clear();
 			set_part_params();
 		}
@@ -268,11 +333,10 @@ namespace AtHangar
 			if(!HighLogic.LoadedSceneIsFlight || packed_constructs.Count == 0) 
 			{ Ready = true;	yield break; }
 			//wait for storage.vessel to be loaded
-			var self = new VesselWaiter(vessel);
-			while(!self.loaded) yield return null;
-			while(!enabled) yield return null;
+			while(!vessel.PartsStarted()) yield return WaitWithPhysics.ForNextUpdate();
+			while(!enabled) yield return WaitWithPhysics.ForNextUpdate();
 			//wait for other storages to be ready
-			while(!other_storages_ready) yield return null;
+			while(!other_storages_ready) yield return WaitWithPhysics.ForNextUpdate();
 			//create vessels from constructs and store them
 			foreach(PackedConstruct pc in packed_constructs.Values)
 			{
@@ -290,26 +354,43 @@ namespace AtHangar
 					vessel.landedAt, pc.flag, 
 					FlightDriver.FlightStateCache,
 					new VesselCrewManifest());
-				var vsl = new VesselWaiter(FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1]);
-				FlightGlobals.ForceSetActiveVessel(vsl.vessel);
+				var vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1];
+				FlightGlobals.ForceSetActiveVessel(vsl);
 				Staging.beginFlight();
 				//wait for vsl to be launched
-				while(!vsl.loaded) yield return null;
+				while(!vsl.isActiveVessel || !vsl.PartsStarted()) 
+					yield return WaitWithPhysics.ForNextUpdate();
 				//store vessel
-				StoreVessel(new StoredVessel(vsl.vessel));
+				StoreVessel(new StoredVessel(vsl, ComputeHull));
 				//switch to storage vessel before storing
 				FlightGlobals.ForceSetActiveVessel(vessel);
 				//destroy vessel
-				vsl.vessel.Die();
+				vsl.Die();
 				//wait a 0.1 sec, otherwise the vessel may not be destroyed properly
-				yield return new WaitForSeconds(0.1f); 
+				yield return WaitWithPhysics.ForSeconds(0.1f);
 			}
-			//save game afterwards
+			//switch back to this.vessel and signal to other waiting storages
 			FlightGlobals.ForceSetActiveVessel(vessel);
-			while(!self.loaded) yield return null;
-			yield return new WaitForSeconds(0.5f);
-			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
+			while(!vessel.isActiveVessel || !vessel.PartsStarted()) 
+				yield return WaitWithPhysics.ForNextUpdate();
 			Ready = true;
+			//save game afterwards
+			yield return WaitWithPhysics.ForSeconds(0.5f);
+			FlightDriver.PostInitState = new GameBackup(HighLogic.CurrentGame);
+			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
+		}
+
+		void onVesselRecoveryRequested(Vessel v)
+		{
+			if(v != vessel) return;
+			stored_vessels_science.Clear();
+			foreach(var sv in stored_vessels.Values)
+				foreach(var p in sv.proto_vessel.protoPartSnapshots)
+					foreach(var pm in p.modules)
+					{
+						var s = pm.moduleValues.GetNode(SCIENCE_DATA);
+						if(s != null) stored_vessels_science.Add(s);
+					}
 		}
 		#endregion
 
@@ -322,6 +403,9 @@ namespace AtHangar
 				stored_vessels.Save(node.AddNode("STORED_VESSELS"));
 			if(packed_constructs.Count > 0)
 				packed_constructs.Save(node.AddNode("PACKED_CONSTRUCTS"));
+			//save science data of stored ships
+			if(stored_vessels_science.Count > 0)
+				stored_vessels_science.ForEach(n => node.AddNode(n));
 		}
 
 		public override void OnLoad(ConfigNode node)
@@ -332,6 +416,11 @@ namespace AtHangar
 				stored_vessels.Load(node.GetNode("STORED_VESSELS"));
 			if(node.HasNode("PACKED_CONSTRUCTS"))
 				packed_constructs.Load(node.GetNode("PACKED_CONSTRUCTS"));
+			//restore science data
+			stored_vessels_science.Clear();
+			foreach(var n in node.GetNodes(SCIENCE_DATA))
+				stored_vessels_science.Add(n);
+
 		}
 		#endregion
 

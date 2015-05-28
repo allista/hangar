@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: adapters
-  m_Shader: {fileID: 4800000, guid: a38930c619a40384e9f6abb2270fbe67, type: 3}
+  m_Shader: {fileID: 4800000, guid: f389011c77e277942ae6b2d8bc01f7e8, type: 3}
   m_ShaderKeywords: []
   m_CustomRenderQueue: -1
   m_SavedProperties:
@@ -30,6 +30,10 @@ Material:
     m_Floats:
       data:
         first:
+          name: _Shininess
+        second: .794334471
+      data:
+        first:
           name: _Opacity
         second: 1
       data:
@@ -41,6 +45,10 @@ Material:
         first:
           name: _Color
         second: {r: .800000012, g: .800000012, b: .800000012, a: 1}
+      data:
+        first:
+          name: _SpecColor
+        second: {r: .257352948, g: .257352948, b: .257352948, a: 1}
       data:
         first:
           name: _RimColor

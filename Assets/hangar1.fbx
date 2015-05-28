@@ -8,12 +8,12 @@ FBXHeaderExtension:  {
 	FBXVersion: 6100
 	CreationTimeStamp:  {
 		Version: 1000
-		Year: 2014
-		Month: 12
-		Day: 16
-		Hour: 17
-		Minute: 11
-		Second: 53
+		Year: 2015
+		Month: 02
+		Day: 05
+		Hour: 19
+		Minute: 09
+		Second: 11
 		Millisecond: 0
 	}
 	Creator: "FBX SDK/FBX Plugins build 20070228"
@@ -21,7 +21,7 @@ FBXHeaderExtension:  {
 		FlagPLE: 0
 	}
 }
-CreationTime: "2014-12-16 17:11:53:000"
+CreationTime: "2015-02-05 19:09:11:000"
 Creator: "Blender version 2.71 (sub 6)"
 
 ; Object definitions
@@ -29,15 +29,15 @@ Creator: "Blender version 2.71 (sub 6)"
 
 Definitions:  {
 	Version: 100
-	Count: 33
+	Count: 35
 	ObjectType: "Model" {
-		Count: 25
+		Count: 26
 	}
 	ObjectType: "Geometry" {
-		Count: 12
+		Count: 13
 	}
 	ObjectType: "Material" {
-		Count: 3
+		Count: 4
 	}
 	ObjectType: "Texture" {
 		Count: 2
@@ -231,7 +231,7 @@ Objects:  {
 		Properties60:  {
 			Property: "QuaternionInterpolate", "bool", "",0
 			Property: "Visibility", "Visibility", "A+",1
-			Property: "Lcl Translation", "Lcl Translation", "A+",-0.000000000000000,0.000000029802322,0.000000000000000
+			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000000000000,0.000000000000000,0.000000000000000
 			Property: "Lcl Rotation", "Lcl Rotation", "A+",90.000029825105528,0.000028557227693,179.999909386049325
 			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
 			Property: "RotationOffset", "Vector3D", "",0,0,0
@@ -312,7 +312,7 @@ Objects:  {
 		Properties60:  {
 			Property: "QuaternionInterpolate", "bool", "",0
 			Property: "Visibility", "Visibility", "A+",1
-			Property: "Lcl Translation", "Lcl Translation", "A+",0.001854642760009,-0.734885334968567,-1.138766884803772
+			Property: "Lcl Translation", "Lcl Translation", "A+",0.001854642760009,-0.734885334968567,-1.489722013473511
 			Property: "Lcl Rotation", "Lcl Rotation", "A+",0.000000000000000,-0.000000000000000,0.000000000000000
 			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
 			Property: "RotationOffset", "Vector3D", "",0,0,0
@@ -782,6 +782,158 @@ Objects:  {
 			}
 		}
 	}
+	Model: "Model::rail", "Mesh" {
+		Version: 232
+		Properties60:  {
+			Property: "QuaternionInterpolate", "bool", "",0
+			Property: "Visibility", "Visibility", "A+",1
+			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000000000000,-1.540468335151672,0.223093271255493
+			Property: "Lcl Rotation", "Lcl Rotation", "A+",0.000000000000000,-0.000000000000000,0.000000000000000
+			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
+			Property: "RotationOffset", "Vector3D", "",0,0,0
+			Property: "RotationPivot", "Vector3D", "",0,0,0
+			Property: "ScalingOffset", "Vector3D", "",0,0,0
+			Property: "ScalingPivot", "Vector3D", "",0,0,0
+			Property: "TranslationActive", "bool", "",0
+			Property: "TranslationMin", "Vector3D", "",0,0,0
+			Property: "TranslationMax", "Vector3D", "",0,0,0
+			Property: "TranslationMinX", "bool", "",0
+			Property: "TranslationMinY", "bool", "",0
+			Property: "TranslationMinZ", "bool", "",0
+			Property: "TranslationMaxX", "bool", "",0
+			Property: "TranslationMaxY", "bool", "",0
+			Property: "TranslationMaxZ", "bool", "",0
+			Property: "RotationOrder", "enum", "",0
+			Property: "RotationSpaceForLimitOnly", "bool", "",0
+			Property: "AxisLen", "double", "",10
+			Property: "PreRotation", "Vector3D", "",0,0,0
+			Property: "PostRotation", "Vector3D", "",0,0,0
+			Property: "RotationActive", "bool", "",0
+			Property: "RotationMin", "Vector3D", "",0,0,0
+			Property: "RotationMax", "Vector3D", "",0,0,0
+			Property: "RotationMinX", "bool", "",0
+			Property: "RotationMinY", "bool", "",0
+			Property: "RotationMinZ", "bool", "",0
+			Property: "RotationMaxX", "bool", "",0
+			Property: "RotationMaxY", "bool", "",0
+			Property: "RotationMaxZ", "bool", "",0
+			Property: "RotationStiffnessX", "double", "",0
+			Property: "RotationStiffnessY", "double", "",0
+			Property: "RotationStiffnessZ", "double", "",0
+			Property: "MinDampRangeX", "double", "",0
+			Property: "MinDampRangeY", "double", "",0
+			Property: "MinDampRangeZ", "double", "",0
+			Property: "MaxDampRangeX", "double", "",0
+			Property: "MaxDampRangeY", "double", "",0
+			Property: "MaxDampRangeZ", "double", "",0
+			Property: "MinDampStrengthX", "double", "",0
+			Property: "MinDampStrengthY", "double", "",0
+			Property: "MinDampStrengthZ", "double", "",0
+			Property: "MaxDampStrengthX", "double", "",0
+			Property: "MaxDampStrengthY", "double", "",0
+			Property: "MaxDampStrengthZ", "double", "",0
+			Property: "PreferedAngleX", "double", "",0
+			Property: "PreferedAngleY", "double", "",0
+			Property: "PreferedAngleZ", "double", "",0
+			Property: "InheritType", "enum", "",0
+			Property: "ScalingActive", "bool", "",0
+			Property: "ScalingMin", "Vector3D", "",1,1,1
+			Property: "ScalingMax", "Vector3D", "",1,1,1
+			Property: "ScalingMinX", "bool", "",0
+			Property: "ScalingMinY", "bool", "",0
+			Property: "ScalingMinZ", "bool", "",0
+			Property: "ScalingMaxX", "bool", "",0
+			Property: "ScalingMaxY", "bool", "",0
+			Property: "ScalingMaxZ", "bool", "",0
+			Property: "GeometricTranslation", "Vector3D", "",0,0,0
+			Property: "GeometricRotation", "Vector3D", "",0,0,0
+			Property: "GeometricScaling", "Vector3D", "",1,1,1
+			Property: "LookAtProperty", "object", ""
+			Property: "UpVectorProperty", "object", ""
+			Property: "Show", "bool", "",1
+			Property: "NegativePercentShapeSupport", "bool", "",1
+			Property: "DefaultAttributeIndex", "int", "",0
+			Property: "Color", "Color", "A",0.8,0.8,0.8
+			Property: "Size", "double", "",100
+			Property: "Look", "enum", "",1
+		}
+		MultiLayer: 0
+		MultiTake: 1
+		Shading: Y
+		Culling: "CullingOff"
+		Vertices: -0.077315,-0.013536,-1.804551,-0.077315,0.013536,-1.804551,0.077315,0.013536,-1.804551,0.077315,-0.013536,-1.804551,
+		          -0.077315,-0.013536,1.617533,-0.077315,0.013536,1.617533,0.077315,0.013536,1.617533,0.077315,-0.013536,1.617533
+		PolygonVertexIndex: 4,5,1,-1,5,6,2,-2,6,7,3,-3,7,4,0,-4,0,1,2,-4,7,6,5,-5
+		GeometryVersion: 124
+		LayerElementNormal: 0 {
+			Version: 101
+			Name: ""
+			MappingInformationType: "ByPolygonVertex"
+			ReferenceInformationType: "Direct"
+			Normals: -1.000000,0.000000,0.000000,-1.000000,0.000000,0.000000,-1.000000,0.000000,0.000000,-1.000000,0.000000,0.000000,
+			         0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,
+			         1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,
+			         0.000000,-1.000000,0.000000,0.000000,-1.000000,0.000000,0.000000,-1.000000,0.000000,0.000000,-1.000000,0.000000,
+			         -0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,
+			         -0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000
+		}
+		LayerElementSmoothing: 0 {
+			Version: 102
+			Name: ""
+			MappingInformationType: "ByPolygon"
+			ReferenceInformationType: "Direct"
+			Smoothing: 0,0,0,0,0,0
+		}
+		LayerElementUV: 0 {
+			Version: 101
+			Name: "UVMap"
+			MappingInformationType: "ByPolygonVertex"
+			ReferenceInformationType: "IndexToDirect"
+			UV: 0.051914,0.079490,0.054140,0.079490,0.036969,0.360926,0.036970,0.079490,0.051914,0.077263,0.039196,0.363153,
+			    0.039196,0.077263,0.051913,0.363153,0.054139,0.360926,0.024252,0.360926,0.024253,0.079490,0.039196,0.079490,
+			    0.051913,0.360926,0.039196,0.360926
+			UVIndex: 8,12,0,1,12,13,11,0,13,2,3,11,2,9,10,3,4,0,11,6,5,13,12,7
+		}
+		LayerElementTexture: 0 {
+			Version: 101
+			Name: "UVMap"
+			MappingInformationType: "AllSame"
+			ReferenceInformationType: "IndexToDirect"
+			BlendMode: "Translucent"
+			TextureAlpha: 1
+			TextureId: 0
+		}
+		LayerElementMaterial: 0 {
+			Version: 101
+			Name: ""
+			MappingInformationType: "AllSame"
+			ReferenceInformationType: "IndexToDirect"
+			Materials: 0
+		}
+		Layer: 0 {
+			Version: 100
+			LayerElement:  {
+				Type: "LayerElementNormal"
+				TypedIndex: 0
+			}
+			LayerElement:  {
+				Type: "LayerElementSmoothing"
+				TypedIndex: 0
+			}
+			LayerElement:  {
+				Type: "LayerElementUV"
+				TypedIndex: 0
+			}
+			LayerElement:  {
+				Type: "LayerElementTexture"
+				TypedIndex: 0
+			}
+			LayerElement:  {
+				Type: "LayerElementMaterial"
+				TypedIndex: 0
+			}
+		}
+	}
 	Model: "Model::solarpanel", "Mesh" {
 		Version: 232
 		Properties60:  {
@@ -939,7 +1091,7 @@ Objects:  {
 		Properties60:  {
 			Property: "QuaternionInterpolate", "bool", "",0
 			Property: "Visibility", "Visibility", "A+",1
-			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000000552086,-0.494403511285782,1.476830005645752
+			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000000552086,-0.494403511285782,1.270556807518005
 			Property: "Lcl Rotation", "Lcl Rotation", "A+",0.000000000000000,-0.000000000000000,0.000000000000000
 			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
 			Property: "RotationOffset", "Vector3D", "",0,0,0
@@ -1013,8 +1165,8 @@ Objects:  {
 		MultiTake: 1
 		Shading: Y
 		Culling: "CullingOff"
-		Vertices: -1.714085,-1.018270,-2.222832,-1.714085,1.018270,-2.222832,1.714085,1.018270,-2.222832,1.714085,-1.018270,-2.222832,
-		          -1.714085,-1.018270,2.222832,-1.714085,1.018270,2.222832,1.714085,1.018270,2.222832,1.714085,-1.018270,2.222832
+		Vertices: -1.714085,-1.018270,-2.429106,-1.714085,1.018270,-2.429106,1.714085,1.018270,-2.429106,1.714085,-1.018270,-2.429106,
+		          -1.714085,-1.018270,2.429106,-1.714085,1.018270,2.429106,1.714085,1.018270,2.429106,1.714085,-1.018270,2.429106
 		PolygonVertexIndex: 4,5,1,-1,5,6,2,-2,6,7,3,-3,7,4,0,-4,0,1,2,-4,7,6,5,-5
 		GeometryVersion: 124
 		LayerElementNormal: 0 {
@@ -1026,8 +1178,8 @@ Objects:  {
 			         0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,
 			         1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,
 			         0.000000,-1.000000,0.000000,0.000000,-1.000000,0.000000,0.000000,-1.000000,0.000000,0.000000,-1.000000,0.000000,
-			         -0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,-0.000000,0.000000,-1.000000,
-			         0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000,0.000000,0.000000,1.000000
+			         0.000000,0.000000,-1.000000,0.000000,0.000000,-1.000000,0.000000,0.000000,-1.000000,0.000000,0.000000,-1.000000,
+			         -0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000,-0.000000,0.000000,1.000000
 		}
 		LayerElementSmoothing: 0 {
 			Version: 102
@@ -2023,8 +2175,8 @@ Objects:  {
 		Properties60:  {
 			Property: "QuaternionInterpolate", "bool", "",0
 			Property: "Visibility", "Visibility", "A+",1
-			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000000000000,-0.494402825832367,-1.581899523735046
-			Property: "Lcl Rotation", "Lcl Rotation", "A+",0.000000000000000,-0.000000000000000,0.000000000000000
+			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000000000000,-1.464121222496033,-1.293598532676697
+			Property: "Lcl Rotation", "Lcl Rotation", "A+",-89.999995674159678,0.000000000000000,0.000000000000000
 			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
 			Property: "RotationOffset", "Vector3D", "",0,0,0
 			Property: "RotationPivot", "Vector3D", "",0,0,0
@@ -2393,7 +2545,7 @@ Objects:  {
 		Properties60:  {
 			Property: "QuaternionInterpolate", "bool", "",0
 			Property: "Visibility", "Visibility", "A+",1
-			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000510711970,0.000000000000000,0.557702302932739
+			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000510711970,-0.000000079588460,0.557702302932739
 			Property: "Lcl Rotation", "Lcl Rotation", "A+",90.000036655294707,-89.999941032646319,0.000000000000000
 			Property: "Lcl Scaling", "Lcl Scaling", "A+",0.999999940395355,1.000000000000000,1.000000000000000
 			Property: "RotationOffset", "Vector3D", "",0,0,0
@@ -3595,6 +3747,36 @@ Objects:  {
 		AudioColor: 0,1,0
 		CameraOrthoZoom: 1
 	}
+	Material: "Material::None__hangar_png", "" {
+		Version: 102
+		ShadingModel: "phong"
+		MultiLayer: 0
+		Properties60:  {
+			Property: "ShadingModel", "KString", "", "Phong"
+			Property: "MultiLayer", "bool", "",0
+			Property: "EmissiveColor", "ColorRGB", "",0.8000,0.8000,0.8000
+			Property: "EmissiveFactor", "double", "",0.0000
+			Property: "AmbientColor", "ColorRGB", "",1.0000,1.0000,1.0000
+			Property: "AmbientFactor", "double", "",1.0000
+			Property: "DiffuseColor", "ColorRGB", "",0.8000,0.8000,0.8000
+			Property: "DiffuseFactor", "double", "",0.8000
+			Property: "Bump", "Vector3D", "",0,0,0
+			Property: "TransparentColor", "ColorRGB", "",1,1,1
+			Property: "TransparencyFactor", "double", "",0.0000
+			Property: "SpecularColor", "ColorRGB", "",1.0000,1.0000,1.0000
+			Property: "SpecularFactor", "double", "",0.5000
+			Property: "ShininessExponent", "double", "",12.3
+			Property: "ReflectionColor", "ColorRGB", "",0,0,0
+			Property: "ReflectionFactor", "double", "",1
+			Property: "Emissive", "ColorRGB", "",0,0,0
+			Property: "Ambient", "ColorRGB", "",1.0,1.0,1.0
+			Property: "Diffuse", "ColorRGB", "",0.8,0.8,0.8
+			Property: "Specular", "ColorRGB", "",1.0,1.0,1.0
+			Property: "Shininess", "double", "",12.3
+			Property: "Opacity", "double", "",1.0
+			Property: "Reflectivity", "double", "",0
+		}
+	}
 	Material: "Material::None__solarpanel_png", "" {
 		Version: 102
 		ShadingModel: "phong"
@@ -3799,18 +3981,18 @@ Objects:  {
 		Version: 100
 		Properties60:  {
 		}
-		NbPoseNodes: 17
+		NbPoseNodes: 18
 		PoseNode:  {
 			Node: "Model::suncatcher"
 			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000075497901,1.000000000000000,0.000000000000000,0.000000000000000,-1.000000000000000,0.000000075497901,0.000000000000000,0.000000000000001,-0.028391957283020,-0.000000059604645,1.000000000000000
 		}
 		PoseNode:  {
 			Node: "Model::launch_position"
-			Matrix: -1.000000000000000,0.000001581507263,-0.000000498417648,0.000000000000000,-0.000000498416853,0.000000520549349,1.000000000000000,0.000000000000000,0.000001581507490,1.000000000000000,-0.000000520548554,0.000000000000000,-0.000000000000000,0.000000029802322,0.000000000000000,1.000000000000000
+			Matrix: -1.000000000000000,0.000001581507263,-0.000000498417648,0.000000000000000,-0.000000498416853,0.000000520549349,1.000000000000000,0.000000000000000,0.000001581507490,1.000000000000000,-0.000000520548554,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000
 		}
 		PoseNode:  {
 			Node: "Model::hangar-lamp"
-			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.001854642760009,-0.734885334968567,-1.138766884803772,1.000000000000000
+			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.001854642760009,-0.734885334968567,-1.489722013473511,1.000000000000000
 		}
 		PoseNode:  {
 			Node: "Model::collider"
@@ -3825,12 +4007,16 @@ Objects:  {
 			Matrix: -0.000000075497901,0.000000000000000,1.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000075497901,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000
 		}
 		PoseNode:  {
+			Node: "Model::rail"
+			Matrix: -0.000000075497901,0.000000000000000,1.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000075497901,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.223093271255493,-1.540468335151672,1.000000000000000
+		}
+		PoseNode:  {
 			Node: "Model::solarpanel"
 			Matrix: -0.000000075497901,0.000000000000000,1.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000075497901,0.000000000000000,0.000000000000000,0.500000000000000,0.000000000000000,0.000000000000000,0.000000000045953,-0.464084714651108,-1.625063061714172,1.000000000000000
 		}
 		PoseNode:  {
 			Node: "Model::hangar_space"
-			Matrix: -0.000000075497901,0.000000000000000,1.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000075497901,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,-0.000000000552086,1.476830005645752,-0.494403511285782,1.000000000000000
+			Matrix: -0.000000075497901,0.000000000000000,1.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000075497901,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,-0.000000000552086,1.270556807518005,-0.494403511285782,1.000000000000000
 		}
 		PoseNode:  {
 			Node: "Model::gates"
@@ -3862,11 +4048,11 @@ Objects:  {
 		}
 		PoseNode:  {
 			Node: "Model::clamp"
-			Matrix: -0.000000075497901,0.000000000000000,1.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000075497901,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,-1.581899523735046,-0.494402825832367,1.000000000000000
+			Matrix: -0.000000075497901,-1.000000000000000,-0.000000043711388,0.000000000000000,1.000000000000000,-0.000000075497901,-0.000000000000003,0.000000000000000,0.000000000000000,-0.000000043711388,1.000000000000000,0.000000000000000,0.000000000000000,-1.293598532676697,-1.464121222496033,1.000000000000000
 		}
 		PoseNode:  {
 			Node: "Model::collider_clamp"
-			Matrix: 1.000000000000000,0.000001104670105,-0.000000639757843,0.000000000000000,0.000001104670218,-0.999999940395355,-0.000000000000048,0.000000000000000,-0.000000639757843,-0.000000000000658,-1.000000000000000,0.000000000000000,-0.000000510711970,-1.024197220802307,-0.494402825832367,1.000000000000000
+			Matrix: 1.000000000000000,0.000000639757786,0.000001104670218,0.000000000000000,0.000001104670218,0.000000043711434,-0.999999940395355,0.000000000000000,-0.000000639757843,1.000000000000000,0.000000043710731,0.000000000000000,-0.000000510711970,-1.293598532676697,-0.906418979167938,1.000000000000000
 		}
 	}
 	GlobalSettings:  {
@@ -3898,6 +4084,8 @@ Relations:  {
 	Model: "Model::dockingNode", "Null" {
 	}
 	Model: "Model::hangar1", "Mesh" {
+	}
+	Model: "Model::rail", "Mesh" {
 	}
 	Model: "Model::solarpanel", "Mesh" {
 	}
@@ -3937,6 +4125,8 @@ Relations:  {
 	}
 	Model: "Model::Camera Switcher", "CameraSwitcher" {
 	}
+	Material: "Material::None__hangar_png", "" {
+	}
 	Material: "Material::None__solarpanel_png", "" {
 	}
 	Material: "Material::hangar__hangar_png", "" {
@@ -3960,6 +4150,7 @@ Relations:  {
 
 Connections:  {
 	Connect: "OO", "Model::hangar1", "Model::Scene"
+	Connect: "OO", "Model::rail", "Model::hangar1"
 	Connect: "OO", "Model::solarpanel", "Model::hangar1"
 	Connect: "OO", "Model::hangar_space", "Model::hangar1"
 	Connect: "OO", "Model::gates", "Model::hangar1"
@@ -3977,6 +4168,7 @@ Connections:  {
 	Connect: "OO", "Model::collider", "Model::hangar1"
 	Connect: "OO", "Model::dockingNode", "Model::hangar1"
 	Connect: "OO", "Material::hangar__hangar_png", "Model::hangar1"
+	Connect: "OO", "Material::None__hangar_png", "Model::rail"
 	Connect: "OO", "Material::None__solarpanel_png", "Model::solarpanel"
 	Connect: "OO", "Material::unnamed", "Model::hangar_space"
 	Connect: "OO", "Material::hangar__hangar_png", "Model::gates"
@@ -3989,6 +4181,7 @@ Connections:  {
 	Connect: "OO", "Material::hangar__hangar_png", "Model::clamp"
 	Connect: "OO", "Material::unnamed", "Model::collider_clamp"
 	Connect: "OO", "Texture::hangar_png", "Model::hangar1"
+	Connect: "OO", "Texture::hangar_png", "Model::rail"
 	Connect: "OO", "Texture::solarpanel_png", "Model::solarpanel"
 	Connect: "OO", "Texture::hangar_png", "Model::gates"
 	Connect: "OO", "Texture::hangar_png", "Model::clamp"
@@ -4070,6 +4263,92 @@ Takes:  {
 						KeyCount: 1
 						Key: 
 							1924423250,180.000005008697713,L
+						Color: 0,0,1
+					}
+					LayerType: 2
+				}
+				Channel: "S" {
+					Channel: "X" {
+						Default: 1.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,1.000000000000000,L
+						Color: 1,0,0
+					}
+					Channel: "Y" {
+						Default: 1.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,1.000000000000000,L
+						Color: 0,1,0
+					}
+					Channel: "Z" {
+						Default: 1.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,1.000000000000000,L
+						Color: 0,0,1
+					}
+					LayerType: 3
+				}
+			}
+		}
+		Model: "Model::rail" {
+			Version: 1.1
+			Channel: "Transform" {
+				Channel: "T" {
+					Channel: "X" {
+						Default: 0.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,0.000000000000000,L
+						Color: 1,0,0
+					}
+					Channel: "Y" {
+						Default: -1.540468335151672
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,-1.540468335151672,L
+						Color: 0,1,0
+					}
+					Channel: "Z" {
+						Default: 0.223093271255493
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,0.223093271255493,L
+						Color: 0,0,1
+					}
+					LayerType: 1
+				}
+				Channel: "R" {
+					Channel: "X" {
+						Default: 0.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,0.000000000000000,L
+						Color: 1,0,0
+					}
+					Channel: "Y" {
+						Default: -0.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,-0.000000000000000,L
+						Color: 0,1,0
+					}
+					Channel: "Z" {
+						Default: 0.000000000000000
+						KeyVer: 4005
+						KeyCount: 1
+						Key: 
+							1924423250,0.000000000000000,L
 						Color: 0,0,1
 					}
 					LayerType: 2
@@ -4210,11 +4489,11 @@ Takes:  {
 						Color: 0,1,0
 					}
 					Channel: "Z" {
-						Default: 1.476830005645752
+						Default: 1.270556807518005
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,1.476830005645752,L
+							1924423250,1.270556807518005,L
 						Color: 0,0,1
 					}
 					LayerType: 1
@@ -5164,30 +5443,30 @@ Takes:  {
 						Color: 1,0,0
 					}
 					Channel: "Y" {
-						Default: -0.494402825832367
+						Default: -1.464121222496033
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,-0.494402825832367,L
+							1924423250,-1.464121222496033,L
 						Color: 0,1,0
 					}
 					Channel: "Z" {
-						Default: -1.581899523735046
+						Default: -1.293598532676697
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,-1.581899523735046,L
+							1924423250,-1.293598532676697,L
 						Color: 0,0,1
 					}
 					LayerType: 1
 				}
 				Channel: "R" {
 					Channel: "X" {
-						Default: 0.000000000000000
+						Default: -90.000002504348856
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.000000000000000,L
+							1924423250,-90.000002504348856,L
 						Color: 1,0,0
 					}
 					Channel: "Y" {
@@ -5250,11 +5529,11 @@ Takes:  {
 						Color: 1,0,0
 					}
 					Channel: "Y" {
-						Default: 0.000000000000000
+						Default: -0.000000079588460
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.000000000000000,L
+							1924423250,-0.000000079588460,L
 						Color: 0,1,0
 					}
 					Channel: "Z" {
@@ -5414,19 +5693,19 @@ Takes:  {
 			Channel: "Transform" {
 				Channel: "T" {
 					Channel: "X" {
-						Default: -0.000000000000000
+						Default: 0.000000000000000
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,-0.000000000000000,L
+							1924423250,0.000000000000000,L
 						Color: 1,0,0
 					}
 					Channel: "Y" {
-						Default: 0.000000029802322
+						Default: 0.000000000000000
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,0.000000029802322,L
+							1924423250,0.000000000000000,L
 						Color: 0,1,0
 					}
 					Channel: "Z" {
@@ -5516,11 +5795,11 @@ Takes:  {
 						Color: 0,1,0
 					}
 					Channel: "Z" {
-						Default: -1.138766884803772
+						Default: -1.489722013473511
 						KeyVer: 4005
 						KeyCount: 1
 						Key: 
-							1924423250,-1.138766884803772,L
+							1924423250,-1.489722013473511,L
 						Color: 0,0,1
 					}
 					LayerType: 1

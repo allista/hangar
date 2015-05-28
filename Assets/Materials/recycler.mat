@@ -38,7 +38,7 @@ Material:
       data:
         first:
           name: _Shininess
-        second: 1
+        second: .79433471
       data:
         first:
           name: _Opacity

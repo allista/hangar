@@ -55,7 +55,8 @@ namespace AtHangar
 		void updateVesselMetric(Vessel vsl = null)
 		{
 			vessel_metric.Clear();
-			if(vsl != null) vessel_metric = new Metric(vsl);
+			if(vsl != null && vsl.loaded) 
+				vessel_metric = new Metric(vsl);
 			else if(EditorLogic.fetch != null)
 			{
 				var parts = new List<Part>();
@@ -146,7 +147,7 @@ namespace AtHangar
 		public override void OnUpdate() 
 		{ 
 			if(!enabled) return;
-			Vessel vsl = current_vessel;
+			var vsl = current_vessel;
 			updateVesselMetric(vsl);
 			BuildHangarList(vsl);
 			UpdateGUIState();
@@ -213,25 +214,25 @@ namespace AtHangar
 		
 		public override void LoadSettings()
 		{
-			base.LoadSettings ();
-			fWindowPos = configfile.GetValue<Rect>(mangleName("fWindowPos"), fWindowPos);
-			eWindowPos = configfile.GetValue<Rect>(mangleName("eWindowPos"), eWindowPos);
-			cWindowPos = configfile.GetValue<Rect>(mangleName("cWindowPos"), cWindowPos);
-			rWindowPos = configfile.GetValue<Rect>(mangleName("rWindowPos"), rWindowPos);
-			vWindowPos = configfile.GetValue<Rect>(mangleName("rWindowPos"), vWindowPos);
-			hangar_id  = configfile.GetValue<uint>(mangleName("hangar_id"),  default(uint));
-			vessel_id  = configfile.GetValue<Guid>(mangleName("vessel_id"),  Guid.Empty);
+			base.LoadSettings();
+			fWindowPos = GetConfigValue<Rect>("fWindowPos", fWindowPos);
+			eWindowPos = GetConfigValue<Rect>("eWindowPos", eWindowPos);
+			cWindowPos = GetConfigValue<Rect>("cWindowPos", cWindowPos);
+			rWindowPos = GetConfigValue<Rect>("rWindowPos", rWindowPos);
+			vWindowPos = GetConfigValue<Rect>("vWindowPos", vWindowPos);
+			hangar_id  = GetConfigValue<uint>("hangar_id",  default(uint));
+			vessel_id  = GetConfigValue<Guid>("vessel_id",  Guid.Empty);
 		}
 		
 		public override void SaveSettings()
 		{
-			configfile.SetValue(mangleName("fWindowPos"), fWindowPos);
-			configfile.SetValue(mangleName("eWindowPos"), eWindowPos);
-			configfile.SetValue(mangleName("cWindowPos"), cWindowPos);
-			configfile.SetValue(mangleName("rWindowPos"), rWindowPos);
-			configfile.SetValue(mangleName("rWindowPos"), vWindowPos);
-			configfile.SetValue(mangleName("hangar_id"), hangar_id);
-			configfile.SetValue(mangleName("vessel_id"), vessel_id);
+			SetConfigValue("fWindowPos", fWindowPos);
+			SetConfigValue("eWindowPos", eWindowPos);
+			SetConfigValue("cWindowPos", cWindowPos);
+			SetConfigValue("rWindowPos", rWindowPos);
+			SetConfigValue("vWindowPos", vWindowPos);
+			SetConfigValue("hangar_id",  hangar_id);
+			SetConfigValue("vessel_id",  vessel_id);
 			base.SaveSettings();
 		}
 		
@@ -241,7 +242,7 @@ namespace AtHangar
 		{
 			GUILayout.BeginHorizontal();
 			if(selected_hangar != null 
-				&&  selected_hangar.launchVelocity != Vector3.zero 
+				&&  selected_hangar.LaunchVelocity != Vector3.zero 
 				&& !selected_hangar.vessel.LandedOrSplashed)
 				selected_hangar.LaunchWithPunch = GUILayout.Toggle(selected_hangar.LaunchWithPunch, "Push Vessel Out");
 			if(GUILayout.Button("Launch Vessel", Styles.yellow_button, GUILayout.ExpandWidth(true)))
@@ -282,16 +283,18 @@ namespace AtHangar
 		
 		void CrewTransferButton()
 		{
-			if(selected_vessel == null) return;
-			if(selected_hangar.NoTransfers) return;
+			if(selected_hangar.NoCrewTransfers ||
+				selected_vessel == null ||
+				selected_vessel.CrewCapacity == 0 ||
+				selected_hangar.vessel.GetCrewCount() == 0) return;
 			if(GUILayout.Button("Change Vessel Crew", GUILayout.ExpandWidth(true)))
 				selected_window.Toggle(TransferWindows.SelectCrew);
 		}
 		
 		void ResourcesTransferButton()
 		{
-			if(selected_vessel == null) return;
-			if(selected_hangar.NoTransfers) return;
+			if(selected_hangar.NoResourceTransfers ||
+				selected_vessel == null) return;
 			if(GUILayout.Button("Transfer Resources", GUILayout.ExpandWidth(true)))
 				selected_window.Toggle(TransferWindows.TransferResources);
 		}
@@ -408,7 +411,7 @@ namespace AtHangar
 
 		void Select_Vessel(StoredVessel vsl)
 		{
-			vessel_id = vsl.vessel.vesselID;
+			vessel_id = vsl.proto_vessel.vesselID;
 			vessel_list.SelectItem(vessels.IndexOf(vsl));
 			if(vsl != selected_vessel) 
 				selected_hangar.resourceTransferList.Clear();
@@ -454,13 +457,15 @@ namespace AtHangar
 					GUILayout.FlexibleSpace();
 					GUILayout.Label("Vessel's Bottom");
 					GUILayout.EndHorizontal();
-					GUILayout.Label("If there are hangars in the vessel, additional sets of arrows show orientation " +
-									"in which a vessel will be launched from each of the hangars", GUILayout.ExpandWidth(true));
+					GUILayout.Label("If there are hangars in the vessel with strict launch positioning, " +
+									"additional sets of arrows show orientation in which a vessel will be launched " +
+					                "from each of such hangars", Styles.label,
+					                GUILayout.MaxWidth(eWindowPos.width-40), GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 				}
 				else draw_directions = false;
 			}
 			GUILayout.EndVertical();
-			GUI.DragWindow(new Rect(0, 0, 5000, 20));
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 		
 		//hangar controls GUI
@@ -492,7 +497,7 @@ namespace AtHangar
 			CloseButton();
 			SelectVessel_end();
 			SelectHangar_end();
-			GUI.DragWindow(new Rect(0, 0, 5000, 20));
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 		#endregion
 	
@@ -501,7 +506,7 @@ namespace AtHangar
 			if(vessel_metric.Empty) return;
 			if(Event.current.type != EventType.Layout) return;
 			base.OnGUI();
-			if(hangars.Count > 0 && selected_hangar.IsControllable && !selected_hangar.NoGUI)
+			if(hangars.Count > 0 && !selected_hangar.vessel.packed && selected_hangar.IsControllable && !selected_hangar.NoGUI)
 			{
 				//controls
 				string hstate = selected_hangar.hangar_state.ToString();
@@ -574,8 +579,10 @@ namespace AtHangar
 				foreach(Part p in parts.Where(p => p.HasModule<HangarMachinery>()))
 				{
 					var h = p.GetComponent<HangarMachinery>();
-					if(h != null)
-						HangarGUI.DrawYZ(h.PartMetric, h.GetLaunchTransform());
+					if(h == null) continue;
+					var t = h.GetSpawnTransform();
+					if(t != null)
+						HangarGUI.DrawYZ(h.PartMetric, t);
 				}
 			}
 			#if DEBUG
@@ -594,12 +601,12 @@ namespace AtHangar
 				catch (NullReferenceException) { return; }
 				if(parts.Count == 0 || parts[0] == null) return;
 				vessel_metric.DrawCenter(parts[0].partTransform);
-//				Utils.DrawHull(vessel_metric, parts[0].partTransform);
+//				HangarGUI.DrawHull(vessel_metric, parts[0].partTransform);
 			}
 			else 
 			{
 				vessel_metric.DrawCenter(FlightGlobals.ActiveVessel.vesselTransform);
-				HangarGUI.DrawPoint(FlightGlobals.ActiveVessel.findLocalCenterOfMass(), 
+				HangarGUI.DrawPoint(FlightGlobals.ActiveVessel.vesselTransform.InverseTransformPoint(FlightGlobals.ActiveVessel.CurrentCoM), 
 								 FlightGlobals.ActiveVessel.vesselTransform, Color.green);
 				HangarGUI.DrawPoint(Vector3.zero, 
 								 FlightGlobals.ActiveVessel.vesselTransform, Color.red);

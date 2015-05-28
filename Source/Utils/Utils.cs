@@ -1,3 +1,14 @@
+//   Utils.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2015 Allis Tauri
+//
+// This work is licensed under the Creative Commons Attribution 4.0 International License. 
+// To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
+// or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,20 +42,23 @@ namespace AtHangar
 		{
 			group.audio = part.gameObject.AddComponent<AudioSource>();
 			group.audio.volume = GameSettings.SHIP_VOLUME;
-			group.audio.rolloffMode = AudioRolloffMode.Linear;
+			group.audio.rolloffMode = AudioRolloffMode.Logarithmic;
 			group.audio.dopplerLevel = 0f;
 			group.audio.panLevel = 1f;
 			group.audio.maxDistance = maxDistance;
 			group.audio.loop = loop;
 			group.audio.playOnAwake = false;
-			if (GameDatabase.Instance.ExistsAudioClip(sndPath))
+			if(GameDatabase.Instance.ExistsAudioClip(sndPath))
 			{
 				group.audio.clip = GameDatabase.Instance.GetAudioClip(sndPath);
 				return true;
 			}
-			ScreenMessages.PostScreenMessage("Sound file : " + sndPath + " has not been found, please check your Hangar installation !", 10, ScreenMessageStyle.UPPER_CENTER);
+			ScreenMessager.showMessage(10, "Sound file : " + sndPath + " has not been found, please check your Hangar installation");
 			return false;
 		}
+
+		public static void DelayPhysicsForSeconds(float dt)
+		{ OrbitPhysicsManager.HoldVesselUnpack(Mathf.CeilToInt(dt/TimeWarp.fixedDeltaTime)+1); }
 
 		public static void UpdateEditorGUI()
 		{ if(EditorLogic.fetch != null)	GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship); }
@@ -118,9 +132,6 @@ namespace AtHangar
 			return "0.0u"; //effectivly zero
 		}
 
-		public static string formatPercent(float fraction)
-		{ return string.Format("{0:F1}%", fraction*100); }
-
 		public static string formatDimensions(Vector3 size)
 		{ return string.Format("{0:F2}m x {1:F2}m x {2:F2}m", size.x, size.y, size.z); }
 		
@@ -141,6 +152,10 @@ namespace AtHangar
 			}
 			Debug.Log(string.Format("[Hangar] "+msg, args)); 
 		}
+
+		//from http://stackoverflow.com/questions/716399/c-sharp-how-do-you-get-a-variables-name-as-it-was-physically-typed-in-its-dec
+		//second answer
+		public static string PropertyName<T>(T obj) { return typeof(T).GetProperties()[0].Name; }
 	}
 
 	class MemoryTimer : IEnumerator<YieldInstruction>
@@ -207,5 +222,26 @@ namespace AtHangar
 
 		virtual public void Save(ConfigNode node)
 		{ ConfigNode.CreateConfigFromObject(this, node); }
+	}
+
+	public static class WaitWithPhysics
+	{
+		public static WaitForSeconds ForSeconds(float dt)
+		{
+			Utils.DelayPhysicsForSeconds(dt);
+			return new WaitForSeconds(dt);
+		}
+
+		public static WaitForFixedUpdate ForFixedUpdate()
+		{
+			OrbitPhysicsManager.HoldVesselUnpack(2);
+			return new WaitForFixedUpdate();
+		}
+
+		public static YieldInstruction ForNextUpdate()
+		{
+			Utils.DelayPhysicsForSeconds(TimeWarp.deltaTime);
+			return null;
+		}
 	}
 }

@@ -1,4 +1,15 @@
-﻿using System.Collections.Generic;
+﻿//   HangarGenericInflatable.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2015 Allis Tauri
+//
+// This work is licensed under the Creative Commons Attribution 4.0 International License. 
+// To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
+// or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -96,20 +107,43 @@ namespace AtHangar
 		#endregion
 		
 		#region Startup
+		protected virtual void onPause()
+		{
+			if(fxSndCompressor.audio == null) return;
+			if(fxSndCompressor.audio.isPlaying) fxSndCompressor.audio.Pause();
+		}
+
+		protected virtual void onUnpause()
+		{
+			if(fxSndCompressor.audio == null) return;
+			if(play_compressor) fxSndCompressor.audio.Play();
+		}
+
 		public override void OnAwake()
 		{
 			base.OnAwake();
+			GameEvents.onGamePause.Add(onPause);
+			GameEvents.onGameUnpause.Add(onUnpause);
 			GameEvents.onEditorShipModified.Add(UpdateGUI);
 		}
-		void OnDestroy() { GameEvents.onEditorShipModified.Remove(UpdateGUI); }
+
+		public void OnDestroy()
+		{
+			GameEvents.onGamePause.Remove(onPause);
+			GameEvents.onGameUnpause.Remove(onUnpause);
+			GameEvents.onEditorShipModified.Remove(UpdateGUI);
+		}
 
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
 			if(state == StartState.None) return;
 			//get sound effects
-			Utils.createFXSound(part, fxSndCompressor, CompressorSound, true);
-			fxSndCompressor.audio.volume = GameSettings.SHIP_VOLUME * SoundVolume;
+			if(CompressorSound != string.Empty)
+			{
+				Utils.createFXSound(part, fxSndCompressor, CompressorSound, true);
+				fxSndCompressor.audio.volume = GameSettings.SHIP_VOLUME * SoundVolume;
+			}
 			//get controlled modules
 			foreach(string module_name in ControlledModules.Split(' '))
 			{
@@ -260,15 +294,18 @@ namespace AtHangar
 			while(true)
 			{
 				//update GUI
-				CompressedGasDisplay = string.Format("{0:F1}%", CompressedGas/InflatableVolume*100);
+				CompressedGasDisplay = string.Format("{0:P1}", CompressedGas/InflatableVolume);
 				//update sounds
-				if(play_compressor)
+				if(fxSndCompressor.audio != null)
 				{
-					fxSndCompressor.audio.pitch = 0.5f + 0.5f*Compressor.OutputFraction;
-					if(!fxSndCompressor.audio.isPlaying)
-						fxSndCompressor.audio.Play();
+					if(play_compressor)
+					{
+						fxSndCompressor.audio.pitch = 0.5f + 0.5f*Compressor.OutputFraction;
+						if(!fxSndCompressor.audio.isPlaying)
+							fxSndCompressor.audio.Play();
+					}
+					else fxSndCompressor.audio.Stop();
 				}
-				else fxSndCompressor.audio.Stop();
 				//wait
 				yield return new WaitForSeconds(0.5f);
 			}

@@ -5,12 +5,68 @@ _You may keep the config.xml to save positions of GUI windows._
 
 ###ChangeLog###
 
-* **v2.0.2**
+* **v2.3.1**
+    * Fixed the problem with vessels launched from orbits around distant planets.
+    * Fixed the problem with the scale of cloned/mirrored parts.
+    * Added Radial Hangar in an optional package.
+
+* v2.3.0.2
+    * A hotfix for the Components tank type by [**Thorbane**](http://forum.kerbalspaceprogram.com/members/78247-Thorbane).
+
+* v2.3.0
+    * Added **Fairing Hangar** which could be used to encapsulate upper stage to reduce part count. It is activated through staging, automatically changes its crew capacity to accommodate the crew of the upper stage, and transfers maneuver nodes and control state when the upper stage is launched.
+    * Added **Science Recovery** to hangars: if you recover a vessel with a hangar, inside which another vessel with collected science data is stored, this science data is also recovered.
+    * [**Thorbane**](http://forum.kerbalspaceprogram.com/members/78247-Thorbane) added **support of USI** (MKS/OKS, FFT, Karbonite, Karbonite+) **and initial support of KSPI to Switchable Tanks**.
+    * Different **Tank Types have different cost** per volume now.
+    * Reworked vessel launch framework: works faster, no more scene switching (black screen).
+    * Rebalanced integrated reaction wheels. Their torque and mass change less when they're resized.
+    * Fixed several bugs in Switchable Tanks, including the clone/mirror bug. The drawback, though, is that in editor you can only change tank types and resources through the Tank Manager interface now. Thanks to [Thorbane](http://forum.kerbalspaceprogram.com/members/78247-Thorbane) for the report!
+    * Fixed the problem with resized heat-shields.
+
+* v2.2.1
+    * Found a workaround for hangar-triggers' behavior in editor: **surface-attachable parts do not snap to triggers anymore**, so you can use use any hangar as a cargo bay (including converted stock bays themselves). Thanks again to [**Errol**](http://forum.kerbalspaceprogram.com/members/121831-Errol) for pointing me to this issue.
+    * Added available volume display to Hangar Tank Manager. Now the tank editor's window title looks like `"Available Volume: 34m3 of 117m3"`.
+    * Fixed several minor bugs and corrected all (I hope) spelling errors.
+
+* v2.2.0
+    * **Spaceplane Hangars**:
+        * Converted stock cargo bays into hangars with limited functionality: no resource transfer, in-editor storage only, single vessel only; they're basically fairings.
+        * Added full-featured heavy hangar that matches Mk3 parts.
+        * Added several aux parts for spaceplanes:
+            * Surface-attachable structural tail to offset control surfaces.
+            * An airbrake.
+            * Engines to haul the Mk3 monster: radial SABRE engine, heavy-duty radial rocket engine and radial high-bypass turbofan.
+            * Radial electric propeller and turboshaft electric generator for hover-craft builds. I recommend to use them with [Throttle Controlled Avionics](https://kerbalstuff.com/mod/510/Throttle%20Controlled%20Avionics%20-%20Continued) mod that I also maintain.
+            * *Note: the turbofan and propeller have additional pressure curves that decrease their thrust at high altitudes. This is not as sophisticated as AJE, but still adds a good measure of realism without additional dependencies.*
+    * **Texture overhaul**:
+        * Retextured everything (*except ground hangars*) in a grey-metallic style, closer to stock look&feel.
+        * Merged/removed 10 big textures and normal maps to decrease memory footprint.
+    * **General changes**:
+        * Added **automatic ship positioning**: stock Cargo Bays, Inline Hangars and the Spaceport do not require stored vessel to be oriented in any special way anymore. If a vessel fits in some orientation it is stored and launched in this orientation. This addresses the problem with storing some very short and wide designs. Thanks to [**Errol**](http://forum.kerbalspaceprogram.com/members/121831-Errol) for pointing me to this issue.
+        * **Changed behavior of resource converters** (including Asteroid Drill):
+            * Conversion Rate now has inertia and changes with finite speed.
+            * Some converters generate heat (proportional to current rate).
+            * When the rate is below Minimum Rate no conversion is performed, but the energy is still consumed (startup phase). This is particularly evident in Mobile Smelter, which starts its conversion at >70% only.
+        * **To Rover Lander** and MK3 Hangar **added a slider** (part menu) **that controls hangar doors**: the less the percentage, the less the doors are opened. It is useful to decrease inclination of the ramp when there's some space underneath the hangar.
+        * Added **Unfit vessels list** to hangar content editor window to help in hangar fitting for the payload.
+        * Resource Containers cost more with each additional tank inside them.
+        * Added every part as a test subjects. Plenty of **contracts from AT Idustries**!
+        * FAR/NEAR users: all hangars are now classified as **FAR Cargo Bays**.
+        * [**Kerbas-ad-astra**](https://github.com/Kerbas-ad-astra) added config for **AntennaRange** and corrected some spell errors I made. Thanks!
+        * Made several performance improvements using [ksp-devtools](https://github.com/angavrilov/ksp-devtools).
+        * Fixed numerous bugs.
+
+* v2.0.2.2 - CKAN compatibility
+    * Reverted local copying of KAE .dll
+    * Hopefully fixed the issue with Hangar.dll loading prior to KSPAPIExtensions.dll. Now it should load even without the local copy of KAE.
+    
+* v2.0.2
     * Added custom **part filter** by function for hangars.
     * Fixed in-editor check of a stored vessel's dimensions on hangar resize. Hangars again remove stored vessels if they don't fit anymore.
     * Fixed _(I hope)_ the problem with invalid biomes of vessels launched from a hangar.
+    * Updated KSPAPIExtensions.dll to the latest (1.7.2.2) version
     * Various small fixes.
-    
+
 * v2.0.1
     * **Compatible with KSP-0.90.** 
     * _But incompatible with KSP-0.25._

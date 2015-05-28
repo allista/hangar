@@ -1,5 +1,6 @@
 ﻿#if DEBUG
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AtHangar
@@ -43,15 +44,14 @@ namespace AtHangar
 			Log("Long: {0}, Lat: {1}, Alt: {2}", lng, lat, alt);
 		}
 
-		public static void logBounds(Bounds b)
+		public static void logBounds(string name, Bounds b)
 		{
-			Log("Bounds:\n" +
-				"Center:  {0}\n" +
-				"Extents: {1}\n" +
-				"Min:     {2}\n" +
-				"Max:     {3}\n" +
-				"=========", 
-				b.center, b.extents, b.min, b.max);
+			Log("Bounds:  {0}\n" +
+				"Center:  {1}\n" +
+				"Extents: {2}\n" +
+				"Min:     {3}\n" +
+				"Max:     {4}", 
+				name, b.center, b.extents, b.min, b.max);
 		}
 
 		public static void logProtovesselCrew(ProtoVessel pv)
@@ -74,6 +74,28 @@ namespace AtHangar
 				Debug.Log(string.Format("customPartData: {0}", p.customPartData));
 			}
 		}
+
+		public static void logTransfrorm(Transform T)
+		{
+			Log
+			(
+				"Transform: {0}\n" +
+				"Position: {1}\n" +
+				"Rotation: {2}\n"+
+				"Local Position: {3}\n" +
+				"Local Rotation: {4}",
+				T.name, 
+				T.position, T.eulerAngles,
+				T.localPosition, T.localEulerAngles
+			);
+		}
+
+		public static void logShipConstruct(ShipConstruct ship)
+		{
+			Utils.Log("ShipConstruct: {0}\n{1}",
+			          ship.shipName,
+			          ship.parts.Aggregate("", (s, p) => s + p.Title() + "\n"));
+		}
 	}
 
 	public class NamedStopwatch
@@ -83,6 +105,9 @@ namespace AtHangar
 
 		public NamedStopwatch(string name)
 		{ this.name = name; }
+
+		public double ElapsedSecs 
+		{ get { return sw.ElapsedTicks/(double)System.Diagnostics.Stopwatch.Frequency; } }
 
 		public void Start()
 		{
@@ -99,6 +124,15 @@ namespace AtHangar
 		public void Stop() { sw.Stop(); Stamp(); }
 
 		public void Reset() { sw.Stop(); sw.Reset(); }
+	}
+
+	public class TemperatureReporter : PartModule
+	{
+		[KSPField(isPersistant=false, guiActiveEditor=true, guiActive=true, guiName="T", guiUnits = "C")]
+		public float temperatureDisplay;
+
+		public override void OnUpdate()
+		{ temperatureDisplay = part.temperature; }
 	}
 }
 #endif

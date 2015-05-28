@@ -36,7 +36,7 @@ namespace AtHangar
 		{
 			base.OnStart(state);
 			early_setup(state);
-			Setup(!part.HasModule<HangarPartResizer>());
+			Setup();
 			start_coroutines();
 		}
 

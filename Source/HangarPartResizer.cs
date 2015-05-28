@@ -52,11 +52,6 @@ namespace AtHangar
 
 	public class HangarResizableBase : PartUpdaterBase, IPartCostModifier
 	{
-		public const string MIN_SIZE   = "MINSCALE";
-		public const string MAX_SIZE   = "MAXSCALE";
-		public const string MIN_ASPECT = "MINASPECT";
-		public const string MAX_ASPECT = "MAXASPECT";
-
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Aspect", guiFormat="S4")]
 		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f)]
 		public float aspect = 1.0f;
@@ -75,6 +70,8 @@ namespace AtHangar
 		[KSPField] public float aspectStepLarge = 0.5f;
 		[KSPField] public float aspectStepSmall = 0.1f;
 
+		[KSPField] public bool  IgnoreTechTree = false;
+
 		protected float old_aspect  = -1;
 		[KSPField(isPersistant=true)] public float orig_aspect = -1;
 
@@ -83,29 +80,13 @@ namespace AtHangar
 		protected bool  just_loaded = true;
 
 		#region TechTree
-		static bool have_tech(string name)
+		protected void init_limit(TechFloat tech_limit, ref float limit, float current_value)
 		{
-			if(HighLogic.CurrentGame.Mode != Game.Modes.CAREER) return name == "sandbox";
-			return ResearchAndDevelopment.GetTechnologyState(name) == RDTech.State.Available;
-		}
-
-		static float get_tech_value(string name, float orig, Func<float, float, bool> compare)
-		{
-			float val = orig;
-			foreach(var tech in HangarConfig.GetNodes(name))
-				foreach(ConfigNode.Value value in tech.values) 
-				{
-					if(!have_tech(value.name)) continue;
-					float v = float.Parse(value.value);
-					if(compare(v, val)) val = v;
-				}
-			return val;
-		}
-
-		protected static void init_limit(string name, ref float val, float orig, Func<float, float, bool> compare)
-		{
-			float _val = get_tech_value(name, orig, compare);
-			if(val < 0 || compare(val, _val)) val = _val;
+			float val;
+			if(tech_limit.TryGetValue(out val, IgnoreTechTree))
+			{ if(tech_limit.Compare(current_value, val)) val = current_value; }
+			else val = current_value;
+			if(limit < 0 || tech_limit.Compare(limit, val)) limit = val;
 		}
 
 		protected static void setup_field(BaseField field, float minval, float maxval, float l_increment, float s_increment)
@@ -153,8 +134,8 @@ namespace AtHangar
 			SaveDefaults();
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
-				init_limit(MIN_ASPECT, ref minAspect, aspect, (a, b) => a < b);
-				init_limit(MAX_ASPECT, ref maxAspect, aspect, (a, b) => a > b);
+				init_limit(HangarConfig.Globals.MinAspect, ref minAspect, Mathf.Min(aspect, orig_aspect));
+				init_limit(HangarConfig.Globals.MaxAspect, ref maxAspect, Mathf.Max(aspect, orig_aspect));
 			}
 			just_loaded = true;
 		}
@@ -170,18 +151,20 @@ namespace AtHangar
 		public float size = 1.0f;
 		
 		//module config
-		[KSPField] public bool sizeOnly   = false;
-		[KSPField] public bool aspectOnly = false;
+		[KSPField] public bool sizeOnly;
+		[KSPField] public bool aspectOnly;
 
 		[KSPField] public Vector4 specificMass = new Vector4(1.0f, 1.0f, 1.0f, 0f);
 		[KSPField] public Vector4 specificCost = new Vector4(1.0f, 1.0f, 1.0f, 0f);
 
 		//state
-		float old_size  = -1;
-		Vector3 old_local_scale;
 		[KSPField(isPersistant=true)] public float orig_size = -1;
-		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect, just_loaded); } }
+		[KSPField(isPersistant = true)] public Vector3 orig_local_scale;
+		Vector3 old_local_scale;
+		float old_size  = -1;
 		float orig_cost;
+
+		Scale scale { get { return new Scale(size, old_size, orig_size, aspect, old_aspect, just_loaded); } }
 		
 		#region PartUpdaters
 		readonly List<PartUpdater> updaters = new List<PartUpdater>();
@@ -215,6 +198,8 @@ namespace AtHangar
 			}
 			old_size  = size;
 			orig_cost = specificCost.x+specificCost.y+specificCost.z; //specificCost.w is eliminated anyway
+			if(orig_local_scale == Vector3.zero || !part.isClone)
+				orig_local_scale = model.localScale;
 			create_updaters();
 		}
 
@@ -223,13 +208,13 @@ namespace AtHangar
 			base.OnStart(state);
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
-				init_limit(MIN_SIZE, ref minSize, size, (a, b) => a < b);
-				init_limit(MAX_SIZE, ref maxSize, size, (a, b) => a > b);
+				init_limit(HangarConfig.Globals.MinSize, ref minSize, Mathf.Min(size, orig_size));
+				init_limit(HangarConfig.Globals.MaxSize, ref maxSize, Mathf.Max(size, orig_size));
 				//setup sliders
 				if(sizeOnly && aspectOnly) aspectOnly = false;
-				if(aspectOnly || minSize == maxSize) Fields["size"].guiActiveEditor=false;
+				if(aspectOnly || minSize.Equals(maxSize)) Fields["size"].guiActiveEditor=false;
 				else setup_field(Fields["size"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
-				if(sizeOnly || minAspect == maxAspect) Fields["aspect"].guiActiveEditor=false;
+				if(sizeOnly || minAspect.Equals(maxAspect)) Fields["aspect"].guiActiveEditor=false;
 				else setup_field(Fields["aspect"], minAspect, maxAspect, aspectStepLarge, aspectStepSmall);
 			}
 			Rescale();
@@ -243,12 +228,12 @@ namespace AtHangar
 			{ Rescale(); part.BreakConnectedStruts(); }
 		}
 
-		public void Rescale()
+		void Rescale()
 		{
 			if(model == null) return;
 			Scale _scale = scale;
 			//change model scale
-			model.localScale = ScaleVector(Vector3.one, _scale, _scale.aspect);
+			model.localScale = ScaleVector(orig_local_scale, _scale, _scale.aspect);
 			model.hasChanged = true;
 			part.transform.hasChanged = true;
 			//recalculate mass and cost

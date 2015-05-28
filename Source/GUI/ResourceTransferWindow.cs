@@ -75,7 +75,7 @@ namespace AtHangar
 			} 
 			transferNow = GUILayout.Button("Transfer now", GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
-			GUI.DragWindow(new Rect(0, 0, Screen.width, 30));
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 		
 		public Rect Draw(List<ResourceManifest> resourceTransferList, Rect windowPos)

@@ -82,9 +82,11 @@ namespace AtHangar
 			blue = new GUIStyle(white);
 			blue.normal.textColor = blue.focused.textColor = new Color(0.6f, 0.6f, 1f, 1f);
 
+			GUI.skin.label.wordWrap = true;
 			label = new GUIStyle (GUI.skin.label);
 			label.normal.textColor = label.focused.textColor = Color.white;
 			label.alignment = TextAnchor.MiddleCenter;
+			label.wordWrap  = true;
 
 			slider = new GUIStyle (GUI.skin.horizontalSlider);
 			slider.margin = new RectOffset (0, 0, 0, 0);
@@ -208,17 +210,23 @@ namespace AtHangar
 		}
 		
 		//settings
-		public static string mangleName(string name) { return typeof(T).Name+"-"+name; }
-		
+		protected static string mangleName(string name) { return typeof(T).Name+"-"+name; }
+
+		protected static void SetConfigValue(string key, object value)
+		{ configfile.SetValue(mangleName(key), value); }
+
+		protected static V GetConfigValue<V>(string key, V _default)
+		{ return configfile.GetValue<V>(mangleName(key), _default); }
+
 		virtual public void LoadSettings()
 		{
 			configfile.load();
-			gui_enabled = configfile.GetValue<bool>(mangleName("gui_enabled"), true);
+			gui_enabled = GetConfigValue<bool>("gui_enabled", true);
 		}
 
 		virtual public void SaveSettings()
 		{
-			configfile.SetValue(mangleName("gui_enabled"), gui_enabled);
+			SetConfigValue("gui_enabled", gui_enabled);
 			configfile.save();
 		}
 		

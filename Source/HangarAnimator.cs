@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using KSPAPIExtensions;
 
 namespace AtHangar
 {
@@ -11,14 +12,20 @@ namespace AtHangar
 		[KSPField(isPersistant = false)] public string OpenEventGUIName;
 		[KSPField(isPersistant = false)] public string CloseEventGUIName;
 		[KSPField(isPersistant = false)] public string ActionGUIName;
+		[KSPField(isPersistant = false)] public string StopTimeGUIName;
 
 		[KSPField(isPersistant = false)] public string AnimationNames;
 		[KSPField(isPersistant = false)] public float  ForwardSpeed = 1f;
 		[KSPField(isPersistant = false)] public float  ReverseSpeed = 1f;
-		[KSPField(isPersistant = false)] public bool   Loop = false;
+		[KSPField(isPersistant = false)] public bool   Loop;
+		[KSPField(isPersistant = false)] public bool   Reverse;
 		[KSPField(isPersistant = false)] public float  EnergyConsumption = 0f;
 		[KSPField(isPersistant = false)] public float  DragMultiplier = 1f;
 		[KSPField(isPersistant = true)]  public float  progress = 0f;
+
+		[KSPField(isPersistant=true, guiActiveEditor=false, guiActive = false, guiName="Stop At", guiFormat="P1")]
+		[UI_FloatEdit(scene=UI_Scene.All, minValue=0f, maxValue=1f, incrementLarge=0.1f, incrementSmall=0.01f, incrementSlide=0.001f)]
+		public float StopTime = 1.0f;
 
 		protected ResourcePump socket;
 		protected float last_progress    = 0f;
@@ -27,7 +34,6 @@ namespace AtHangar
 		//animation
 		List<AnimationState> animation_states = new List<AnimationState>();
 
-		//from Kethane / Plugin / Misc.cs
 		void setup_animation()
 		{
 			foreach(var aname in AnimationNames.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries))
@@ -65,15 +71,16 @@ namespace AtHangar
 			Events["OpenEvent"].guiName     = OpenEventGUIName;
 			Events["CloseEvent"].guiName    = CloseEventGUIName;
 			Actions["ToggleAction"].guiName = ActionGUIName;
+			Fields["StopTime"].guiName      = StopTimeGUIName;
 			update_events();
         }
 
-		protected void seek(float norm_time = 0f)
+		protected void seek(float _progress = 0f)
 		{
-			norm_time = Mathf.Clamp01(norm_time);
-			foreach(var state in animation_states)
-				state.normalizedTime = norm_time;
-			progress = norm_time;
+			var norm_time = Mathf.Clamp01(_progress*StopTime);
+			if(Reverse) norm_time = 1-norm_time;
+			animation_states.ForEach(s => s.normalizedTime = norm_time);
+			progress = _progress;
 		}
 
         override public void Open()
@@ -84,24 +91,33 @@ namespace AtHangar
 
 		public virtual void Update()
         {
-			if(State == AnimatorState.Opening && progress >= 1)
-			{ if(Loop) seek(0); else State = AnimatorState.Opened; }
-			else if(State == AnimatorState.Closing && progress <= 0) 
-				State = AnimatorState.Closed;
-   
+			if(!Playing) return;
+			//calculate animation speed
+			float speed = (State == AnimatorState.Opening || State == AnimatorState.Opened)? 
+				ForwardSpeed : -ReverseSpeed;
+			if(Reverse) speed *= -1;
+			if(HighLogic.LoadedSceneIsEditor) 
+				speed *= 1 - 10 * (progress - 1) * progress;
+			else speed *= speed_multiplier;
+			//set animation speed, compute total progress
 			float _progress = 1;
 			foreach(var state in animation_states)
             {
 				float time = Mathf.Clamp01(state.normalizedTime);
                 state.normalizedTime = time;
 				_progress = Math.Min(_progress, time);
-				float speed = (State == AnimatorState.Opening || State == AnimatorState.Opened) ? ForwardSpeed : -ReverseSpeed;
-				if(HighLogic.LoadedSceneIsEditor) speed *= 1 - 10 * (time - 1) * time;
-				else speed *= speed_multiplier;
 				state.speed = speed;
             }
 			last_progress = progress;
-			progress = _progress;
+			if(Reverse) _progress = 1-_progress;
+			progress = Mathf.Clamp01(_progress/StopTime);
+			//check progress
+			if(State == AnimatorState.Opening && progress >= 1)
+			{ if(Loop) seek(0); else State = AnimatorState.Opened; }
+			else if(State == AnimatorState.Closing && progress <= 0) 
+				State = AnimatorState.Closed;
+			//stop the animation if not playing anymore
+			if(!Playing) animation_states.ForEach(s => s.speed = 0);
         }
 
 		protected virtual void consume_energy()
@@ -145,6 +161,7 @@ namespace AtHangar
 				break;
 			}
 			Actions["ToggleAction"].active = ActionGUIName != string.Empty;
+			HangarGUI.EnableField(Fields["StopTime"], StopTimeGUIName != string.Empty);
 		}
 
 		[KSPEvent (guiActiveEditor = true, guiActive = true, guiName = "Open", active = false)]

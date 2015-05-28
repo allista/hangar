@@ -1,0 +1,13 @@
+<ListOfTask>
+  <Task file="" description="Test mk2 conversions" completed="True" />
+  <Task file="" description="Test mk3 conversions" completed="True" />
+  <Task file="" description="Test Mk3Hangar in flight: SSTO Kerbin + landing (max. cargo weight?)" />
+  <Task file="" description="Test Mk3Hangar in flight: SSTO Mun + refueling || back (if possible); (max. cargo weight?)" />
+  <Task file="" description="Test Mk3Hangar in flight: SSTS Mun + refueling || back (if possible); (max. cargo weight?)" />
+  <Task file="" description="Test Mk3Hangar in flight: Kerbin, transcontinental; (max. cargo weight?)" />
+  <Task file="" description="Test all the previous with AJE." />
+  <Task file="" description="Test hangars' bouyancy." completed="True" />
+  <Task file="" description="Test Hangars as FAR CargoBays." completed="True" />
+  <Task file="" description="Strip reaction wheel and battery from FairingsOcto" priority="High" />
+  <Task file="" description="Add AntennaRange and RemoteTech to FairingsOcto" />
+</ListOfTask>

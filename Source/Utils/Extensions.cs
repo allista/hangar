@@ -1,4 +1,15 @@
-﻿using System.Collections.Generic;
+﻿//   Extensions.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2015 Allis Tauri
+//
+// This work is licensed under the Creative Commons Attribution 4.0 International License. 
+// To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
+// or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+using System.Collections.Generic;
 using System.Linq;
 using System;
 using UnityEngine;
@@ -268,8 +279,8 @@ namespace AtHangar
 
 	public static class PartModuleExtensions
 	{
-		public static string Title(this PartModule p) 
-		{ return p.part.partInfo != null? p.part.partInfo.title : p.part.name; }
+		public static string Title(this PartModule pm) 
+		{ return pm.part.partInfo != null? pm.part.partInfo.title : pm.part.name; }
 
 		public static void EnableModule(this PartModule pm, bool enable)
 		{ pm.enabled = pm.isEnabled = enable; }
@@ -282,15 +293,21 @@ namespace AtHangar
 			Utils.Log(_msg, args);
 		}
 
+		public static void ConfigurationInvalid(this PartModule pm, string msg, params object[] args)
+		{
+			ScreenMessager.showMessage(6, "WARNING: {0}.\n" +
+			                           "Configuration of \"{1}\" is INVALID.", 
+			                           string.Format(msg, args), 
+			                           pm.Title());
+			pm.enabled = pm.isEnabled = false;
+			return;
+		}
+
 		public static PartResourceDefinition GetResourceDef(this PartModule pm, string name)
 		{
 			var res = PartResourceLibrary.Instance.GetDefinition(name);
-			if(res == null)
-			{
-				ScreenMessager.showMessage(6, "WARNING: no '{0}' resource in the library.\n" +
-					"Configuration of \"{1}\" is INVALID.", name, pm.Title());
-				pm.enabled = pm.isEnabled = false;
-			}
+			if(res == null) 
+				pm.ConfigurationInvalid("no '{0}' resource in the library", name);
 			return res;
 		}
 	}
@@ -299,6 +316,9 @@ namespace AtHangar
 	{
 		public static Part GetPart<T>(this Vessel v) where T : PartModule
 		{ return v.parts.FirstOrDefault(p => p.HasModule<T>()); }
+
+		public static bool PartsStarted(this Vessel v)
+		{ return v.parts.TrueForAll(p => p.started); }
 	}
 }
 

@@ -17,7 +17,7 @@ class material:
 
 
 class surface:
-    _unit_h = 0.005
+    unit_h = 0.005
     
     def __init__(self, S, h, m):
         self._S   = S
@@ -33,7 +33,7 @@ class surface:
         return self.S(scale, length)*self.h*self.m.density;
     
     def cost(self, scale=1, length=1):
-        return self.S(scale, length)*self.h/self._unit_h*self.m.cost;
+        return self.S(scale, length)*self.h/self.unit_h*self.m.cost;
     
     def __str__(self):
         return '[%sm^2 x %sm], %st/m^3, %st, %sCr' % (self.S(), 
@@ -159,12 +159,13 @@ class part(collections.Iterable):
     _asymptote_intercept = 1e5
     _exponent_base       = 1.25
     
-    def __init__(self, name, volumes, add_mass = 0, add_cost = 0, res_cost = 0):
+    def __init__(self, name, volumes, add_mass = 0, add_cost = 0, res_cost = 0, size = 1):
         self.name       = name
         self._volumes   = volumes
         self._add_mass  = add_mass
         self._add_cost  = add_cost
         self._res_cost  = res_cost
+        self._size      = size
         self._spec_mass = np.array([self.V_mass(), self.S_mass(), 0, self._add_mass])
         self._init_mass = sum(self._spec_mass)
         self._weights   = self._spec_mass/self._init_mass
@@ -186,6 +187,7 @@ class part(collections.Iterable):
     #end def
     
     def mass(self, scale=1, length=1):
+        scale = scale/self._size
         w = self._spec_mass
         m = ((w[0]*scale + w[1])*scale + w[2])*scale*length
         if len(w) > 3: m += w[3]
@@ -193,6 +195,7 @@ class part(collections.Iterable):
     #end def
     
     def cost(self, scale=1, length=1):
+        scale = scale/self._size
         w = self._spec_cost
         c = ((w[0]*scale + w[1])*scale + w[2])*scale*length
         if len(w) > 3: c += w[3]
@@ -240,4 +243,9 @@ class part(collections.Iterable):
                                                         ', '.join(str(w) for w in self._cost_weights))
         return s
     #end def
+    
+    def print_masses(self, _from=0.5, _to=4.0, step=0.5):
+        for s in np.arange(_from, _to+step/2.0, step):
+            print s, self.mass(s)
+        print ''
 #end class

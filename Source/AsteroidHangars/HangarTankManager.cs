@@ -1,26 +1,42 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace AtHangar
 {
-	public class HangarTankManager : PartModule
+	public class HangarTankManager : PartModule, ITankManager, ISerializationCallbackReceiver
 	{
+		#region Config
+		/// <summary>
+		/// The total maximum volume of a tank.
+		/// </summary>
 		[KSPField] public float Volume;
 
+		/// <summary>
+		/// If true, tanks may be added and removed.
+		/// </summary>
+		[KSPField] public bool AddRemoveEnabled = true;
+
+		/// <summary>
+		/// If true, type of tanks may be changed.
+		/// </summary>
+		[KSPField] public bool TypeChangeEnabled = true;
+
 		public ConfigNode ModuleSave;
+		#endregion
+
+		#region Tanks
 		SwitchableTankManager tank_manager;
+		public SwitchableTankManager GetTankManager() { return tank_manager; }
 
 		public override string GetInfo()
 		{ 
 			var info = string.Format("Max. Volume: {0}\n", Utils.formatVolume(Volume)); 
+			if(TypeChangeEnabled) info += SwitchableTankType.TypesInfo;
 			if(ModuleSave.HasNode(SwitchableTankManager.TANK_NODE))
 			{
 				info += "Preconfigured Tanks:\n";
-				foreach(var n in ModuleSave.GetNodes(SwitchableTankManager.TANK_NODE))
-				{ 
-					if(n.HasValue("TankType")) info += " -"+n.GetValue("TankType"); 
-					if(n.HasValue("CurrentResource")) info += " -"+n.GetValue("CurrentResource")+"\n";
-					else info += "\n";
-				}
+				ModuleSave.GetNodes(SwitchableTankManager.TANK_NODE)
+					.ForEach(n => info += SwitchableTankInfo.Info(n));
 			}
 			return info;
 		}
@@ -28,7 +44,8 @@ namespace AtHangar
 		void init_tank_manager()
 		{
 			if(tank_manager != null) return;
-			tank_manager = new SwitchableTankManager(part);
+			tank_manager = new SwitchableTankManager(this);
+			tank_manager.EnablePartControls = !HighLogic.LoadedSceneIsEditor;
 			tank_manager.Load(ModuleSave);
 			var used_volume = tank_manager.TotalVolume;
 			if(used_volume > Volume) 
@@ -41,7 +58,6 @@ namespace AtHangar
 
 		public override void OnLoad(ConfigNode node)
 		{
-			base.OnLoad(node);
 			ModuleSave = node;
 			if(HighLogic.LoadedSceneIsEditor || 
 			   HighLogic.LoadedSceneIsFlight) 
@@ -63,6 +79,15 @@ namespace AtHangar
 
 		public void RescaleTanks(float relative_scale)
 		{ if(tank_manager != null) tank_manager.RescaleTanks(relative_scale); }
+
+		public void OnBeforeSerialize()
+		{
+			if(tank_manager == null) return;
+			ModuleSave = new ConfigNode();
+			Save(ModuleSave);
+		}
+		public void OnAfterDeserialize() {}
+		#endregion
 
 		#region GUI
 		enum TankWindows { EditTanks } //maybe we'll need more in the future
@@ -100,7 +125,9 @@ namespace AtHangar
 			Styles.Init();
 			if(selected_window[TankWindows.EditTanks])
 			{
-				var title = string.Format("Total Volume: {0}", Utils.formatVolume(Volume));
+				var title = string.Format("Available Volume: {0} of {1}", 
+				                          Utils.formatVolume(Volume - tank_manager.TotalVolume), 
+				                          Utils.formatVolume(Volume));
 				tank_manager.DrawTanksWindow(GetInstanceID(), title, add_tank, remove_tank);
 				if(tank_manager.Closed) selected_window[TankWindows.EditTanks] = false;
 			}

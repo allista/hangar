@@ -34,7 +34,7 @@ namespace AtHangar
             }
             GUILayout.EndVertical();
             GUILayout.EndScrollView();
-            GUI.DragWindow(new Rect(0, 0, Screen.width, 30));
+            GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
         }
 		
 		public Rect Draw(List<ProtoCrewMember> _crew, 

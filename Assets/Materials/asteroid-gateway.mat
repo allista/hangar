@@ -38,7 +38,7 @@ Material:
       data:
         first:
           name: _Shininess
-        second: .078125
+        second: .675740063
       data:
         first:
           name: _Opacity
@@ -55,7 +55,7 @@ Material:
       data:
         first:
           name: _SpecColor
-        second: {r: .5, g: .5, b: .5, a: 1}
+        second: {r: .161764681, g: .161764681, b: .161764681, a: 1}
       data:
         first:
           name: _RimColor
