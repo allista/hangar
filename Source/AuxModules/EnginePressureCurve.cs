@@ -30,7 +30,7 @@ namespace AtHangar
 		public float ActualThrust;
 
 		public float PressureFactor { get; private set; } = 1f;
-		EngineWrapper engine;
+		ModuleEngines engine;
 
 		public override void OnAwake()
 		{
@@ -43,14 +43,9 @@ namespace AtHangar
 		{
 			base.OnStart(state);
 			//find the engine
-			var engines = part.Modules.OfType<IEngineStatus>();
-			foreach(var e in engines)
-			{
-				var _e = new EngineWrapper(e);
-				if(_e.Valid && _e.engineID == engineID)
-				{ engine = _e; break; }
-			}
-			if(engine == null || !engine.Valid)
+			engine = part.Modules.OfType<ModuleEngines>()
+				.FirstOrDefault(e => e.engineID == engineID);
+			if(engine == null)
 			{ enabled = false; isEnabled = false; return; }
 		}
 

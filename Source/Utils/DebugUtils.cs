@@ -132,7 +132,7 @@ namespace AtHangar
 		public float temperatureDisplay;
 
 		public override void OnUpdate()
-		{ temperatureDisplay = part.temperature; }
+		{ temperatureDisplay = (float)part.temperature; }
 	}
 }
 #endif

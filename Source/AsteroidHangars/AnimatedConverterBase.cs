@@ -200,7 +200,7 @@ namespace AtHangar
 		protected void produce_heat() 
 		{ 
 			part.temperature += HeatProduction * Rate * vessel.VesselValues.HeatProduction.value * Time.deltaTime;
-			Temperature = part.temperature;
+			Temperature = (float)part.temperature;
 		}
 
 		public void FixedUpdate()

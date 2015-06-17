@@ -23,20 +23,15 @@ namespace AtHangar
 	public class LoopAnimatedThrottle : HangarAnimator
 	{
 		[KSPField] public string engineID;
-		EngineWrapper engine;
+		ModuleEngines engine;
 
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
 			//find the engine
-			var engines = part.Modules.OfType<IEngineStatus>();
-			foreach(var e in engines)
-			{
-				var _e = new EngineWrapper(e);
-				if(_e.Valid && _e.engineID == engineID)
-				{ engine = _e; break; }
-			}
-			if(engine == null || !engine.Valid)
+			engine = part.Modules.OfType<ModuleEngines>()
+				.FirstOrDefault(e => e.engineID == engineID);
+			if(engine == null)
 			{ enabled = false; isEnabled = false; return; }
 			//no interface
 			OpenEventGUIName  = string.Empty;
@@ -55,7 +50,7 @@ namespace AtHangar
 
 		public override void Update()
 		{
-			if(speed_multiplier == 0 && !engine.isOperational) return;
+			if(speed_multiplier.Equals(0) && !engine.isOperational) return;
 			update_speed_multiplier();
 			base.Update();
 		}
@@ -69,44 +64,6 @@ namespace AtHangar
 				speed_multiplier = Mathf.Lerp(speed_multiplier, target, speed * TimeWarp.fixedDeltaTime);
 			}
 			else speed_multiplier = target;
-		}
-	}
-
-	public class EngineWrapper
-	{
-		readonly IEngineStatus   engineS;
-		readonly ModuleEngines   engine;
-		readonly ModuleEnginesFX engineFX;
-		readonly bool eFX;
-
-		public bool  Valid { get { return engine != null || engineFX != null; } }
-		public bool  isOperational { get { return engineS.isOperational; } }
-		public string engineID { get { return eFX? engineFX.engineID : engine.engineID; }}
-		public float currentThrottle         { get { return eFX? engineFX.currentThrottle : engine.currentThrottle; }}
-		public float finalThrust             { get { return eFX? engineFX.finalThrust : engine.finalThrust; }}
-		public float engineAccelerationSpeed { get { return eFX? engineFX.engineAccelerationSpeed : engine.engineAccelerationSpeed; }}
-		public float engineDecelerationSpeed { get { return eFX? engineFX.engineDecelerationSpeed : engine.engineDecelerationSpeed; }}
-		public bool  useEngineResponseTime   { get { return eFX? engineFX.useEngineResponseTime : engine.useEngineResponseTime; }}
-		public List<Transform> thrustTransforms { get { return eFX? engineFX.thrustTransforms : engine.thrustTransforms; }}
-
-		public float minThrust
-		{ 
-			get { return eFX? engineFX.minThrust : engine.minThrust; }
-			set { if(eFX) engineFX.minThrust = value; else engine.minThrust = value; }
-		}
-
-		public float maxThrust
-		{ 
-			get { return eFX? engineFX.maxThrust : engine.maxThrust; }
-			set { if(eFX) engineFX.maxThrust = value; else engine.maxThrust = value; }
-		}
-
-		public EngineWrapper(IEngineStatus engine_status)
-		{
-			engineS  = engine_status;
-			engine   = engineS as ModuleEngines;
-			engineFX = engineS as ModuleEnginesFX;
-			eFX = engineFX != null;
 		}
 	}
 }

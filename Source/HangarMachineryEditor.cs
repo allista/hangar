@@ -35,7 +35,7 @@ namespace AtHangar
 			Utils.LockEditor(scLock, false);
 		}
 
-		void vessel_selected(string filename, string flagname)
+		void vessel_selected(string filename, string flagname, CraftBrowser.LoadType t)
 		{
 			EditorLogic EL = EditorLogic.fetch;
 			if(EL == null) return;
@@ -81,7 +81,7 @@ namespace AtHangar
 						vessel_selected,
 						selection_canceled,
 						HighLogic.Skin,
-						EditorLogic.ShipFileImage, true);
+						EditorLogic.ShipFileImage, true, false);
 			GUILayout.EndHorizontal();
 			//hangar info
 			if(ConnectedStorage.Count > 1)

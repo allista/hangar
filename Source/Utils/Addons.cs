@@ -72,15 +72,15 @@ namespace AtHangar
 		void add_filter()
 		{
 			//load the icon
-			if(!PartCategorizer.Instance.iconDictionary.ContainsKey(ICON))
+			if(!PartCategorizer.Instance.iconLoader.iconDictionary.ContainsKey(ICON))
 			{
 				var _icon   = GameDatabase.Instance.GetTexture("Hangar/Icons/"+ICON, false);
 				var _icon_s = GameDatabase.Instance.GetTexture("Hangar/Icons/"+ICON+"_selected", false);
-				var pc_icon = new PartCategorizer.Icon(ICON, _icon, _icon_s, true);
-				PartCategorizer.Instance.icons.Add(pc_icon);
-				PartCategorizer.Instance.iconDictionary.Add(ICON, pc_icon);
+				var pc_icon = new RUI.Icons.Selectable.Icon(ICON, _icon, _icon_s, true);
+				PartCategorizer.Instance.iconLoader.icons.Add(pc_icon);
+				PartCategorizer.Instance.iconLoader.iconDictionary.Add(ICON, pc_icon);
 			}
-			var icon = PartCategorizer.Instance.GetIcon(ICON);
+			var icon = PartCategorizer.Instance.iconLoader.GetIcon(ICON);
 			//add custom function filter
 			var filter = PartCategorizer.Instance.filters
 				.Find(f => f.button.categoryName == "Filter by Function");
