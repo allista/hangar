@@ -17,10 +17,9 @@ using System.Reflection;
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,
 // and "{Major}.{Minor}.{Build}.*" will update just the revision.
 
-[assembly: AssemblyVersion("2.3.1.1")]
+[assembly: AssemblyVersion("2.3.2")]
 [assembly: KSPAssembly("Hangar", 2, 3)]
-//TODO: enable this when KAE pull in my request
-//[assembly: KSPAssemblyDependency("KSPAPIExtensions", 1, 7)]
+[assembly: KSPAssemblyDependency("KSPAPIExtensions", 1, 7)]
 
 // The following attributes are used to specify the signing key for the assembly, 
 // if desired. See the Mono documentation for more information about signing.
@@ -34,8 +33,8 @@ namespace AtHangar
 	{
 		public static readonly string  Name          = "Hangar";
 		public static readonly Version HangarVersion = Assembly.GetCallingAssembly().GetName().Version;
-		public static readonly Version MinKSPVersion = new Version(0,90,0);
-		public static readonly Version MaxKSPVersion = new Version(0,90,0);
+		public static readonly Version MinKSPVersion = new Version(1,0,2);
+		public static readonly Version MaxKSPVersion = new Version(1,0,2);
 		public static readonly string  VersionURL    = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
 		public static readonly string  UpgradeURL    = "https://kerbalstuff.com/mod/270/Hangar";
 		public static readonly string  ChangeLogURL  = "https://github.com/allista/hangar/blob/master/ChangeLog.md";
