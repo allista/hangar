@@ -34,31 +34,31 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System">
-      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\System.dll</HintPath>
+      <HintPath>..\..\KSP_test_1.0.2\KSP_Data\Managed\System.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>..\..\KSP_test_1.0.2\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\KSP_test_1.0.2\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\KSP_test_1.0.2\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="TDx.TDxInput">
-      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\TDx.TDxInput.dll</HintPath>
+      <HintPath>..\..\KSP_test_1.0.2\KSP_Data\Managed\TDx.TDxInput.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml">
-      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\System.Xml.dll</HintPath>
+      <HintPath>..\..\KSP_test_1.0.2\KSP_Data\Managed\System.Xml.dll</HintPath>
     </Reference>
     <Reference Include="System.Core">
-      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\System.Core.dll</HintPath>
+      <HintPath>..\..\KSP_test_1.0.2\KSP_Data\Managed\System.Core.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Security">
-      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\Mono.Security.dll</HintPath>
+      <HintPath>..\..\KSP_test_1.0.2\KSP_Data\Managed\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil">
-      <HintPath>..\..\KSP_test_0.90\KSP_Data\Managed\Mono.Cecil.dll</HintPath>
+      <HintPath>..\..\KSP_test_1.0.2\KSP_Data\Managed\Mono.Cecil.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
