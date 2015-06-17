@@ -32,7 +32,7 @@ namespace AtHangar
 		{ 
 			var info = string.Format("Max. Volume: {0}\n", Utils.formatVolume(Volume)); 
 			if(TypeChangeEnabled) info += SwitchableTankType.TypesInfo;
-			if(ModuleSave.HasNode(SwitchableTankManager.TANK_NODE))
+			if(ModuleSave != null && ModuleSave.HasNode(SwitchableTankManager.TANK_NODE))
 			{
 				info += "Preconfigured Tanks:\n";
 				ModuleSave.GetNodes(SwitchableTankManager.TANK_NODE)
@@ -46,6 +46,8 @@ namespace AtHangar
 			if(tank_manager != null) return;
 			tank_manager = new SwitchableTankManager(this);
 			tank_manager.EnablePartControls = !HighLogic.LoadedSceneIsEditor;
+			if(ModuleSave == null) 
+			{ this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
 			tank_manager.Load(ModuleSave);
 			var used_volume = tank_manager.TotalVolume;
 			if(used_volume > Volume) 
@@ -80,13 +82,19 @@ namespace AtHangar
 		public void RescaleTanks(float relative_scale)
 		{ if(tank_manager != null) tank_manager.RescaleTanks(relative_scale); }
 
+		//workaround for ConfigNode non-serialization
+		public byte[] _module_save;
 		public void OnBeforeSerialize()
 		{
-			if(tank_manager == null) return;
-			ModuleSave = new ConfigNode();
-			Save(ModuleSave);
+			if(tank_manager != null)
+			{
+				ModuleSave = new ConfigNode();
+				Save(ModuleSave);
+			}
+			_module_save = ConfigNodeWrapper.SaveConfigNode(ModuleSave);
 		}
-		public void OnAfterDeserialize() {}
+		public void OnAfterDeserialize() 
+		{ ModuleSave = ConfigNodeWrapper.RestoreConfigNode(_module_save); }
 		#endregion
 
 		#region GUI

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public class HangarStorageDynamic : HangarStorage, ITankManager, ISerializationCallbackReceiver
+	public class HangarStorageDynamic : HangarStorage, ITankManager
 	{
 		[KSPField(isPersistant = true)] public float TotalVolume;
 		[KSPField(isPersistant = true)] public Vector3 StorageSize;
@@ -39,6 +39,8 @@ namespace AtHangar
 			if(HasTankManager)
 			{
 				tank_manager = new SwitchableTankManager(this);
+				if(ModuleSave == null) 
+				{ this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
 				if(ModuleSave.HasNode(SwitchableTankManager.NODE_NAME))
 					tank_manager.Load(ModuleSave.GetNode(SwitchableTankManager.NODE_NAME));
 				Events["EditTanks"].active = true;
@@ -98,13 +100,23 @@ namespace AtHangar
 				tank_manager.Save(node.AddNode(SwitchableTankManager.NODE_NAME));
 		}
 
-		public void OnBeforeSerialize()
+		//workaround for ConfigNode non-serialization
+		public byte[] _module_save;
+		public override void OnBeforeSerialize()
 		{
-			if(tank_manager == null) return;
-			ModuleSave = new ConfigNode();
-			Save(ModuleSave);
+			base.OnBeforeSerialize();
+			if(tank_manager != null)
+			{
+				ModuleSave = new ConfigNode();
+				Save(ModuleSave);
+			}
+			_module_save = ConfigNodeWrapper.SaveConfigNode(ModuleSave);
 		}
-		public void OnAfterDeserialize() {}
+		public override void OnAfterDeserialize() 
+		{ 
+			base.OnAfterDeserialize();
+			ModuleSave = ConfigNodeWrapper.RestoreConfigNode(_module_save); 
+		}
 
 		#region Tanks
 		public void RescaleTanks(float relative_scale)

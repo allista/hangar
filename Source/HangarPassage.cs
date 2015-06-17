@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AtHangar
 {
-	public class HangarPassage : ControllableModuleBase
+	public class HangarPassage : ControllableModuleBase, ISerializationCallbackReceiver
 	{
 		[KSPField] public bool HideInfo;
 
@@ -32,6 +32,13 @@ namespace AtHangar
 			if(ModuleConfig == null) ModuleConfig = node;
 		}
 
+		//workaround for ConfigNode non-serialization
+		public byte[] _module_config;
+		public virtual void OnBeforeSerialize()
+		{ _module_config = ConfigNodeWrapper.SaveConfigNode(ModuleConfig); }
+		public virtual void OnAfterDeserialize() 
+		{ ModuleConfig = ConfigNodeWrapper.RestoreConfigNode(_module_config); }
+
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
@@ -45,6 +52,8 @@ namespace AtHangar
 		void init_nodes()
 		{
 			Nodes.Clear();
+			if(ModuleConfig == null) 
+			{ this.Log("ModuleConfig is null. THIS SHOULD NEVER HAPPEN!"); return; }
 			foreach(ConfigNode n in ModuleConfig.GetNodes(PassageNode.NODE_NAME))
 			{
 				var pn = new PassageNode(part);

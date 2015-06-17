@@ -211,6 +211,8 @@ namespace AtHangar
 		bool init_compressor()
 		{
 			Compressor = null;
+			if(ModuleConfig == null) 
+			{ this.Log("ModuleConfig is null. THIS SHOULD NEVER HAPPEN!"); return false; }
 			if(ModuleConfig.HasNode(GasCompressor.NODE_NAME)) 
 			{
 				Compressor = new GasCompressor(part);
@@ -228,6 +230,13 @@ namespace AtHangar
 			if(!node.HasValue("SavedState"))
 				State = PackedByDefault? AnimatorState.Closed : AnimatorState.Opened;
 		}
+
+		//workaround for ConfigNode non-serialization
+		public byte[] _module_config;
+		public void OnBeforeSerialize()
+		{ _module_config = ConfigNodeWrapper.SaveConfigNode(ModuleConfig); }
+		public void OnAfterDeserialize() 
+		{ ModuleConfig = ConfigNodeWrapper.RestoreConfigNode(_module_config); }
 		#endregion
 
 		#region Updates

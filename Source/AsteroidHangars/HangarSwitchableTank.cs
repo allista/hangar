@@ -23,7 +23,8 @@ namespace AtHangar
 			get { return enable_part_controls; } 
 			set 
 			{ 
-				enable_part_controls = value; 
+				enable_part_controls = value;
+				disable_part_controls();
 				init_type_control(); 
 				if(tank_type != null)
 					init_res_control();
@@ -112,7 +113,7 @@ namespace AtHangar
 			//get part menu
 			part_menu = part.FindActionWindow();
 			//initialize tank type chooser
-			HangarGUI.EnableField(Fields["TankType"], false);
+			disable_part_controls();
 			if(state == StartState.Editor) init_type_control();
 			init_tank_volume();
 			init_tank_type();
@@ -133,6 +134,13 @@ namespace AtHangar
 				if(tn.HasValue("name")) TankType = tn.GetValue("name");
 			}
 		}
+
+		//workaround for ConfigNode non-serialization
+		public byte[] _module_save;
+		public void OnBeforeSerialize()
+		{ _module_save = ConfigNodeWrapper.SaveConfigNode(ModuleSave); }
+		public void OnAfterDeserialize() 
+		{ ModuleSave = ConfigNodeWrapper.RestoreConfigNode(_module_save); }
 
 		#region KAE Message Bus
 		[PartMessageDelegate]
@@ -214,6 +222,12 @@ namespace AtHangar
 			var res_names  = tank_type.ResourceNames.Select(HangarGUI.ParseCamelCase).ToArray();
 			HangarGUI.SetupChooser(res_names, res_values, Fields["CurrentResource"]);
 			HangarGUI.EnableField(Fields["CurrentResource"]);
+		}
+
+		void disable_part_controls()
+		{
+			HangarGUI.EnableField(Fields["TankType"], false);
+			HangarGUI.EnableField(Fields["CurrentResource"], false);
 		}
 
 		bool init_tank_type()
@@ -338,7 +352,13 @@ namespace AtHangar
 		[Persistent] public string CurrentResource;
 
 		public SwitchableTankType Type 
-		{ get { return SwitchableTankType.TankTypes[TankType]; }}
+		{ 
+			get 
+			{ 
+				SwitchableTankType t;
+				return SwitchableTankType.TankTypes.TryGetValue(TankType, out t) ? t : null;
+			}
+		}
 
 		public float Cost 
 		{ 
