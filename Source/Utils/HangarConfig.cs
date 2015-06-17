@@ -60,7 +60,8 @@ namespace AtHangar
 		[Persistent] public string MeshesToSkip = string.Empty;
 		public List<string> MeshesToSkipList { get; private set; }
 		//misc
-		[Persistent] public string KethaneMapCollider = "MapOverlay collider";
+		[Persistent] public string KethaneMapCollider  = "MapOverlay collider";
+		[Persistent] public bool   UseStockAppLauncher = false;
 
 		public void Init()
 		{ 
