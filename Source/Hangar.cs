@@ -16,8 +16,6 @@ namespace AtHangar
 {
 	public class Hangar : HangarMachinery
 	{
-		public ConfigNode ModuleConfig;
-
 		public override string GetInfo()
 		{
 			var info = base.GetInfo();
@@ -43,12 +41,6 @@ namespace AtHangar
 				this.ConfigurationInvalid("\"{0}\" part has no HangarStorage module", part.Title());
 				return;
 			}
-			//deprecated config conversion//
-			if(ModuleConfig != null)
-			{
-				Storage.OnLoad(ModuleConfig);
-				Storage.Setup();
-			}
 		}
 
 		protected override Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv)
@@ -56,14 +48,6 @@ namespace AtHangar
 			return vessel.LandedOrSplashed ? 
 				launch_transform.TransformDirection(-sv.CoG) : 
 				launch_transform.TransformDirection(sv.CoM - sv.CoG);
-		}
-
-		public override void OnLoad(ConfigNode node)
-		{
-			base.OnLoad(node);
-			//deprecated config conversion//
-			ModuleConfig = node.HasValue("base_mass")? node : null;
-			//****************************//
 		}
 
 		#if DEBUG
