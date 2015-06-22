@@ -196,11 +196,11 @@ namespace AtHangar
 		protected void update_rate(float new_rate)
 		{ Rate = Mathf.Lerp(Rate, new_rate, Acceleration*TimeWarp.fixedDeltaTime); }
 
-		//FIXME: should be using TimeWarp.fixedDeltaTime, but Part's heat dissipation & conductivity is broken
 		protected void produce_heat() 
 		{ 
-			part.temperature += HeatProduction * Rate * vessel.VesselValues.HeatProduction.value * Time.deltaTime;
 			Temperature = (float)part.temperature;
+			double kilowatts = (double)HeatProduction * Rate * vessel.VesselValues.HeatProduction.value * PhysicsGlobals.InternalHeatProductionFactor * part.thermalMass;
+			part.AddThermalFlux(kilowatts);
 		}
 
 		public void FixedUpdate()
@@ -217,7 +217,6 @@ namespace AtHangar
 			}
 			if(HeatProduction > 0) produce_heat();
 			update_sound_params();
-
 		}
 		#endregion
 
@@ -225,7 +224,7 @@ namespace AtHangar
 		{
 			while(true)
 			{
-				if(Rate != last_rate)
+				if(!Rate.Equals(last_rate))
 				{
 					if(emitter != null)
 					{
