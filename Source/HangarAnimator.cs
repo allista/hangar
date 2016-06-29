@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using KSPAPIExtensions;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -135,7 +135,7 @@ namespace AtHangar
 			//consume energy if playing
 			if(HighLogic.LoadedSceneIsFlight && socket != null)	consume_energy();
 			//change Drag according to the animation progress
-			if(DragMultiplier != 1 && last_progress != progress)
+			if(!DragMultiplier.Equals(1f) && !last_progress.Equals(progress))
 			{
 				float mult = 1 + (DragMultiplier-1)*progress;
 				part.maximum_drag = part.partInfo.partPrefab.maximum_drag * mult;
@@ -161,7 +161,7 @@ namespace AtHangar
 				break;
 			}
 			Actions["ToggleAction"].active = ActionGUIName != string.Empty;
-			HangarGUI.EnableField(Fields["StopTime"], StopTimeGUIName != string.Empty);
+			Utils.EnableField(Fields["StopTime"], StopTimeGUIName != string.Empty);
 		}
 
 		[KSPEvent (guiActiveEditor = true, guiActive = true, guiName = "Open", active = false)]

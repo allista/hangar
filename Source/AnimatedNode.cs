@@ -1,5 +1,13 @@
-﻿using System.Linq;
+﻿//   AnimatedNode.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System.Linq;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -104,13 +112,13 @@ namespace AtHangar
 			if(joint == null) return;
 			if(update_anchor)
 			{
-				HangarGUI.DrawPoint(joint.anchor, pT, Color.red);
-				HangarGUI.DrawPoint(joint.connectedAnchor, a_part.transform, Color.green);
+				Utils.DrawPoint(joint.anchor, pT, Color.red);
+				Utils.DrawPoint(joint.connectedAnchor, a_part.transform, Color.green);
 			}
 			else
 			{
-				HangarGUI.DrawPoint(joint.connectedAnchor, pT, Color.red);
-				HangarGUI.DrawPoint(joint.anchor, a_part.transform, Color.green);
+				Utils.DrawPoint(joint.connectedAnchor, pT, Color.red);
+				Utils.DrawPoint(joint.anchor, a_part.transform, Color.green);
 			}
 		}
 		#endif

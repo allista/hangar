@@ -11,6 +11,7 @@
 
 using System;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -65,7 +66,7 @@ namespace AtHangar
 			if(failed != string.Empty)
 			{
 				input.ForEach(r => r.Pump.Clear());
-				ScreenMessager.showMessage("Not enough {0}", failed);
+				Utils.Message("Not enough {0}", failed);
 				next_rate = 0;
 			} else next_rate = 1;
 			//produce energy only if current Rate is above threshold

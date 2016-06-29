@@ -1,5 +1,13 @@
-﻿using UnityEngine;
+﻿//   SingleUseGrappleNode.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using UnityEngine;
 using System.Collections.Generic;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -78,7 +86,7 @@ namespace AtHangar
 			while(animator.State != AnimatorState.Opened) 
 				yield return new WaitForSeconds(0.5f);
 			disable_decoupling();
-			ScreenMessager.showMessage("The grapple was fixed permanently");
+			Utils.Message("The grapple was fixed permanently");
 		}
 		#endregion
 
@@ -93,9 +101,9 @@ namespace AtHangar
 		public void FixHatch()
 		{ 
 			if(!is_docked) 
-			{ ScreenMessager.showMessage("Nothing to fix to"); return; }
+			{ Utils.Message("Nothing to fix to"); return; }
 			if(animator.State != AnimatorState.Closed)
-			{ ScreenMessager.showMessage("Already working..."); return; }
+			{ Utils.Message("Already working..."); return; }
 			try_fix = true;
 		}
 

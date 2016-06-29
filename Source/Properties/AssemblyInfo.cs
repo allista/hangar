@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using AT_Utils;
 
 // Information about this assembly is defined by the following attributes. 
 // Change them to the values specific to your project.
@@ -19,7 +20,6 @@ using System.Reflection;
 
 [assembly: AssemblyVersion("2.3.2")]
 [assembly: KSPAssembly("Hangar", 2, 3)]
-[assembly: KSPAssemblyDependency("KSPAPIExtensions", 1, 7)]
 
 // The following attributes are used to specify the signing key for the assembly, 
 // if desired. See the Mono documentation for more information about signing.
@@ -27,17 +27,19 @@ using System.Reflection;
 //[assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile("")]
 
+
 namespace AtHangar
 {
-	public static class KSP_AVC_Info
+	public class ModInfo : KSP_AVC_Info
 	{
-		public static readonly string  Name          = "Hangar";
-		public static readonly Version HangarVersion = Assembly.GetCallingAssembly().GetName().Version;
-		public static readonly Version MinKSPVersion = new Version(1,0,2);
-		public static readonly Version MaxKSPVersion = new Version(1,0,2);
-		public static readonly string  VersionURL    = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
-		public static readonly string  UpgradeURL    = "https://kerbalstuff.com/mod/270/Hangar";
-		public static readonly string  ChangeLogURL  = "https://github.com/allista/hangar/blob/master/ChangeLog.md";
-		public static readonly string  VersionFile   = "Hangar.version";
+		public ModInfo()
+		{
+			MinKSPVersion = new Version(1,0,4);
+			MaxKSPVersion = new Version(1,0,4);
+
+			VersionURL   = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
+			UpgradeURL   = "https://kerbalstuff.com/mod/270/Hangar";
+			ChangeLogURL = "https://github.com/allista/hangar/blob/master/ChangeLog.md";
+		}
 	}
 }

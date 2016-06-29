@@ -1,10 +1,17 @@
-﻿using System;
+﻿//   ProceduralAdapter.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System;
 using UnityEngine;
-using KSPAPIExtensions;
+using AT_Utils;
 
 namespace AtHangar
 {
-	public class HangarProceduralAdapter : HangarResizableBase
+	public class HangarProceduralAdapter : AnisotropicResizableBase
 	{
 		//GUI
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Top Size", guiFormat="S4")]
@@ -70,8 +77,8 @@ namespace AtHangar
 			base.OnStart(state);
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
-				init_limit(HangarConfig.Globals.MinSize, ref minSize, Mathf.Min(topSize, bottomSize));
-				init_limit(HangarConfig.Globals.MaxSize, ref maxSize, Mathf.Max(topSize, bottomSize));
+				init_limit(Globals.Instance.MinSize, ref minSize, Mathf.Min(topSize, bottomSize));
+				init_limit(Globals.Instance.MaxSize, ref maxSize, Mathf.Max(topSize, bottomSize));
 				//setup sliders
 				setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
 				setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);

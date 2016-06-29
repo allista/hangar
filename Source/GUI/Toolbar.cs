@@ -1,4 +1,12 @@
+//   Toolbar.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
 using UnityEngine;
+using KSP.UI.Screens;
 
 namespace AtHangar {
 	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
@@ -11,7 +19,7 @@ namespace AtHangar {
 
 		public void Awake ()
 		{
-			if(!HangarConfig.Globals.UseStockAppLauncher && 
+			if(!Globals.Instance.UseStockAppLauncher && 
 				ToolbarManager.ToolbarAvailable &&
 			   	HangarToolbarButton == null)
 			{
@@ -20,7 +28,7 @@ namespace AtHangar {
 				HangarToolbarButton.ToolTip     = "Hangar controls and info";
 				HangarToolbarButton.Visibility  = new GameScenesVisibility(GameScenes.FLIGHT,GameScenes.EDITOR);
 				HangarToolbarButton.Visible     = true;
-				HangarToolbarButton.OnClick    += e => HangarWindow.ToggleGUI();
+				HangarToolbarButton.OnClick    += e => HangarWindow.Toggle();
 			}
 			else 
 			{
@@ -52,7 +60,7 @@ namespace AtHangar {
 			}
 		}
 
-		void onAppLaunchToggleOn() { HangarWindow.ShowGUI(); }
-		void onAppLaunchToggleOff() { HangarWindow.HideGUI(); }
+		void onAppLaunchToggleOn() { HangarWindow.Show(true); }
+		void onAppLaunchToggleOff() { HangarWindow.Show(false); }
 	}
 }

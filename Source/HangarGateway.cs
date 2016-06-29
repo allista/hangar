@@ -1,5 +1,13 @@
-﻿using System.Collections.Generic;
+﻿//   HangarGateway.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System.Collections.Generic;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -66,13 +74,13 @@ namespace AtHangar
 		{
 			if(!vessel_fits_docking_space(v))
 			{
-				ScreenMessager.showMessage(6, "Vessel clearance is insufficient for safe docking.\n\n" +
+				Utils.Message(6, "Vessel clearance is insufficient for safe docking.\n\n" +
 				                           "\"{0}\" cannot be stored", v.name);
 				return false;
 			}
 			if(!entrance.CanTransferTo(v, Storage))
 			{
-				ScreenMessager.showMessage(8, "There's no room in the hangar for this vessel,\n" +
+				Utils.Message(8, "There's no room in the hangar for this vessel,\n" +
 					"OR vessel clearance is insufficient for safe docking.\n\n" +
 					"\"{0}\" cannot be stored", v.name);
 				return false;
@@ -96,7 +104,7 @@ namespace AtHangar
 			if(!base.can_restore(v)) return false;
 			if(!vessel_fits_docking_space(v))
 			{
-				ScreenMessager.showMessage(6, "Vessel clearance is insufficient for safe launch.\n\n" +
+				Utils.Message(6, "Vessel clearance is insufficient for safe launch.\n\n" +
 				                           "\"{0}\" cannot be launched", v.name);
 				return false;
 			}

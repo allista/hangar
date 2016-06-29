@@ -1,7 +1,16 @@
-﻿using System;
+﻿//   HangarStorage.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using KSP.UI.Screens;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -39,8 +48,8 @@ namespace AtHangar
 		//vessels storage
 		readonly static string SCIENCE_DATA = typeof(ScienceData).Name;
 		readonly List<ConfigNode> stored_vessels_science = new List<ConfigNode>();
-		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>(HangarConfig.Globals.EnableVesselPacking);
-		readonly protected VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>(HangarConfig.Globals.EnableVesselPacking);
+		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>(Globals.Instance.EnableVesselPacking);
+		readonly protected VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>(Globals.Instance.EnableVesselPacking);
 		readonly protected List<PackedConstruct> unfit_constructs = new List<PackedConstruct>();
 		public Vector3 Size { get { return HangarMetric.size; } }
 		public float Volume { get { return HangarMetric.volume; } }
@@ -185,7 +194,7 @@ namespace AtHangar
 				if(constructs.Count > packed_constructs.Count)
 				{
 					var dN = constructs.Count-packed_constructs.Count;
-					ScreenMessager.showMessage("The storage became too small. {0} vessels {1} removed", 
+					Utils.Message("The storage became too small. {0} vessels {1} removed", 
 						dN, dN > 1? "were" : "was");
 				}
 			}
@@ -214,7 +223,8 @@ namespace AtHangar
 			on_set_part_params();
 		}
 
-		public virtual float GetModuleCost(float default_cost) { return VesselsCost; }
+		public virtual float GetModuleCost(float default_cost, ModifierStagingSituation situation) { return VesselsCost; }
+		public ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 
 		public override void OnAwake()
 		{ GameEvents.OnVesselRecoveryRequested.Add(onVesselRecoveryRequested); }
@@ -268,7 +278,7 @@ namespace AtHangar
 		{
 			if(!CanTransferTo(vsl, other)) 
 			{
-				ScreenMessager.showMessage("Unable to move \"{0}\" from \"{1}\" to \"{2}\"",
+				Utils.Message("Unable to move \"{0}\" from \"{1}\" to \"{2}\"",
 					vsl.name, this.Title(), other.Title());
 				return false;
 			}
@@ -309,7 +319,7 @@ namespace AtHangar
 		{
 			if(!VesselFits(v))
 			{
-				ScreenMessager.showMessage(5, "Insufficient vessel clearance for safe docking\n" +
+				Utils.Message(5, "Insufficient vessel clearance for safe docking\n" +
 					"\"{0}\" cannot be stored", v.name);
 				return false;
 			}
@@ -321,7 +331,7 @@ namespace AtHangar
 			else { this.Log("Unknown PackedVessel type: {0}", v); return false; }
 			if(!stored)
 			{
-				ScreenMessager.showMessage("There's no room for \"{0}\"", v.name);
+				Utils.Message("There's no room for \"{0}\"", v.name);
 				return false;
 			}
 			set_part_params();
@@ -344,9 +354,9 @@ namespace AtHangar
 				if(!pc.LoadConstruct()) 
 				{
 					Utils.Log("PackedConstruct: unable to load ShipConstruct {0}. " +
-						"This usually means that some parts are missing " +
-						"or some modules failed to initialize.", pc.name);
-					ScreenMessager.showMessage("Unable to load {0}", pc.name);
+							  "This usually means that some parts are missing " +
+							  "or some modules failed to initialize.", pc.name);
+					Utils.Message("Unable to load {0}", pc.name);
 					continue;
 				}
 				ShipConstruction.PutShipToGround(pc.construct, part.transform);
@@ -356,7 +366,7 @@ namespace AtHangar
 					new VesselCrewManifest());
 				var vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1];
 				FlightGlobals.ForceSetActiveVessel(vsl);
-				Staging.beginFlight();
+				StageManager.BeginFlight();
 				//wait for vsl to be launched
 				while(!vsl.isActiveVessel || !vsl.PartsStarted()) 
 					yield return WaitWithPhysics.ForNextUpdate();
@@ -429,7 +439,7 @@ namespace AtHangar
 		{ 
 			if(stored_vessels.Count > 0 || packed_constructs.Count > 0)
 			{
-				ScreenMessager.showMessage("Cannot disable storage: there are vessels inside");
+				Utils.Message("Cannot disable storage: there are vessels inside");
 				return false;
 			}
 			return true;

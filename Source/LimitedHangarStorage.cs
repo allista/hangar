@@ -1,4 +1,13 @@
-﻿namespace AtHangar
+﻿//   LimitedHangarStorage.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using AT_Utils;
+
+namespace AtHangar
 {
 	public class SimpleHangarStorage : HangarStorage
 	{
@@ -13,7 +22,7 @@
 		{
 			if(VesselsDocked > 0)
 			{
-				ScreenMessager.showMessage("The storage is already occupied");
+				Utils.Message("The storage is already occupied");
 				return false;
 			}
 			return base.TryStoreVessel(v);
@@ -33,7 +42,7 @@
 		{
 			if(!(v is PackedConstruct))
 			{
-				ScreenMessager.showMessage("A vessel can be fixed inside this storage only during construction.");
+				Utils.Message("A vessel can be fixed inside this storage only during construction.");
 				return false;
 			}
 			return base.TryStoreVessel(v);

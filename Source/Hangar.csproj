@@ -3,15 +3,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{382B8257-AD02-4655-B7C7-B54F56C2957B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>AtHangar</RootNamespace>
     <AssemblyName>Hangar</AssemblyName>
     <newfilesearch>OnLoadAutoInsert</newfilesearch>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-    <ReleaseVersion>1.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -75,11 +72,25 @@
       <HintPath>..\..\KSP-test\KSP_test_1.1.3\KSP_Data\Managed\System.Xml.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="KSPAssets">
+      <HintPath>..\..\KSP-test\KSP_test_1.1.3\KSP_Data\Managed\KSPAssets.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="KSPCore">
+      <HintPath>..\..\KSP-test\KSP_test_1.1.3\KSP_Data\Managed\KSPCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="KSPUtil">
+      <HintPath>..\..\KSP-test\KSP_test_1.1.3\KSP_Data\Managed\KSPUtil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\KSP-test\KSP_test_1.1.3\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="HangarAnimator.cs" />
-    <Compile Include="HangarPartResizer.cs" />
     <Compile Include="BaseHangarAnimator.cs" />
     <Compile Include="Metric.cs" />
     <Compile Include="CrewTransfer.cs" />
@@ -88,7 +99,6 @@
     <Compile Include="PartUpdaters.cs" />
     <Compile Include="HangarGenericInflatable.cs" />
     <Compile Include="AnimatedNode.cs" />
-    <Compile Include="ConvexHull3D.cs" />
     <Compile Include="HangarPassage.cs" />
     <Compile Include="HangarStorage.cs" />
     <Compile Include="HangarMachinery.cs" />
@@ -101,43 +111,32 @@
     <Compile Include="HangarGateway.cs" />
     <Compile Include="AsteroidHangars\SingleUseGrappleNode.cs" />
     <Compile Include="AsteroidHangars\HangarStorageDynamic.cs" />
-    <Compile Include="Utils\Addons.cs" />
     <Compile Include="AsteroidHangars\AsteroidInfo.cs" />
-    <Compile Include="Utils\DebugUtils.cs" />
     <Compile Include="Utils\Extensions.cs" />
-    <Compile Include="Utils\GraphicsUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
     <Compile Include="Utils\HangarGUI.cs" />
     <Compile Include="GUI\CrewTransferWindow.cs" />
-    <Compile Include="GUI\DropDownList.cs" />
-    <Compile Include="GUI\AddonWindowBase.cs" />
     <Compile Include="GUI\HangarWindow.cs" />
     <Compile Include="GUI\ResourceTransferWindow.cs" />
     <Compile Include="GUI\Toolbar.cs" />
     <Compile Include="GUI\ToolbarWrapper.cs" />
     <Compile Include="GUI\VesselTransferWindow.cs" />
-    <Compile Include="GUI\SimpleDialog.cs" />
     <Compile Include="AuxModules\WheelUpdater.cs" />
     <Compile Include="AuxModules\HangarLight.cs" />
     <Compile Include="AuxModules\GroundAnchor.cs" />
     <Compile Include="AuxModules\ProceduralAdapter.cs" />
     <Compile Include="AuxModules\TruncatedCone.cs" />
-    <Compile Include="AsteroidHangars\HangarSwitchableTank.cs" />
-    <Compile Include="AsteroidHangars\SwitchableTankType.cs" />
     <Compile Include="ResourceTransfer.cs" />
-    <Compile Include="AsteroidHangars\ResourceWrapper.cs" />
-    <Compile Include="AsteroidHangars\SimpleTextureSwitcher.cs" />
-    <Compile Include="AsteroidHangars\SwitchableTankManager.cs" />
-    <Compile Include="AsteroidHangars\HangarTankManager.cs" />
     <Compile Include="HangarContract.cs" />
-    <Compile Include="AuxModules\HangarAirbrake.cs" />
     <Compile Include="LimitedHangarStorage.cs" />
     <Compile Include="HangarFairings.cs" />
     <Compile Include="AuxModules\LoopAnimatedThrottle.cs" />
-    <Compile Include="AuxModules\EnginePressureCurve.cs" />
     <Compile Include="AuxModules\HangarEnergyGenerator.cs" />
     <Compile Include="AuxModules\HangarResourceConsumer.cs" />
     <Compile Include="Utils\HangarConfig.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\HangarFilterManager.cs" />
+    <Compile Include="GUI\AddonWindowBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -155,5 +154,22 @@
     <Folder Include="Utils\" />
     <Folder Include="GUI\" />
     <Folder Include="AuxModules\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AT_Utils\AT_Utils.csproj">
+      <Project>{64CC36A2-0610-4F74-9F31-3D4E22866B7E}</Project>
+      <Name>AT_Utils</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ConfigurableContainers\ConfigurableContainers.csproj">
+      <Project>{BD074812-7105-46D7-A252-53C20DAB698B}</Project>
+      <Name>ConfigurableContainers</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\AnisotropicPartResizer\AnisotropicPartResizer.csproj">
+      <Project>{19ABDD5C-1F12-4D67-B72E-E36071ABFF2C}</Project>
+      <Name>AnisotropicPartResizer</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

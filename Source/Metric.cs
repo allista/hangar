@@ -1,11 +1,16 @@
+
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
 	public struct Metric
 	{
+		public static List<string> MeshesToSkip = new List<string>();
+
 		//convex hull
 		public ConvexHull3D hull { get; private set; }
 		//bounds
@@ -21,29 +26,7 @@ namespace AtHangar
 		public int CrewCapacity { get; private set; }
 		public float cost { get; set; }
 
-		public bool Empty { get { return volume == 0 && area == 0; } }
-		
-		public static Vector3[] BoundsEdges(Bounds b)
-		{
-			var edges = new Vector3[8];
-			Vector3 min = b.min;
-			Vector3 max = b.max;
-			edges[0] = new Vector3(min.x, min.y, min.z); //left-bottom-back
-		    edges[1] = new Vector3(min.x, min.y, max.z); //left-bottom-front
-		    edges[2] = new Vector3(min.x, max.y, min.z); //left-top-back
-		    edges[3] = new Vector3(min.x, max.y, max.z); //left-top-front
-		    edges[4] = new Vector3(max.x, min.y, min.z); //right-bottom-back
-		    edges[5] = new Vector3(max.x, min.y, max.z); //right-bottom-front
-		    edges[6] = new Vector3(max.x, max.y, min.z); //right-top-back
-		    edges[7] = new Vector3(max.x, max.y, max.z); //right-top-front
-			return edges;
-		}
-		
-		public static Vector3[] BoundsEdges(Vector3 center, Vector3 size)
-		{
-			var b = new Bounds(center, size);
-			return BoundsEdges(b);
-		}
+		public bool Empty { get { return volume.Equals(0) && area.Equals(0); } }
 		
 		static Vector3[] local2local(Transform _from, Transform _to, Vector3[] points)
 		{
@@ -56,7 +39,7 @@ namespace AtHangar
 		{ return b.size.x*b.size.y*b.size.z; }
 
 		static float boundsArea(Bounds b)
-		{ return b.size.x*b.size.y*2+b.size.x*b.size.z*2+b.size.y*b.size.z*2; }
+		{ return 2*(b.size.x*b.size.y+b.size.x*b.size.z+b.size.y*b.size.z); }
 		
 		static Bounds initBounds(Vector3[] edges)
 		{
@@ -103,28 +86,29 @@ namespace AtHangar
 				if(p == null) continue; //EditorLogic.SortedShipList returns List<Part>{null} when all parts are deleted
 				foreach(MeshFilter m in p.FindModelComponents<MeshFilter>())
 				{
-					//skip meshes without renderer
-					if(m.renderer == null || !m.renderer.enabled) continue;
 					//skip meshes from the blacklist
 					bool skip_mesh = false;
-					foreach(string mesh_name in HangarConfig.Globals.MeshesToSkipList)
+					for(int i = 0, count = MeshesToSkip.Count; i < count; i++)
 					{
+						string mesh_name = MeshesToSkip[i];
 						if(mesh_name == "") continue;
 						skip_mesh = m.name.IndexOf(mesh_name, StringComparison.OrdinalIgnoreCase) >= 0;
 						if(skip_mesh) break;
 					} if(skip_mesh) continue;
 					//wheels are round and rotating >_<
 					//TODO: rework this block for more efficiency: do not call Mesh.vertices twice
-					Vector3[] edges = m.name.IndexOf("wheel", StringComparison.OrdinalIgnoreCase) >= 0 ? 
-									  m.sharedMesh.vertices : BoundsEdges(m.sharedMesh.bounds);
-					updateBounds(ref b, local2local(m.transform, vT, edges));
+					Vector3[] edges;
 					if(compute_hull)
 					{
 						float m_size = Vector3.Scale(m.sharedMesh.bounds.size, m.transform.lossyScale).sqrMagnitude;
-						var verts = m_size > b_size/10? local2local(m.transform, vT, uniqueVertices(m.sharedMesh)) : edges;
-						hull_points.AddRange(verts);
+						edges = local2local(m.transform, vT, (m_size > b_size/10? uniqueVertices(m.sharedMesh) : 
+						                                      Utils.BoundCorners(m.sharedMesh.bounds)));
+						hull_points.AddRange(edges);
 						b_size = b.size.sqrMagnitude;
 					}
+					else edges = local2local(m.transform, vT, (m.name.IndexOf("wheel", StringComparison.OrdinalIgnoreCase) >= 0? 
+					                                           uniqueVertices(m.sharedMesh) : Utils.BoundCorners(m.sharedMesh.bounds)));
+					updateBounds(ref b, edges);
 				}
 				CrewCapacity += p.CrewCapacity;
 				if(p.IsPhysicallySignificant())	mass += p.TotalMass();
@@ -201,7 +185,7 @@ namespace AtHangar
 			MeshFilter m = part.FindModelComponent<MeshFilter>(mesh_name);
 			if(m == null) { Utils.Log("[Metric] {0} does not have '{1}' mesh", part.name, mesh_name); return; }
 			if(compute_hull) hull = new ConvexHull3D(uniqueVertices(m.sharedMesh));
-			Vector3[] edges = BoundsEdges(m.sharedMesh.bounds);
+			Vector3[] edges = Utils.BoundCorners(m.sharedMesh.bounds);
 			local2local(m.transform, part.partTransform, edges);
 			bounds = initBounds(edges);
 			volume = boundsVolume(bounds);
@@ -322,7 +306,7 @@ namespace AtHangar
 		/// <param name="other">Metric acting as a container.</param>
 		public bool FitsAligned(Transform this_T, Transform other_T, Metric other)
 		{
-			var edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
+			var edges = hull != null? hull.Points.ToArray() : Utils.BoundCorners(bounds);
 			for(int i = 0; i < edges.Length; i++) 
 			{
 				Vector3 edge = other_T.InverseTransformPoint(this_T.position+this_T.TransformDirection(edges[i]-center));
@@ -344,7 +328,7 @@ namespace AtHangar
 		public bool FitsAligned(Transform this_T, Transform other_T, Mesh container)
 		{
 			//get edges in containers reference frame
-			var edges = hull != null? hull.Points.ToArray() : BoundsEdges(bounds);
+			var edges = hull != null? hull.Points.ToArray() : Utils.BoundCorners(bounds);
 			//check each triangle of container
 			var c_edges   = container.vertices;
 			var triangles = container.triangles;
@@ -400,9 +384,9 @@ namespace AtHangar
 		#endregion
 
 		#if DEBUG
-		public void DrawBox(Transform vT) { HangarGUI.DrawBounds(bounds, vT, Color.white); }
+		public void DrawBox(Transform vT) { Utils.DrawBounds(bounds, vT, Color.white); }
 
-		public void DrawCenter(Transform vT) { HangarGUI.DrawPoint(center, vT); }
+		public void DrawCenter(Transform vT) { Utils.DrawPoint(center, vT); }
 		#endif
 	}
 }

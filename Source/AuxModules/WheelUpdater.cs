@@ -1,5 +1,13 @@
-﻿using UnityEngine;
+﻿//   WheelUpdater.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using UnityEngine;
 using System.Collections.Generic;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -25,13 +33,13 @@ namespace AtHangar
 			Collider.sidewaysFriction = sf;
 			#if DEBUG
 			Utils.Log("WheelFriction [{0}]: fF {1} sF {2} feS {3}, feV {4} faS {5} faV {6}", 
-				Collider.GetInstanceID(), 
-				Collider.forwardFriction.stiffness, 
-				Collider.sidewaysFriction.stiffness,
-				Collider.forwardFriction.extremumSlip,
-				Collider.forwardFriction.extremumValue,
-				Collider.forwardFriction.asymptoteSlip,
-				Collider.forwardFriction.asymptoteValue);
+					  Collider.GetInstanceID(), 
+					  Collider.forwardFriction.stiffness, 
+					  Collider.sidewaysFriction.stiffness,
+					  Collider.forwardFriction.extremumSlip,
+					  Collider.forwardFriction.extremumValue,
+					  Collider.forwardFriction.asymptoteSlip,
+					  Collider.forwardFriction.asymptoteValue);
 			#endif
 		}
 

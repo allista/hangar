@@ -1,48 +1,17 @@
-﻿using System.Linq;
+﻿//   Addons.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System.Linq;
 using UnityEngine;
+using KSP.UI;
+using KSP.UI.Screens;
 
 namespace AtHangar
 {
-	/// <summary>
-	/// Screen messager is an addon that displays on-screen 
-	/// messages in the top-center of the screen.
-	/// It is a part of the Hangar module.
-	/// </summary>
-	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
-	public class ScreenMessager : MonoBehaviour
-	{
-		static float  osdMessageTime = 0;
-		static string osdMessageText = null;
-
-		public static void showMessage(string msg, params object[] args)
-		{ showMessage(3, msg, args);}
-
-		public static void showMessage(float delay, string msg, params object[] args)
-		{
-			#if DEBUG
-			if(osdMessageText != string.Format(msg, args))
-				Utils.Log(msg, args);
-			#endif
-			osdMessageText = string.Format(msg, args);
-			osdMessageTime = Time.time + delay;
-		}
-
-		public void OnGUI ()
-		{
-			if (Time.time < osdMessageTime) 
-			{
-				GUI.skin = HighLogic.Skin;
-				GUIStyle style = new GUIStyle("Label");
-				style.alignment = TextAnchor.MiddleCenter;
-				style.fontSize = 20;
-				style.normal.textColor = Color.black;
-				GUI.Label (new Rect (2, 2 + (Screen.height / 9), Screen.width, 50), osdMessageText, style);
-				style.normal.textColor = Color.yellow;
-				GUI.Label (new Rect (0, Screen.height / 9, Screen.width, 50), osdMessageText, style);
-			}
-		}
-	}
-
 	/// <summary>
 	/// Addon that assembles a custom part filter by function in the part library.
 	/// The code is adapted from the RealChute mod by Christophe Savard (stupid_chris):
@@ -93,8 +62,8 @@ namespace AtHangar
 				.ForEach(c => c.button.SetIcon(icon));
 			//Apparently needed to make sure the icon actually shows at first
 			var button = filter.button.activeButton;
-			button.SetFalse(button, RUIToggleButtonTyped.ClickType.FORCED);
-			button.SetTrue(button, RUIToggleButtonTyped.ClickType.FORCED);
+			button.Value = false;
+			button.Value = true;
 		}
 	}
 }

@@ -1,7 +1,15 @@
+//   ResourceTransferWindow.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
 //This code is based on code from ExLaunchPads mod, BuildWindow class.
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {

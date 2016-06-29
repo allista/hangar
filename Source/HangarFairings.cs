@@ -1,6 +1,15 @@
-﻿using System;
+﻿//   HangarFairings.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using KSP.UI.Screens;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -32,12 +41,13 @@ namespace AtHangar
 			return info;
 		}
 
-		public float GetModuleCost(float default_cost) 
+		public float GetModuleCost(float default_cost, ModifierStagingSituation situation) 
 		{ 
 			if(fairings != null && jettisoned) 
 				return -fairings.Length * FairingsCost;
 			return 0f;
 		}
+		public ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 
 		protected override void early_setup(StartState state)
 		{
@@ -92,8 +102,8 @@ namespace AtHangar
 			{
 				var d = Debris.SetupOnTransform(vessel, part, f, FairingsDensity, FairingsCost, DebrisLifetime);
 				var force = f.TransformDirection(JettisonDirection) * JettisonForce * 0.5f;
-				d.rigidbody.AddForceAtPosition(force, f.position, ForceMode.Force);
-				part.rigidbody.AddForceAtPosition(-force, f.position, ForceMode.Force);
+				d.Rigidbody.AddForceAtPosition(force, f.position, ForceMode.Force);
+				part.Rigidbody.AddForceAtPosition(-force, f.position, ForceMode.Force);
 				debris.Add(d);
 			}
 			jettisoned = true;
@@ -134,7 +144,7 @@ namespace AtHangar
 			Storage.enabled = Storage.isEnabled = false;
 			Events["LaunchVessel"].active = Actions["LaunchVesselAction"].active = false;
 			//this event is catched by FlightLogger
-			GameEvents.onStageSeparation.Fire(new EventReport(FlightEvents.STAGESEPARATION, part, null, null, Staging.CurrentStage, string.Empty));
+			GameEvents.onStageSeparation.Fire(new EventReport(FlightEvents.STAGESEPARATION, part, null, null, StageManager.CurrentStage, string.Empty));
 		}
 
 		IEnumerator<YieldInstruction> delayed_launch()
@@ -143,7 +153,7 @@ namespace AtHangar
 			if(!HighLogic.LoadedSceneIsFlight) yield break;
 			if(Storage == null || Storage.VesselsDocked == 0) 
 			{
-				ScreenMessager.showMessage("No payload");
+				Utils.Message("No payload");
 				yield break;
 			}
 			if(gates_state != AnimatorState.Opened && !hangar_gates.Playing) yield break;
@@ -190,7 +200,8 @@ namespace AtHangar
 
 		public Transform model;
 
-		public float GetModuleCost(float default_cost) { return saved_cost; }
+		public float GetModuleCost(float default_cost, ModifierStagingSituation situation) { return saved_cost; }
+		public ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 
 		public override void OnInitialize()
 		{
@@ -237,15 +248,15 @@ namespace AtHangar
 			part.gameObject.SetActive(true);
 			part.physicalSignificance = Part.PhysicalSignificance.NONE;
 			part.PromoteToPhysicalPart();
-			part.rigidbody.SetDensity(density);
-			part.mass   = part.rigidbody.mass;
+			part.Rigidbody.SetDensity(density);
+			part.mass   = part.Rigidbody.mass;
 			part.orgPos = Vector3.zero;
 			part.orgRot = Quaternion.identity;
 			//set part's velocities
-			part.rigidbody.angularVelocity = original_part.rigidbody.angularVelocity;
-			part.rigidbody.velocity = original_part.rigidbody.velocity + 
-				Vector3.Cross(original_vessel.CurrentCoM - original_part.rigidbody.worldCenterOfMass, 
-				              part.rigidbody.angularVelocity);
+			part.Rigidbody.angularVelocity = original_part.Rigidbody.angularVelocity;
+			part.Rigidbody.velocity = original_part.Rigidbody.velocity + 
+				Vector3.Cross(original_vessel.CurrentCoM - original_part.Rigidbody.worldCenterOfMass, 
+				              part.Rigidbody.angularVelocity);
 			//initialize Debris module
 			var debris = part.GetModule<Debris>();
 			if(debris == null) 
@@ -258,7 +269,7 @@ namespace AtHangar
 			debris.debris_transform_name = debris_transform.name;
 			debris.model = debris_transform;
 			debris.local_rotation = debris_transform.localRotation;
-			var resizer = original_part.GetModule<HangarPartResizer>();
+			var resizer = original_part.GetModule<AnisotropicPartResizer>();
 			if(resizer != null)
 			{
 				debris.size = resizer.size/resizer.orig_size;

@@ -1,13 +1,21 @@
+//   HangarWindow.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
 //This code is partly based on the code from Extraplanetary Launchpads plugin. BuildWindow.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
-	public class HangarWindow : AddonWindowBase<HangarWindow>
+	public class HangarWindow : HangarWindowBase<HangarWindow>
 	{
 		enum HighlightState {  None, Enable, Disable }
 		//settings
@@ -131,7 +139,7 @@ namespace AtHangar
 			updateVesselMetric(vsl);
 			BuildHangarList(vsl);
 			BuildVesselList(selected_hangar);
-			UpdateGUIState();
+			UpdateContent();
 		}
 
 		void onVesselWasModified(Vessel vsl)
@@ -150,7 +158,7 @@ namespace AtHangar
 			var vsl = current_vessel;
 			updateVesselMetric(vsl);
 			BuildHangarList(vsl);
-			UpdateGUIState();
+			UpdateContent();
 			if(selected_hangar != null)
 			{
 				//vessel list
@@ -161,9 +169,9 @@ namespace AtHangar
 			}
 		}
 		
-		override public void UpdateGUIState()
+		override protected void UpdateContent()
 		{
-			base.UpdateGUIState();
+			base.UpdateContent();
 			if(!enabled) Utils.LockIfMouseOver(eLock, eWindowPos, false);
 			if(selected_hangar != null) 
 			{
@@ -212,9 +220,9 @@ namespace AtHangar
 			base.OnDestroy();
 		}
 		
-		public override void LoadSettings()
+		public override void LoadConfig()
 		{
-			base.LoadSettings();
+			base.LoadConfig();
 			fWindowPos = GetConfigValue<Rect>("fWindowPos", fWindowPos);
 			eWindowPos = GetConfigValue<Rect>("eWindowPos", eWindowPos);
 			cWindowPos = GetConfigValue<Rect>("cWindowPos", cWindowPos);
@@ -224,7 +232,7 @@ namespace AtHangar
 			vessel_id  = GetConfigValue<Guid>("vessel_id",  Guid.Empty);
 		}
 		
-		public override void SaveSettings()
+		public override void SaveConfig()
 		{
 			SetConfigValue("fWindowPos", fWindowPos);
 			SetConfigValue("eWindowPos", eWindowPos);
@@ -233,7 +241,7 @@ namespace AtHangar
 			SetConfigValue("vWindowPos", vWindowPos);
 			SetConfigValue("hangar_id",  hangar_id);
 			SetConfigValue("vessel_id",  vessel_id);
-			base.SaveSettings();
+			base.SaveConfig();
 		}
 		
 		#region GUI
@@ -314,7 +322,7 @@ namespace AtHangar
 		{
 			GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			if(GUILayout.Button("Close")) HideGUI();
+			if(GUILayout.Button("Close")) Show(false);
 			GUILayout.EndHorizontal();
 		}
 		
@@ -370,7 +378,7 @@ namespace AtHangar
 				if(highlight_hangar == HighlightState.Enable)
 				{
 					highlight_hangar = HighlightState.Disable;
-					UpdateGUIState();
+					UpdateContent();
 					highlight_hangar = HighlightState.Enable;
 				}
 				selected_hangar = hangar;
@@ -515,8 +523,7 @@ namespace AtHangar
 											 fWindowPos, HangarCotrols,
 											 String.Format("{0} {1}, Gates {2}", "Hangar", hstate, gstate),
 										 	 GUILayout.Width(320),
-											 GUILayout.Height(100));
-				HangarGUI.CheckRect(ref fWindowPos);
+				                              GUILayout.Height(100)).clampToScreen();
 				//transfers
 				if(selected_vessel == null) 
 				{
@@ -526,14 +533,13 @@ namespace AtHangar
 				if(selected_window[TransferWindows.SelectCrew])
 				{
 					cWindowPos = crew_window.Draw(selected_hangar.vessel.GetVesselCrew(), 
-				    	                          selected_vessel.crew, selected_vessel.CrewCapacity, cWindowPos);
-					HangarGUI.CheckRect(ref cWindowPos);
+					                              selected_vessel.crew, selected_vessel.CrewCapacity, cWindowPos)
+						.clampToScreen();
 				}
 				else if(selected_window[TransferWindows.TransferResources])
 				{
 					selected_hangar.prepareResourceList(selected_vessel);
-					rWindowPos = resources_window.Draw(selected_hangar.resourceTransferList, rWindowPos);
-					HangarGUI.CheckRect(ref rWindowPos);
+					rWindowPos = resources_window.Draw(selected_hangar.resourceTransferList, rWindowPos).clampToScreen();
 					if(resources_window.transferNow)
 					{
 						selected_hangar.transferResources(selected_vessel);
@@ -543,8 +549,7 @@ namespace AtHangar
 				}
 				else if(selected_window[TransferWindows.RelocateVessels])
 				{
-					vWindowPos = vessels_window.Draw(selected_hangar.ConnectedStorage, vWindowPos);
-					HangarGUI.CheckRect(ref vWindowPos);
+					vWindowPos = vessels_window.Draw(selected_hangar.ConnectedStorage, vWindowPos).clampToScreen();
 					vessels_window.TransferVessel();
 					if(vessels_window.Closed)
 					{
@@ -560,10 +565,9 @@ namespace AtHangar
 											  eWindowPos, VesselInfo,
 											  "Vessel info",
 											  GUILayout.Width(300),
-											  GUILayout.Height(100));
-				HangarGUI.CheckRect(ref eWindowPos);
+				                              GUILayout.Height(100)).clampToScreen();
 			}
-			UpdateGUIState();
+			UpdateContent();
 		}
 
 		public override void Update()
@@ -606,10 +610,10 @@ namespace AtHangar
 			else 
 			{
 				vessel_metric.DrawCenter(FlightGlobals.ActiveVessel.vesselTransform);
-				HangarGUI.DrawPoint(FlightGlobals.ActiveVessel.vesselTransform.InverseTransformPoint(FlightGlobals.ActiveVessel.CurrentCoM), 
-								 FlightGlobals.ActiveVessel.vesselTransform, Color.green);
-				HangarGUI.DrawPoint(Vector3.zero, 
-								 FlightGlobals.ActiveVessel.vesselTransform, Color.red);
+				Utils.DrawPoint(FlightGlobals.ActiveVessel.vesselTransform.InverseTransformPoint(FlightGlobals.ActiveVessel.CurrentCoM), 
+							 	FlightGlobals.ActiveVessel.vesselTransform, Color.green);
+				Utils.DrawPoint(Vector3.zero, 
+								FlightGlobals.ActiveVessel.vesselTransform, Color.red);
 			}
 		}
 		#endif

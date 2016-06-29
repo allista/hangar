@@ -1,5 +1,13 @@
-﻿using System.Linq;
+﻿//   HangarStorageDynamic.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System.Linq;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -21,9 +29,9 @@ namespace AtHangar
 
 		public SwitchableTankManager GetTankManager() { return tank_manager; }
 
-		public override float GetModuleCost(float default_cost)
+		public override float GetModuleCost(float default_cost, ModifierStagingSituation situation)
 		{
-			var cost = base.GetModuleCost(default_cost);
+			var cost = base.GetModuleCost(default_cost, situation);
 			var res = PartResourceLibrary.Instance.GetDefinition(BuildTanksFrom);
 			if(res != null) cost += TanksMass/res.density*res.unitCost;
 			return cost;
@@ -149,7 +157,7 @@ namespace AtHangar
 				{
 					if(metal_pump.PartialTransfer) 
 					{
-						ScreenMessager.showMessage("Not enough {0} to build {1} tank. Need {2}.", 
+						Utils.Message("Not enough {0} to build {1} tank. Need {2}.", 
 							BuildTanksFrom, Utils.formatVolume(volume), metal);
 						metal_pump.Revert();
 						metal_pump.Clear();
@@ -160,7 +168,7 @@ namespace AtHangar
 				else
 				{
 					if(metal_pump.PartialTransfer)
-						ScreenMessager.showMessage("Not enough storage for {0}. The excess was disposed of.", 
+						Utils.Message("Not enough storage for {0}. The excess was disposed of.", 
 							BuildTanksFrom);
 					TanksMass += metal*metal_pump.Resource.density;
 				}
@@ -188,7 +196,7 @@ namespace AtHangar
 			return volume;
 		}
 
-		void remove_tank(HangarSwitchableTank tank)
+		void remove_tank(ModuleSwitchableTank tank)
 		{
 			var volume = tank.Volume;
 			if(!tank_manager.RemoveTank(tank)) return;
@@ -206,7 +214,7 @@ namespace AtHangar
 		{ 
 			if(VesselsDocked > 0)
 			{
-				ScreenMessager.showMessage("There are some ships docked inside this hangar.\n" +
+				Utils.Message("There are some ships docked inside this hangar.\n" +
 					"All works on resource tanks are prohibited for safety reasons.");
 				selected_window[TankWindows.EditTanks] = false;
 			}

@@ -4,15 +4,12 @@
 //       Allis Tauri <allista@gmail.com>
 //
 //  Copyright (c) 2015 Allis Tauri
-//
-// This work is licensed under the Creative Commons Attribution 4.0 International License. 
-// To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
-// or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -108,7 +105,7 @@ namespace AtHangar
 				asteroid_info = asteroid.GetModule<AsteroidInfo>();
 				if(!asteroid_info.AsteroidIsUsable) 
 				{
-					ScreenMessager.showMessage(6, "This asteroid is used by Asteroid Recycling machinery.\n" +
+					Utils.Message(6, "This asteroid is used by Asteroid Recycling machinery.\n" +
 						"Mining it is prohibited for safety reasons.");
 					throw new Exception();
 				}
@@ -139,30 +136,30 @@ namespace AtHangar
 					&& grapple_node.Fixed;
 			if(storage == null)
 			{
-				ScreenMessager.showMessage("The mining can only be performed " +
+				Utils.Message("The mining can only be performed " +
 					"through an access port with Dynamic Storage (TM) capabilities.");
 				return false;
 			}
 			if(grapple_node == null || !grapple_node.Fixed)
 			{
-				ScreenMessager.showMessage("The mining can only be performed " +
+				Utils.Message("The mining can only be performed " +
 					"through a permanentely fixed acces port.");
 				return false;
 			}
 			if(asteroid == null)
 			{
-				ScreenMessager.showMessage("No asteroid to mine");
+				Utils.Message("No asteroid to mine");
 				return false;
 			}
 			if(asteroid_info == null)
 			{
-				ScreenMessager.showMessage("Asteroid does not contain AsteroidInfo module.\n" +
+				Utils.Message("Asteroid does not contain AsteroidInfo module.\n" +
 					"This should never happen!");
 				return false;
 			}
 			if(!storage.CanAddVolume)
 			{
-				ScreenMessager.showMessage("The space inside the asteroid is already in use. " +
+				Utils.Message("The space inside the asteroid is already in use. " +
 					"Cannot start mining.");
 				return false;
 			}
@@ -186,13 +183,13 @@ namespace AtHangar
 			new_mass = asteroid.mass+dM;
 			if(asteroid.mass == new_mass)
 			{ 
-				ScreenMessager.showMessage("No space left for {0}", OutputResource);
+				Utils.Message("No space left for {0}", OutputResource);
 				goto abort;
 			}
 			//if the storage cannot accept new volume, also revert
 			if(!storage.AddVolume(-dM/asteroid_info.Density))
 			{
-				ScreenMessager.showMessage("Mining was aborted");
+				Utils.Message("Mining was aborted");
 				goto abort;
 			}
 			asteroid.mass = new_mass;
@@ -212,7 +209,7 @@ namespace AtHangar
 			//check asteroid first
 			if(asteroid.mass <= asteroid_info.MinMass)
 			{
-				ScreenMessager.showMessage("Asteroid is depleted");
+				Utils.Message("Asteroid is depleted");
 				dM_buffer = 0; pump.Clear();
 				return false;
 			}

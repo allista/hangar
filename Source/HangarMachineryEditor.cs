@@ -1,5 +1,13 @@
-﻿using System.Collections.Generic;
+﻿//   HangarMachineryEditor.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System.Collections.Generic;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -47,13 +55,13 @@ namespace AtHangar
 				Utils.Log("PackedConstruct: unable to load ShipConstruct from {0}. " +
 					"This usually means that some parts are missing " +
 					"or some modules failed to initialize.", filename);
-				ScreenMessager.showMessage("Unable to load {0}", filename);
+				Utils.Message("Unable to load {0}", filename);
 				return;
 			}
 			//check if the construct contains launch clamps
-			if(Utils.HasLaunchClamp(pc.construct))
+			if(HangarUtils.HasLaunchClamp(pc.construct))
 			{
-				ScreenMessager.showMessage("\"{0}\" has launch clamps. Remove them before storing.", pc.name);
+				Utils.Message("\"{0}\" has launch clamps. Remove them before storing.", pc.name);
 				pc.UnloadConstruct();
 				return;
 			}
@@ -165,8 +173,7 @@ namespace AtHangar
 												  hangar_content_editor,
 												  "Hangar Contents Editor",
 												  GUILayout.Width(windows_width),
-					                              GUILayout.Height(300));
-					HangarGUI.CheckRect(ref eWindowPos);
+					                              GUILayout.Height(300)).clampToScreen();
 				}
 				else 
 				{
@@ -179,16 +186,14 @@ namespace AtHangar
 			{
 				Utils.LockIfMouseOver(eLock, neWindowPos);
 				neWindowPos = GUILayout.Window(GetInstanceID(), neWindowPos,
-					hangar_name_editor,
-					"Rename Hangar",
-					GUILayout.Width(windows_width));
-				HangarGUI.CheckRect(ref neWindowPos);
+				                               hangar_name_editor,
+				                               "Rename Hangar",
+				                               GUILayout.Width(windows_width)).clampToScreen();
 			}
 			else if(selected_window[EditorWindows.RelocateVessels])
 			{
 				Utils.LockIfMouseOver(eLock, vWindowPos);
-				vWindowPos = vessels_window.Draw(ConnectedStorage, vWindowPos, GetInstanceID());
-				HangarGUI.CheckRect(ref vWindowPos);
+				vWindowPos = vessels_window.Draw(ConnectedStorage, vWindowPos, GetInstanceID()).clampToScreen();
 				vessels_window.TransferVessel();
 				if(vessels_window.Closed) RelocateVessels();
 			}
