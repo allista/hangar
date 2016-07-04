@@ -206,7 +206,7 @@ namespace AtHangar
 		#endregion
 
 		#region GUI
-		enum TankWindows { EditTanks } //maybe we'll need more in the future
+		enum TankWindows { None, EditTanks } //maybe we'll need more in the future
 		readonly Multiplexer<TankWindows> selected_window = new Multiplexer<TankWindows>();
 
 		[KSPEvent(guiActive = true, guiName = "Edit Tanks", active = false)]
@@ -215,7 +215,7 @@ namespace AtHangar
 			if(VesselsDocked > 0)
 			{
 				Utils.Message("There are some ships docked inside this hangar.\n" +
-					"All works on resource tanks are prohibited for safety reasons.");
+				              "All works on resource tanks are prohibited for safety reasons.");
 				selected_window[TankWindows.EditTanks] = false;
 			}
 			else selected_window.Toggle(TankWindows.EditTanks);
@@ -226,7 +226,7 @@ namespace AtHangar
 		public void OnGUI() 
 		{ 
 			if(Event.current.type != EventType.Layout) return;
-			if(!selected_window.Any()) return;
+			if(!selected_window) return;
 			if(tank_manager == null) return;
 			if(VesselsDocked > 0) 
 			{ 

@@ -76,7 +76,7 @@ namespace AtHangar
 		#region Machinery
 		public Metric PartMetric { get; private set; }
 
-		protected BaseHangarAnimator hangar_gates;
+		protected MultiAnimator hangar_gates;
 		public AnimatorState gates_state { get { return hangar_gates.State; } }
 		public HangarState hangar_state { get; private set; }
 
@@ -102,7 +102,7 @@ namespace AtHangar
 		{
 			var info = "";
 			//energy consumption
-			var gates = part.GetAnimator(AnimatorID) as HangarAnimator;
+			var gates = part.GetAnimator(AnimatorID);
 			if(EnergyConsumption.Equals(0) && (gates == null || gates.EnergyConsumption.Equals(0))) 
 				info += "Simple cargo bay\n";
 			else
@@ -140,7 +140,10 @@ namespace AtHangar
 		}
 
 		void update_resources()
-		{ hangarResources = new VesselResources<Vessel, Part, PartResource>(vessel); }
+		{ 
+			if(vessel == null) return;
+			hangarResources = new VesselResources<Vessel, Part, PartResource>(vessel); 
+		}
 
 		protected bool all_passages_ready { get { return passage_checklist.All(p => p.Ready); } }
 
@@ -202,7 +205,7 @@ namespace AtHangar
 
 		protected virtual void early_setup(StartState state)
 		{
-			EditorLogic el = EditorLogic.fetch;
+			var el = EditorLogic.fetch;
 			if(el != null) 
 			{
 				//set vessel type
@@ -217,10 +220,10 @@ namespace AtHangar
 			//setup hangar name
 			if(HangarName == "_none_") HangarName = part.Title();
 			//initialize resources
-			if(state != StartState.Editor) update_resources();
+			update_resources();
 			//initialize Animator
 			hangar_gates = part.GetAnimator(AnimatorID);
-			if(hangar_gates as HangarAnimator == null)
+			if(hangar_gates == null)
 			{
 				Events["Open"].active = false;
 				Events["Close"].active = false;
@@ -604,7 +607,7 @@ namespace AtHangar
 				Utils.Message("Launch is in progress");
 				return false;
 			}
-			if(hangar_gates.State != AnimatorState.Opened) 
+			if(hangar_gates != null && hangar_gates.State != AnimatorState.Opened) 
 			{
 				Utils.Message("Open hangar gates first");
 				return false;

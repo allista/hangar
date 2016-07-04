@@ -1,0 +1,13 @@
+//store vessel
+MaxSqrRelVelocity     = 1    //m/s
+MaxSqrRelAcceleration = 0.1 //m/s2
+EnableVesselPacking   = true
+//restore vessel
+MaxSqrAngularVelocity = 0.002 //rad2/s2 = 2.56 deg/s
+MaxSqrSurfaceVelocity = 0.01 //m/s
+MaxGeeForce           = 0.2f //g
+MaxStaticPressure     = 0.01 //atm
+//misc
+MeshesToSkip = flagtransform canopy
+KethaneMapCollider = MapOverlay collider
+//:mode=c#:

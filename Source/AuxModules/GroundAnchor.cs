@@ -56,8 +56,8 @@ namespace AtHangar
 		public override void OnStart(PartModule.StartState state)
 		{
 			base.OnStart(state);
-			HangarUtils.createFXSound(part, fxSndAttach, attachSndPath, false);
-			HangarUtils.createFXSound(part, fxSndDetach, detachSndPath, false);
+			Utils.createFXSound(part, fxSndAttach, attachSndPath, false);
+			Utils.createFXSound(part, fxSndDetach, detachSndPath, false);
 		}
 		
 		void DestroyAnchor()

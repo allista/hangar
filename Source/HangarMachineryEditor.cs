@@ -17,7 +17,7 @@ namespace AtHangar
 		const int windows_width = 400;
 		const string eLock  = "Hangar.EditHangar";
 		const string scLock = "Hangar.LoadShipConstruct";
-		enum EditorWindows { EditContent, EditName, RelocateVessels }
+		enum EditorWindows { None, EditContent, EditName, RelocateVessels }
 		readonly Multiplexer<EditorWindows> selected_window = new Multiplexer<EditorWindows>();
 
 		Vector2 constructs_scroll = Vector2.zero;
@@ -52,14 +52,14 @@ namespace AtHangar
 			var pc = new PackedConstruct(filename, flagname);
 			if(pc.construct == null) 
 			{
-				Utils.Log("PackedConstruct: unable to load ShipConstruct from {0}. " +
-					"This usually means that some parts are missing " +
-					"or some modules failed to initialize.", filename);
+				Utils.Log("PackedConstruct: unable to load ShipConstruct from {}. " +
+				          "This usually means that some parts are missing " +
+				          "or some modules failed to initialize.", filename);
 				Utils.Message("Unable to load {0}", filename);
 				return;
 			}
 			//check if the construct contains launch clamps
-			if(HangarUtils.HasLaunchClamp(pc.construct))
+			if(pc.construct.HasLaunchClamp())
 			{
 				Utils.Message("\"{0}\" has launch clamps. Remove them before storing.", pc.name);
 				pc.UnloadConstruct();
@@ -138,7 +138,7 @@ namespace AtHangar
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
 				Utils.LockEditor(eLock, false);
-				selected_window[EditorWindows.EditContent] = false;
+				selected_window.Off();
 			}
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
@@ -151,7 +151,7 @@ namespace AtHangar
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
 				Utils.LockEditor(eLock, false);
-				selected_window[EditorWindows.EditName] = false;
+				selected_window.Off();
 			}
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
@@ -160,8 +160,7 @@ namespace AtHangar
 		public void OnGUI() 
 		{ 
 			if(Event.current.type != EventType.Layout) return;
-			if(!selected_window.Any()) return;
-			if(!selected_window[EditorWindows.EditName] && !HighLogic.LoadedSceneIsEditor) return;
+			if(!selected_window) return;
 			Styles.Init();
 			//edit hangar
 			if(selected_window[EditorWindows.EditContent])
@@ -209,6 +208,7 @@ namespace AtHangar
 		[KSPEvent (guiActiveEditor = true, guiName = "Edit contents", active = true)]
 		public void EditHangar() 
 		{ 
+			if(!HighLogic.LoadedSceneIsEditor) return;
 			selected_window.Toggle(EditorWindows.EditContent);
 			Utils.LockIfMouseOver(eLock, eWindowPos, selected_window[EditorWindows.EditContent]);
 		}

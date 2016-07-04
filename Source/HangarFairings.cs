@@ -261,7 +261,7 @@ namespace AtHangar
 			var debris = part.GetModule<Debris>();
 			if(debris == null) 
 			{ 
-				Utils.Log("WARNING: {0} part does not have Debris module!", DEBRIS_PART);
+				Utils.Log("WARNING: {} part does not have Debris module!", DEBRIS_PART);
 				Destroy(part.gameObject); return null; 
 			}
 			debris.saved_cost = cost;

@@ -53,7 +53,7 @@ namespace AtHangar
 		}
 	}
 
-	public class HangarGenericInflatable : HangarAnimator
+	public class HangarGenericInflatable : MultiGeometryAnimator
 	{
 		//configuration
 		[KSPField(isPersistant = false)] public string ControlledModules;
@@ -104,14 +104,16 @@ namespace AtHangar
 		#endregion
 		
 		#region Startup
-		protected virtual void onPause()
+		protected override void onPause()
 		{
+			base.onPause();
 			if(fxSndCompressor.audio == null) return;
 			if(fxSndCompressor.audio.isPlaying) fxSndCompressor.audio.Pause();
 		}
 
-		protected virtual void onUnpause()
+		protected override void onUnpause()
 		{
+			base.onUnpause();
 			if(fxSndCompressor.audio == null) return;
 			if(play_compressor) fxSndCompressor.audio.Play();
 		}
@@ -124,8 +126,9 @@ namespace AtHangar
 			GameEvents.onEditorShipModified.Add(UpdateGUI);
 		}
 
-		public void OnDestroy()
+		public override void OnDestroy()
 		{
+			base.OnDestroy();
 			GameEvents.onGamePause.Remove(onPause);
 			GameEvents.onGameUnpause.Remove(onUnpause);
 			GameEvents.onEditorShipModified.Remove(UpdateGUI);
@@ -133,12 +136,13 @@ namespace AtHangar
 
 		public override void OnStart(StartState state)
 		{
+			this.Log("OnStart.ModuleConfig:\n{0}", ModuleConfig);//debug
 			base.OnStart(state);
 			if(state == StartState.None) return;
 			//get sound effects
 			if(CompressorSound != string.Empty)
 			{
-				HangarUtils.createFXSound(part, fxSndCompressor, CompressorSound, true);
+				Utils.createFXSound(part, fxSndCompressor, CompressorSound, true);
 				fxSndCompressor.audio.volume = GameSettings.SHIP_VOLUME * SoundVolume;
 			}
 			//get controlled modules
@@ -193,8 +197,6 @@ namespace AtHangar
 			//get compressed gas for the first time
 			if(CompressedGas < 0) CompressedGas = InflatableVolume;
 			init_compressor();
-			//ignore DragMultiplier as Drag is changed with volume
-			DragMultiplier = 1f;
 			//prevent accidental looping of animation
 			Loop = false;
 			//update part, GUI and set the flag
@@ -208,6 +210,7 @@ namespace AtHangar
 		bool init_compressor()
 		{
 			Compressor = null;
+			this.Log("init_compressor.ModuleConfig:\n{0}", ModuleConfig);//debug
 			if(ModuleConfig == null) 
 			{ this.Log("ModuleConfig is null. THIS SHOULD NEVER HAPPEN!"); return false; }
 			if(ModuleConfig.HasNode(GasCompressor.NODE_NAME)) 
@@ -224,6 +227,7 @@ namespace AtHangar
 			base.OnLoad(node);
 			//only save config for the first time
 			if(ModuleConfig == null) ModuleConfig = node;
+			this.Log("OnLoad.ModuleConfig:\n{0}", ModuleConfig);//debug
 			if(!node.HasValue("SavedState"))
 				State = PackedByDefault? AnimatorState.Closed : AnimatorState.Opened;
 		}
@@ -231,9 +235,13 @@ namespace AtHangar
 		//workaround for ConfigNode non-serialization
 		public byte[] _module_config;
 		public void OnBeforeSerialize()
-		{ _module_config = ConfigNodeWrapper.SaveConfigNode(ModuleConfig); }
+		{ _module_config = ConfigNodeWrapper.SaveConfigNode(ModuleConfig); 
+			this.Log("OnBeforeSerialize._module_config:\n{0}", ModuleConfig);//debug 
+		}
 		public void OnAfterDeserialize() 
-		{ ModuleConfig = ConfigNodeWrapper.RestoreConfigNode(_module_config); }
+		{ ModuleConfig = ConfigNodeWrapper.RestoreConfigNode(_module_config); 
+			this.Log("OnAfterDeserialize.ModuleConfig:\n{0}", ModuleConfig);//debug
+		}
 		#endregion
 
 		#region Updates
@@ -278,10 +286,7 @@ namespace AtHangar
 			if(prefab_metric.Empty) return;
 			part_metric  = new Metric(part);
 			volume_scale = part_metric.volume/prefab_metric.volume;
-			part.buoyancy       = prefab.buoyancy*volume_scale;
-			part.maximum_drag   = prefab.maximum_drag*volume_scale;
-			part.angularDrag    = prefab.angularDrag*volume_scale;
-			part.crashTolerance = prefab.crashTolerance*Mathf.Pow(volume_scale, 1/3f);
+			part.crashTolerance = prefab.crashTolerance*Mathf.Pow(volume_scale, 0.333333333f);
 		}
 
 		IEnumerator<YieldInstruction> FirstTimeUpdateNodes()
@@ -328,12 +333,12 @@ namespace AtHangar
 				if(has_compressed_gas) { deflate(); break; }
 				if(Compressor == null)
 					warning.Show("The hangar is not equipped with a compressor. " +
-						"You will not be able to inflate the hangar again. " +
-						"Are you sure you want to deflate the hangar?");
+								 "You will not be able to inflate the hangar again. " +
+								 "Are you sure you want to deflate the hangar?");
 				else if(!part.vessel.mainBody.atmosphere)
 					warning.Show("There's no atmosphere here. " +
-						"You will not be able to inflate the hangar again." +
-						"Are you sure you want to deflate the hangar?");
+					             "You will not be able to inflate the hangar again." +
+					             "Are you sure you want to deflate the hangar?");
 				else { deflate(); break; }
 				if(warning.Result == SimpleDialog.Answer.None) break;
 				if(warning.Result == SimpleDialog.Answer.Yes) deflate();

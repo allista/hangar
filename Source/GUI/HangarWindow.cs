@@ -20,7 +20,7 @@ namespace AtHangar
 		enum HighlightState {  None, Enable, Disable }
 		//settings
 		static HighlightState highlight_hangar, highlight_storage;
-		enum TransferWindows { SelectCrew, TransferResources, RelocateVessels }
+		enum TransferWindows { None, SelectCrew, TransferResources, RelocateVessels }
 		static Multiplexer<TransferWindows> selected_window = new Multiplexer<TransferWindows>();
 		static Rect fWindowPos, eWindowPos, cWindowPos, rWindowPos, vWindowPos;
 		static bool draw_directions;
@@ -512,6 +512,9 @@ namespace AtHangar
 		override public void OnGUI()
 		{
 			if(vessel_metric.Empty) return;
+			#if DEBUG
+			DrawBounds();
+			#endif
 			if(Event.current.type != EventType.Layout) return;
 			base.OnGUI();
 			if(hangars.Count > 0 && !selected_hangar.vessel.packed && selected_hangar.IsControllable && !selected_hangar.NoGUI)
@@ -525,12 +528,8 @@ namespace AtHangar
 										 	 GUILayout.Width(320),
 				                              GUILayout.Height(100)).clampToScreen();
 				//transfers
-				if(selected_vessel == null) 
-				{
-					selected_window[TransferWindows.SelectCrew] = false;
-					selected_window[TransferWindows.TransferResources] = false;
-				}
-				if(selected_window[TransferWindows.SelectCrew])
+				if(selected_vessel == null) selected_window.Off();
+				else if(selected_window[TransferWindows.SelectCrew])
 				{
 					cWindowPos = crew_window.Draw(selected_hangar.vessel.GetVesselCrew(), 
 					                              selected_vessel.crew, selected_vessel.CrewCapacity, cWindowPos)
@@ -595,14 +594,24 @@ namespace AtHangar
 		}
 
 		#if DEBUG
+		void DrawBounds()
+		{
+			if(vessel_metric.Empty) return;
+			if(EditorLogic.fetch != null)
+			{
+				var parts = EditorLogic.fetch.getSortedShipList();
+				if(parts.Count == 0 || parts[0] == null) return;
+				vessel_metric.DrawBox(parts[0].partTransform);
+			}
+			else vessel_metric.DrawBox(FlightGlobals.ActiveVessel.vesselTransform);
+		}
+
 		void DrawPoints()
 		{
 			if(vessel_metric.Empty) return;
-			if(HighLogic.LoadedSceneIsEditor)
+			if(EditorLogic.fetch != null)
 			{
-				List<Part> parts;
-				try { parts = EditorLogic.SortedShipList; }
-				catch (NullReferenceException) { return; }
+				var parts = EditorLogic.fetch.getSortedShipList();
 				if(parts.Count == 0 || parts[0] == null) return;
 				vessel_metric.DrawCenter(parts[0].partTransform);
 //				HangarGUI.DrawHull(vessel_metric, parts[0].partTransform);

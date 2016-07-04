@@ -77,8 +77,16 @@ namespace AtHangar
 			base.OnStart(state);
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
-				init_limit(Globals.Instance.MinSize, ref minSize, Mathf.Min(topSize, bottomSize));
-				init_limit(Globals.Instance.MaxSize, ref maxSize, Mathf.Max(topSize, bottomSize));
+				//init global limits
+				if(minSize < 0) minSize = ResizerGlobals.Instance.AbsMinSize;
+				if(maxSize < 0) maxSize = ResizerGlobals.Instance.AbsMaxSize;
+				//get TechTree limits
+				var limits = ResizerConfig.GetLimits(TechGroupID);
+				if(limits != null)
+				{
+					init_limit(limits.minSize, ref minSize, Mathf.Min(topSize, bottomSize));
+					init_limit(limits.maxSize, ref maxSize, Mathf.Max(topSize, bottomSize));
+				}
 				//setup sliders
 				setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
 				setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);

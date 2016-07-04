@@ -51,9 +51,8 @@ namespace AtHangar
 			GameEvents.onVesselWasModified.Add(update_state);
 		}
 
-		public override void OnDestroy() 
+		public void OnDestroy() 
 		{ 
-			base.OnDestroy();
 			GameEvents.onVesselWasModified.Remove(update_state); 
 		}
 
@@ -172,7 +171,7 @@ namespace AtHangar
 			//check if it is possible to get so little from the asteroid
 			dM_buffer -= Mathf.Min(consumed*ConversionRate, asteroid.mass-asteroid_info.MinMass);
 			var new_mass = asteroid.mass+dM_buffer;
-			if(asteroid.mass == new_mass) return true;
+			if(asteroid.mass.Equals(new_mass)) return true;
 			//if it seems possible, try to produce the resource
 			pump.RequestTransfer(dM_buffer/resource.density*Efficiency);
 			dM_buffer = 0;
@@ -181,7 +180,7 @@ namespace AtHangar
 			//if the transfer was partial and what was produced is still less 
 			//then required to change asteroid mass, revert
 			new_mass = asteroid.mass+dM;
-			if(asteroid.mass == new_mass)
+			if(asteroid.mass.Equals(new_mass))
 			{ 
 				Utils.Message("No space left for {0}", OutputResource);
 				goto abort;

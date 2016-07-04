@@ -20,14 +20,14 @@ namespace AtHangar
 		bool try_fix;
 
 		[KSPField] public string AnimatorID = "_none_";
-		BaseHangarAnimator animator;
+		MultiAnimator animator;
 
 		public override void OnStart(StartState st)
 		{
 			base.OnStart(st);
 			//initialize Animator
 			animator = part.GetAnimator(AnimatorID);
-			if(Fixed && animator is HangarAnimator) animator.Open();
+			if(Fixed && animator != null) animator.Open();
 			//initialize Fixed state
 			StartCoroutine(delayed_disable_decoupling());
 		}
@@ -81,10 +81,13 @@ namespace AtHangar
 				disable_decoupling();
 				yield break;
 			}
-			if(animator.State != AnimatorState.Opening) 
-				yield break; 
-			while(animator.State != AnimatorState.Opened) 
-				yield return new WaitForSeconds(0.5f);
+			if(animator != null)
+			{
+				if(animator.State != AnimatorState.Opening) 
+					yield break; 
+				while(animator.State != AnimatorState.Opened) 
+					yield return new WaitForSeconds(0.5f);
+			}
 			disable_decoupling();
 			Utils.Message("The grapple was fixed permanently");
 		}
@@ -94,7 +97,7 @@ namespace AtHangar
 		#if DEBUG
 		[KSPEvent (guiActive = true, guiName = "Try Fix Hatch", active = true)]
 		public void TryFixHatch()
-		{ animator.Toggle(); }
+		{ if(animator != null) animator.Toggle(); }
 		#endif
 
 		[KSPEvent (guiActive = true, guiName = "Fix Hatch Permanently", active = true)]
@@ -102,7 +105,7 @@ namespace AtHangar
 		{ 
 			if(!is_docked) 
 			{ Utils.Message("Nothing to fix to"); return; }
-			if(animator.State != AnimatorState.Closed)
+			if(animator != null && animator.State != AnimatorState.Closed)
 			{ Utils.Message("Already working..."); return; }
 			try_fix = true;
 		}
@@ -123,7 +126,7 @@ namespace AtHangar
 				if(warning.Result == SimpleDialog.Answer.None) break;
 				if(warning.Result == SimpleDialog.Answer.Yes) 
 				{
-					animator.Open();
+					if(animator != null) animator.Open();
 					StartCoroutine(delayed_disable_decoupling());
 				}
 				try_fix = false;

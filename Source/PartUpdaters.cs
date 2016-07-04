@@ -39,12 +39,6 @@ namespace AtHangar
 		}
 	}
 
-	public class AnimatorUpdater : ModuleUpdater<HangarAnimator>
-	{ 
-		protected override void on_rescale(ModulePair<HangarAnimator> mp, Scale scale)
-		{ mp.module.EnergyConsumption = mp.base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect; }
-	}
-
 	public class GenericInflatableUpdater : ModuleUpdater<HangarGenericInflatable>
 	{
 		protected override void on_rescale(ModulePair<HangarGenericInflatable> mp, Scale scale)
@@ -62,15 +56,6 @@ namespace AtHangar
 	{
 		protected override void on_rescale(ModulePair<AnimatedConverterBase> mp, Scale scale)
 		{ mp.module.SetRatesMultiplier(mp.base_module.RatesMultiplier * scale.absolute.cube * scale.absolute.aspect); }
-	}
-
-	public class HangarLightUpdater : ModuleUpdater<HangarLight>
-	{
-		protected override void on_rescale(ModulePair<HangarLight> mp, Scale scale)
-		{ 
-			mp.module.RangeMultiplier = mp.base_module.RangeMultiplier * scale;
-			mp.module.UpdateLights(); 
-		}
 	}
 
 	public class HangarFairingsUpdater : ModuleUpdater<HangarFairings>

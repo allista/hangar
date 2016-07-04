@@ -353,10 +353,10 @@ namespace AtHangar
 				RemoveVessel(pc);
 				if(!pc.LoadConstruct()) 
 				{
-					Utils.Log("PackedConstruct: unable to load ShipConstruct {0}. " +
+					Utils.Log("PackedConstruct: unable to load ShipConstruct {}. " +
 							  "This usually means that some parts are missing " +
 							  "or some modules failed to initialize.", pc.name);
-					Utils.Message("Unable to load {0}", pc.name);
+					Utils.Message("Unable to load {}", pc.name);
 					continue;
 				}
 				ShipConstruction.PutShipToGround(pc.construct, part.transform);
