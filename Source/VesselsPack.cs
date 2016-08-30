@@ -21,6 +21,7 @@ namespace AtHangar
 		public Guid id; 
 		public string  name     { get; protected set; }
 		public Vector3 size     { get { return metric.size; } }
+		public Vector3 extents  { get { return metric.extents; } }
 		public float   volume   { get { return metric.volume; } }
 		public float   mass     { get { return metric.mass; } set { metric.mass = value; } }
 		public float   cost     { get { return metric.cost; } set { metric.cost = value; } }

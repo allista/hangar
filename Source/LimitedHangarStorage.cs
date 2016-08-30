@@ -20,7 +20,7 @@ namespace AtHangar
 
 		public override bool TryStoreVessel(PackedVessel v)
 		{
-			if(VesselsDocked > 0)
+			if(TotalVesselsDocked > 0)
 			{
 				Utils.Message("The storage is already occupied");
 				return false;

@@ -43,7 +43,6 @@
     <Compile Include="CrewTransfer.cs" />
     <Compile Include="VesselsPack.cs" />
     <Compile Include="VesselWrappers.cs" />
-    <Compile Include="PartUpdaters.cs" />
     <Compile Include="HangarGenericInflatable.cs" />
     <Compile Include="AnimatedNode.cs" />
     <Compile Include="HangarPassage.cs" />

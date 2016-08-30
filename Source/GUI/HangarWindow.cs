@@ -29,17 +29,7 @@ namespace AtHangar
 		static readonly string eLock = "HangarWindow.editorUI";
 		
 		//this vessel
-		static Vessel current_vessel
-		{
-			get
-			{
-				if(FlightGlobals.fetch != null && 
-					FlightGlobals.ActiveVessel != null &&
-					!FlightGlobals.ActiveVessel.isEVA)
-					return FlightGlobals.ActiveVessel;
-				return null;
-			}
-		}
+		static Vessel vessel;
 		Metric vessel_metric;
 		
 		//hangars
@@ -132,32 +122,32 @@ namespace AtHangar
 			vessel_list.Items = vessel_names;
 			vessel_list.SelectItem(vessels.IndexOf(selected_vessel));
 		}
-		
+
+		void update()
+		{
+			updateVesselMetric(vessel);
+			BuildHangarList(vessel);
+			BuildVesselList(selected_hangar);
+		}
+
 		//update-init-destroy
 		void onVesselChange(Vessel vsl)
 		{
-			updateVesselMetric(vsl);
-			BuildHangarList(vsl);
-			BuildVesselList(selected_hangar);
+			vessel = null;
+			if(vsl.isEVA) return;
+			vessel = vsl;
+			update();
 			UpdateContent();
 		}
 
 		void onVesselWasModified(Vessel vsl)
-		{ 
-			if(FlightGlobals.ActiveVessel == vsl) 
-			{
-				updateVesselMetric(vsl);
-				BuildHangarList(vsl);
-				BuildVesselList(selected_hangar);
-			}
-		}
+		{ if(vessel == vsl) update(); }
 
 		public override void OnUpdate() 
 		{ 
 			if(!enabled) return;
-			var vsl = current_vessel;
-			updateVesselMetric(vsl);
-			BuildHangarList(vsl);
+			updateVesselMetric(vessel);
+			BuildHangarList(vessel);
 			UpdateContent();
 			if(selected_hangar != null)
 			{
@@ -508,24 +498,21 @@ namespace AtHangar
 			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 		#endregion
-	
+
 		override public void OnGUI()
 		{
 			if(vessel_metric.Empty) return;
-			#if DEBUG
-			DrawBounds();
-			#endif
 			if(Event.current.type != EventType.Layout) return;
 			base.OnGUI();
-			if(hangars.Count > 0 && !selected_hangar.vessel.packed && selected_hangar.IsControllable && !selected_hangar.NoGUI)
+			if(hangars.Count > 0 && !vessel.packed && selected_hangar.IsControllable && !selected_hangar.NoGUI)
 			{
 				//controls
 				string hstate = selected_hangar.hangar_state.ToString();
 				string gstate = selected_hangar.gates_state.ToString();
 				fWindowPos = GUILayout.Window(GetInstanceID(),
-											 fWindowPos, HangarCotrols,
-											 String.Format("{0} {1}, Gates {2}", "Hangar", hstate, gstate),
-										 	 GUILayout.Width(320),
+				                              fWindowPos, HangarCotrols,
+				                              string.Format("{0} {1}, Gates {2}", "Hangar", hstate, gstate),
+				                              GUILayout.Width(320),
 				                              GUILayout.Height(100)).clampToScreen();
 				//transfers
 				if(selected_vessel == null) selected_window.Off();
@@ -569,9 +556,8 @@ namespace AtHangar
 			UpdateContent();
 		}
 
-		public override void Update()
+		void OnRenderObject()
 		{
-			base.Update();
 			if(HighLogic.LoadedSceneIsEditor && draw_directions && !vessel_metric.Empty)
 			{
 				List<Part> parts;
@@ -589,6 +575,7 @@ namespace AtHangar
 				}
 			}
 			#if DEBUG
+			DrawBounds();
 			DrawPoints();
 			#endif
 		}
@@ -602,6 +589,8 @@ namespace AtHangar
 				var parts = EditorLogic.fetch.getSortedShipList();
 				if(parts.Count == 0 || parts[0] == null) return;
 				vessel_metric.DrawBox(parts[0].partTransform);
+				if(vessel_metric.hull != null && draw_directions)
+					Utils.GLDrawHullLines(vessel_metric.hull, parts[0].partTransform, c:Color.yellow);
 			}
 			else vessel_metric.DrawBox(FlightGlobals.ActiveVessel.vesselTransform);
 		}
@@ -614,14 +603,13 @@ namespace AtHangar
 				var parts = EditorLogic.fetch.getSortedShipList();
 				if(parts.Count == 0 || parts[0] == null) return;
 				vessel_metric.DrawCenter(parts[0].partTransform);
-//				HangarGUI.DrawHull(vessel_metric, parts[0].partTransform);
 			}
 			else 
 			{
 				vessel_metric.DrawCenter(FlightGlobals.ActiveVessel.vesselTransform);
-				Utils.DrawPoint(FlightGlobals.ActiveVessel.vesselTransform.InverseTransformPoint(FlightGlobals.ActiveVessel.CurrentCoM), 
+				Utils.GLDrawPoint(FlightGlobals.ActiveVessel.vesselTransform.InverseTransformPoint(FlightGlobals.ActiveVessel.CurrentCoM), 
 							 	FlightGlobals.ActiveVessel.vesselTransform, Color.green);
-				Utils.DrawPoint(Vector3.zero, 
+				Utils.GLDrawPoint(Vector3.zero, 
 								FlightGlobals.ActiveVessel.vesselTransform, Color.red);
 			}
 		}

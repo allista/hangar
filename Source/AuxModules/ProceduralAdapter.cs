@@ -39,7 +39,6 @@ namespace AtHangar
 		Vector2 old_size   = new Vector2(-1, -1);
 		Vector2 orig_size  = new Vector2(-1, -1);
 		readonly AttachNode[] orig_nodes = new AttachNode[2];
-		float   orig_area;
 		public float SurfaceArea 
 		{ get { return TruncatedCone.SurfaceArea(bottomSize*UnitDiameter/2, topSize*UnitDiameter/2, Length*aspect); } }
 
@@ -61,11 +60,7 @@ namespace AtHangar
 		{
 			base.SaveDefaults();
 			HangarProceduralAdapter adapter = base_part.GetModule<HangarProceduralAdapter>();
-			if(adapter != null) 
-			{
-				orig_size = adapter.size;
-				orig_area = adapter.SurfaceArea;
-			}
+			if(adapter != null) orig_size = adapter.size;
 			else this.Log("Can't find base ProceduralAdapter module");
 			old_size = size;
 			orig_nodes[0] = base_part.findAttachNode(TopNodeName);
@@ -99,7 +94,7 @@ namespace AtHangar
 		public void Update() 
 		{ 
 			if(old_size != size || unequal(old_aspect, aspect))
-				{ UpdateMesh(); part.BreakConnectedStruts(); }
+			{ UpdateMesh(); part.BreakConnectedStruts(); }
 			else if(just_loaded) UpdateMesh();
 		}
 
@@ -111,20 +106,20 @@ namespace AtHangar
 				//get transforms and meshes
 				Transform bodyT = part.FindModelTransform(BodyName);
 				if(bodyT == null)
-					this.Log("'{0}' transform does not exists in the {1}", 
+					this.Log("'{}' transform does not exists in the {1}", 
 						BodyName, part.name);
 				Transform colliderT = part.FindModelTransform(ColliderName);
 				if(colliderT == null)
-					this.Log("'{0}' transform does not exists in the {1}", 
+					this.Log("'{}' transform does not exists in the {1}", 
 						ColliderName, part.name);
 				//The mesh method unshares any shared meshes
 				MeshFilter body_mesh_filter = bodyT.GetComponent<MeshFilter>();
 				if(body_mesh_filter == null)
-					this.Log("'{0}' does not have MeshFilter component", BodyName);
+					this.Log("'{}' does not have MeshFilter component", BodyName);
 				body_mesh = body_mesh_filter.mesh;
 				body_collider = colliderT.GetComponent<MeshCollider>();
 				if(body_collider == null)
-					this.Log("'{0}' does not have MeshCollider component", ColliderName);
+					this.Log("'{}' does not have MeshCollider component", ColliderName);
 			}
 			catch(Exception ex)
 			{
@@ -217,8 +212,8 @@ namespace AtHangar
 			if(body_mesh == null || body_collider == null) return;
 			update_body();
 			//calculate surface area, mass and cost changes
-			part.mass  = body.current.Area*AreaDensity;
-			delta_cost = AreaCost*(body.current.Area - orig_area);
+			mass = body.current.Area*AreaDensity;
+			cost = AreaCost*body.current.Area;
 			//update attach nodes
 			update_nodes();
 			//save new values

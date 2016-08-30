@@ -19,7 +19,6 @@ namespace AtHangar
 		/// </summary>
 		[KSPField] public string DockingSpace   = string.Empty;
 		MeshFilter docking_space;
-		Transform  check_transform;
 
 		[KSPField] public string SpawnTransform = string.Empty;
 		Transform spawn_transform;
@@ -56,18 +55,12 @@ namespace AtHangar
 			if(SpawnTransform != string.Empty)
 				spawn_transform = part.FindModelTransform(SpawnTransform);
 			if(spawn_transform == null) spawn_transform = part.transform;
-			//add check transform
-			var launch_empty = new GameObject();
-			launch_empty.transform.SetParent(spawn_transform);
-			check_transform = launch_empty.transform;
 		}
 
 		bool vessel_fits_docking_space(PackedVessel v)
 		{
-			if(docking_space == null) return true;
-			check_transform.position = 
-				spawn_transform.TransformPoint(Vector3.up*v.size.y/2);
-			return v.metric.FitsAligned(check_transform, docking_space.transform, docking_space.sharedMesh);
+			return docking_space == null || 
+				v.metric.FitsAligned(spawn_transform, docking_space.transform, docking_space.sharedMesh, Vector3.up * v.extents.y);
 		}
 
 		protected override bool try_store_vessel(PackedVessel v)
@@ -92,8 +85,8 @@ namespace AtHangar
 		protected override Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv)
 		{
 			return vessel.LandedOrSplashed ? 
-				launch_transform.TransformDirection(-sv.CoG + Vector3.up*sv.size.y/2) : 
-				launch_transform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.size.y/2);
+				launch_transform.TransformDirection(-sv.CoG + Vector3.up*sv.extents.y) : 
+				launch_transform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.extents.y);
 		}
 
 		protected override Transform get_spawn_transform(PackedVessel pv) { return spawn_transform; }

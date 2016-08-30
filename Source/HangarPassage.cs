@@ -216,5 +216,16 @@ namespace AtHangar
 			return vsl.metric.FitsSomehow(size)? other_passage : null;
 		}
 	}
+
+	public class PassageUpdater : ModuleUpdater<HangarPassage>
+	{ 
+		protected override void on_rescale(ModulePair<HangarPassage> mp, Scale scale)
+		{
+			mp.module.Setup(!scale.FirstTime);
+			foreach(var key in new List<string>(mp.module.Nodes.Keys))
+				mp.module.Nodes[key].Size = Vector3.Scale(mp.base_module.Nodes[key].Size, 
+				                                          new Vector3(scale, scale, 1));
+		}
+	}
 }
 

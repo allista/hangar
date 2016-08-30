@@ -14,9 +14,9 @@ using AT_Utils;
 
 namespace AtHangar
 {
-	public class HangarStorage : HangarPassage, IPartCostModifier, IControllableModule
+	public class HangarStorage : HangarPassage, IPartCostModifier, IPartMassModifier, IControllableModule
 	{
-		#region Auto Vessel Rotation
+		#region AutoRotation
 		static readonly Quaternion xyrot = Quaternion.Euler(0, 0, 90);
 		static readonly Quaternion xzrot = Quaternion.Euler(0, 90, 0);
 		static readonly Quaternion yzrot = Quaternion.Euler(90, 0, 0);
@@ -30,20 +30,18 @@ namespace AtHangar
 
 		#region Internals
 		//metrics
-		[KSPField(isPersistant = true)] public float base_mass = -1f;
 		public Metric PartMetric { get; protected set; }
 		public Metric HangarMetric { get; protected set; }
 
 		//hangar space
 		[KSPField] public string HangarSpace = string.Empty;
 		[KSPField] public string SpawnTransform;
-		[KSPField] public bool   UseHangarSpaceMesh;
 		[KSPField] public float  UsefulSizeRatio = 0.9f; //in case no HangarSpace is provided and the part metric is used
 		[KSPField] public bool   AutoPositionVessel;
-		MeshFilter hangar_space;
-		Transform  spawn_transform;
-		public virtual bool ComputeHull 
-		{ get { return Nodes.Count > 0 || UseHangarSpaceMesh && hangar_space != null; } }
+		[KSPField] public Vector3 SpawnOffset;
+		public virtual bool ComputeHull { get { return Nodes.Count > 0 || hangar_space != null; } }
+		public MeshFilter hangar_space { get; protected set; }
+		public Transform  spawn_transform { get; protected set; }
 
 		//vessels storage
 		readonly static string SCIENCE_DATA = typeof(ScienceData).Name;
@@ -53,7 +51,9 @@ namespace AtHangar
 		readonly protected List<PackedConstruct> unfit_constructs = new List<PackedConstruct>();
 		public Vector3 Size { get { return HangarMetric.size; } }
 		public float Volume { get { return HangarMetric.volume; } }
-		public int VesselsDocked { get { return packed_constructs.Count+stored_vessels.Count; } }
+		public int   ConstructsCount { get { return packed_constructs.Count; } }
+		public int   VesselsCount { get { return stored_vessels.Count; } }
+		public int   TotalVesselsDocked { get { return packed_constructs.Count+stored_vessels.Count; } }
 		public float VesselsMass { get { return packed_constructs.VesselsMass+stored_vessels.VesselsMass; } }
 		public float VesselsCost { get { return packed_constructs.VesselsCost+stored_vessels.VesselsCost; } }
 		public float UsedVolume  { get { return packed_constructs.UsedVolume+stored_vessels.UsedVolume; } }
@@ -109,6 +109,7 @@ namespace AtHangar
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
+			if(AutoPositionVessel) SpawnOffset = Vector3.zero;
 			if(HangarSpace != string.Empty)
 				hangar_space = part.FindModelComponent<MeshFilter>(HangarSpace);
 			if(SpawnTransform != string.Empty)
@@ -144,6 +145,9 @@ namespace AtHangar
 			return s;
 		}
 
+		public Vector3 GetSpawnOffset(PackedVessel v)
+		{ return SpawnOffset.IsZero() ? SpawnOffset : Vector3.Scale(v.metric.extents, SpawnOffset); }
+
 		public Transform GetSpawnTransform(PackedVessel v = null)
 		{
 			if(AutoPositionVessel && v != null) 
@@ -163,9 +167,10 @@ namespace AtHangar
 		public bool VesselFits(PackedVessel v)
 		{
 			var	position = GetSpawnTransform(v);
+			var offset = GetSpawnOffset(v);
 			return ComputeHull ? 
-				v.metric.FitsAligned(position, hangar_space.transform, hangar_space.sharedMesh) :
-				v.metric.FitsAligned(position, part.partTransform, HangarMetric);
+				v.metric.FitsAligned(position, hangar_space.transform, hangar_space.sharedMesh, offset) :
+				v.metric.FitsAligned(position, part.partTransform, HangarMetric, offset);
 		}
 
 		void try_repack_construct(PackedConstruct pc)
@@ -173,6 +178,13 @@ namespace AtHangar
 			if(!VesselFits(pc) || 
 			   !packed_constructs.TryAdd(pc))
 				unfit_constructs.Add(pc);
+		}
+
+		void try_pack_unfit_construct(PackedConstruct pc)
+		{ 
+			if(VesselFits(pc) && 
+			   packed_constructs.TryAdd(pc))
+				unfit_constructs.Remove(pc);
 		}
 
 		public override void Setup(bool reset = false)
@@ -197,6 +209,11 @@ namespace AtHangar
 					Utils.Message("The storage became too small. {0} vessels {1} removed", 
 						dN, dN > 1? "were" : "was");
 				}
+				else if(unfit_constructs.Count > 0)
+				{
+					constructs = unfit_constructs.ToList();
+					constructs.ForEach(try_pack_unfit_construct);
+				}
 			}
 			//then set other part parameters
 			set_part_params(reset);
@@ -206,25 +223,17 @@ namespace AtHangar
 		{
 			var el = EditorLogic.fetch;
 			if(el != null) GameEvents.onEditorShipModified.Fire(el.ship);
-			else if(part.vessel != null) GameEvents.onVesselWasModified.Fire(part.vessel);
+//			else if(part.vessel != null) GameEvents.onVesselWasModified.Fire(part.vessel);
 		}
-
-		virtual protected void set_part_mass()
-		{ part.mass = base_mass+VesselsMass; }
 
 		virtual protected void set_part_params(bool reset = false) 
 		{
-			if(base_mass < 0 || reset) base_mass = part.mass;
-			set_part_mass();
-			_stored_vessels = VesselsDocked.ToString();
+			_stored_vessels = TotalVesselsDocked.ToString();
 			_stored_mass    = Utils.formatMass(VesselsMass);
 			_stored_cost    = VesselsCost.ToString();
 			_used_volume    = UsedVolumeFrac.ToString("P1");
 			on_set_part_params();
 		}
-
-		public virtual float GetModuleCost(float default_cost, ModifierStagingSituation situation) { return VesselsCost; }
-		public ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 
 		public override void OnAwake()
 		{ GameEvents.OnVesselRecoveryRequested.Add(onVesselRecoveryRequested); }
@@ -299,7 +308,7 @@ namespace AtHangar
 			var sv = v as StoredVessel;
 			if(pc != null) packed_constructs.ForceAdd(pc); 
 			else if(sv != null) stored_vessels.ForceAdd(sv);
-			else { this.Log("Unknown PackedVessel type: {0}", v); return; }
+			else { this.Log("Unknown PackedVessel type: {}", v); return; }
 			set_part_params(); 
 		}
 
@@ -310,32 +319,29 @@ namespace AtHangar
 			bool result = false;
 			if(pc != null) result = packed_constructs.Remove(pc); 
 			else if(sv != null) result = stored_vessels.Remove(sv);
-			else { this.Log("Unknown PackedVessel type: {0}", v); return false; }
+			else { this.Log("Unknown PackedVessel type: {}", v); return false; }
 			set_part_params(); 
 			return result;
 		}
 
 		public virtual bool TryStoreVessel(PackedVessel v)
 		{
-			if(!VesselFits(v))
-			{
-				Utils.Message(5, "Insufficient vessel clearance for safe docking\n" +
-					"\"{0}\" cannot be stored", v.name);
-				return false;
-			}
 			bool stored = false;
 			var pc = v as PackedConstruct;
 			var sv = v as StoredVessel;
-			if(pc != null) stored = packed_constructs.TryAdd(pc);
-			else if(sv != null) stored = stored_vessels.TryAdd(sv);
-			else { this.Log("Unknown PackedVessel type: {0}", v); return false; }
-			if(!stored)
+			if(VesselFits(v))
 			{
-				Utils.Message("There's no room for \"{0}\"", v.name);
-				return false;
+				if(pc != null) stored = packed_constructs.TryAdd(pc);
+				else if(sv != null) stored = stored_vessels.TryAdd(sv);
+				else { this.Log("Unknown PackedVessel type: {}", v); return false; }
+				if(!stored) Utils.Message("There's no room for \"{0}\"", v.name);
 			}
-			set_part_params();
-			return true;
+			else Utils.Message(5, "Insufficient vessel clearance for safe docking\n" +
+			                   "\"{0}\" cannot be stored", v.name);
+			if(stored) set_part_params();
+			else if(HighLogic.LoadedSceneIsEditor && pc != null)
+			{ unfit_constructs.Add(pc); return true; }
+			return stored;
 		}
 
 		IEnumerator<YieldInstruction> convert_constructs_to_vessels()
@@ -450,6 +456,14 @@ namespace AtHangar
 			if(enable) Setup();
 			base.Enable(enable);
 		}
+		#endregion
+
+		#region IPart*Modifiers
+		public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation situation) { return VesselsCost; }
+		public virtual ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+
+		public virtual float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return VesselsMass; }
+		public virtual ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 		#endregion
 	}
 }

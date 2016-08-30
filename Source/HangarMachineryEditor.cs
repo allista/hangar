@@ -221,6 +221,27 @@ namespace AtHangar
 			if(!selected_window[EditorWindows.RelocateVessels]) vessels_window.ClearSelection();
 		}
 		#endregion
+
+		#if DEBUG
+		Vector3 vessel_offset;
+		void OnRenderObject()
+		{
+			if(launched_vessel != null && launched_vessel.vessel != null)
+			{
+				Utils.GLVec(part.transform.position+part.transform.TransformDirection(part.CoMOffset), deltaV, Color.red);//debug
+				Utils.GLVec(launched_vessel.vessel.transform.position, launched_vessel.dV, Color.green);//debug
+				Utils.GLVec(get_spawn_transform(launched_vessel).position, vessel_offset, Color.magenta);//debug
+			}
+			if(selected_window[EditorWindows.EditContent] && Storage != null && Storage.ConstructsCount > 0) //debug
+			{
+				var vsl = Storage.GetConstructs()[0];
+				var metric = vsl.metric;
+				var hull = metric.hull;
+				Utils.DrawPoint(Vector3.zero, Storage.spawn_transform, Color.red);
+				if(hull != null) Utils.GLDrawHullLines(hull, get_spawn_transform(vsl), metric.center-Storage.GetSpawnOffset(vsl), Color.green);
+			}
+		}
+		#endif
 	}
 }
 

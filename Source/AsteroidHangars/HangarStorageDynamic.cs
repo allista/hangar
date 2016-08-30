@@ -29,13 +29,18 @@ namespace AtHangar
 
 		public SwitchableTankManager GetTankManager() { return tank_manager; }
 
-		public override float GetModuleCost(float default_cost, ModifierStagingSituation situation)
+		#region IPart*Modifiers
+		public override float GetModuleCost(float defaultCost, ModifierStagingSituation situation)
 		{
-			var cost = base.GetModuleCost(default_cost, situation);
+			var cost = base.GetModuleCost(defaultCost, situation);
 			var res = PartResourceLibrary.Instance.GetDefinition(BuildTanksFrom);
 			if(res != null) cost += TanksMass/res.density*res.unitCost;
 			return cost;
 		}
+
+		public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
+		{ return base.GetModuleMass(defaultMass, sit) + TanksMass; }
+		#endregion
 
 		protected override void early_setup(StartState state)
 		{
@@ -69,9 +74,6 @@ namespace AtHangar
 			HangarMetric = new Metric(StorageSize);
 		}
 
-		protected override void set_part_mass()
-		{ part.mass = base_mass + VesselsMass + TanksMass;	}
-
 		public bool AddVolume(float volume) 
 		{
 			if(volume < 0 || tank_manager != null && tank_manager.TanksCount > 0) return false;
@@ -89,7 +91,7 @@ namespace AtHangar
 		{ 
 			get
 			{
-				return VesselsDocked == 0 && 
+				return TotalVesselsDocked == 0 && 
 				tank_manager != null && 
 				tank_manager.TanksCount == 0;
 			}
@@ -212,7 +214,7 @@ namespace AtHangar
 		[KSPEvent(guiActive = true, guiName = "Edit Tanks", active = false)]
 		public void EditTanks()
 		{ 
-			if(VesselsDocked > 0)
+			if(TotalVesselsDocked > 0)
 			{
 				Utils.Message("There are some ships docked inside this hangar.\n" +
 				              "All works on resource tanks are prohibited for safety reasons.");
@@ -228,7 +230,7 @@ namespace AtHangar
 			if(Event.current.type != EventType.Layout) return;
 			if(!selected_window) return;
 			if(tank_manager == null) return;
-			if(VesselsDocked > 0) 
+			if(TotalVesselsDocked > 0) 
 			{ 
 				selected_window[TankWindows.EditTanks] = false;
 				tank_manager.UnlockEditor(); 

@@ -44,7 +44,7 @@ namespace AtHangar
 		{
 			if(part.vessel == null || part.vessel.mainBody == null) return 0;
 			if(!part.vessel.mainBody.atmosphere) return 0;
-			var pressure = FlightGlobals.getStaticPressure(part.vessel.altitude, part.vessel.mainBody);
+			var pressure = part.vessel.mainBody.GetPressure(part.vessel.altitude);
 			if(pressure < 1e-6) return 0;
 			socket.RequestTransfer(ConsumptionRate*TimeWarp.fixedDeltaTime);
 			if(!socket.TransferResource()) return 0 ;
@@ -53,7 +53,7 @@ namespace AtHangar
 		}
 	}
 
-	public class HangarGenericInflatable : MultiGeometryAnimator
+	public class HangarGenericInflatable : MultiGeometryAnimator, ISerializationCallbackReceiver
 	{
 		//configuration
 		[KSPField(isPersistant = false)] public string ControlledModules;
@@ -89,7 +89,6 @@ namespace AtHangar
 
 		//state
 		const int skip_fixed_frames = 5;
-		bool just_loaded = false;
 
 		#region Info
 		public override string GetInfo()
@@ -136,7 +135,6 @@ namespace AtHangar
 
 		public override void OnStart(StartState state)
 		{
-			this.Log("OnStart.ModuleConfig:\n{0}", ModuleConfig);//debug
 			base.OnStart(state);
 			if(state == StartState.None) return;
 			//get sound effects
@@ -146,12 +144,12 @@ namespace AtHangar
 				fxSndCompressor.audio.volume = GameSettings.SHIP_VOLUME * SoundVolume;
 			}
 			//get controlled modules
-			foreach(string module_name in ControlledModules.Split(' '))
+			foreach(string module_name in ControlledModules.Split(new []{" "}, System.StringSplitOptions.RemoveEmptyEntries))
 			{
 				if(module_name == "") continue;
 				if(!part.Modules.Contains(module_name))
 				{
-					this.Log("OnStart: {0} does not contain {1} module.", part.name, module_name);
+					this.Log("OnStart: {} does not contain {} module.", part.name, module_name);
 					continue;
 				}
 				var modules = new List<IControllableModule>();
@@ -166,26 +164,26 @@ namespace AtHangar
 							if(State != AnimatorState.Opened)
 								controllableModule.Enable(false);
 						}
-						else this.Log("OnStart: {0} is not a ControllableModule. Skipping it.", pm.moduleName);
+						else this.Log("OnStart: {} is not a ControllableModule. Skipping it.", pm.moduleName);
 					}
 				}
 				controlled_modules.AddRange(modules);
 			}
 			//get animated nodes
-			foreach(string node_name in AnimatedNodes.Split(' '))
+			foreach(string node_name in AnimatedNodes.Split(new []{" "}, System.StringSplitOptions.RemoveEmptyEntries))
 			{
 				if(node_name == "") continue;
 				Transform node_transform = part.FindModelTransform(node_name);
 				if(node_transform == null) 
 				{
-					this.Log("OnStart: no transform '{0}' in {1}", node_name, part.name);
+					this.Log("OnStart: no transform '{}' in {}", node_name, part.name);
 					continue;
 				}
 				AttachNode node = part.findAttachNode(node_name);
 				if(node == null) node = part.srfAttachNode.id == node_name? part.srfAttachNode : null;
 				if(node == null)
 				{
-					this.Log("OnStart: no node '{0}' in {1}", node_name, part.name);
+					this.Log("OnStart: no node '{}' in {}", node_name, part.name);
 					continue;
 				}
 				var a_node = new AnimatedNode(node, node_transform, part);
@@ -203,16 +201,14 @@ namespace AtHangar
 			UpdatePart();
 			ToggleEvents();
 			StartCoroutine(SlowUpdate());
+			StartCoroutine(FirstTimeUpdateNodes());
 			isEnabled = false;
-			just_loaded = true;
 		}
 
 		bool init_compressor()
 		{
 			Compressor = null;
-			this.Log("init_compressor.ModuleConfig:\n{0}", ModuleConfig);//debug
-			if(ModuleConfig == null) 
-			{ this.Log("ModuleConfig is null. THIS SHOULD NEVER HAPPEN!"); return false; }
+			if(ModuleConfig == null) return false;
 			if(ModuleConfig.HasNode(GasCompressor.NODE_NAME)) 
 			{
 				Compressor = new GasCompressor(part);
@@ -227,21 +223,16 @@ namespace AtHangar
 			base.OnLoad(node);
 			//only save config for the first time
 			if(ModuleConfig == null) ModuleConfig = node;
-			this.Log("OnLoad.ModuleConfig:\n{0}", ModuleConfig);//debug
-			if(!node.HasValue("SavedState"))
+			if(!node.HasValue("State"))
 				State = PackedByDefault? AnimatorState.Closed : AnimatorState.Opened;
 		}
 
 		//workaround for ConfigNode non-serialization
 		public byte[] _module_config;
 		public void OnBeforeSerialize()
-		{ _module_config = ConfigNodeWrapper.SaveConfigNode(ModuleConfig); 
-			this.Log("OnBeforeSerialize._module_config:\n{0}", ModuleConfig);//debug 
-		}
+		{ _module_config = ConfigNodeWrapper.SaveConfigNode(ModuleConfig); }
 		public void OnAfterDeserialize() 
-		{ ModuleConfig = ConfigNodeWrapper.RestoreConfigNode(_module_config); 
-			this.Log("OnAfterDeserialize.ModuleConfig:\n{0}", ModuleConfig);//debug
-		}
+		{ ModuleConfig = ConfigNodeWrapper.RestoreConfigNode(_module_config); }
 		#endregion
 
 		#region Updates
@@ -249,19 +240,10 @@ namespace AtHangar
 		{
 			base.FixedUpdate();
 			if(State == AnimatorState.Opening  || 
-				State == AnimatorState.Closing ||
-				just_loaded) 
+				State == AnimatorState.Closing) 
 			{ 
-				if(just_loaded)
-				{
-					StartCoroutine(FirstTimeUpdateNodes());
-					just_loaded = false;
-				}
-				else 
-				{
-					UpdatePart();
-					part.BreakConnectedStruts();
-				}
+				UpdatePart();
+				part.BreakConnectedStruts();
 			}
 			if(Compressor != null && !has_compressed_gas)
 			{
@@ -291,6 +273,7 @@ namespace AtHangar
 
 		IEnumerator<YieldInstruction> FirstTimeUpdateNodes()
 		{
+			yield return new WaitForFixedUpdate();
 			for(int i = 0; i < skip_fixed_frames; i++)
 			{
 				yield return new WaitForFixedUpdate();
@@ -332,13 +315,13 @@ namespace AtHangar
 			{
 				if(has_compressed_gas) { deflate(); break; }
 				if(Compressor == null)
-					warning.Show("The hangar is not equipped with a compressor. " +
-								 "You will not be able to inflate the hangar again. " +
+					warning.Show("This part is not equipped with a compressor. " +
+								 "You will not be able to inflate it again. " +
 								 "Are you sure you want to deflate the hangar?");
 				else if(!part.vessel.mainBody.atmosphere)
 					warning.Show("There's no atmosphere here. " +
-					             "You will not be able to inflate the hangar again." +
-					             "Are you sure you want to deflate the hangar?");
+					             "You will not be able to inflate this part again." +
+					             "Are you sure you want to deflate it?");
 				else { deflate(); break; }
 				if(warning.Result == SimpleDialog.Answer.None) break;
 				if(warning.Result == SimpleDialog.Answer.Yes) deflate();
@@ -402,5 +385,18 @@ namespace AtHangar
 		[KSPAction("Inflate")]
 		public void InflateAction(KSPActionParam param) { Inflate(); }
 		#endregion
+	}
+
+	public class GenericInflatableUpdater : ModuleUpdater<HangarGenericInflatable>
+	{
+		protected override void on_rescale(ModulePair<HangarGenericInflatable> mp, Scale scale)
+		{
+			mp.module.InflatableVolume = mp.base_module.InflatableVolume * scale.absolute.cube * scale.absolute.aspect;
+			mp.module.CompressedGas   *= scale.relative.cube * scale.relative.aspect;
+			mp.module.ForwardSpeed     = mp.base_module.ForwardSpeed / (scale.absolute * scale.aspect);
+			mp.module.ReverseSpeed     = mp.base_module.ReverseSpeed / (scale.absolute * scale.aspect);
+			if(mp.module.Compressor == null) return;
+			mp.module.Compressor.ConsumptionRate = mp.base_module.Compressor.ConsumptionRate * scale.absolute.cube * scale.absolute.aspect;
+		}
 	}
 }

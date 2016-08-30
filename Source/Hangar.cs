@@ -43,8 +43,8 @@ namespace AtHangar
 		protected override Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv)
 		{
 			return vessel.LandedOrSplashed ? 
-				launch_transform.TransformDirection(-sv.CoG) : 
-				launch_transform.TransformDirection(sv.CoM - sv.CoG);
+				launch_transform.TransformDirection(-sv.CoG + Storage.GetSpawnOffset(sv)) : 
+				launch_transform.TransformDirection(sv.CoM - sv.CoG + Storage.GetSpawnOffset(sv));
 		}
 
 		#if DEBUG
@@ -56,8 +56,8 @@ namespace AtHangar
 			if(Physics.Raycast(part.airlock.transform.position, (part.airlock.transform.position - part.transform.position).normalized, out raycastHit, 1, 32769))
 			{
 				this.Log("Airlock should be blocked:\n" +
-				         "collider 'in front': {0}\n" +
-				         "distance to it: {1}\n",
+				         "collider 'in front': {}\n" +
+				         "distance to it: {}\n",
 				         raycastHit.collider.name,
 				         raycastHit.distance
 				        );
