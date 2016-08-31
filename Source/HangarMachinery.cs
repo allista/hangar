@@ -449,13 +449,10 @@ namespace AtHangar
 			var UT    = Planetarium.GetUniversalTime();
 			var horb  = vessel.orbit;
 			var vorb  = new Orbit();
-			var CoM   = (vessel.handlePhysicsStats? vessel.findWorldCenterOfMass() : vessel.CoM) 
-				- vessel.rb_velocity*TimeWarp.fixedDeltaTime;
-			var d_pos = spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel) - CoM;
-			var vpos  = horb.getRelativePositionAtUT(UT+TimeWarp.fixedDeltaTime) 
-				+ new Vector3d(d_pos.x, d_pos.z, d_pos.y) 
+			var d_pos = spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel) - vessel.CurrentCoM;
+			var vpos  = horb.pos + new Vector3d(d_pos.x, d_pos.z, d_pos.y) 
 				- horb.GetRotFrameVel(horb.referenceBody)*TimeWarp.fixedDeltaTime;
-			var vvel  = horb.getOrbitalVelocityAtUT(UT+TimeWarp.fixedDeltaTime);
+			var vvel  = horb.vel;
 			if(LaunchWithPunch && !LaunchVelocity.IsZero())
 			{
 				//honor the momentum conservation law
@@ -532,7 +529,6 @@ namespace AtHangar
 				vsl.Load();
 				var spawn_transform = get_spawn_transform(launched_vessel);
 				var spos = spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel)
-					+part.Rigidbody.velocity*TimeWarp.fixedDeltaTime
 					-vsl.transform.TransformDirection(launched_vessel.CoM);
 				var svel = part.rb.velocity+launched_vessel.dV;
 				var vvel = vessel.rb_velocity;
