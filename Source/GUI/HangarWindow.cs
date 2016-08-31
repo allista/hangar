@@ -592,7 +592,7 @@ namespace AtHangar
 				if(vessel_metric.hull != null && draw_directions)
 					Utils.GLDrawHullLines(vessel_metric.hull, parts[0].partTransform, c:Color.yellow);
 			}
-			else vessel_metric.DrawBox(FlightGlobals.ActiveVessel.vesselTransform);
+//			else vessel_metric.DrawBox(FlightGlobals.ActiveVessel.vesselTransform);
 		}
 
 		void DrawPoints()
@@ -604,13 +604,11 @@ namespace AtHangar
 				if(parts.Count == 0 || parts[0] == null) return;
 				vessel_metric.DrawCenter(parts[0].partTransform);
 			}
-			else 
+			else if(vessel != null)
 			{
-				vessel_metric.DrawCenter(FlightGlobals.ActiveVessel.vesselTransform);
-				Utils.GLDrawPoint(FlightGlobals.ActiveVessel.vesselTransform.InverseTransformPoint(FlightGlobals.ActiveVessel.CurrentCoM), 
-							 	FlightGlobals.ActiveVessel.vesselTransform, Color.green);
-				Utils.GLDrawPoint(Vector3.zero, 
-								FlightGlobals.ActiveVessel.vesselTransform, Color.red);
+				vessel_metric.DrawCenter(vessel.vesselTransform);
+				Utils.GLDrawPoint(vessel.vesselTransform.InverseTransformPoint(vessel.CurrentCoM), vessel.vesselTransform, Color.green);
+				Utils.GLDrawPoint(Vector3.zero, vessel.vesselTransform, Color.red);
 			}
 		}
 		#endif
