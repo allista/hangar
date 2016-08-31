@@ -230,13 +230,18 @@ namespace AtHangar
 				Utils.GLVec(part.transform.position+part.transform.TransformDirection(part.CoMOffset), deltaV, Color.red);
 				Utils.GLVec(launched_vessel.vessel.transform.position, launched_vessel.dV, Color.green);
 			}
-			if(selected_window[EditorWindows.EditContent] && Storage != null && Storage.ConstructsCount > 0)
+			if(selected_window[EditorWindows.EditContent] && Storage != null)
 			{
-				var vsl = Storage.GetConstructs()[0];
-				var metric = vsl.metric;
-				var hull = metric.hull;
-				Utils.DrawPoint(Vector3.zero, Storage.spawn_transform, Color.red);
-				if(hull != null) Utils.GLDrawHullLines(hull, get_spawn_transform(vsl), metric.center-Storage.GetSpawnOffset(vsl), Color.green);
+				PackedVessel vsl = null;
+				if(Storage.ConstructsCount > 0) vsl = Storage.GetConstructs()[0];
+				else if(Storage.UnfitCount > 0) vsl = Storage.UnfitConstucts[0];
+				if(vsl != null)
+				{
+					var metric = vsl.metric;
+					var hull = metric.hull;
+					Utils.DrawPoint(Vector3.zero, Storage.spawn_transform, Color.red);
+					if(hull != null) Utils.GLDrawHullLines(hull, get_spawn_transform(vsl), metric.center-Storage.GetSpawnOffset(vsl), Color.green);
+				}
 			}
 		}
 		#endif
