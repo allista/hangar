@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using KSP.UI;
 using KSP.UI.Screens;
@@ -101,6 +100,7 @@ namespace AtHangar
 				part.DragCubes.SetCubeWeight("Clean ", 0f);
 			}
 			JettisonDirection.Normalize();
+			vessel.SpawnCrew();
 		}
 
 		IEnumerator<YieldInstruction> update_crew_capacity()
@@ -199,9 +199,7 @@ namespace AtHangar
 
 		IEnumerator<YieldInstruction> delayed_launch()
 		{
-//			framerate = 5;//debug
 			//check state
-//			this.Log("Storage {}, Ready {}", Storage, Storage == null? "N/A" : Storage.Ready.ToString());//debug
 			if(!HighLogic.LoadedSceneIsFlight || Storage == null || !Storage.Ready) yield break;
 			if(Storage.GetVessels().Count == 0) 
 			{
@@ -245,14 +243,28 @@ namespace AtHangar
 
 		#if DEBUG
 //		Vector3d last_pos = Vector3d.zero;
+//		Vector3d last_opos = Vector3d.zero;
 //		public override void FixedUpdate()
 //		{
 //			base.FixedUpdate();
 //			if(debris != null && debris.Count > 0)
 //			{
 //				var d = debris[0];
-//				this.Log("delta pos: {}\npos: {}", (d.transform.position-last_pos).magnitude.ToString("F3"), d.transform.position);
-//				last_pos = d.transform.position;
+//				var delta = (d.vessel.CoM-last_pos).magnitude;
+//				var odelta = (d.orbit.pos-last_opos).magnitude;
+//				this.Log("delta pos:  {}\n" +
+//				         "delta orb:  {}\n" +
+//				         "pos-CB - orb: {}\n" +
+//				         "orbit:\n{}\n" +
+//				         "driver.offsetByFrame {}, was {}\n" +
+//				         "driver.localCoM {}", 
+//				         delta.ToString("F3"), 
+//				         odelta.ToString("F3"),
+//				         (d.vessel.CoMD-d.vessel.mainBody.position).xzy-d.orbit.pos,
+//				         d.orbit, d.vessel.orbitDriver.offsetPosByAFrame, d.vessel.orbitDriver.wasOffsetPosByAFrame,
+//				         d.vessel.orbitDriver.localCoM);
+//				last_pos = d.vessel.CoM;
+//				last_opos = d.orbit.pos;
 //			}
 //		}
 		#endif
