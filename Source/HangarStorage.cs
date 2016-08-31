@@ -38,7 +38,7 @@ namespace AtHangar
 		[KSPField] public string SpawnTransform;
 		[KSPField] public float  UsefulSizeRatio = 0.9f; //in case no HangarSpace is provided and the part metric is used
 		[KSPField] public bool   AutoPositionVessel;
-		[KSPField] public Vector3 SpawnOffset;
+		[KSPField] public Vector3 SpawnOffset = Vector3.zero;
 		public virtual bool ComputeHull { get { return Nodes.Count > 0 || hangar_space != null; } }
 		public MeshFilter hangar_space { get; protected set; }
 		public Transform  spawn_transform { get; protected set; }
@@ -109,7 +109,8 @@ namespace AtHangar
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
-			if(AutoPositionVessel) SpawnOffset = Vector3.zero;
+			if(AutoPositionVessel) 
+				SpawnOffset = Vector3.zero;
 			if(HangarSpace != string.Empty)
 				hangar_space = part.FindModelComponent<MeshFilter>(HangarSpace);
 			if(SpawnTransform != string.Empty)
@@ -120,6 +121,21 @@ namespace AtHangar
 				var parent = hangar_space != null? hangar_space.transform : part.transform;
 				launch_empty.transform.SetParent(parent);
 				spawn_transform = launch_empty.transform;
+			}
+			if(hangar_space != null)
+			{
+				//check if the hangar space has its normals flipped iside; if not, flip them
+				var mini_space = new Metric(hangar_space, part.transform, true);
+				mini_space.Scale(0.5f);
+				if(!mini_space.FitsAligned(spawn_transform, 
+				                           hangar_space.transform, hangar_space.sharedMesh, 
+				                           Vector3.Scale(mini_space.extents, SpawnOffset)))
+				{
+					this.Log("The '{}' mesh is not flipped. Hangar space normals should be pointed INSIDE.", HangarSpace);
+					var mesh = hangar_space.sharedMesh;
+					mesh.triangles = mesh.triangles.Reverse().ToArray();
+					mesh.RecalculateNormals();
+				}
 			}
 			build_storage_checklist();
 		}
@@ -255,6 +271,7 @@ namespace AtHangar
 			return vessels;
 		}
 
+		public int UnfitCount { get { return unfit_constructs.Count; } }
 		public List<PackedConstruct> UnfitConstucts { get { return unfit_constructs.ToList(); } }
 		public void RemoveUnfit(PackedConstruct pc) { unfit_constructs.Remove(pc); }
 
