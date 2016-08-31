@@ -225,10 +225,16 @@ namespace AtHangar
 		#if DEBUG
 		void OnRenderObject()
 		{
+			Utils.GLDrawPoint(Vector3.zero, vessel.transform, Color.red);
+			Utils.GLLine(vessel.transform.position, vessel.CoM, Color.green);
+			Utils.GLLine(vessel.transform.position, vessel.CurrentCoM, Color.cyan);
+			Utils.GLLine(vessel.transform.position, vessel.orbit.pos.xzy+vessel.mainBody.position, Color.yellow);
+			Utils.GLLine(vessel.transform.position, vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()+TimeWarp.fixedDeltaTime).xzy+vessel.mainBody.position, Color.magenta);
+			Utils.GLVec(vessel.transform.position,  vessel.rb_velocity*TimeWarp.fixedDeltaTime, Color.blue);
 			if(launched_vessel != null && launched_vessel.vessel != null)
 			{
+				Utils.GLDrawPoint(Vector3.zero, launched_vessel.vessel.transform, Color.green);
 				Utils.GLVec(part.transform.position+part.transform.TransformDirection(part.CoMOffset), deltaV, Color.red);
-				Utils.GLVec(launched_vessel.vessel.transform.position, launched_vessel.dV, Color.green);
 			}
 			if(selected_window[EditorWindows.EditContent] && Storage != null)
 			{
