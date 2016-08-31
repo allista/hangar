@@ -277,7 +277,6 @@ namespace AtHangar
 		#endregion
 
 		#region Physics changes
-//		protected int framerate = -1;
 		public virtual void FixedUpdate()
 		{
 			if(HighLogic.LoadedSceneIsFlight)
@@ -300,8 +299,6 @@ namespace AtHangar
 					}
 				}
 			}
-//			Application.targetFrameRate = framerate;//debug
-//			QualitySettings.vSyncCount = 0;//debug
 		}
 		#endregion
 
@@ -455,7 +452,6 @@ namespace AtHangar
 			var CoM   = (vessel.handlePhysicsStats? vessel.findWorldCenterOfMass() : vessel.CoM) 
 				- vessel.rb_velocity*TimeWarp.fixedDeltaTime;
 			var d_pos = spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel) - CoM;
-			vessel_offset = get_vessel_offset(spawn_transform, launched_vessel);//debug
 			var vpos  = horb.getRelativePositionAtUT(UT+TimeWarp.fixedDeltaTime) 
 				+ new Vector3d(d_pos.x, d_pos.z, d_pos.y) 
 				- horb.GetRotFrameVel(horb.referenceBody)*TimeWarp.fixedDeltaTime;
@@ -484,7 +480,6 @@ namespace AtHangar
 				pv.altitude  = vessel.mainBody.GetAltitude(vpos);
 			}
 			on_vessel_positioned();
-			this.Log("\norbit:\n{}\ndvel {}", vorb, vvel-horb.vel);//debug
 		}
 
 		void onVesselGoOffRails(Vessel vsl)
@@ -505,7 +500,6 @@ namespace AtHangar
 		IEnumerator<YieldInstruction> launch_vessel(StoredVessel sv)
 		{
 			launched_vessel = sv;
-			Utils.Message("Launching {0}", sv.name);//debug
 			disable_collisions();
 			before_vessel_launch();	
 			transferResources(launched_vessel);
@@ -515,12 +509,9 @@ namespace AtHangar
 			yield return new WaitForFixedUpdate();
 			position_launched_vessel();
 			launched_vessel.proto_vessel.Load(HighLogic.CurrentGame.flightState);
-			Utils.Message("{0} loaded from ProtoVessel", sv.name);//debug
 			yield return new WaitForFixedUpdate();
 			disable_collisions(false);
 			var vsl = launched_vessel.vessel;
-			this.Log("\norbit:\n{}\nvsl pos {}", 
-			         vsl.orbit, vsl.transform.position);//debug
 			if(vessel.LandedOrSplashed)
 			{
 				var pos = vsl.transform.position;
@@ -545,32 +536,14 @@ namespace AtHangar
 					-vsl.transform.TransformDirection(launched_vessel.CoM);
 				var svel = part.rb.velocity+launched_vessel.dV;
 				var vvel = vessel.rb_velocity;
-				Utils.Message("{0} Loaded", sv.name);//debug
 				while(vsl.packed) 
 				{
-					this.Log("\norbit:\n{}\nold pos {}\npos {}\ndelta {}", 
-					         vsl.orbit, vsl.transform.position, spos, spos-vsl.transform.position);//debug
 					vsl.SetPosition(spos);
 					if(!vsl.packed) break;
 					spos += (svel+vessel.rb_velocity-vvel)*TimeWarp.fixedDeltaTime;
 					yield return new WaitForFixedUpdate();
 				}
-				Utils.Message("{0} Unpacked", sv.name, spos);//debug
-//				foreach(var p in vsl.parts)
-//				{ if(p.rb != null) p.rb.velocity = (svel+vessel.rb_velocity-vvel); }
-				this.Log("\norbit 0:\n{}", vsl.orbit);//debug
 			}
-			yield return null;
-			this.Log("\norbit 1:\n{}", vsl.orbit);//debug
-			yield return null;
-			this.Log("\norbit 2:\n{}", vsl.orbit);//debug
-			yield return null;
-			this.Log("\norbit 3:\n{}", vsl.orbit);//debug
-			yield return null;
-			this.Log("\norbit 4:\n{}", vsl.orbit);//debug
-			yield return null;
-			this.Log("\norbit 5:\n{}\n============================", vsl.orbit);//debug
-//			framerate = -1;//debug
 		}
 
 		protected virtual void disable_collisions(bool disable=true) {}

@@ -223,16 +223,14 @@ namespace AtHangar
 		#endregion
 
 		#if DEBUG
-		Vector3 vessel_offset;
 		void OnRenderObject()
 		{
 			if(launched_vessel != null && launched_vessel.vessel != null)
 			{
-				Utils.GLVec(part.transform.position+part.transform.TransformDirection(part.CoMOffset), deltaV, Color.red);//debug
-				Utils.GLVec(launched_vessel.vessel.transform.position, launched_vessel.dV, Color.green);//debug
-				Utils.GLVec(get_spawn_transform(launched_vessel).position, vessel_offset, Color.magenta);//debug
+				Utils.GLVec(part.transform.position+part.transform.TransformDirection(part.CoMOffset), deltaV, Color.red);
+				Utils.GLVec(launched_vessel.vessel.transform.position, launched_vessel.dV, Color.green);
 			}
-			if(selected_window[EditorWindows.EditContent] && Storage != null && Storage.ConstructsCount > 0) //debug
+			if(selected_window[EditorWindows.EditContent] && Storage != null && Storage.ConstructsCount > 0)
 			{
 				var vsl = Storage.GetConstructs()[0];
 				var metric = vsl.metric;
