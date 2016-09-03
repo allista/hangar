@@ -98,11 +98,6 @@
       <Name>AT_Utils</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\AT_Utils\AnimatedConverters\AnimatedConverters.csproj">
-      <Project>{D8D537A0-1F63-4FDC-9D82-FD22B6F45C7D}</Project>
-      <Name>AnimatedConverters</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\AT_Utils\AnisotropicPartResizer\AnisotropicPartResizer.csproj">
       <Project>{19ABDD5C-1F12-4D67-B72E-E36071ABFF2C}</Project>
       <Name>AnisotropicPartResizer</Name>
