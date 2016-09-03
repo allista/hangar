@@ -162,7 +162,7 @@ namespace AtHangar
 		HangarPassage get_other_passage()
 		{
 			var other_part = OtherPart;
-			return other_part != null ? other_part.GetModule<HangarPassage>() : null;
+			return other_part != null ? other_part.Modules.GetModule<HangarPassage>() : null;
 		}
 
 		public HangarPassage OtherPassage 
@@ -201,7 +201,7 @@ namespace AtHangar
 		{
 			base.Load(node);
 			part_node = part.findAttachNode(NodeID);
-			docking_node = part.GetModule<ModuleDockingNode>();
+			docking_node = part.Modules.GetModule<ModuleDockingNode>();
 			if(docking_node != null && docking_node.referenceAttachNode != NodeID) docking_node = null;
 		}
 

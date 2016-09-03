@@ -59,7 +59,7 @@ namespace AtHangar
 		protected override void SaveDefaults()
 		{
 			base.SaveDefaults();
-			HangarProceduralAdapter adapter = base_part.GetModule<HangarProceduralAdapter>();
+			HangarProceduralAdapter adapter = base_part.Modules.GetModule<HangarProceduralAdapter>();
 			if(adapter != null) orig_size = adapter.size;
 			else this.Log("Can't find base ProceduralAdapter module");
 			old_size = size;
@@ -100,7 +100,7 @@ namespace AtHangar
 
 		void get_part_components()
 		{
-			passage = part.GetModule<HangarPassage>();
+			passage = part.Modules.GetModule<HangarPassage>();
 			try
 			{
 				//get transforms and meshes

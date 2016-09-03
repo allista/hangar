@@ -16,7 +16,7 @@ namespace AtHangar
 		public override string GetInfo()
 		{
 			var info = base.GetInfo();
-			var storage = part.GetModule<HangarStorage>();
+			var storage = part.Modules.GetModule<HangarStorage>();
 			if(storage != null)
 			{
 				info += storage.AutoPositionVessel?
@@ -32,7 +32,7 @@ namespace AtHangar
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
-			Storage = part.GetModule<HangarStorage>();
+			Storage = part.Modules.GetModule<HangarStorage>();
 			if(Storage == null) 
 			{
 				this.ConfigurationInvalid("\"{0}\" part has no HangarStorage module", part.Title());

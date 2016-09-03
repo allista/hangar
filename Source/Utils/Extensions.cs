@@ -13,7 +13,7 @@ namespace AtHangar
 	{
 		public static HangarPassage GetPassage(this Part part)
 		{
-			var passage = part.GetModule<HangarPassage>();
+			var passage = part.Modules.GetModule<HangarPassage>();
 			if(passage == null) 
 				Utils.Message("WARNING: \"{0}\" part has no HangarPassage module.\n" +
 					"The part configuration is INVALID!", part.Title());

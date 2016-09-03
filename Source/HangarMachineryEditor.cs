@@ -230,7 +230,7 @@ namespace AtHangar
 			Utils.GLLine(vessel.transform.position, vessel.CurrentCoM, Color.cyan);
 			Utils.GLLine(vessel.transform.position, vessel.orbit.pos.xzy+vessel.mainBody.position, Color.yellow);
 			Utils.GLLine(vessel.transform.position, vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()+TimeWarp.fixedDeltaTime).xzy+vessel.mainBody.position, Color.magenta);
-			Utils.GLVec(vessel.transform.position,  vessel.rb_velocity*TimeWarp.fixedDeltaTime, Color.blue);
+			Utils.GLVec(vessel.transform.position,  vessel.orbit.GetRotFrameVel(vessel.mainBody).xzy*TimeWarp.fixedDeltaTime, Color.blue);
 			if(launched_vessel != null && launched_vessel.vessel != null)
 			{
 				Utils.GLDrawPoint(Vector3.zero, launched_vessel.vessel.transform, Color.green);

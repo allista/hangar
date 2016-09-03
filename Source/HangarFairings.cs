@@ -346,7 +346,7 @@ namespace AtHangar
 			model.parent = base_model;
 			model.localPosition = Vector3.zero;
 			model.rotation = debris_transform.rotation;
-			var resizer = original_part.GetModule<AnisotropicPartResizer>();
+			var resizer = original_part.Modules.GetModule<AnisotropicPartResizer>();
 			if(resizer != null) model.parent.localScale = resizer.scale.ScaleVector(base_model.localScale);
 			part.transform.hasChanged = true;
 			//initialize the part
@@ -357,7 +357,7 @@ namespace AtHangar
 			part.orgPos = Vector3.zero;
 			part.orgRot = Quaternion.identity;
 			//initialize Debris module
-			var debris = part.GetModule<Debris>();
+			var debris = part.Modules.GetModule<Debris>();
 			if(debris == null) 
 			{ 
 				Utils.Log("WARNING: {} part does not have Debris module!", DEBRIS_PART);
