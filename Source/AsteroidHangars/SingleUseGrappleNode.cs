@@ -21,13 +21,22 @@ namespace AtHangar
 
 		[KSPField] public string AnimatorID = "_none_";
 		MultiAnimator animator;
+		ModuleAnimateGeneric deployAnimator;
 
 		public override void OnStart(StartState st)
 		{
 			base.OnStart(st);
 			//initialize Animator
 			animator = part.GetAnimator(AnimatorID);
-			if(Fixed && animator != null) animator.Open();
+			if(deployAnimationController >= 0)
+				deployAnimator = part.Modules.GetModule(deployAnimationController) as ModuleAnimateGeneric;
+			if(Fixed)
+			{
+				if(animator != null) 
+					animator.Open();
+				if(deployAnimator != null && deployAnimator.animSwitch) 
+					deployAnimator.Toggle();
+			}
 			//initialize Fixed state
 			StartCoroutine(delayed_disable_decoupling());
 		}
@@ -58,11 +67,20 @@ namespace AtHangar
 			LockPivot();
 			reinforce_grapple_joint();
 			Events["SetLoose"].active = false;
+			Events["LockPivot"].active = false;
 			Events["Decouple"].active = false;
 			Actions["DecoupleAction"].active = false;
 			Events["Release"].active = false;
 			Events["ReleaseSameVessel"].active = false;
 			Actions["ReleaseAction"].active = false;
+			if(deployAnimator != null)
+			{
+				deployAnimator.disableAfterPlaying = true;
+				if(deployAnimator.animSwitch) deployAnimator.Toggle();
+				deployAnimator.Events["Toggle"].active = false;
+				deployAnimator.Actions["ToggleAction"].active = false;
+				deployAnimator.animationIsDisabled = true;
+			}
 			Fixed = true;
 			disable_fixing();
 		}
