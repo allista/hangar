@@ -225,12 +225,15 @@ namespace AtHangar
 		#if DEBUG
 		void OnRenderObject()
 		{
-			Utils.GLDrawPoint(Vector3.zero, vessel.transform, Color.red);
-			Utils.GLLine(vessel.transform.position, vessel.CoM, Color.green);
-			Utils.GLLine(vessel.transform.position, vessel.CurrentCoM, Color.cyan);
-			Utils.GLLine(vessel.transform.position, vessel.orbit.pos.xzy+vessel.mainBody.position, Color.yellow);
-			Utils.GLLine(vessel.transform.position, vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()+TimeWarp.fixedDeltaTime).xzy+vessel.mainBody.position, Color.magenta);
-			Utils.GLVec(vessel.transform.position,  vessel.orbit.GetRotFrameVel(vessel.mainBody).xzy*TimeWarp.fixedDeltaTime, Color.blue);
+			if(vessel != null)
+			{
+				Utils.GLDrawPoint(Vector3.zero, vessel.transform, Color.red);
+				Utils.GLLine(vessel.transform.position, vessel.CoM, Color.green);
+				Utils.GLLine(vessel.transform.position, vessel.CurrentCoM, Color.cyan);
+				Utils.GLLine(vessel.transform.position, vessel.orbit.pos.xzy+vessel.mainBody.position, Color.yellow);
+				Utils.GLLine(vessel.transform.position, vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()+TimeWarp.fixedDeltaTime).xzy+vessel.mainBody.position, Color.magenta);
+				Utils.GLVec(vessel.transform.position,  vessel.orbit.GetRotFrameVel(vessel.mainBody).xzy*TimeWarp.fixedDeltaTime, Color.blue);
+			}
 			if(launched_vessel != null && launched_vessel.vessel != null)
 			{
 				Utils.GLDrawPoint(Vector3.zero, launched_vessel.vessel.transform, Color.green);
@@ -246,9 +249,13 @@ namespace AtHangar
 					var metric = vsl.metric;
 					var hull = metric.hull;
 					Utils.DrawPoint(Vector3.zero, Storage.spawn_transform, Color.red);
-					if(hull != null) Utils.GLDrawHullLines(hull, get_spawn_transform(vsl), metric.center-Storage.GetSpawnOffset(vsl), Color.green);
+					if(hull != null) Utils.GLDrawHull(hull, get_spawn_transform(vsl), metric.center-Storage.GetSpawnOffset(vsl), Color.green, false);
 				}
+				if(Storage.hangar_space != null)
+					Utils.GLDrawMesh(Storage.hangar_space.sharedMesh, Storage.hangar_space.transform, c:Color.cyan, filled:false);
 			}
+			foreach(var dc in part.DragCubes.Cubes)
+				Utils.GLDrawBounds(new Bounds(dc.Center, dc.Size), part.transform, Color.yellow*dc.Weight);
 		}
 		#endif
 	}

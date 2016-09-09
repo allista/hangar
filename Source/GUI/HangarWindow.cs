@@ -590,7 +590,7 @@ namespace AtHangar
 				if(parts.Count == 0 || parts[0] == null) return;
 				vessel_metric.DrawBox(parts[0].partTransform);
 				if(vessel_metric.hull != null && draw_directions)
-					Utils.GLDrawHullLines(vessel_metric.hull, parts[0].partTransform, c:Color.yellow);
+					Utils.GLDrawHull(vessel_metric.hull, parts[0].partTransform, c:Color.yellow, filled:false);
 			}
 //			else vessel_metric.DrawBox(FlightGlobals.ActiveVessel.vesselTransform);
 		}
