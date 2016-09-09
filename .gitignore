@@ -37,3 +37,8 @@
 /Library/
 /ProjectSettings/
 /PartTools.cfg
+
+.idea/
+/MassCalc/*_map.py
+/MassCalc/Kerbin*.py
+/MassCalc/path.py
