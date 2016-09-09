@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: bolt
-  m_Shader: {fileID: 4800000, guid: 440ec76b6cd2107448cec7a61105b099, type: 3}
+  m_Shader: {fileID: 4800000, guid: ac859b44038643d40b88f24aceac191c, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: 2000
@@ -50,7 +50,7 @@ Material:
       data:
         first:
           name: _SpecColor
-        second: {r: .786764741, g: .786764741, b: .786764741, a: 1}
+        second: {r: .800000012, g: .800000012, b: .800000012, a: 1}
       data:
         first:
           name: _RimColor
