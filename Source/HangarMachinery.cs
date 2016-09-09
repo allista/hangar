@@ -684,6 +684,7 @@ namespace AtHangar
 			hangar_gates.Open();
 			Events["Open"].active = false;
 			Events["Close"].active = true;
+			Activate();
 		}
 
 		[KSPEvent (guiActiveEditor = true, guiName = "Close gates", active = false)]
@@ -693,6 +694,7 @@ namespace AtHangar
 			hangar_gates.Close(); 
 			Events["Open"].active = true;
 			Events["Close"].active = false;
+			Deactivate();
 		}
 
 		public void Activate() { hangar_state = HangarState.Active;	}
