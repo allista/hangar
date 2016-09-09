@@ -125,15 +125,28 @@ namespace AtHangar
 			if(hangar_space != null)
 			{
 				//check if the hangar space has its normals flipped iside; if not, flip them
-				var mini_space = new Metric(hangar_space, part.transform, true);
-				mini_space.Scale(0.5f);
-				if(!mini_space.FitsAligned(spawn_transform, 
-				                           hangar_space.transform, hangar_space.sharedMesh, 
-				                           Vector3.Scale(mini_space.extents, SpawnOffset)))
+				var flipped = false;
+				var mesh   = hangar_space.sharedMesh;
+				var tris   = mesh.triangles;
+				var verts  = mesh.vertices;
+				var center = mesh.bounds.center;
+				for(int i = 0, len = tris.Length/3; i < len; i++)
+				{
+					var j = i*3;
+					var p = new Plane(verts[tris[j]], verts[tris[j+1]], verts[tris[j+2]]);
+					var outside = !p.GetSide(center);
+					if(outside)
+					{
+						var t = tris[j];
+						tris[j] = tris[j+2];
+						tris[j+2] = t;
+						flipped = true;
+					}
+				}
+				if(flipped)
 				{
 					this.Log("The '{}' mesh is not flipped. Hangar space normals should be pointed INSIDE.", HangarSpace);
-					var mesh = hangar_space.sharedMesh;
-					mesh.triangles = mesh.triangles.Reverse().ToArray();
+					mesh.triangles = tris;
 					mesh.RecalculateNormals();
 				}
 			}
