@@ -61,6 +61,7 @@ namespace AtHangar
 		[KSPField(isPersistant = false)] public bool   PackedByDefault = true;
 		[KSPField(isPersistant = false)] public float  InflatableVolume;
 		[KSPField(isPersistant = true)]	 public float  CompressedGas = -1f;
+		[KSPField(isPersistant = false)] public bool   Recompressable = false;
 		[KSPField(isPersistant = false)] public string CompressorSound = "Hangar/Sounds/Compressor";
 		[KSPField(isPersistant = false)] public string InflationSound = "Hangar/Sounds/Inflate";
 		[KSPField(isPersistant = false)] public float  SoundVolume = 0.2f;
@@ -75,7 +76,6 @@ namespace AtHangar
 		readonly List<AnimatedNode> animated_nodes = new List<AnimatedNode>();
 
 		//compressor
-		public ConfigNode ModuleConfig;
 		public GasCompressor Compressor { get; protected set; }
 		bool has_compressed_gas { get { return CompressedGas >= InflatableVolume; } }
 		public FXGroup fxSndCompressor;
@@ -144,30 +144,33 @@ namespace AtHangar
 				fxSndCompressor.audio.volume = GameSettings.SHIP_VOLUME * SoundVolume;
 			}
 			//get controlled modules
-			foreach(string module_name in ControlledModules.Split(new []{" "}, System.StringSplitOptions.RemoveEmptyEntries))
+			if(!string.IsNullOrEmpty(ControlledModules))
 			{
-				if(module_name == "") continue;
-				if(!part.Modules.Contains(module_name))
+				foreach(string module_name in ControlledModules.Split(new []{" "}, System.StringSplitOptions.RemoveEmptyEntries))
 				{
-					this.Log("OnStart: {} does not contain {} module.", part.name, module_name);
-					continue;
-				}
-				var modules = new List<IControllableModule>();
-				foreach(PartModule pm in part.Modules) 
-				{ 
-					if(pm.moduleName == module_name) 
+					if(module_name == "") continue;
+					if(!part.Modules.Contains(module_name))
 					{
-						var controllableModule = pm as IControllableModule;
-						if(controllableModule != null) 
-						{
-							modules.Add(controllableModule); 
-							if(State != AnimatorState.Opened)
-								controllableModule.Enable(false);
-						}
-						else this.Log("OnStart: {} is not a ControllableModule. Skipping it.", pm.moduleName);
+						this.Log("OnStart: {} does not contain {} module.", part.name, module_name);
+						continue;
 					}
+					var modules = new List<IControllableModule>();
+					foreach(PartModule pm in part.Modules) 
+					{ 
+						if(pm.moduleName == module_name) 
+						{
+							var controllableModule = pm as IControllableModule;
+							if(controllableModule != null) 
+							{
+								modules.Add(controllableModule); 
+								if(State != AnimatorState.Opened)
+									controllableModule.Enable(false);
+							}
+							else this.Log("OnStart: {} is not a ControllableModule. Skipping it.", pm.moduleName);
+						}
+					}
+					controlled_modules.AddRange(modules);
 				}
-				controlled_modules.AddRange(modules);
 			}
 			//get animated nodes
 			foreach(string node_name in AnimatedNodes.Split(new []{" "}, System.StringSplitOptions.RemoveEmptyEntries))
@@ -193,7 +196,9 @@ namespace AtHangar
 			prefab = part.partInfo.partPrefab;
 			prefab_metric = new Metric(prefab);
 			//get compressed gas for the first time
-			if(CompressedGas < 0) CompressedGas = InflatableVolume;
+			if(CompressedGas < 0 && 
+			   (state == StartState.Editor || vessel.staticPressurekPa > 1e-6)) 
+				CompressedGas = InflatableVolume;
 			init_compressor();
 			//prevent accidental looping of animation
 			Loop = false;
@@ -221,8 +226,6 @@ namespace AtHangar
 		public override void OnLoad(ConfigNode node)
 		{
 			base.OnLoad(node);
-			//only save config for the first time
-			if(ModuleConfig == null) ModuleConfig = node;
 			if(!node.HasValue("State"))
 				State = PackedByDefault? AnimatorState.Closed : AnimatorState.Opened;
 		}
@@ -313,8 +316,8 @@ namespace AtHangar
 			Styles.Init();
 			while(try_deflate)
 			{
-				if(has_compressed_gas) { deflate(); break; }
-				if(Compressor == null)
+				if(has_compressed_gas || Recompressable) { deflate(); break; }
+				else if(Compressor == null)
 					warning.Show("This part is not equipped with a compressor. " +
 								 "You will not be able to inflate it again. " +
 								 "Are you sure you want to deflate the hangar?");
@@ -341,7 +344,14 @@ namespace AtHangar
 		{
 			if(!enable) EnableModules(enable);
 			AnimatorState target_state = enable ? AnimatorState.Opened : AnimatorState.Closed;
-			while(State != target_state) yield return null;
+			while(State != target_state) 
+			{ 
+				if(State == AnimatorState.Closing && Recompressable && !has_compressed_gas)
+					CompressedGas += Mathf.Abs(last_progress-progress)*InflatableVolume;
+				yield return null; 
+			}
+			if(State == AnimatorState.Closed && Recompressable)
+				CompressedGas = InflatableVolume;
 			UpdatePart();
 			yield return new WaitForSeconds(0.5f);
 			if(enable) EnableModules(enable);
