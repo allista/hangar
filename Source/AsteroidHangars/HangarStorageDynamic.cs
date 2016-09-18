@@ -180,7 +180,7 @@ namespace AtHangar
 		}
 
 		float _add_tank_last_volume, _add_tank_metal;
-		float add_tank(string tank_type, float volume)
+		float add_tank(string tank_name, float volume)
 		{
 			if(!volume.Equals(_add_tank_last_volume))
 				_add_tank_metal = metal_for_tank(volume);
@@ -192,7 +192,7 @@ namespace AtHangar
 			else if(GUILayout.Button("Add", Styles.green_button))
 			{
 				if(metal_pump != null && !convert_metal(volume)) return volume;
-				tank_manager.AddTank(tank_type, volume); //liters
+				tank_manager.AddVolume(tank_name, volume); //liters
 				change_size(-volume);
 			}
 			return volume;
