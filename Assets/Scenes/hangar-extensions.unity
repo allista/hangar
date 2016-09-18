@@ -122,13 +122,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 53766941}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -453068767, guid: 4ef237d66f19ac1489d5642a0953c2ff, type: 3}
+  m_Script: {fileID: -453068767, guid: 90118262cf80c7549ab37dd61d08c605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelName: RadialContainer
-  filePath: Hangar/Parts/Models
+  modelName: NewModel
+  filePath: 
   production: 1
-  textureFormat: 4
+  textureFormat: 2
 --- !u!4 &138369740 stripped
 Transform:
   m_PrefabParentObject: {fileID: 400002, guid: 72053c95b2e64e546a81908fc4a7d731, type: 3}
@@ -199,7 +199,7 @@ Prefab:
     - target: {fileID: 2300004, guid: 1ee9b783d166c57428b32edcd5f62329, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 002a33c2825424c48841140fb7325c2b, type: 2}
+      objectReference: {fileID: 2100000, guid: 05685fa444b13ad4982d7265373e6b3d, type: 2}
     - target: {fileID: 2300002, guid: 1ee9b783d166c57428b32edcd5f62329, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -261,13 +261,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 441530707}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -453068767, guid: 4ef237d66f19ac1489d5642a0953c2ff, type: 3}
+  m_Script: {fileID: -453068767, guid: 90118262cf80c7549ab37dd61d08c605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelName: Converter
-  filePath: Hangar/Parts/Models
+  modelName: NewModel
+  filePath: 
   production: 1
-  textureFormat: 4
+  textureFormat: 2
 --- !u!4 &552822682 stripped
 Transform:
   m_PrefabParentObject: {fileID: 400002, guid: 1ee9b783d166c57428b32edcd5f62329, type: 3}
@@ -309,7 +309,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 582747817}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -453068767, guid: 4ef237d66f19ac1489d5642a0953c2ff, type: 3}
+  m_Script: {fileID: -453068767, guid: 90118262cf80c7549ab37dd61d08c605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   modelName: HangarExtensionXL
@@ -353,7 +353,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 591795428}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -453068767, guid: 4ef237d66f19ac1489d5642a0953c2ff, type: 3}
+  m_Script: {fileID: -453068767, guid: 90118262cf80c7549ab37dd61d08c605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   modelName: HangarExtension
@@ -597,6 +597,10 @@ Prefab:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 0d363e00af359fa4c885988d9093a776, type: 2}
+    - target: {fileID: 2300002, guid: 0e87ed8e8936e924baf525b9c0fd5077, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 05685fa444b13ad4982d7265373e6b3d, type: 2}
     m_RemovedComponents:
     - {fileID: 2300000, guid: 0e87ed8e8936e924baf525b9c0fd5077, type: 3}
   m_ParentPrefab: {fileID: 100100000, guid: 0e87ed8e8936e924baf525b9c0fd5077, type: 3}
@@ -654,7 +658,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1641755081}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -453068767, guid: 4ef237d66f19ac1489d5642a0953c2ff, type: 3}
+  m_Script: {fileID: -453068767, guid: 90118262cf80c7549ab37dd61d08c605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   modelName: HangarExtensionL
