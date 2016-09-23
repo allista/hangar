@@ -19,7 +19,7 @@ namespace AtHangar
 		[KSPField] public float  WidthToLengthRatio    = 0.5f;
 		[KSPField] public float  UpdateVolumeThreshold = 0.1f; //m^3
 		[KSPField] public bool   HasTankManager;
-		[KSPField] public string BuildTanksFrom  = "Metal";
+		[KSPField] public string BuildTanksFrom  = "Metals";
 		[KSPField] public float  ResourcePerArea = 0.6f; // 200U/m^3, 1m^2*3mm
 
 		public ConfigNode ModuleSave;
@@ -240,7 +240,7 @@ namespace AtHangar
 			if(selected_window[TankWindows.EditTanks])
 			{
 				var title = string.Format("Available Volume: {0}", Utils.formatVolume(Volume));
-				tank_manager.DrawTanksWindow(GetInstanceID(), title, add_tank, remove_tank);
+				tank_manager.DrawTanksManagerWindow(GetInstanceID(), title, add_tank, remove_tank);
 				if(tank_manager.Closed) selected_window[TankWindows.EditTanks] = false;
 			}
 		}
