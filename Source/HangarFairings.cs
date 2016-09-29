@@ -84,21 +84,25 @@ namespace AtHangar
 			Events["EditName"].active = false;
 			FX = part.findFxGroup(FxGroup);
 			fairings = part.FindModelTransforms(Fairings);
-			if(fairings != null && jettisoned)
+			if(fairings != null)
 			{
-				part.stagingIcon = string.Empty;
-				fairings.ForEach(f => f.gameObject.SetActive(false));
-				part.DragCubes.SetCubeWeight("Fairing ", 0f);
-				part.DragCubes.SetCubeWeight("Clean ", 1f);
-				part.CoMOffset = BaseCoMOffset;
+				if(jettisoned)
+				{
+					part.stagingIcon = string.Empty;
+					fairings.ForEach(f => f.gameObject.SetActive(false));
+					part.DragCubes.SetCubeWeight("Fairing ", 0f);
+					part.DragCubes.SetCubeWeight("Clean ", 1f);
+					part.CoMOffset = BaseCoMOffset;
+				}
+				else
+				{
+					part.stagingIcon = "DECOUPLER_HOR";
+					fairings.ForEach(f => f.gameObject.SetActive(true));
+					part.DragCubes.SetCubeWeight("Fairing ", 1f);
+					part.DragCubes.SetCubeWeight("Clean ", 0f);
+				}
 			}
-			else
-			{
-				part.stagingIcon = "DECOUPLER_HOR";
-				fairings.ForEach(f => f.gameObject.SetActive(true));
-				part.DragCubes.SetCubeWeight("Fairing ", 1f);
-				part.DragCubes.SetCubeWeight("Clean ", 0f);
-			}
+			else this.Log("No Fairings transforms found with the name: {}", Fairings);
 			JettisonDirection.Normalize();
 			vessel.SpawnCrew();
 		}
