@@ -56,7 +56,7 @@ namespace AtHangar
 			return base.GetInfo();
 		}
 
-		protected override void SaveDefaults()
+		public override void SaveDefaults()
 		{
 			base.SaveDefaults();
 			HangarProceduralAdapter adapter = base_part.Modules.GetModule<HangarProceduralAdapter>();
