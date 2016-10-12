@@ -24,7 +24,6 @@ namespace AtHangar
 		Vector2 unfit_scroll = Vector2.zero;
 		Rect eWindowPos  = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
 		Rect neWindowPos = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 50);
-		Rect vWindowPos  = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
 
 		readonly VesselTransferWindow vessels_window = new VesselTransferWindow();
 		CraftBrowser vessel_selector;
@@ -159,7 +158,7 @@ namespace AtHangar
 
 		public void OnGUI() 
 		{ 
-			if(Event.current.type != EventType.Layout) return;
+			if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
 			if(!selected_window) return;
 			Styles.Init();
 			//edit hangar
@@ -191,8 +190,7 @@ namespace AtHangar
 			}
 			else if(selected_window[EditorWindows.RelocateVessels])
 			{
-				Utils.LockIfMouseOver(eLock, vWindowPos);
-				vWindowPos = vessels_window.Draw(ConnectedStorage, vWindowPos, GetInstanceID()).clampToScreen();
+				vessels_window.Draw(ConnectedStorage, GetInstanceID());
 				vessels_window.TransferVessel();
 				if(vessels_window.Closed) RelocateVessels();
 			}
@@ -217,8 +215,8 @@ namespace AtHangar
 		public void RelocateVessels() 
 		{ 
 			selected_window.Toggle(EditorWindows.RelocateVessels);
-			Utils.LockIfMouseOver(eLock, vWindowPos, selected_window[EditorWindows.RelocateVessels]);
-			if(!selected_window[EditorWindows.RelocateVessels]) vessels_window.ClearSelection();
+			if(!selected_window[EditorWindows.RelocateVessels]) 
+			{ vessels_window.ClearSelection(); vessels_window.UnlockControls(); }
 		}
 		#endregion
 

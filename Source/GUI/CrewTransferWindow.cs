@@ -11,7 +11,7 @@ using AT_Utils;
 
 namespace AtHangar
 {
-	class CrewTransferWindow : MonoBehaviour
+	class CrewTransferWindow : GUIWindowBase
 	{
 		int CrewCapacity;
 		List<ProtoCrewMember> crew;
@@ -42,22 +42,21 @@ namespace AtHangar
             }
             GUILayout.EndVertical();
             GUILayout.EndScrollView();
-            GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
+			TooltipsAndDragWindow(WindowPos);
         }
 		
-		public Rect Draw(List<ProtoCrewMember> _crew, 
+		public void Draw(List<ProtoCrewMember> _crew, 
 		                 List<ProtoCrewMember> _selected, 
-		                 int _crew_capacity, 
-		                 Rect windowPos)
+		                 int _crew_capacity)
 		{
 			crew = _crew;
 			selected = _selected;
 			CrewCapacity = _crew_capacity;
-			windowPos = GUILayout.Window(GetInstanceID(), 
-										 windowPos, TransferWindow,
+			LockControls();
+			WindowPos = GUILayout.Window(GetInstanceID(), 
+			                             WindowPos, TransferWindow,
 										 string.Format("Vessel Crew {0}/{1}", selected.Count, CrewCapacity),
-										 GUILayout.Width(260));
-			return windowPos;
+			                             GUILayout.Width(260)).clampToScreen();
 		}
 	}
 }

@@ -13,7 +13,7 @@ using AT_Utils;
 
 namespace AtHangar
 {
-	class ResourceTransferWindow : MonoBehaviour
+	class ResourceTransferWindow : GUIWindowBase
 	{
 		List<ResourceManifest> transfer_list;
 		bool link_lfo_sliders = true;
@@ -83,18 +83,18 @@ namespace AtHangar
 			} 
 			transferNow = GUILayout.Button("Transfer now", GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
-			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
+			TooltipsAndDragWindow(WindowPos);
 		}
 		
-		public Rect Draw(List<ResourceManifest> resourceTransferList, Rect windowPos)
+		public void Draw(List<ResourceManifest> resourceTransferList)
 		{
-			if(resourceTransferList.Count == 0) return windowPos;
+			if(resourceTransferList.Count == 0) return;
 			transfer_list = resourceTransferList;
-			windowPos = GUILayout.Window(GetInstanceID(), 
-										 windowPos, TransferWindow,
+			LockControls();
+			WindowPos = GUILayout.Window(GetInstanceID(), 
+			                             WindowPos, TransferWindow,
 										 "Transfer resources to the launched vessel",
 										 GUILayout.Width(360));
-			return windowPos;
 		}
 	}
 }

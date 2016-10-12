@@ -125,6 +125,7 @@ namespace AtHangar
 		public override void OnAwake()
 		{
 			base.OnAwake();
+			vessels_window.WindowPos = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
 			GameEvents.onVesselWasModified.Add(update_connected_storage);
 			GameEvents.onEditorShipModified.Add(update_connected_storage);
 			GameEvents.onVesselGoOffRails.Add(onVesselGoOffRails);
