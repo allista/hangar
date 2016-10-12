@@ -78,7 +78,7 @@ namespace AtHangar
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
-			NoGUI = true; 
+			NoGUI = true;
 			LaunchWithPunch = true;
 			part.CrewCapacity = CrewCapacity;
 			Events["EditName"].active = false;
@@ -104,7 +104,8 @@ namespace AtHangar
 			}
 			else this.Log("No Fairings transforms found with the name: {}", Fairings);
 			JettisonDirection.Normalize();
-			vessel.SpawnCrew();
+			if(vessel != null) 
+				vessel.SpawnCrew();
 		}
 
 		IEnumerator<YieldInstruction> update_crew_capacity()
@@ -411,8 +412,8 @@ namespace AtHangar
 	{
 		protected override void on_rescale(ModulePair<HangarFairings> mp, Scale scale)
 		{ 
-			mp.module.JettisonForce = mp.base_module.JettisonForce * scale.absolute.cube * scale.absolute.aspect;
-			mp.module.FairingsCost  = mp.base_module.FairingsCost * scale.absolute.cube * scale.absolute.aspect;
+			mp.module.JettisonForce = mp.base_module.JettisonForce * scale.absolute.volume;
+			mp.module.FairingsCost  = mp.base_module.FairingsCost * scale.absolute.volume;
 			mp.module.UpdateCoMOffset(scale.ScaleVector(mp.base_module.BaseCoMOffset));
 		}
 	}
