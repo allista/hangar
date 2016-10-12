@@ -312,7 +312,7 @@ namespace AtHangar
 
 		public void OnGUI() 
 		{ 
-			if(Event.current.type != EventType.Layout) return;
+			if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
 			Styles.Init();
 			while(try_deflate)
 			{
@@ -401,12 +401,12 @@ namespace AtHangar
 	{
 		protected override void on_rescale(ModulePair<HangarGenericInflatable> mp, Scale scale)
 		{
-			mp.module.InflatableVolume = mp.base_module.InflatableVolume * scale.absolute.cube * scale.absolute.aspect;
-			mp.module.CompressedGas   *= scale.relative.cube * scale.relative.aspect;
+			mp.module.InflatableVolume = mp.base_module.InflatableVolume * scale.absolute.volume;
+			mp.module.CompressedGas   *= scale.relative.volume;
 			mp.module.ForwardSpeed     = mp.base_module.ForwardSpeed / (scale.absolute * scale.aspect);
 			mp.module.ReverseSpeed     = mp.base_module.ReverseSpeed / (scale.absolute * scale.aspect);
 			if(mp.module.Compressor == null) return;
-			mp.module.Compressor.ConsumptionRate = mp.base_module.Compressor.ConsumptionRate * scale.absolute.cube * scale.absolute.aspect;
+			mp.module.Compressor.ConsumptionRate = mp.base_module.Compressor.ConsumptionRate * scale.absolute.volume;
 		}
 	}
 }

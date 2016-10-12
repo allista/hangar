@@ -134,7 +134,7 @@ namespace AtHangar
 
 		public void OnGUI() 
 		{ 
-			if(Event.current.type != EventType.Layout) return;
+			if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
 			Styles.Init();
 			while(try_fix)
 			{
