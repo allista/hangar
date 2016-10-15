@@ -26,7 +26,7 @@ Aside from the hangars themselves the mod provides a set of utility parts that h
 
 ##Support this project:
 
-* [**WebMoney**](https://funding.wmtransfer.com/hangar-ksp-plugin/donate)
+* [**Patreon**](https://www.patreon.com/allista)
 
 * [**Flattr this**](https://flattr.com/submit/auto?user_id=allista&url=https%3A%2F%2Fgithub.com%2Fallista%2Fhangar)
 
@@ -36,17 +36,14 @@ Aside from the hangars themselves the mod provides a set of utility parts that h
 
 **Delete the old version of the mod before installing the new one.**
 
-_You may keep the config.xml to save positions of GUI windows._
+_You may keep the Hangar.user and config.xml files to retain your preferences._
 
 **Before any upgrade I recommend you to backup your saves.**
 
 Releases are available from:
 
-* [**Kerbal Stuff**](https://kerbalstuff.com/mod/270/Hangar) (from v1.3.0)
-* [**CKAN**](https://github.com/KSP-CKAN/CKAN) is now officially supported
+* [**CKAN**](https://github.com/KSP-CKAN/CKAN) support is pending
 * [**GitHub**](https://github.com/allista/hangar/releases) (all releases, optional packages and the source code)
-* Optional Packages:
-    * [Radial Hangar part](https://github.com/allista/hangar/releases/tag/v2.3.1)
 
 **Before using a hangar study the list of modules that are integrated into it _(RMB on part's icon)_.**
 Many of the hangars have plenty of modules (like batteries, command modules, fuel tanks, etc.) to reduce part count. Don't worry, all is balanced by weight and cost, no cheating.
@@ -98,8 +95,6 @@ I also want to thank:
 * [Kerbas-ad-astra](https://github.com/Kerbas-ad-astra) for making AntennaRange adaptation.
 * [Thorbane](http://forum.kerbalspaceprogram.com/members/78247-Thorbane) for making Switchable Tank Type configs for support of USI (MKS/OKS, FFT, Karbonite, Karbonite+) and initial support of KSPI to Switchable Tanks.
 
-A record that I used to create propeller sound effect was obtained at [**Sound Jay**](http://www.soundjay.com).
-
 And here are the mods which sources provided me with an understanding of how KSP API works. And with working solutions in some cases. In no particular order:
 
 * [Extraplanetary Launchpads](http://forum.kerbalspaceprogram.com/threads/59545)
@@ -118,4 +113,6 @@ And here are the mods which sources provided me with an understanding of how KSP
 
 ***
 
-<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+Source code is licensed under the MIT License.
+
+Models, Textures, Sounds and other assets are licensed under the <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>, until stated otherwise.

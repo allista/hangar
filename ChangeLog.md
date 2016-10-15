@@ -10,6 +10,7 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
     * **Requires:**
         * *AT_Utils* library
         * *Community Resource Pack*
+    * **Changed license to MIT (sources) + CC-BY-4.0 (assets).**
     * Removed most non-hangar, non structural parts (engines, airbrake, etc.).
     * Added Inflatable Space Hangar.
     * Changed model of the Fairings Hangar.
