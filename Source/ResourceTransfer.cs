@@ -40,35 +40,22 @@ namespace AtHangar
 		
 		public double amount
 		{
-			get	{ return is_resource ? res.amount : double.Parse(pres.resourceValues.GetValue("amount")); }
-			set
-			{
+			get	{ return is_resource ? res.amount : pres.amount; }
+			set 
+			{ 
 				if(is_resource) res.amount = value;
-				else pres.resourceValues.SetValue("amount", value.ToString());
+				else pres.amount = value; 
 			}
 		}
 		
 		public double maxAmount
-		{ get {	return is_resource ? res.maxAmount : double.Parse(pres.resourceValues.GetValue("maxAmount")); } }
+		{ get {	return is_resource ? res.maxAmount : pres.maxAmount; } }
 		
 		public bool flowState
-		{ get {	return is_resource ? res.flowState : bool.Parse(pres.resourceValues.GetValue("flowState"));	} }
+		{ get {	return is_resource ? res.flowState : pres.flowState; } }
 		
 		public bool isTweakable
-		{ get { return is_resource ? res.isTweakable : bool.Parse(pres.resourceValues.GetValue("isTweakable"));	} }
-		
-		public bool hideFlow
-		{ get {	return is_resource ? res.hideFlow : bool.Parse(pres.resourceValues.GetValue("hideFlow")); }	}
-		
-		public PartResource.FlowMode flowMode
-		{
-			get
-			{
-				if(is_resource) return res.flowMode;
-				return (PartResource.FlowMode)Enum.Parse(typeof(PartResource.FlowMode), 
-			                                             pres.resourceValues.GetValue("flowMode"));
-			}
-		}
+		{ get { return is_resource ? res.isTweakable : (pres.definition != null? pres.definition.isTweakable : false); } }
 	}
 	
 	

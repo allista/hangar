@@ -200,7 +200,7 @@ namespace AtHangar
 		public override void Load(ConfigNode node)
 		{
 			base.Load(node);
-			part_node = part.findAttachNode(NodeID);
+			part_node = part.FindAttachNode(NodeID);
 			docking_node = part.Modules.GetModule<ModuleDockingNode>();
 			if(docking_node != null && docking_node.referenceAttachNode != NodeID) docking_node = null;
 		}

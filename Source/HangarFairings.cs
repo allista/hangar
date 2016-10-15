@@ -67,6 +67,7 @@ namespace AtHangar
 				fairings.ForEach(f => f.gameObject.SetActive(false));
 		}
 		public bool UsesProceduralDragCubes() { return false; }
+		public bool IsMultipleCubesActive { get { return true; } }
 		#endregion
 
 		public void UpdateCoMOffset(Vector3 CoMOffset)

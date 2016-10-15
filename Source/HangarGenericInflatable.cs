@@ -182,7 +182,7 @@ namespace AtHangar
 					this.Log("OnStart: no transform '{}' in {}", node_name, part.name);
 					continue;
 				}
-				AttachNode node = part.findAttachNode(node_name);
+				AttachNode node = part.FindAttachNode(node_name);
 				if(node == null) node = part.srfAttachNode.id == node_name? part.srfAttachNode : null;
 				if(node == null)
 				{
@@ -246,7 +246,7 @@ namespace AtHangar
 				State == AnimatorState.Closing) 
 			{ 
 				UpdatePart();
-				part.BreakConnectedStruts();
+				part.BreakConnectedCompoundParts();
 			}
 			if(Compressor != null && !has_compressed_gas)
 			{

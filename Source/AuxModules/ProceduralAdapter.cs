@@ -63,8 +63,8 @@ namespace AtHangar
 			if(adapter != null) orig_size = adapter.size;
 			else this.Log("Can't find base ProceduralAdapter module");
 			old_size = size;
-			orig_nodes[0] = base_part.findAttachNode(TopNodeName);
-			orig_nodes[1] = base_part.findAttachNode(BottomNodeName);
+			orig_nodes[0] = base_part.FindAttachNode(TopNodeName);
+			orig_nodes[1] = base_part.FindAttachNode(BottomNodeName);
 		}
 
 		public override void OnStart(StartState state)
@@ -94,7 +94,7 @@ namespace AtHangar
 		public void Update() 
 		{ 
 			if(old_size != size || unequal(old_aspect, aspect))
-			{ UpdateMesh(); part.BreakConnectedStruts(); }
+			{ UpdateMesh(); part.BreakConnectedCompoundParts(); }
 			else if(just_loaded) UpdateMesh();
 		}
 
@@ -158,7 +158,7 @@ namespace AtHangar
 				passage.Nodes[BottomNodeName].Size = new Vector3(size.y, size.y, 0)*UnitDiameter*0.9f;
 			}
 			//update stack nodes
-			AttachNode top_node = part.findAttachNode(TopNodeName);
+			AttachNode top_node = part.FindAttachNode(TopNodeName);
 			if(top_node != null && orig_nodes[0] != null)
 			{
 				top_node.position = new Vector3(0, body.current.H/2, 0);
@@ -171,7 +171,7 @@ namespace AtHangar
 				top_node.breakingForce  = orig_nodes[0].breakingForce  * s;
 				top_node.breakingTorque = orig_nodes[0].breakingTorque * s;
 			}
-			AttachNode bottom_node = part.findAttachNode(BottomNodeName);
+			AttachNode bottom_node = part.FindAttachNode(BottomNodeName);
 			if(bottom_node != null && orig_nodes[1] != null)
 			{
 				bottom_node.position = new Vector3(0, -body.current.H/2, 0);

@@ -93,7 +93,7 @@ namespace AtHangar
 			//update attached parts
 			attached_part = node.attachedPart;
 			if(attached_part != null) 
-				attached_node = attached_part.findAttachNodeByPart(part);
+				attached_node = attached_part.FindAttachNodeByPart(part);
 			if(!UpdateJoint()) UpdatePartsPos();
 		}
 

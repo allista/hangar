@@ -7,6 +7,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using KSP.UI.Screens;
 using AT_Utils;
 
 namespace AtHangar
@@ -26,7 +27,7 @@ namespace AtHangar
 		Rect neWindowPos = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 50);
 
 		readonly VesselTransferWindow vessels_window = new VesselTransferWindow();
-		CraftBrowser vessel_selector;
+		CraftBrowserDialog vessel_selector;
 		EditorFacility facility;
 
 
@@ -42,13 +43,13 @@ namespace AtHangar
 			Utils.LockEditor(scLock, false);
 		}
 
-		void vessel_selected(string filename, string flagname, CraftBrowser.LoadType t)
+		void vessel_selected(string filename, CraftBrowserDialog.LoadType t)
 		{
 			EditorLogic EL = EditorLogic.fetch;
 			if(EL == null) return;
 			//load vessel config
 			vessel_selector = null;
-			var pc = new PackedConstruct(filename, flagname);
+			var pc = new PackedConstruct(filename, HighLogic.CurrentGame.flagURL);
 			if(pc.construct == null) 
 			{
 				Utils.Log("PackedConstruct: unable to load ShipConstruct from {}. " +
@@ -82,13 +83,11 @@ namespace AtHangar
 			//Vessel selector
 			if(GUILayout.Button("Select Vessel", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 				vessel_selector = 
-					new CraftBrowser(new Rect(eWindowPos) { height = 500 }, 
+					CraftBrowserDialog.Spawn(
 						facility,
-						HighLogic.SaveFolder, "Select a ship to store",
+						HighLogic.SaveFolder,
 						vessel_selected,
-						selection_canceled,
-						HighLogic.Skin,
-						EditorLogic.ShipFileImage, true, false);
+						selection_canceled, false);
 			GUILayout.EndHorizontal();
 			//hangar info
 			if(ConnectedStorage.Count > 1)
@@ -172,11 +171,6 @@ namespace AtHangar
 												  "Hangar Contents Editor",
 												  GUILayout.Width(windows_width),
 					                              GUILayout.Height(300)).clampToScreen();
-				}
-				else 
-				{
-					Utils.LockIfMouseOver(eLock, vessel_selector.windowRect);
-					vessel_selector.OnGUI();
 				}
 			}
 			//edit name
