@@ -1,5 +1,13 @@
-﻿using System.Collections.Generic;
+﻿//   HangarGateway.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System.Collections.Generic;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -11,7 +19,6 @@ namespace AtHangar
 		/// </summary>
 		[KSPField] public string DockingSpace   = string.Empty;
 		MeshFilter docking_space;
-		Transform  check_transform;
 
 		[KSPField] public string SpawnTransform = string.Empty;
 		Transform spawn_transform;
@@ -48,31 +55,25 @@ namespace AtHangar
 			if(SpawnTransform != string.Empty)
 				spawn_transform = part.FindModelTransform(SpawnTransform);
 			if(spawn_transform == null) spawn_transform = part.transform;
-			//add check transform
-			var launch_empty = new GameObject();
-			launch_empty.transform.SetParent(spawn_transform);
-			check_transform = launch_empty.transform;
 		}
 
 		bool vessel_fits_docking_space(PackedVessel v)
 		{
-			if(docking_space == null) return true;
-			check_transform.position = 
-				spawn_transform.TransformPoint(Vector3.up*v.size.y/2);
-			return v.metric.FitsAligned(check_transform, docking_space.transform, docking_space.sharedMesh);
+			return docking_space == null || 
+				v.metric.FitsAligned(spawn_transform, docking_space.transform, docking_space.sharedMesh, Vector3.up * v.extents.y);
 		}
 
 		protected override bool try_store_vessel(PackedVessel v)
 		{
 			if(!vessel_fits_docking_space(v))
 			{
-				ScreenMessager.showMessage(6, "Vessel clearance is insufficient for safe docking.\n\n" +
+				Utils.Message(6, "Vessel clearance is insufficient for safe docking.\n\n" +
 				                           "\"{0}\" cannot be stored", v.name);
 				return false;
 			}
 			if(!entrance.CanTransferTo(v, Storage))
 			{
-				ScreenMessager.showMessage(8, "There's no room in the hangar for this vessel,\n" +
+				Utils.Message(8, "There's no room in the hangar for this vessel,\n" +
 					"OR vessel clearance is insufficient for safe docking.\n\n" +
 					"\"{0}\" cannot be stored", v.name);
 				return false;
@@ -84,8 +85,8 @@ namespace AtHangar
 		protected override Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv)
 		{
 			return vessel.LandedOrSplashed ? 
-				launch_transform.TransformDirection(-sv.CoG + Vector3.up*sv.size.y/2) : 
-				launch_transform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.size.y/2);
+				launch_transform.TransformDirection(-sv.CoG + Vector3.up*sv.extents.y) : 
+				launch_transform.TransformDirection(sv.CoM - sv.CoG + Vector3.up*sv.extents.y);
 		}
 
 		protected override Transform get_spawn_transform(PackedVessel pv) { return spawn_transform; }
@@ -96,7 +97,7 @@ namespace AtHangar
 			if(!base.can_restore(v)) return false;
 			if(!vessel_fits_docking_space(v))
 			{
-				ScreenMessager.showMessage(6, "Vessel clearance is insufficient for safe launch.\n\n" +
+				Utils.Message(6, "Vessel clearance is insufficient for safe launch.\n\n" +
 				                           "\"{0}\" cannot be launched", v.name);
 				return false;
 			}

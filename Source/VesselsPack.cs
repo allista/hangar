@@ -1,9 +1,17 @@
+//   VesselsPack.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
 //Packing algorithm based on <http://www.blackpawn.com/texts/lightmaps/default.html>  
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -13,6 +21,7 @@ namespace AtHangar
 		public Guid id; 
 		public string  name     { get; protected set; }
 		public Vector3 size     { get { return metric.size; } }
+		public Vector3 extents  { get { return metric.extents; } }
 		public float   volume   { get { return metric.volume; } }
 		public float   mass     { get { return metric.mass; } set { metric.mass = value; } }
 		public float   cost     { get { return metric.cost; } set { metric.cost = value; } }

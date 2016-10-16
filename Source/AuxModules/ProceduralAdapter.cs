@@ -1,10 +1,17 @@
-﻿using System;
+﻿//   ProceduralAdapter.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System;
 using UnityEngine;
-using KSPAPIExtensions;
+using AT_Utils;
 
 namespace AtHangar
 {
-	public class HangarProceduralAdapter : HangarResizableBase
+	public class HangarProceduralAdapter : AnisotropicResizableBase
 	{
 		//GUI
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Top Size", guiFormat="S4")]
@@ -32,7 +39,6 @@ namespace AtHangar
 		Vector2 old_size   = new Vector2(-1, -1);
 		Vector2 orig_size  = new Vector2(-1, -1);
 		readonly AttachNode[] orig_nodes = new AttachNode[2];
-		float   orig_area;
 		public float SurfaceArea 
 		{ get { return TruncatedCone.SurfaceArea(bottomSize*UnitDiameter/2, topSize*UnitDiameter/2, Length*aspect); } }
 
@@ -50,19 +56,15 @@ namespace AtHangar
 			return base.GetInfo();
 		}
 
-		protected override void SaveDefaults()
+		public override void SaveDefaults()
 		{
 			base.SaveDefaults();
-			HangarProceduralAdapter adapter = base_part.GetModule<HangarProceduralAdapter>();
-			if(adapter != null) 
-			{
-				orig_size = adapter.size;
-				orig_area = adapter.SurfaceArea;
-			}
+			HangarProceduralAdapter adapter = base_part.Modules.GetModule<HangarProceduralAdapter>();
+			if(adapter != null) orig_size = adapter.size;
 			else this.Log("Can't find base ProceduralAdapter module");
 			old_size = size;
-			orig_nodes[0] = base_part.findAttachNode(TopNodeName);
-			orig_nodes[1] = base_part.findAttachNode(BottomNodeName);
+			orig_nodes[0] = base_part.FindAttachNode(TopNodeName);
+			orig_nodes[1] = base_part.FindAttachNode(BottomNodeName);
 		}
 
 		public override void OnStart(StartState state)
@@ -70,8 +72,16 @@ namespace AtHangar
 			base.OnStart(state);
 			if(HighLogic.LoadedSceneIsEditor) 
 			{
-				init_limit(HangarConfig.Globals.MinSize, ref minSize, Mathf.Min(topSize, bottomSize));
-				init_limit(HangarConfig.Globals.MaxSize, ref maxSize, Mathf.Max(topSize, bottomSize));
+				//init global limits
+				if(minSize < 0) minSize = ResizerGlobals.Instance.AbsMinSize;
+				if(maxSize < 0) maxSize = ResizerGlobals.Instance.AbsMaxSize;
+				//get TechTree limits
+				var limits = ResizerConfig.GetLimits(TechGroupID);
+				if(limits != null)
+				{
+					init_limit(limits.minSize, ref minSize, Mathf.Min(topSize, bottomSize));
+					init_limit(limits.maxSize, ref maxSize, Mathf.Max(topSize, bottomSize));
+				}
 				//setup sliders
 				setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
 				setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
@@ -84,32 +94,32 @@ namespace AtHangar
 		public void Update() 
 		{ 
 			if(old_size != size || unequal(old_aspect, aspect))
-				{ UpdateMesh(); part.BreakConnectedStruts(); }
+			{ UpdateMesh(); part.BreakConnectedCompoundParts(); }
 			else if(just_loaded) UpdateMesh();
 		}
 
 		void get_part_components()
 		{
-			passage = part.GetModule<HangarPassage>();
+			passage = part.Modules.GetModule<HangarPassage>();
 			try
 			{
 				//get transforms and meshes
 				Transform bodyT = part.FindModelTransform(BodyName);
 				if(bodyT == null)
-					this.Log("'{0}' transform does not exists in the {1}", 
+					this.Log("'{}' transform does not exists in the {1}", 
 						BodyName, part.name);
 				Transform colliderT = part.FindModelTransform(ColliderName);
 				if(colliderT == null)
-					this.Log("'{0}' transform does not exists in the {1}", 
+					this.Log("'{}' transform does not exists in the {1}", 
 						ColliderName, part.name);
 				//The mesh method unshares any shared meshes
 				MeshFilter body_mesh_filter = bodyT.GetComponent<MeshFilter>();
 				if(body_mesh_filter == null)
-					this.Log("'{0}' does not have MeshFilter component", BodyName);
+					this.Log("'{}' does not have MeshFilter component", BodyName);
 				body_mesh = body_mesh_filter.mesh;
 				body_collider = colliderT.GetComponent<MeshCollider>();
 				if(body_collider == null)
-					this.Log("'{0}' does not have MeshCollider component", ColliderName);
+					this.Log("'{}' does not have MeshCollider component", ColliderName);
 			}
 			catch(Exception ex)
 			{
@@ -148,7 +158,7 @@ namespace AtHangar
 				passage.Nodes[BottomNodeName].Size = new Vector3(size.y, size.y, 0)*UnitDiameter*0.9f;
 			}
 			//update stack nodes
-			AttachNode top_node = part.findAttachNode(TopNodeName);
+			AttachNode top_node = part.FindAttachNode(TopNodeName);
 			if(top_node != null && orig_nodes[0] != null)
 			{
 				top_node.position = new Vector3(0, body.current.H/2, 0);
@@ -161,7 +171,7 @@ namespace AtHangar
 				top_node.breakingForce  = orig_nodes[0].breakingForce  * s;
 				top_node.breakingTorque = orig_nodes[0].breakingTorque * s;
 			}
-			AttachNode bottom_node = part.findAttachNode(BottomNodeName);
+			AttachNode bottom_node = part.FindAttachNode(BottomNodeName);
 			if(bottom_node != null && orig_nodes[1] != null)
 			{
 				bottom_node.position = new Vector3(0, -body.current.H/2, 0);
@@ -202,8 +212,8 @@ namespace AtHangar
 			if(body_mesh == null || body_collider == null) return;
 			update_body();
 			//calculate surface area, mass and cost changes
-			part.mass  = body.current.Area*AreaDensity;
-			delta_cost = AreaCost*(body.current.Area - orig_area);
+			mass = body.current.Area*AreaDensity;
+			cost = AreaCost*body.current.Area;
 			//update attach nodes
 			update_nodes();
 			//save new values

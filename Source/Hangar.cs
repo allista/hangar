@@ -4,24 +4,19 @@
 //       Allis Tauri <allista@gmail.com>
 //
 //  Copyright (c) 2015 Allis Tauri
-//
-// This work is licensed under the Creative Commons Attribution 4.0 International License. 
-// To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
-// or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 using System.Collections.Generic;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
 	public class Hangar : HangarMachinery
 	{
-		public ConfigNode ModuleConfig;
-
 		public override string GetInfo()
 		{
 			var info = base.GetInfo();
-			var storage = part.GetModule<HangarStorage>();
+			var storage = part.Modules.GetModule<HangarStorage>();
 			if(storage != null)
 			{
 				info += storage.AutoPositionVessel?
@@ -37,33 +32,19 @@ namespace AtHangar
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
-			Storage = part.GetModule<HangarStorage>();
+			Storage = part.Modules.GetModule<HangarStorage>();
 			if(Storage == null) 
 			{
 				this.ConfigurationInvalid("\"{0}\" part has no HangarStorage module", part.Title());
 				return;
-			}
-			//deprecated config conversion//
-			if(ModuleConfig != null)
-			{
-				Storage.OnLoad(ModuleConfig);
-				Storage.Setup();
 			}
 		}
 
 		protected override Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv)
 		{
 			return vessel.LandedOrSplashed ? 
-				launch_transform.TransformDirection(-sv.CoG) : 
-				launch_transform.TransformDirection(sv.CoM - sv.CoG);
-		}
-
-		public override void OnLoad(ConfigNode node)
-		{
-			base.OnLoad(node);
-			//deprecated config conversion//
-			ModuleConfig = node.HasValue("base_mass")? node : null;
-			//****************************//
+				launch_transform.TransformDirection(-sv.CoG + Storage.GetSpawnOffset(sv)) : 
+				launch_transform.TransformDirection(sv.CoM - sv.CoG + Storage.GetSpawnOffset(sv));
 		}
 
 		#if DEBUG
@@ -75,8 +56,8 @@ namespace AtHangar
 			if(Physics.Raycast(part.airlock.transform.position, (part.airlock.transform.position - part.transform.position).normalized, out raycastHit, 1, 32769))
 			{
 				this.Log("Airlock should be blocked:\n" +
-				         "collider 'in front': {0}\n" +
-				         "distance to it: {1}\n",
+				         "collider 'in front': {}\n" +
+				         "distance to it: {}\n",
 				         raycastHit.collider.name,
 				         raycastHit.distance
 				        );

@@ -62,12 +62,7 @@ if __name__ == '__main__':
                      add_mass=0,
                      add_cost=0)
     
-    inline1.print_masses()
-    inline2.print_masses()
-    radial_hangar.print_masses()
-    sys.exit()
-
-    spaceport = part('Spaceport', 
+    spaceport = part('Spaceport',
                      [volume(366.046, 'hull', C=2, D=0.01,
                              S=surface(960.55, 0.007, composits),
                              V=[volume(46.92, 'machinery room', C=3500, M=4,
@@ -188,6 +183,24 @@ if __name__ == '__main__':
                               ], 
                      add_mass=0.04, #probe core
                      add_cost=300) #probe core
+
+    space_inflatable = part('InflatableSpaceHangar',
+                       [volume(0.14, 'adapter', C=1, D=0.02,
+                               S=surface(5.87, 0.01, Al_Li)),
+                        volume(2.02, 'back-wall', C=1200, D=0.02,
+                               S=surface(21.89, 0.01, Al_Li)),
+                        volume(0.0041, 'struts', N=4, material=steel),
+                        volume(0.0087, 'cables', N=4, material=steel),
+                        volume(0.059, 'motors', N=4, C=200, D=0.9,
+                               S=surface(0.89, 0.01, Al_Li)),
+                        volume(0.363, 'gate-frame', C=1, D=0.02,
+                               S=surface(8.43, 0.01, Al_Li)),
+                        volume(0.367+0.339, 'doors', C=1, D=0.02,
+                               S=surface(10.57+9.58, 0.005, Al_Li)),
+                        volume(0.003, 'hinges', N=4, material=aluminium),
+                        volume(4.878, 'hangar', C=1, D=0.0012,
+                               S=surface(158.82, 0.001, lavsan)),
+                        ])
     
     mk3_hangar   = part('Mk3Hangar',
                      [volume(130.43, 'hull', C=100, D=0.02,

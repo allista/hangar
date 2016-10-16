@@ -1,9 +1,17 @@
-﻿using System.Collections.Generic;
+﻿//   VesselTransferWindow.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System.Collections.Generic;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
-	class VesselTransferWindow: MonoBehaviour
+	class VesselTransferWindow: GUIWindowBase
 	{
 		const int scroll_width  = 350;
 		const int scroll_height = 100;
@@ -99,22 +107,20 @@ namespace AtHangar
 			GUILayout.FlexibleSpace();
 			Closed = GUILayout.Button("Close", GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
-			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
+			TooltipsAndDragWindow(WindowPos);
 		}
 
-		public Rect Draw(List<HangarStorage> storages, Rect windowPos, int windowId)
+		public void Draw(List<HangarStorage> storages, int windowId)
 		{
 			this.storages = storages;
-			windowPos = GUILayout.Window(windowId, 
-				windowPos, TransferWindow,
-				string.Format("Relocate Vessels"),
-				GUILayout.Width(scroll_width*2),
-				GUILayout.Height(scroll_height*2));
-			return windowPos;
+			LockControls();
+			WindowPos = GUILayout.Window(windowId, 
+			                             WindowPos, TransferWindow,
+			                             "Relocate Vessels",
+			                             GUILayout.Width(scroll_width*2),
+			                             GUILayout.Height(scroll_height*2));
 		}
-
-		public Rect Draw(List<HangarStorage> storages, Rect windowPos)
-		{ return Draw(storages, windowPos, GetInstanceID()); }
+		public void Draw(List<HangarStorage> storages) { Draw(storages, GetInstanceID()); }
 
 		public void TransferVessel()
 		{

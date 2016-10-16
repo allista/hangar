@@ -1,9 +1,17 @@
-﻿using System.Collections.Generic;
+﻿//   HangarPassage.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System.Collections.Generic;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
-	public class HangarPassage : ControllableModuleBase
+	public class HangarPassage : ControllableModuleBase, ISerializationCallbackReceiver
 	{
 		[KSPField] public bool HideInfo;
 
@@ -32,6 +40,13 @@ namespace AtHangar
 			if(ModuleConfig == null) ModuleConfig = node;
 		}
 
+		//workaround for ConfigNode non-serialization
+		public byte[] _module_config;
+		public virtual void OnBeforeSerialize()
+		{ _module_config = ConfigNodeWrapper.SaveConfigNode(ModuleConfig); }
+		public virtual void OnAfterDeserialize() 
+		{ ModuleConfig = ConfigNodeWrapper.RestoreConfigNode(_module_config); }
+
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
@@ -45,6 +60,8 @@ namespace AtHangar
 		void init_nodes()
 		{
 			Nodes.Clear();
+			if(ModuleConfig == null) 
+			{ this.Log("ModuleConfig is null. THIS SHOULD NEVER HAPPEN!"); return; }
 			foreach(ConfigNode n in ModuleConfig.GetNodes(PassageNode.NODE_NAME))
 			{
 				var pn = new PassageNode(part);
@@ -145,7 +162,7 @@ namespace AtHangar
 		HangarPassage get_other_passage()
 		{
 			var other_part = OtherPart;
-			return other_part != null ? other_part.GetModule<HangarPassage>() : null;
+			return other_part != null ? other_part.Modules.GetModule<HangarPassage>() : null;
 		}
 
 		public HangarPassage OtherPassage 
@@ -183,8 +200,8 @@ namespace AtHangar
 		public override void Load(ConfigNode node)
 		{
 			base.Load(node);
-			part_node = part.findAttachNode(NodeID);
-			docking_node = part.GetModule<ModuleDockingNode>();
+			part_node = part.FindAttachNode(NodeID);
+			docking_node = part.Modules.GetModule<ModuleDockingNode>();
 			if(docking_node != null && docking_node.referenceAttachNode != NodeID) docking_node = null;
 		}
 
@@ -197,6 +214,17 @@ namespace AtHangar
 			var size = new Vector2(Mathf.Min(Size.x, other_node.Size.x), 
 				Mathf.Min(Size.y, other_node.Size.y));
 			return vsl.metric.FitsSomehow(size)? other_passage : null;
+		}
+	}
+
+	public class PassageUpdater : ModuleUpdater<HangarPassage>
+	{ 
+		protected override void on_rescale(ModulePair<HangarPassage> mp, Scale scale)
+		{
+			mp.module.Setup(!scale.FirstTime);
+			foreach(var key in new List<string>(mp.module.Nodes.Keys))
+				mp.module.Nodes[key].Size = Vector3.Scale(mp.base_module.Nodes[key].Size, 
+				                                          new Vector3(scale, scale, 1));
 		}
 	}
 }

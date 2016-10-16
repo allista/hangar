@@ -2,14 +2,16 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 3
+  serializedVersion: 6
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: adapter
-  m_Shader: {fileID: 4800000, guid: a38930c619a40384e9f6abb2270fbe67, type: 3}
-  m_ShaderKeywords: []
-  m_CustomRenderQueue: -1
+  m_Shader: {fileID: 4800000, guid: c9da217290ee74a43907fc1205e4c146, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_CustomRenderQueue: 2000
+  stringTagMap: {}
   m_SavedProperties:
     serializedVersion: 2
     m_TexEnvs:
@@ -17,14 +19,14 @@ Material:
         first:
           name: _MainTex
         second:
-          m_Texture: {fileID: 2800000, guid: a4a597d0e28eb6d49ade7920281150e0, type: 3}
+          m_Texture: {fileID: 2800000, guid: 39002e1de12207a46b9cec67fe1ea3af, type: 3}
           m_Scale: {x: 1, y: 1}
           m_Offset: {x: 0, y: 0}
       data:
         first:
           name: _BumpMap
         second:
-          m_Texture: {fileID: 2800000, guid: 41d40ce675763f949975cb2a6e8be5bc, type: 3}
+          m_Texture: {fileID: 2800000, guid: 60633a3e6b30f824295f4c67dd4abe38, type: 3}
           m_Scale: {x: 1, y: 1}
           m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -45,3 +47,11 @@ Material:
         first:
           name: _RimColor
         second: {r: 0, g: 0, b: 0, a: 0}
+      data:
+        first:
+          name: _TemperatureColor
+        second: {r: 0, g: 0, b: 0, a: 0}
+      data:
+        first:
+          name: _BurnColor
+        second: {r: 1, g: 1, b: 1, a: 1}

@@ -1,6 +1,14 @@
+//   VesselWrappers.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -94,6 +102,7 @@ namespace AtHangar
 		public ProtoVessel proto_vessel { get; private set; }
 		public Vessel vessel { get { return proto_vessel.vesselRef; } }
 		public Vector3 CoM { get { return proto_vessel.CoM; } }
+		public Vector3d dV;
 		public List<ProtoCrewMember> crew { get; private set; }
 		public VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot> resources { get; private set; }
 

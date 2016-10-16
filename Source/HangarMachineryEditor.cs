@@ -1,5 +1,14 @@
-﻿using System.Collections.Generic;
+﻿//   HangarMachineryEditor.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System.Collections.Generic;
 using UnityEngine;
+using KSP.UI.Screens;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -9,17 +18,16 @@ namespace AtHangar
 		const int windows_width = 400;
 		const string eLock  = "Hangar.EditHangar";
 		const string scLock = "Hangar.LoadShipConstruct";
-		enum EditorWindows { EditContent, EditName, RelocateVessels }
+		enum EditorWindows { None, EditContent, EditName, RelocateVessels }
 		readonly Multiplexer<EditorWindows> selected_window = new Multiplexer<EditorWindows>();
 
 		Vector2 constructs_scroll = Vector2.zero;
 		Vector2 unfit_scroll = Vector2.zero;
 		Rect eWindowPos  = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
 		Rect neWindowPos = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 50);
-		Rect vWindowPos  = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
 
 		readonly VesselTransferWindow vessels_window = new VesselTransferWindow();
-		CraftBrowser vessel_selector;
+		CraftBrowserDialog vessel_selector;
 		EditorFacility facility;
 
 
@@ -35,25 +43,25 @@ namespace AtHangar
 			Utils.LockEditor(scLock, false);
 		}
 
-		void vessel_selected(string filename, string flagname)
+		void vessel_selected(string filename, CraftBrowserDialog.LoadType t)
 		{
 			EditorLogic EL = EditorLogic.fetch;
 			if(EL == null) return;
 			//load vessel config
 			vessel_selector = null;
-			var pc = new PackedConstruct(filename, flagname);
+			var pc = new PackedConstruct(filename, HighLogic.CurrentGame.flagURL);
 			if(pc.construct == null) 
 			{
-				Utils.Log("PackedConstruct: unable to load ShipConstruct from {0}. " +
-					"This usually means that some parts are missing " +
-					"or some modules failed to initialize.", filename);
-				ScreenMessager.showMessage("Unable to load {0}", filename);
+				Utils.Log("PackedConstruct: unable to load ShipConstruct from {}. " +
+				          "This usually means that some parts are missing " +
+				          "or some modules failed to initialize.", filename);
+				Utils.Message("Unable to load {0}", filename);
 				return;
 			}
 			//check if the construct contains launch clamps
-			if(Utils.HasLaunchClamp(pc.construct))
+			if(pc.construct.HasLaunchClamp())
 			{
-				ScreenMessager.showMessage("\"{0}\" has launch clamps. Remove them before storing.", pc.name);
+				Utils.Message("\"{0}\" has launch clamps. Remove them before storing.", pc.name);
 				pc.UnloadConstruct();
 				return;
 			}
@@ -75,13 +83,11 @@ namespace AtHangar
 			//Vessel selector
 			if(GUILayout.Button("Select Vessel", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 				vessel_selector = 
-					new CraftBrowser(new Rect(eWindowPos) { height = 500 }, 
+					CraftBrowserDialog.Spawn(
 						facility,
-						HighLogic.SaveFolder, "Select a ship to store",
+						HighLogic.SaveFolder,
 						vessel_selected,
-						selection_canceled,
-						HighLogic.Skin,
-						EditorLogic.ShipFileImage, true);
+						selection_canceled, false);
 			GUILayout.EndHorizontal();
 			//hangar info
 			if(ConnectedStorage.Count > 1)
@@ -130,7 +136,7 @@ namespace AtHangar
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
 				Utils.LockEditor(eLock, false);
-				selected_window[EditorWindows.EditContent] = false;
+				selected_window.Off();
 			}
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
@@ -143,7 +149,7 @@ namespace AtHangar
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
 				Utils.LockEditor(eLock, false);
-				selected_window[EditorWindows.EditName] = false;
+				selected_window.Off();
 			}
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
@@ -151,9 +157,8 @@ namespace AtHangar
 
 		public void OnGUI() 
 		{ 
-			if(Event.current.type != EventType.Layout) return;
-			if(!selected_window.Any()) return;
-			if(!selected_window[EditorWindows.EditName] && !HighLogic.LoadedSceneIsEditor) return;
+			if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
+			if(!selected_window) return;
 			Styles.Init();
 			//edit hangar
 			if(selected_window[EditorWindows.EditContent])
@@ -165,13 +170,7 @@ namespace AtHangar
 												  hangar_content_editor,
 												  "Hangar Contents Editor",
 												  GUILayout.Width(windows_width),
-					                              GUILayout.Height(300));
-					HangarGUI.CheckRect(ref eWindowPos);
-				}
-				else 
-				{
-					Utils.LockIfMouseOver(eLock, vessel_selector.windowRect);
-					vessel_selector.OnGUI();
+					                              GUILayout.Height(300)).clampToScreen();
 				}
 			}
 			//edit name
@@ -179,16 +178,13 @@ namespace AtHangar
 			{
 				Utils.LockIfMouseOver(eLock, neWindowPos);
 				neWindowPos = GUILayout.Window(GetInstanceID(), neWindowPos,
-					hangar_name_editor,
-					"Rename Hangar",
-					GUILayout.Width(windows_width));
-				HangarGUI.CheckRect(ref neWindowPos);
+				                               hangar_name_editor,
+				                               "Rename Hangar",
+				                               GUILayout.Width(windows_width)).clampToScreen();
 			}
 			else if(selected_window[EditorWindows.RelocateVessels])
 			{
-				Utils.LockIfMouseOver(eLock, vWindowPos);
-				vWindowPos = vessels_window.Draw(ConnectedStorage, vWindowPos, GetInstanceID());
-				HangarGUI.CheckRect(ref vWindowPos);
+				vessels_window.Draw(ConnectedStorage, GetInstanceID());
 				vessels_window.TransferVessel();
 				if(vessels_window.Closed) RelocateVessels();
 			}
@@ -204,6 +200,7 @@ namespace AtHangar
 		[KSPEvent (guiActiveEditor = true, guiName = "Edit contents", active = true)]
 		public void EditHangar() 
 		{ 
+			if(!HighLogic.LoadedSceneIsEditor) return;
 			selected_window.Toggle(EditorWindows.EditContent);
 			Utils.LockIfMouseOver(eLock, eWindowPos, selected_window[EditorWindows.EditContent]);
 		}
@@ -212,10 +209,47 @@ namespace AtHangar
 		public void RelocateVessels() 
 		{ 
 			selected_window.Toggle(EditorWindows.RelocateVessels);
-			Utils.LockIfMouseOver(eLock, vWindowPos, selected_window[EditorWindows.RelocateVessels]);
-			if(!selected_window[EditorWindows.RelocateVessels]) vessels_window.ClearSelection();
+			if(!selected_window[EditorWindows.RelocateVessels]) 
+			{ vessels_window.ClearSelection(); vessels_window.UnlockControls(); }
 		}
 		#endregion
+
+		#if DEBUG
+		void OnRenderObject()
+		{
+			if(vessel != null)
+			{
+				Utils.GLDrawPoint(Vector3.zero, vessel.transform, Color.red);
+				Utils.GLLine(vessel.transform.position, vessel.CoM, Color.green);
+				Utils.GLLine(vessel.transform.position, vessel.CurrentCoM, Color.cyan);
+				Utils.GLLine(vessel.transform.position, vessel.orbit.pos.xzy+vessel.mainBody.position, Color.yellow);
+				Utils.GLLine(vessel.transform.position, vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()+TimeWarp.fixedDeltaTime).xzy+vessel.mainBody.position, Color.magenta);
+				Utils.GLVec(vessel.transform.position,  vessel.orbit.GetRotFrameVel(vessel.mainBody).xzy*TimeWarp.fixedDeltaTime, Color.blue);
+			}
+			if(launched_vessel != null && launched_vessel.vessel != null)
+			{
+				Utils.GLDrawPoint(Vector3.zero, launched_vessel.vessel.transform, Color.green);
+				Utils.GLVec(part.transform.position+part.transform.TransformDirection(part.CoMOffset), deltaV, Color.red);
+			}
+			if(selected_window[EditorWindows.EditContent] && Storage != null)
+			{
+				PackedVessel vsl = null;
+				if(Storage.ConstructsCount > 0) vsl = Storage.GetConstructs()[0];
+				else if(Storage.UnfitCount > 0) vsl = Storage.UnfitConstucts[0];
+				if(vsl != null)
+				{
+					var metric = vsl.metric;
+					var hull = metric.hull;
+					Utils.DrawPoint(Vector3.zero, Storage.spawn_transform, Color.red);
+					if(hull != null) Utils.GLDrawHull(hull, get_spawn_transform(vsl), metric.center-Storage.GetSpawnOffset(vsl), Color.green, false);
+				}
+				if(Storage.hangar_space != null)
+					Utils.GLDrawMesh(Storage.hangar_space.sharedMesh, Storage.hangar_space.transform, c:Color.cyan, filled:false);
+			}
+			foreach(var dc in part.DragCubes.Cubes)
+				Utils.GLDrawBounds(new Bounds(dc.Center, dc.Size), part.transform, Color.yellow*dc.Weight);
+		}
+		#endif
 	}
 }
 

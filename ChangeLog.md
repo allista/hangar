@@ -1,11 +1,29 @@
 ###Delete the old version of the mod before installing a new one.
-_You may keep the config.xml to save positions of GUI windows._
+_You may keep the Hangar.user (if you have one) and config.xml files to preserve your settings._
 
 ***
 
 ###ChangeLog###
 
-* **v2.3.1**
+* **v3.0**
+    * **KSP-1.2 support.**
+    * **Requires:**
+        * *AT_Utils* library
+        * *Community Resource Pack*
+    * **Changed license to MIT (sources) + CC-BY-4.0 (assets).**
+    * Removed most non-hangar, non structural parts (engines, airbrake, etc.).
+    * Added Inflatable Space Hangar.
+    * Changed model of the Fairings Hangar.
+    * In Editor: unfit vessels are automatically stored if a hangar becomes large enough when resized.
+    * Asteroid Drill now produces Ore, like stock drills.
+    * Mobile Smelter produces "Metals" from  Community Resource Pack. It is then used to construct resource tanks inside asteroids.
+    * Improved GUI, added tooltips.
+    * Many bugfixes.
+
+* v2.3.1.1
+    * Second fix for the problem with vessels launched from orbits around distant planets. I hope the issue is gone for good now.
+
+* v2.3.1
     * Fixed the problem with vessels launched from orbits around distant planets.
     * Fixed the problem with the scale of cloned/mirrored parts.
     * Added Radial Hangar in an optional package.

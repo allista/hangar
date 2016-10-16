@@ -1,9 +1,17 @@
-﻿using System.Linq;
+﻿//   HangarStorageDynamic.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System.Linq;
 using UnityEngine;
+using AT_Utils;
 
 namespace AtHangar
 {
-	public class HangarStorageDynamic : HangarStorage, ITankManager, ISerializationCallbackReceiver
+	public class HangarStorageDynamic : HangarStorage, ITankManager
 	{
 		[KSPField(isPersistant = true)] public float TotalVolume;
 		[KSPField(isPersistant = true)] public Vector3 StorageSize;
@@ -11,7 +19,7 @@ namespace AtHangar
 		[KSPField] public float  WidthToLengthRatio    = 0.5f;
 		[KSPField] public float  UpdateVolumeThreshold = 0.1f; //m^3
 		[KSPField] public bool   HasTankManager;
-		[KSPField] public string BuildTanksFrom  = "Metal";
+		[KSPField] public string BuildTanksFrom  = "Metals";
 		[KSPField] public float  ResourcePerArea = 0.6f; // 200U/m^3, 1m^2*3mm
 
 		public ConfigNode ModuleSave;
@@ -21,13 +29,18 @@ namespace AtHangar
 
 		public SwitchableTankManager GetTankManager() { return tank_manager; }
 
-		public override float GetModuleCost(float default_cost)
+		#region IPart*Modifiers
+		public override float GetModuleCost(float defaultCost, ModifierStagingSituation situation)
 		{
-			var cost = base.GetModuleCost(default_cost);
+			var cost = base.GetModuleCost(defaultCost, situation);
 			var res = PartResourceLibrary.Instance.GetDefinition(BuildTanksFrom);
 			if(res != null) cost += TanksMass/res.density*res.unitCost;
 			return cost;
 		}
+
+		public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
+		{ return base.GetModuleMass(defaultMass, sit) + TanksMass; }
+		#endregion
 
 		protected override void early_setup(StartState state)
 		{
@@ -39,6 +52,8 @@ namespace AtHangar
 			if(HasTankManager)
 			{
 				tank_manager = new SwitchableTankManager(this);
+				if(ModuleSave == null) 
+				{ this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
 				if(ModuleSave.HasNode(SwitchableTankManager.NODE_NAME))
 					tank_manager.Load(ModuleSave.GetNode(SwitchableTankManager.NODE_NAME));
 				Events["EditTanks"].active = true;
@@ -59,9 +74,6 @@ namespace AtHangar
 			HangarMetric = new Metric(StorageSize);
 		}
 
-		protected override void set_part_mass()
-		{ part.mass = base_mass + VesselsMass + TanksMass;	}
-
 		public bool AddVolume(float volume) 
 		{
 			if(volume < 0 || tank_manager != null && tank_manager.TanksCount > 0) return false;
@@ -79,7 +91,7 @@ namespace AtHangar
 		{ 
 			get
 			{
-				return VesselsDocked == 0 && 
+				return TotalVesselsDocked == 0 && 
 				tank_manager != null && 
 				tank_manager.TanksCount == 0;
 			}
@@ -98,13 +110,23 @@ namespace AtHangar
 				tank_manager.Save(node.AddNode(SwitchableTankManager.NODE_NAME));
 		}
 
-		public void OnBeforeSerialize()
+		//workaround for ConfigNode non-serialization
+		public byte[] _module_save;
+		public override void OnBeforeSerialize()
 		{
-			if(tank_manager == null) return;
-			ModuleSave = new ConfigNode();
-			Save(ModuleSave);
+			base.OnBeforeSerialize();
+			if(tank_manager != null)
+			{
+				ModuleSave = new ConfigNode();
+				Save(ModuleSave);
+			}
+			_module_save = ConfigNodeWrapper.SaveConfigNode(ModuleSave);
 		}
-		public void OnAfterDeserialize() {}
+		public override void OnAfterDeserialize() 
+		{ 
+			base.OnAfterDeserialize();
+			ModuleSave = ConfigNodeWrapper.RestoreConfigNode(_module_save); 
+		}
 
 		#region Tanks
 		public void RescaleTanks(float relative_scale)
@@ -137,7 +159,7 @@ namespace AtHangar
 				{
 					if(metal_pump.PartialTransfer) 
 					{
-						ScreenMessager.showMessage("Not enough {0} to build {1} tank. Need {2}.", 
+						Utils.Message("Not enough {0} to build {1} tank. Need {2}.", 
 							BuildTanksFrom, Utils.formatVolume(volume), metal);
 						metal_pump.Revert();
 						metal_pump.Clear();
@@ -148,7 +170,7 @@ namespace AtHangar
 				else
 				{
 					if(metal_pump.PartialTransfer)
-						ScreenMessager.showMessage("Not enough storage for {0}. The excess was disposed of.", 
+						Utils.Message("Not enough storage for {0}. The excess was disposed of.", 
 							BuildTanksFrom);
 					TanksMass += metal*metal_pump.Resource.density;
 				}
@@ -158,7 +180,7 @@ namespace AtHangar
 		}
 
 		float _add_tank_last_volume, _add_tank_metal;
-		float add_tank(string tank_type, float volume)
+		float add_tank(string tank_name, float volume)
 		{
 			if(!volume.Equals(_add_tank_last_volume))
 				_add_tank_metal = metal_for_tank(volume);
@@ -170,13 +192,13 @@ namespace AtHangar
 			else if(GUILayout.Button("Add", Styles.green_button))
 			{
 				if(metal_pump != null && !convert_metal(volume)) return volume;
-				tank_manager.AddTank(tank_type, volume); //liters
+				tank_manager.AddVolume(tank_name, volume); //liters
 				change_size(-volume);
 			}
 			return volume;
 		}
 
-		void remove_tank(HangarSwitchableTank tank)
+		void remove_tank(ModuleSwitchableTank tank)
 		{
 			var volume = tank.Volume;
 			if(!tank_manager.RemoveTank(tank)) return;
@@ -186,16 +208,16 @@ namespace AtHangar
 		#endregion
 
 		#region GUI
-		enum TankWindows { EditTanks } //maybe we'll need more in the future
+		enum TankWindows { None, EditTanks } //maybe we'll need more in the future
 		readonly Multiplexer<TankWindows> selected_window = new Multiplexer<TankWindows>();
 
 		[KSPEvent(guiActive = true, guiName = "Edit Tanks", active = false)]
 		public void EditTanks()
 		{ 
-			if(VesselsDocked > 0)
+			if(TotalVesselsDocked > 0)
 			{
-				ScreenMessager.showMessage("There are some ships docked inside this hangar.\n" +
-					"All works on resource tanks are prohibited for safety reasons.");
+				Utils.Message("There are some ships docked inside this hangar.\n" +
+				              "All works on resource tanks are prohibited for safety reasons.");
 				selected_window[TankWindows.EditTanks] = false;
 			}
 			else selected_window.Toggle(TankWindows.EditTanks);
@@ -205,10 +227,10 @@ namespace AtHangar
 
 		public void OnGUI() 
 		{ 
-			if(Event.current.type != EventType.Layout) return;
-			if(!selected_window.Any()) return;
+			if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
+			if(!selected_window) return;
 			if(tank_manager == null) return;
-			if(VesselsDocked > 0) 
+			if(TotalVesselsDocked > 0) 
 			{ 
 				selected_window[TankWindows.EditTanks] = false;
 				tank_manager.UnlockEditor(); 
@@ -218,7 +240,7 @@ namespace AtHangar
 			if(selected_window[TankWindows.EditTanks])
 			{
 				var title = string.Format("Available Volume: {0}", Utils.formatVolume(Volume));
-				tank_manager.DrawTanksWindow(GetInstanceID(), title, add_tank, remove_tank);
+				tank_manager.DrawTanksManagerWindow(GetInstanceID(), title, add_tank, remove_tank);
 				if(tank_manager.Closed) selected_window[TankWindows.EditTanks] = false;
 			}
 		}

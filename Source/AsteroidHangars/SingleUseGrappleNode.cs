@@ -1,5 +1,13 @@
-﻿using UnityEngine;
+﻿//   SingleUseGrappleNode.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using UnityEngine;
 using System.Collections.Generic;
+using AT_Utils;
 
 namespace AtHangar
 {
@@ -12,14 +20,23 @@ namespace AtHangar
 		bool try_fix;
 
 		[KSPField] public string AnimatorID = "_none_";
-		BaseHangarAnimator animator;
+		MultiAnimator animator;
+		ModuleAnimateGeneric deployAnimator;
 
 		public override void OnStart(StartState st)
 		{
 			base.OnStart(st);
 			//initialize Animator
 			animator = part.GetAnimator(AnimatorID);
-			if(Fixed && animator is HangarAnimator) animator.Open();
+			if(deployAnimationController >= 0)
+				deployAnimator = part.Modules.GetModule(deployAnimationController) as ModuleAnimateGeneric;
+			if(Fixed)
+			{
+				if(animator != null) 
+					animator.Open();
+				if(deployAnimator != null && deployAnimator.animSwitch) 
+					deployAnimator.Toggle();
+			}
 			//initialize Fixed state
 			StartCoroutine(delayed_disable_decoupling());
 		}
@@ -39,9 +56,9 @@ namespace AtHangar
 			var attached_part = vessel[dockedPartUId];
 			if(attached_part == null) return;
 			if(part.parent == attached_part && part.attachJoint != null) 
-				part.attachJoint.SetUnbreakable(true);
+				part.attachJoint.SetUnbreakable(true, part.rigidAttachment);
 			else if(attached_part.parent == part && attached_part.attachJoint != null) 
-				attached_part.attachJoint.SetUnbreakable(true);
+				attached_part.attachJoint.SetUnbreakable(true, attached_part.rigidAttachment);
 			else this.Log("Unable to find attachJoint when grappled. This should never heppen.");
 		}
 
@@ -50,11 +67,20 @@ namespace AtHangar
 			LockPivot();
 			reinforce_grapple_joint();
 			Events["SetLoose"].active = false;
+			Events["LockPivot"].active = false;
 			Events["Decouple"].active = false;
 			Actions["DecoupleAction"].active = false;
 			Events["Release"].active = false;
 			Events["ReleaseSameVessel"].active = false;
 			Actions["ReleaseAction"].active = false;
+			if(deployAnimator != null)
+			{
+				deployAnimator.disableAfterPlaying = true;
+				if(deployAnimator.animSwitch) deployAnimator.Toggle();
+				deployAnimator.Events["Toggle"].active = false;
+				deployAnimator.Actions["ToggleAction"].active = false;
+				deployAnimator.animationIsDisabled = true;
+			}
 			Fixed = true;
 			disable_fixing();
 		}
@@ -73,12 +99,15 @@ namespace AtHangar
 				disable_decoupling();
 				yield break;
 			}
-			if(animator.State != AnimatorState.Opening) 
-				yield break; 
-			while(animator.State != AnimatorState.Opened) 
-				yield return new WaitForSeconds(0.5f);
+			if(animator != null)
+			{
+				if(animator.State != AnimatorState.Opening) 
+					yield break; 
+				while(animator.State != AnimatorState.Opened) 
+					yield return new WaitForSeconds(0.5f);
+			}
 			disable_decoupling();
-			ScreenMessager.showMessage("The grapple was fixed permanently");
+			Utils.Message("The grapple was fixed permanently");
 		}
 		#endregion
 
@@ -86,16 +115,16 @@ namespace AtHangar
 		#if DEBUG
 		[KSPEvent (guiActive = true, guiName = "Try Fix Hatch", active = true)]
 		public void TryFixHatch()
-		{ animator.Toggle(); }
+		{ if(animator != null) animator.Toggle(); }
 		#endif
 
 		[KSPEvent (guiActive = true, guiName = "Fix Hatch Permanently", active = true)]
 		public void FixHatch()
 		{ 
 			if(!is_docked) 
-			{ ScreenMessager.showMessage("Nothing to fix to"); return; }
-			if(animator.State != AnimatorState.Closed)
-			{ ScreenMessager.showMessage("Already working..."); return; }
+			{ Utils.Message("Nothing to fix to"); return; }
+			if(animator != null && animator.State != AnimatorState.Closed)
+			{ Utils.Message("Already working..."); return; }
 			try_fix = true;
 		}
 
@@ -105,7 +134,7 @@ namespace AtHangar
 
 		public void OnGUI() 
 		{ 
-			if(Event.current.type != EventType.Layout) return;
+			if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
 			Styles.Init();
 			while(try_fix)
 			{
@@ -115,7 +144,7 @@ namespace AtHangar
 				if(warning.Result == SimpleDialog.Answer.None) break;
 				if(warning.Result == SimpleDialog.Answer.Yes) 
 				{
-					animator.Open();
+					if(animator != null) animator.Open();
 					StartCoroutine(delayed_disable_decoupling());
 				}
 				try_fix = false;
