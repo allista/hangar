@@ -59,7 +59,6 @@
     <Compile Include="GUI\HangarWindow.cs" />
     <Compile Include="GUI\ResourceTransferWindow.cs" />
     <Compile Include="GUI\Toolbar.cs" />
-    <Compile Include="GUI\ToolbarWrapper.cs" />
     <Compile Include="GUI\VesselTransferWindow.cs" />
     <Compile Include="AuxModules\GroundAnchor.cs" />
     <Compile Include="AuxModules\ProceduralAdapter.cs" />

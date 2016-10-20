@@ -7,6 +7,7 @@
 
 using UnityEngine;
 using KSP.UI.Screens;
+using AT_Utils;
 
 namespace AtHangar {
 	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
