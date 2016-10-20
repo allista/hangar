@@ -180,8 +180,9 @@ namespace AtHangar
 		}
 
 		float _add_tank_last_volume, _add_tank_metal;
-		float add_tank(string tank_name, float volume)
+		float add_tank(string tank_name, float volume, bool percent)
 		{
+			if(percent) volume = Volume*volume/100;
 			if(!volume.Equals(_add_tank_last_volume))
 				_add_tank_metal = metal_for_tank(volume);
 			_add_tank_last_volume = volume;
@@ -191,11 +192,13 @@ namespace AtHangar
 			if(volume <= 0) GUILayout.Label("Add", Styles.grey);
 			else if(GUILayout.Button("Add", Styles.green_button))
 			{
-				if(metal_pump != null && !convert_metal(volume)) return volume;
-				tank_manager.AddVolume(tank_name, volume); //liters
-				change_size(-volume);
+				if(metal_pump == null || convert_metal(volume))
+				{
+					change_size(-volume);
+					tank_manager.AddVolume(tank_name, volume); //liters
+				}
 			}
-			return volume;
+			return percent? (Volume.Equals(0)? 0 : volume/Volume*100) : volume;
 		}
 
 		void remove_tank(ModuleSwitchableTank tank)
