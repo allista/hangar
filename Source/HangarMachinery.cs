@@ -376,7 +376,7 @@ namespace AtHangar
 			//if the vessel is new, check momentary states
 			if(!hangar_is_ready(vsl)) return;
 			//if the state is OK, try to store the vessel
-			StoredVessel stored_vessel = try_store_vessel(vsl);
+			var stored_vessel = try_store_vessel(vsl);
 			//if failed, remember it
 			if(stored_vessel == null)
 			{
@@ -439,9 +439,10 @@ namespace AtHangar
 		{
 			var pv = launched_vessel.proto_vessel;
 			//state
-			pv.splashed = vessel.Splashed;
-			pv.landed   = vessel.Landed;
-			pv.landedAt = vessel.landedAt;
+			pv.situation = vessel.situation;
+			pv.splashed  = vessel.Splashed;
+			pv.landed    = vessel.Landed;
+			pv.landedAt  = vessel.landedAt;
 			//rotation
 			//rotate spawn_transform.rotation to protovessel's reference frame
 			var spawn_transform = get_spawn_transform(launched_vessel);
@@ -471,12 +472,11 @@ namespace AtHangar
 			pv.orbitSnapShot = new OrbitSnapshot(vorb);
 			//position on a surface
 			if(vessel.LandedOrSplashed)
-			{
 				vpos = spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel);
-				pv.longitude = vessel.mainBody.GetLongitude(vpos);
-				pv.latitude  = vessel.mainBody.GetLatitude(vpos);
-				pv.altitude  = vessel.mainBody.GetAltitude(vpos);
-			}
+			else vpos = vessel.mainBody.position + vpos.xzy;
+			pv.longitude = vessel.mainBody.GetLongitude(vpos);
+			pv.latitude  = vessel.mainBody.GetLatitude(vpos);
+			pv.altitude  = vessel.mainBody.GetAltitude(vpos);
 			on_vessel_positioned();
 		}
 
@@ -510,18 +510,21 @@ namespace AtHangar
 			yield return new WaitForFixedUpdate();
 			disable_collisions(false);
 			var vsl = launched_vessel.vessel;
+			if(vsl == null) yield break;
 			if(vessel.LandedOrSplashed)
 			{
 				var pos = vsl.transform.position;
 				var rot = vsl.transform.rotation;
 				while(vsl.packed) 
 				{
+					if(vsl == null) yield break;
 					rot = vsl.transform.rotation;
 					pos = vsl.transform.position;
 					vsl.GoOffRails();
 					if(!vsl.packed) break;
 					yield return new WaitForFixedUpdate();
 				}
+				if(vsl == null) yield break;
 				vsl.SetPosition(pos);
 				vsl.SetRotation(rot);
 			}
@@ -535,6 +538,7 @@ namespace AtHangar
 				var vvel = vessel.rb_velocity;
 				while(vsl.packed) 
 				{
+					if(vsl == null) yield break;
 					vsl.SetPosition(spos);
 					if(!vsl.packed) break;
 					spos += (svel+vessel.rb_velocity-vvel)*TimeWarp.fixedDeltaTime;
