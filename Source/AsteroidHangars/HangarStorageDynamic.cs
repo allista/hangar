@@ -33,13 +33,17 @@ namespace AtHangar
 		public override float GetModuleCost(float defaultCost, ModifierStagingSituation situation)
 		{
 			var cost = base.GetModuleCost(defaultCost, situation);
-			var res = PartResourceLibrary.Instance.GetDefinition(BuildTanksFrom);
-			if(res != null) cost += TanksMass/res.density*res.unitCost;
+			if(metal_pump != null)
+				cost += TanksMass/metal_pump.Resource.density*metal_pump.Resource.unitCost;
 			return cost;
 		}
 
 		public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
-		{ return base.GetModuleMass(defaultMass, sit) + TanksMass; }
+		{ 
+			var add_mass = tank_manager == null? 0 :
+				tank_manager.Tanks.Aggregate(0f, (m, t) => m+metal_for_tank(t.TankType, t.Volume)*metal_pump.Resource.density);
+			return base.GetModuleMass(defaultMass, sit) + TanksMass - add_mass; 
+		}
 		#endregion
 
 		protected override void early_setup(StartState state)
@@ -62,8 +66,10 @@ namespace AtHangar
 					metal_pump = new ResourcePump(part, BuildTanksFrom);
 					if(!metal_pump.Valid) metal_pump = null;
 					else if(TanksMass <= 0) 
-						TanksMass = tank_manager.TanksVolumes
-							.Aggregate(0f, (m, v) => m+metal_for_tank(v)*metal_pump.Resource.density);
+						TanksMass = tank_manager.Tanks
+							.Aggregate(0f, (m, t) => 
+							           m+(metal_for_hull(t.Volume)+metal_for_tank(t.TankType, t.Volume))*
+							           metal_pump.Resource.density);
 				}
 			}
 		}
@@ -146,12 +152,17 @@ namespace AtHangar
 		}
 
 		//area is calculated for a box with sides [a, a, 2a], where a*a*2a = volume
-		float metal_for_tank(float volume)
+		float metal_for_hull(float volume)
 		{ return Mathf.Sign(volume)*10*Mathf.Pow(Mathf.Abs(volume)/2, 2f/3)*ResourcePerArea; }
 
-		bool convert_metal(float volume)
+		float metal_for_tank(string tank_name, float volume)
+		{ 
+			var type = SwitchableTankType.GetTankType(tank_name);
+			return type != null? type.AddMass(volume) / metal_pump.Resource.density : 0;
+		}
+
+		bool convert_metal(float metal)
 		{
-			var metal = metal_for_tank(volume);
 			metal_pump.RequestTransfer(metal);
 			if(metal_pump.TransferResource())
 			{
@@ -159,8 +170,6 @@ namespace AtHangar
 				{
 					if(metal_pump.PartialTransfer) 
 					{
-						Utils.Message("Not enough {0} to build {1} tank. Need {2}.", 
-							BuildTanksFrom, Utils.formatVolume(volume), metal);
 						metal_pump.Revert();
 						metal_pump.Clear();
 						return false;
@@ -170,8 +179,7 @@ namespace AtHangar
 				else
 				{
 					if(metal_pump.PartialTransfer)
-						Utils.Message("Not enough storage for {0}. The excess was disposed of.", 
-							BuildTanksFrom);
+						Utils.Message("Not enough storage for {0}. The excess was disposed of.", BuildTanksFrom);
 					TanksMass += metal*metal_pump.Resource.density;
 				}
 				if(TanksMass < 0) TanksMass = 0;
@@ -183,20 +191,26 @@ namespace AtHangar
 		float add_tank(string tank_name, float volume, bool percent)
 		{
 			if(percent) volume = Volume*volume/100;
-			if(!volume.Equals(_add_tank_last_volume))
-				_add_tank_metal = metal_for_tank(volume);
+			if(metal_pump != null)
+			{
+				if(!volume.Equals(_add_tank_last_volume))
+					_add_tank_metal = metal_for_hull(volume) + metal_for_tank(tank_name, volume);
+				GUILayout.Label(Utils.formatUnits(_add_tank_metal), GUILayout.Width(50));
+			}
 			_add_tank_last_volume = volume;
-			GUILayout.Label(Utils.formatUnits(_add_tank_metal), GUILayout.Width(50));
 			var max = GUILayout.Button("Max");
 			if(max || volume > Volume) volume = Volume;
 			if(volume <= 0) GUILayout.Label("Add", Styles.grey);
 			else if(GUILayout.Button("Add", Styles.green_button))
 			{
-				if(metal_pump == null || convert_metal(volume))
+				if(metal_pump == null || convert_metal(_add_tank_metal))
 				{
 					change_size(-volume);
 					tank_manager.AddVolume(tank_name, volume); //liters
 				}
+				else if(metal_pump != null)
+					Utils.Message("Not enough {0} to build {1} tank. Need {2}.", 
+					              BuildTanksFrom, Utils.formatVolume(volume), _add_tank_metal);
 			}
 			return percent? (Volume.Equals(0)? 0 : volume/Volume*100) : volume;
 		}
@@ -205,7 +219,7 @@ namespace AtHangar
 		{
 			var volume = tank.Volume;
 			if(!tank_manager.RemoveTank(tank)) return;
-			if(metal_pump != null && !convert_metal(-volume)) return;
+			if(metal_pump != null && !convert_metal(-metal_for_hull(volume)-metal_for_tank(tank.TankType, volume))) return;
 			change_size(volume);
 		}
 		#endregion
