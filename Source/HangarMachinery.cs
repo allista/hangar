@@ -89,7 +89,15 @@ namespace AtHangar
 		[KSPField (isPersistant = true)] bool change_velocity;
 		protected StoredVessel launched_vessel;
 
-		public bool IsControllable { get { return vessel.IsControllable || part.protoModuleCrew.Count > 0; } }
+		public bool IsControllable 
+		{ 
+			get 
+			{ 
+				return vessel.CurrentControlLevel == Vessel.ControlLevel.FULL || 
+					vessel.CurrentControlLevel == Vessel.ControlLevel.PARTIAL_MANNED || 
+					part.protoModuleCrew.Count > 0; 
+			} 
+		}
 
 		protected ResourcePump socket;
 		#endregion
