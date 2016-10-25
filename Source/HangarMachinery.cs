@@ -461,7 +461,7 @@ namespace AtHangar
 			var vorb  = new Orbit();
 			var d_pos = spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel) - vessel.CurrentCoM;
 			var vpos  = horb.pos + new Vector3d(d_pos.x, d_pos.z, d_pos.y) 
-				- horb.GetRotFrameVel(horb.referenceBody)*TimeWarp.fixedDeltaTime;
+				+ (horb.vel-horb.GetRotFrameVel(horb.referenceBody))*TimeWarp.fixedDeltaTime;
 			var vvel  = horb.vel;
 			if(LaunchWithPunch && !LaunchVelocity.IsZero())
 			{
@@ -506,6 +506,7 @@ namespace AtHangar
 		IEnumerator<YieldInstruction> launch_vessel(StoredVessel sv)
 		{
 			launched_vessel = sv;
+			var partV = part.rb.velocity;
 			disable_collisions();
 			before_vessel_launch();	
 			transferResources(launched_vessel);
@@ -542,12 +543,14 @@ namespace AtHangar
 				var spawn_transform = get_spawn_transform(launched_vessel);
 				var spos = spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel)
 					-vsl.transform.TransformDirection(launched_vessel.CoM);
-				var svel = part.rb.velocity+launched_vessel.dV;
+				var svel = partV+launched_vessel.dV;
 				var vvel = vessel.rb_velocity;
 				while(vsl.packed) 
 				{
 					if(vsl == null) yield break;
-					vsl.SetPosition(spos);
+					try { vsl.SetPosition(spos); }
+					catch(Exception e) 
+					{ this.Log("Exception occured during launched_vessel.vessel.SetPosition call. Ignoring it:\n{}", e.StackTrace); }
 					if(!vsl.packed) break;
 					spos += (svel+vessel.rb_velocity-vvel)*TimeWarp.fixedDeltaTime;
 					yield return new WaitForFixedUpdate();
@@ -684,6 +687,7 @@ namespace AtHangar
 			//switch hangar state
 			Deactivate();
 			//restore vessel
+			Utils.SaveGame(stored_vessel.name+"-before_launch", false);
 			StartCoroutine(launch_vessel(stored_vessel));
 		}
 		#endregion
