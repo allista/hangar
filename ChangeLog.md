@@ -3,9 +3,17 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-###ChangeLog###
+###ChangeLog
 
-* **v3.0**
+
+* **v3.0.1**
+	* Yet another fix for vessel positioning on launch.
+	* The game is now autosaved before a vessel is spawned from a hangar.
+	* Spaceport and Big Hangar may be used as standalone control centers (KerbNet integration).
+	* Adapted to changes in Configurable Containers.
+	* Moved ToolbarWrapper to AT_Utils. Updated it.
+
+* v3.0
     * **KSP-1.2 support.**
     * **Requires:**
         * *AT_Utils* library
