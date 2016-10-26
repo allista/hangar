@@ -214,7 +214,7 @@ namespace AtHangar
 						if(vessels.Count != selected_hangar.VesselsDocked)
 							build_vessel_list(selected_hangar);
 						if(selected_vessel != null && selected_window[TransferWindows.TransferResources])
-							selected_hangar.updateResourceList();
+							selected_hangar.UpdateResourceList();
 					}
 				}
 				next_update += update_interval;
@@ -421,7 +421,7 @@ namespace AtHangar
 			vessel_id = vsl.proto_vessel.vesselID;
 			vessel_list.SelectItem(vessels.IndexOf(vsl));
 			if(vsl != selected_vessel) 
-				selected_hangar.resourceTransferList.Clear();
+				selected_hangar.ResourceTransferList.Clear();
 			selected_vessel = vsl;
 		}
 
@@ -537,11 +537,11 @@ namespace AtHangar
 					                 selected_vessel.crew, selected_vessel.CrewCapacity);
 				else if(selected_window[TransferWindows.TransferResources])
 				{
-					selected_hangar.prepareResourceList(selected_vessel);
-					resources_window.Draw(selected_hangar.resourceTransferList);
+					selected_hangar.PrepareResourceList(selected_vessel);
+					resources_window.Draw(selected_hangar.ResourceTransferList);
 					if(resources_window.transferNow)
 					{
-						selected_hangar.transferResources(selected_vessel);
+						selected_hangar.TransferResources(selected_vessel);
 						resources_window.transferNow = false;
 						selected_window[TransferWindows.TransferResources] = false;
 					}

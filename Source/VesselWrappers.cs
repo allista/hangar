@@ -27,6 +27,7 @@ namespace AtHangar
 				UnloadConstruct();
 				return false;
 			}
+			resources = new VesselResources<ShipConstruct, Part, PartResource>(construct);
 			return true;
 		}
 
@@ -44,9 +45,14 @@ namespace AtHangar
 			if(construct == null) return;
 			foreach(Part p in construct) 
 			{
-				if(p != null && p.gameObject != null)
-					UnityEngine.Object.Destroy(p.gameObject);
+				if(p != null) 
+				{
+					p.OnDelete();
+					if(p.gameObject != null)
+						UnityEngine.Object.Destroy(p.gameObject);
+				}
 			}
+			construct.Clear();
 			construct = null; 
 		}
 
@@ -104,7 +110,6 @@ namespace AtHangar
 		public Vector3 CoM { get { return proto_vessel.CoM; } }
 		public Vector3d dV;
 		public List<ProtoCrewMember> crew { get; private set; }
-		public VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot> resources { get; private set; }
 
 		public StoredVessel() {}
 

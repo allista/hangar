@@ -37,6 +37,8 @@ namespace AtHangar
 		public bool jettisoned, launch_in_progress;
 		List<Part> debris;
 
+		List<string> payload_resources = new List<string>();
+
 		public override string GetInfo()
 		{
 			var info = base.GetInfo();
@@ -105,23 +107,102 @@ namespace AtHangar
 			}
 			else this.Log("No Fairings transforms found with the name: {}", Fairings);
 			JettisonDirection.Normalize();
-			if(vessel != null) 
-				vessel.SpawnCrew();
+			if(vessel != null) vessel.SpawnCrew();
+			if(Storage != null)
+			{
+				Storage.OnConstructStored += on_construct_stored;
+				Storage.OnStorageEmpty += on_storage_empty;
+			}
 		}
 
-		IEnumerator<YieldInstruction> update_crew_capacity()
+		public override void OnDestroy()
 		{
-			if(!HighLogic.LoadedSceneIsEditor || Storage == null) yield break;
-			while(!Storage.Ready) yield return null;
-			while(true)
+			base.OnDestroy();
+			if(Storage != null)
 			{
-				var vsl = Storage.TotalVesselsDocked > 0 ? Storage.GetConstructs()[0] : null;
-				var capacity = vsl != null? vsl.CrewCapacity : 0;
-				if(part.partInfo != null && part.partInfo.partPrefab != null &&
-				   capacity != part.partInfo.partPrefab.CrewCapacity)
-					update_crew_capacity(capacity);
-				yield return new WaitForSeconds(0.1f);
+				Storage.OnConstructStored -= on_construct_stored;
+				Storage.OnStorageEmpty -= on_storage_empty;
 			}
+		}
+
+		protected override bool try_store_vessel(PackedVessel v)
+		{
+			if(Storage.TotalVesselsDocked > 0)
+			{
+				Utils.Message("Payload is already stored");
+				return false;
+			}
+			return base.try_store_vessel(v);
+		}
+
+		bool store_payload_resources(PackedConstruct payload)
+		{
+			if(payload_resources.Count > 0) return false;
+			var res_mass = 0.0;
+			var resources = payload.resources;
+			foreach(var r in resources.resourcesNames)
+			{
+				if(part.Resources.Contains(r)) continue;
+				if(Globals.Instance.ResourcesBlacklist.IndexOf(r) >= 0) continue;
+				var res = part.Resources.Add(r, resources.ResourceAmount(r), resources.ResourceCapacity(r), 
+				                             true, false, true, true, PartResource.FlowMode.Both);
+				if(res != null) 
+				{
+					payload_resources.Add(r);
+					resources.TransferResource(r, -res.amount);
+					res_mass += res.amount*res.info.density;
+				}
+			}
+			payload.mass -= (float)res_mass;
+			return true;
+		}
+
+		bool restore_payload_resources_on_launch()
+		{
+			if(payload_resources.Count == 0) return true;
+			if(launched_vessel == null) return false;
+			var res_mass = 0.0;
+			foreach(var r in payload_resources)
+			{
+				var res  = part.Resources.Get(r);
+				if(res != null)
+				{
+					res_mass += res.amount * res.info.density;
+					launched_vessel.resources.TransferResource(r, res.amount);
+					part.Resources.Remove(res);
+				}
+			}
+			launched_vessel.mass += (float)res_mass;
+			payload_resources.Clear();
+			return true;
+		}
+
+		bool clear_payload_resouces()
+		{
+			if(payload_resources.Count == 0) return true;
+			if(Storage != null && Storage.Ready && Storage.ConstructsCount > 0) return false;
+			payload_resources.ForEach(r => part.Resources.Remove(r));
+			payload_resources.Clear();
+			return true;
+		}
+
+		void on_construct_stored(PackedConstruct pc)
+		{
+			update_crew_capacity(pc);
+			store_payload_resources(pc);
+		}
+
+		void on_storage_empty()
+		{
+			update_crew_capacity(0);
+			clear_payload_resouces();
+		}
+
+		void update_crew_capacity(PackedConstruct vsl)
+		{
+			if(part.partInfo != null && part.partInfo.partPrefab != null &&
+			   vsl.CrewCapacity != part.partInfo.partPrefab.CrewCapacity)
+				update_crew_capacity(vsl.CrewCapacity);
 		}
 
 		void update_crew_capacity(int capacity)
@@ -134,17 +215,12 @@ namespace AtHangar
 			Utils.UpdateEditorGUI();
 		}
 
-		protected override void start_coroutines()
-		{
-			base.start_coroutines();
-			StartCoroutine(update_crew_capacity());
-		}
-
 		protected override void before_vessel_launch()
 		{
 			if(fairings == null || jettisoned) return;
 			launched_vessel.crew.Clear();
 			launched_vessel.crew.AddRange(part.protoModuleCrew);
+			restore_payload_resources_on_launch();
 			debris = new List<Part>();
 			debris_cost = 0;
 			debris_mass = 0;

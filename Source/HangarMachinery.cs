@@ -80,8 +80,8 @@ namespace AtHangar
 		public AnimatorState gates_state { get { return hangar_gates == null? AnimatorState.Opened : hangar_gates.State; } }
 		public HangarState hangar_state { get; private set; }
 
-		public VesselResources<Vessel, Part, PartResource> hangarResources { get; private set; }
-		readonly public List<ResourceManifest> resourceTransferList = new List<ResourceManifest>();
+		public VesselResources<Vessel, Part, PartResource> HangarResources { get; private set; }
+		readonly public List<ResourceManifest> ResourceTransferList = new List<ResourceManifest>();
 
 		readonly Dictionary<Guid, MemoryTimer> probed_vessels = new Dictionary<Guid, MemoryTimer>();
 
@@ -140,7 +140,7 @@ namespace AtHangar
 			GameEvents.onVesselLoaded.Add(onVesselLoaded);
 		}
 
-		void OnDestroy() 
+		public virtual void OnDestroy() 
 		{ 
 			GameEvents.onVesselWasModified.Remove(update_connected_storage);
 			GameEvents.onEditorShipModified.Remove(update_connected_storage);
@@ -151,7 +151,7 @@ namespace AtHangar
 		void update_resources()
 		{ 
 			if(vessel == null) return;
-			hangarResources = new VesselResources<Vessel, Part, PartResource>(vessel); 
+			HangarResources = new VesselResources<Vessel, Part, PartResource>(vessel); 
 		}
 
 		protected bool all_passages_ready { get { return passage_checklist.All(p => p.Ready); } }
@@ -509,7 +509,7 @@ namespace AtHangar
 			var partV = part.rb.velocity;
 			disable_collisions();
 			before_vessel_launch();	
-			transferResources(launched_vessel);
+			TransferResources(launched_vessel);
 			CrewTransfer.addCrew(launched_vessel.proto_vessel, 
 			                     CrewTransfer.delCrew(vessel, launched_vessel.crew));
 			yield return null;
@@ -562,48 +562,48 @@ namespace AtHangar
 		#endregion
 
 		#region Resources
-		public void prepareResourceList(StoredVessel sv)
+		public void PrepareResourceList(PackedVessel sv)
 		{
-			if(resourceTransferList.Count > 0) return;
+			if(ResourceTransferList.Count > 0) return;
 			foreach(var r in sv.resources.resourcesNames)
 			{
-				if(hangarResources.ResourceCapacity(r) <= 0) continue;
+				if(HangarResources.ResourceCapacity(r) <= 0) continue;
 				var rm = new ResourceManifest();
 				rm.name          = r;
 				rm.amount        = sv.resources.ResourceAmount(r);
 				rm.capacity      = sv.resources.ResourceCapacity(r);
 				rm.offset        = rm.amount;
-				rm.host_amount   = hangarResources.ResourceAmount(r);
-				rm.host_capacity = hangarResources.ResourceCapacity(r);
+				rm.host_amount   = HangarResources.ResourceAmount(r);
+				rm.host_capacity = HangarResources.ResourceCapacity(r);
 				rm.pool          = rm.host_amount + rm.offset;
 				rm.minAmount     = Math.Max(0, rm.pool-rm.host_capacity);
 				rm.maxAmount     = Math.Min(rm.pool, rm.capacity);
-				resourceTransferList.Add(rm);
+				ResourceTransferList.Add(rm);
 			}
 		}
 
-		public void updateResourceList()
+		public void UpdateResourceList()
 		{
 			update_resources();
-			foreach(ResourceManifest rm in resourceTransferList)
+			foreach(ResourceManifest rm in ResourceTransferList)
 			{
-				rm.host_amount = hangarResources.ResourceAmount(rm.name);
+				rm.host_amount = HangarResources.ResourceAmount(rm.name);
 				rm.pool        = rm.host_amount + rm.offset;
 				rm.minAmount   = Math.Max(0, rm.pool-rm.host_capacity);
 				rm.maxAmount   = Math.Min(rm.pool, rm.capacity);
 			}
 		}
 
-		public void transferResources(StoredVessel sv)
+		public void TransferResources(PackedVessel sv)
 		{
-			if(resourceTransferList.Count == 0) return;
-			foreach(var r in resourceTransferList)
+			if(ResourceTransferList.Count == 0) return;
+			foreach(var r in ResourceTransferList)
 			{
 				//transfer resource between hangar and protovessel
-				var a = hangarResources.TransferResource(r.name, r.offset-r.amount);
+				var a = HangarResources.TransferResource(r.name, r.offset-r.amount);
 				a = r.amount-r.offset + a;
 				var b = sv.resources.TransferResource(r.name, a);
-				hangarResources.TransferResource(r.name, b);
+				HangarResources.TransferResource(r.name, b);
 				//update masses
 				PartResourceDefinition res_def = PartResourceLibrary.Instance.GetDefinition(r.name);
 				if(res_def.density <= 0) continue;
@@ -612,7 +612,7 @@ namespace AtHangar
 				sv.mass += dM; sv.cost += dC;
 				Storage.UpdateParams();
 			}
-			resourceTransferList.Clear();
+			ResourceTransferList.Clear();
 		}
 		#endregion
 

@@ -50,12 +50,6 @@ namespace AtHangar
 		
 		public double maxAmount
 		{ get {	return is_resource ? res.maxAmount : pres.maxAmount; } }
-		
-		public bool flowState
-		{ get {	return is_resource ? res.flowState : pres.flowState; } }
-		
-		public bool isTweakable
-		{ get { return is_resource ? res.isTweakable : (pres.definition != null? pres.definition.isTweakable : false); } }
 	}
 	
 	
@@ -92,34 +86,32 @@ namespace AtHangar
 				return Rs;
 			}	
 		}
-		
 	}
 	
 	
-	public class Vessel<T>
+	public class Vessel<T> where T : class
 	{
-		readonly Vessel vessel;
+		readonly IShipconstruct vessel;
 		readonly ProtoVessel pvessel;
-		readonly bool is_vessel = typeof(T).FullName == typeof(Vessel).FullName;
-		bool is_proto  = typeof(T).FullName == typeof(ProtoVessel).FullName;
+		readonly bool is_vessel;
 		
-		public Vessel(T vessel)
+		public Vessel(T vsl)
 		{
-			if(vessel == null) throw new NullReferenceException("Vessel<T>: vessel cannot be null");
-			if(!(is_vessel || is_proto)) 
+			if(vsl == null) throw new NullReferenceException("Vessel<T>: vessel cannot be null");
+			vessel = (IShipconstruct)(object)vsl;
+			pvessel = (ProtoVessel)(object)vsl;
+			if(vessel == null && pvessel == null)
 				throw new NotSupportedException("Vessel<T>: T should be either " +
-												"Vessel or ProtoVessel");
-			if(is_vessel)
-				this.vessel = (Vessel)(object)vessel;
-			else pvessel = (ProtoVessel)(object)vessel;
+				                                "Vessel or ProtoVessel");
+			is_vessel = vessel != null;
 		}
 		
-		public List<Part<P>> parts<P>() 
+		public List<Part<P>> Parts<P>() 
 		{ 
 			var Ps = new List<Part<P>>();
 			if(is_vessel)
 			{
-				foreach(Part p in vessel.parts) 
+				foreach(Part p in vessel.Parts) 
 					Ps.Add(new Part<P>((P)(object)p));
 				return Ps;
 			}
@@ -153,11 +145,19 @@ namespace AtHangar
 	{ public List<ResourcePartMap<P, R>> parts = new List<ResourcePartMap<P, R>>(); }
 	
 
-	public class VesselResources<V, P, R> 
+	public interface IVesselResources
+	{
+		double ResourceCapacity(string resource);
+		double ResourceAmount(string resource);
+		double TransferResource(string resource, double amount);
+		void RemoveAllResources(HashSet<string> resources_to_remove = null);
+		List<string> resourcesNames { get; }
+	}
+
+	public class VesselResources<V, P, R> : IVesselResources where V : class
 	{
 		public Dictionary<string, ResourceInfo<P, R>> resources;
 		public List<string> resourcesNames { get { return new List<string>(resources.Keys); } }
-		
 		
 		void AddPart(Part<P> part)
 		{
@@ -208,7 +208,7 @@ namespace AtHangar
 		{
 			resources = new Dictionary<string, ResourceInfo<P, R>>();
 			var vsl = new Vessel<V>(vessel);
-			foreach (Part<P> part in vsl.parts<P>()) AddPart(part);
+			foreach (Part<P> part in vsl.Parts<P>()) AddPart(part);
 		}
 
 		// Completely empty the vessel of any and all resources.

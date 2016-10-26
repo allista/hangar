@@ -35,8 +35,7 @@ namespace AtHangar
 		{
 			if(pc.construct == null) yield break;
 			Utils.LockEditor(scLock);
-			for(int i = 0; i < 3; i++)
-				yield return new WaitForEndOfFrame();
+			for(int i = 0; i < 3; i++) yield return null;
 			pc.UpdateMetric(Storage.ComputeHull);
 			try_store_vessel(pc);
 			pc.UnloadConstruct();
@@ -233,21 +232,21 @@ namespace AtHangar
 				Utils.GLVec(launched_vessel.vessel.transform.position, part.rb.velocity, Color.red);
 				Utils.GLVec(launched_vessel.vessel.transform.position, launched_vessel.dV, Color.cyan);
 			}
-			if(selected_window[EditorWindows.EditContent] && Storage != null)
-			{
-				PackedVessel vsl = null;
-				if(Storage.ConstructsCount > 0) vsl = Storage.GetConstructs()[0];
-				else if(Storage.UnfitCount > 0) vsl = Storage.UnfitConstucts[0];
-				if(vsl != null)
-				{
-					var metric = vsl.metric;
-					var hull = metric.hull;
-					Utils.DrawPoint(Vector3.zero, Storage.spawn_transform, Color.red);
-					if(hull != null) Utils.GLDrawHull(hull, get_spawn_transform(vsl), metric.center-Storage.GetSpawnOffset(vsl), Color.green, false);
-				}
-				if(Storage.hangar_space != null)
-					Utils.GLDrawMesh(Storage.hangar_space.sharedMesh, Storage.hangar_space.transform, c:Color.cyan, filled:false);
-			}
+//			if(selected_window[EditorWindows.EditContent] && Storage != null)
+//			{
+//				PackedVessel vsl = null;
+//				if(Storage.ConstructsCount > 0) vsl = Storage.GetConstructs()[0];
+//				else if(Storage.UnfitCount > 0) vsl = Storage.UnfitConstucts[0];
+//				if(vsl != null)
+//				{
+//					var metric = vsl.metric;
+//					var hull = metric.hull;
+//					Utils.DrawPoint(Vector3.zero, Storage.spawn_transform, Color.red);
+//					if(hull != null) Utils.GLDrawHull(hull, get_spawn_transform(vsl), metric.center-Storage.GetSpawnOffset(vsl), Color.green, false);
+//				}
+//				if(Storage.hangar_space != null)
+//					Utils.GLDrawMesh(Storage.hangar_space.sharedMesh, Storage.hangar_space.transform, c:Color.cyan, filled:false);
+//			}
 //			foreach(var dc in part.DragCubes.Cubes)
 //				Utils.GLDrawBounds(new Bounds(dc.Center, dc.Size), part.transform, Color.yellow*dc.Weight);
 		}

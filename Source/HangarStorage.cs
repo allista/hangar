@@ -28,6 +28,25 @@ namespace AtHangar
 		};
 		#endregion
 
+		#region callbacks
+		public delegate void StoredVesselHandler(StoredVessel sv);
+		public delegate void PackedConstructHandler(PackedConstruct pc);
+
+		public StoredVesselHandler OnVesselStored = delegate {};
+		public PackedConstructHandler OnConstructStored = delegate {};
+		public StoredVesselHandler OnVesselRemoved = delegate {};
+		public PackedConstructHandler OnConstructRemoved = delegate {};
+		public Action OnStorageEmpty = delegate {};
+
+		void OnPackedVesselRemoved(PackedVessel pv)
+		{
+			var sv = pv as StoredVessel;
+			if(sv != null) { OnVesselRemoved(sv); return; }
+			var pc = pv as PackedConstruct;
+			if(pc != null) { OnConstructRemoved(pc); return; }
+		}
+		#endregion
+
 		#region Internals
 		//metrics
 		public Metric PartMetric { get; protected set; }
@@ -204,16 +223,18 @@ namespace AtHangar
 
 		void try_repack_construct(PackedConstruct pc)
 		{ 
-			if(!VesselFits(pc) || 
-			   !packed_constructs.TryAdd(pc))
-				unfit_constructs.Add(pc);
+			if(VesselFits(pc) && packed_constructs.TryAdd(pc))
+				OnConstructStored(pc);
+			else unfit_constructs.Add(pc);
 		}
 
 		void try_pack_unfit_construct(PackedConstruct pc)
 		{ 
-			if(VesselFits(pc) && 
-			   packed_constructs.TryAdd(pc))
+			if(VesselFits(pc) && packed_constructs.TryAdd(pc))
+			{
 				unfit_constructs.Remove(pc);
+				OnConstructStored(pc);
+			}
 		}
 
 		public override void Setup(bool reset = false)
@@ -299,6 +320,7 @@ namespace AtHangar
 			unfit_constructs.Clear();
 			packed_constructs.Clear();
 			set_part_params();
+			OnStorageEmpty();
 		}
 		#endregion
 
@@ -326,6 +348,7 @@ namespace AtHangar
 				this.Log("TryTransferTo: trying to remove a PackedVessel that is not present."); 
 				return false; 
 			}
+			OnPackedVesselRemoved(vsl);
 			other.StoreVessel(vsl);
 			return true;
 		}
@@ -335,23 +358,54 @@ namespace AtHangar
 		public void StoreVessel(PackedVessel v)
 		{ 
 			var pc = v as PackedConstruct;
+			if(pc != null) 
+			{
+				packed_constructs.ForceAdd(pc);
+				set_part_params(); 
+				OnConstructStored(pc);
+				return;
+			}
 			var sv = v as StoredVessel;
-			if(pc != null) packed_constructs.ForceAdd(pc); 
-			else if(sv != null) stored_vessels.ForceAdd(sv);
-			else { this.Log("Unknown PackedVessel type: {}", v); return; }
-			set_part_params(); 
+			if(sv != null) 
+			{
+				stored_vessels.ForceAdd(sv);
+				set_part_params();
+				OnVesselStored(sv);
+				return;
+			}
+			this.Log("Unknown PackedVessel type: {}", v);
 		}
 
 		public bool RemoveVessel(PackedVessel v)
 		{ 
+			var success = false;
 			var pc = v as PackedConstruct;
+			if(pc != null) 
+			{
+				if(packed_constructs.Remove(pc))
+				{
+					OnConstructRemoved(pc);
+					success = true;
+				}
+			}
 			var sv = v as StoredVessel;
-			bool result = false;
-			if(pc != null) result = packed_constructs.Remove(pc); 
-			else if(sv != null) result = stored_vessels.Remove(sv);
-			else { this.Log("Unknown PackedVessel type: {}", v); return false; }
-			set_part_params(); 
-			return result;
+			if(sv != null) 
+			{
+				if(stored_vessels.Remove(sv))
+				{
+					OnVesselRemoved(sv);
+					success = true;
+				}
+			}
+			if(success)
+			{
+				set_part_params();
+				if(packed_constructs.Count == 0 && stored_vessels.Count == 0)
+					OnStorageEmpty();
+				return true;
+			}
+			this.Log("Unknown PackedVessel type: {}", v);
+			return false;
 		}
 
 		public virtual bool TryStoreVessel(PackedVessel v)
@@ -361,15 +415,30 @@ namespace AtHangar
 			var sv = v as StoredVessel;
 			if(VesselFits(v))
 			{
-				if(pc != null) stored = packed_constructs.TryAdd(pc);
-				else if(sv != null) stored = stored_vessels.TryAdd(sv);
+				if(pc != null) 
+				{
+					stored = packed_constructs.TryAdd(pc);
+					if(stored)
+					{
+						set_part_params();
+						OnConstructStored(pc);
+					}
+				}
+				else if(sv != null) 
+				{
+					stored = stored_vessels.TryAdd(sv);
+					if(stored)
+					{
+						set_part_params();
+						OnVesselStored(sv);
+					}
+				}
 				else { this.Log("Unknown PackedVessel type: {}", v); return false; }
 				if(!stored) Utils.Message("There's no room for \"{0}\"", v.name);
 			}
 			else Utils.Message(5, "Insufficient vessel clearance for safe docking\n" +
 			                   "\"{0}\" cannot be stored", v.name);
-			if(stored) set_part_params();
-			else if(HighLogic.LoadedSceneIsEditor && pc != null)
+			if(pc != null && !stored && HighLogic.LoadedSceneIsEditor)
 			{ unfit_constructs.Add(pc); return true; }
 			return stored;
 		}

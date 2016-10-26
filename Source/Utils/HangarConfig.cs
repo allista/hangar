@@ -33,19 +33,19 @@ namespace AtHangar
 		[Persistent] public float  MaxStaticPressure     = 0.01f; //atm
 		//for Metric
 		[Persistent] public string MeshesToSkip = string.Empty;
-		public List<string> MeshesToSkipList { get; private set; }
 		//misc
 		[Persistent] public string KethaneMapCollider  = "MapOverlay collider";
 		[Persistent] public bool   UseStockAppLauncher = false;
+		[Persistent] public string DontCloneResources  = "ElectricCharge, LiquidFuel, Oxidizer, Ore, XenonGas, MonoPropellant";
+		public string[] ResourcesBlacklist { get; private set; }
 
 		public override void Init()
 		{ 
 			//init meshes names
-			MeshesToSkipList = new List<string>();
-			if(string.IsNullOrEmpty(MeshesToSkip))
-			   MeshesToSkipList = MeshesToSkip
-					.Split(new []{','}, StringSplitOptions.RemoveEmptyEntries)
-					.Select(s => s.Trim()).ToList();
+			if(!string.IsNullOrEmpty(MeshesToSkip))
+				Metric.MeshesToSkip.AddUniqueRange(Utils.ParseLine(MeshesToSkip, Utils.Comma));
+			ResourcesBlacklist = string.IsNullOrEmpty(DontCloneResources)?
+				new string[0] : Utils.ParseLine(DontCloneResources, Utils.Comma);
 		}
 	}
 }
