@@ -27,7 +27,6 @@ namespace AtHangar
 				UnloadConstruct();
 				return false;
 			}
-			resources = new VesselResources<ShipConstruct, Part, PartResource>(construct);
 			return true;
 		}
 
@@ -63,6 +62,7 @@ namespace AtHangar
 			this.flag = flag;
 			vessel_node = ConfigNode.Load(file);
 			vessel_node.name = "VESSEL";
+			resources = new VesselResources(vessel_node);
 			if(!LoadConstruct()) return;
 			name = construct.shipName;
 			id = Guid.NewGuid();
@@ -74,6 +74,7 @@ namespace AtHangar
 			vessel_node = pc.vessel_node;
 			metric = pc.metric;
 			name = pc.name;
+			resources = new VesselResources(vessel_node);
 			if(pc.construct != null)
 				LoadConstruct();
 			id = Guid.NewGuid();
@@ -120,7 +121,7 @@ namespace AtHangar
 			id     = proto_vessel.vesselID;
 			name   = proto_vessel.vesselName;
 			crew   = vsl.GetVesselCrew();
-			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(proto_vessel);
+			resources = new VesselResources(proto_vessel);
 		}
 
 		public override void Save(ConfigNode node)
@@ -146,7 +147,7 @@ namespace AtHangar
 				crew.Add(new ProtoCrewMember(HighLogic.CurrentGame.Mode, cn));
 			id   = proto_vessel.vesselID;
 			name = proto_vessel.vesselName;
-			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(proto_vessel);
+			resources = new VesselResources(proto_vessel);
 		}
 	}
 }

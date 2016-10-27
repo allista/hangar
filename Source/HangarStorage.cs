@@ -319,8 +319,8 @@ namespace AtHangar
 		{
 			unfit_constructs.Clear();
 			packed_constructs.Clear();
-			set_part_params();
 			OnStorageEmpty();
+			set_part_params();
 		}
 		#endregion
 
@@ -361,16 +361,16 @@ namespace AtHangar
 			if(pc != null) 
 			{
 				packed_constructs.ForceAdd(pc);
-				set_part_params(); 
 				OnConstructStored(pc);
+				set_part_params();
 				return;
 			}
 			var sv = v as StoredVessel;
 			if(sv != null) 
 			{
 				stored_vessels.ForceAdd(sv);
-				set_part_params();
 				OnVesselStored(sv);
+				set_part_params();
 				return;
 			}
 			this.Log("Unknown PackedVessel type: {}", v);
@@ -399,9 +399,9 @@ namespace AtHangar
 			}
 			if(success)
 			{
-				set_part_params();
 				if(packed_constructs.Count == 0 && stored_vessels.Count == 0)
 					OnStorageEmpty();
+				set_part_params();
 				return true;
 			}
 			this.Log("Unknown PackedVessel type: {}", v);
@@ -420,8 +420,8 @@ namespace AtHangar
 					stored = packed_constructs.TryAdd(pc);
 					if(stored)
 					{
-						set_part_params();
 						OnConstructStored(pc);
+						set_part_params();
 					}
 				}
 				else if(sv != null) 
@@ -429,8 +429,8 @@ namespace AtHangar
 					stored = stored_vessels.TryAdd(sv);
 					if(stored)
 					{
-						set_part_params();
 						OnVesselStored(sv);
+						set_part_params();
 					}
 				}
 				else { this.Log("Unknown PackedVessel type: {}", v); return false; }

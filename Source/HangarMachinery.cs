@@ -80,7 +80,7 @@ namespace AtHangar
 		public AnimatorState gates_state { get { return hangar_gates == null? AnimatorState.Opened : hangar_gates.State; } }
 		public HangarState hangar_state { get; private set; }
 
-		public VesselResources<Vessel, Part, PartResource> HangarResources { get; private set; }
+		public VesselResources HangarResources { get; private set; }
 		readonly public List<ResourceManifest> ResourceTransferList = new List<ResourceManifest>();
 
 		readonly Dictionary<Guid, MemoryTimer> probed_vessels = new Dictionary<Guid, MemoryTimer>();
@@ -151,7 +151,7 @@ namespace AtHangar
 		void update_resources()
 		{ 
 			if(vessel == null) return;
-			HangarResources = new VesselResources<Vessel, Part, PartResource>(vessel); 
+			HangarResources = new VesselResources(vessel);
 		}
 
 		protected bool all_passages_ready { get { return passage_checklist.All(p => p.Ready); } }

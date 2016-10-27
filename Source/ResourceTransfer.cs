@@ -1,283 +1,169 @@
-//This code is based on code from Extraplanetary Launchpads plugin. Resources.cs module. 
 using System;
 using System.Collections.Generic;
 
 
 namespace AtHangar 
 {
-//ProtoPartResourceSnapshot.resourceValues:
-//	RESOURCE
-//	{
-//		name = MonoPropellant
-//		amount = 7.5
-//		maxAmount = 7.5
-//		flowState = True
-//		isTweakable = True
-//		hideFlow = False
-//		flowMode = Both
-//	}
-	
-	#region Interfaces
-	public class Resource<T>
+	public class ResourceProxy : ProtoPartResourceSnapshot
 	{
-		readonly PartResource res;
-		readonly ProtoPartResourceSnapshot pres;
-		readonly bool is_resource = typeof(T).FullName == typeof(PartResource).FullName; //KSP mono microlib does not support Type.Equal
-		readonly bool is_proto = typeof(T).FullName == typeof(ProtoPartResourceSnapshot).FullName;
-		
-		public Resource(T res)
+		protected ConfigNode valuesRef;
+
+		static ConfigNode resource_values(ProtoPartResourceSnapshot res)
 		{
-			if(res == null) throw new NullReferenceException("Resource<T>: res cannot be null");
-			if(!(is_resource || is_proto)) 
-				throw new NotSupportedException("Resource<T>: T should be either " +
-												"PartResource or ProtoPartResourceSnapshot");
-			if(is_resource)	this.res = (PartResource)(object)res;
-			else pres = (ProtoPartResourceSnapshot)(object)res;
+			var node = new ConfigNode("RESOURCE");
+			res.Save(node);
+			return node;
 		}
-		
-		public string resourceName 
-		{ get { return is_resource ? res.resourceName : pres.resourceName; } }
-		
-		public double amount
-		{
-			get	{ return is_resource ? res.amount : pres.amount; }
-			set 
-			{ 
-				if(is_resource) res.amount = value;
-				else pres.amount = value; 
-			}
-		}
-		
-		public double maxAmount
-		{ get {	return is_resource ? res.maxAmount : pres.maxAmount; } }
-	}
-	
-	
-	public class Part<T>
-	{
-		readonly Part part;
-		readonly ProtoPartSnapshot ppart;
-		readonly bool is_part  = typeof(T).FullName == typeof(Part).FullName;
-		bool is_proto = typeof(T).FullName == typeof(ProtoPartSnapshot).FullName;
-		
-		public Part(T part)
-		{
-			if(part == null) throw new NullReferenceException("Part<T>: part cannot be null");
-			if(!(is_part || is_proto)) 
-				throw new NotSupportedException("Part<T>: T should be either " +
-												"Part or ProtoPartSnapshot");
-			if(is_part)	this.part = (Part)(object)part;
-			else ppart = (ProtoPartSnapshot)(object)part;
-		}
-		
-		public List<Resource<R>> Resources<R>() 
+
+		public ResourceProxy(PartResource res) : base(res) {}
+
+		public ResourceProxy(ProtoPartResourceSnapshot res)
+			: base(resource_values(res))
 		{ 
-			var Rs = new List<Resource<R>>();
-			if(is_part)
+			if(res.resourceRef != null)
+				resourceRef = res.resourceRef;
+		}
+
+		public ResourceProxy(ConfigNode node_ref)
+			: base(node_ref)
+		{
+			valuesRef = node_ref;
+		}
+
+		public void Sync()
+		{
+			if(resourceRef != null)
 			{
-				foreach(PartResource pr in part.Resources) 
-					Rs.Add(new Resource<R>((R)(object)pr));
-				return Rs;
+				resourceRef.amount = amount;
+				resourceRef.maxAmount = maxAmount;
+				resourceRef.flowState = flowState;
 			}
-			else
-			{
-				foreach(ProtoPartResourceSnapshot pr in ppart.resources) 
-					Rs.Add(new Resource<R>((R)(object)pr));
-				return Rs;
-			}	
+			if(valuesRef != null)
+				Save(valuesRef);
 		}
 	}
-	
-	
-	public class Vessel<T> where T : class
+
+	public class PartProxy : Dictionary<string, ResourceProxy>
 	{
-		readonly IShipconstruct vessel;
-		readonly ProtoVessel pvessel;
-		readonly bool is_vessel;
-		
-		public Vessel(T vsl)
+
+		public PartProxy(Part part)
 		{
-			if(vsl == null) throw new NullReferenceException("Vessel<T>: vessel cannot be null");
-			vessel = (IShipconstruct)(object)vsl;
-			pvessel = (ProtoVessel)(object)vsl;
-			if(vessel == null && pvessel == null)
-				throw new NotSupportedException("Vessel<T>: T should be either " +
-				                                "Vessel or ProtoVessel");
-			is_vessel = vessel != null;
+			foreach(var res in part.Resources)
+				Add(res.resourceName, new ResourceProxy(res));
 		}
-		
-		public List<Part<P>> Parts<P>() 
+
+		public PartProxy(ProtoPartSnapshot proto_part)
+		{
+			foreach(var res in proto_part.resources)
+				Add(res.resourceName, new ResourceProxy(res));
+		}
+
+		public PartProxy(ConfigNode part_node)
+		{
+			foreach(var res in part_node.GetNodes("RESOURCE"))
+			{
+				var proxy = new ResourceProxy(res);
+				Add(proxy.resourceName, proxy);
+			}
+		}
+	}
+
+	public class VesselResources
+	{
+		public readonly List<PartProxy> Parts = new List<PartProxy>();
+		public readonly Dictionary<string, List<PartProxy>> Resources = new Dictionary<string, List<PartProxy>>();
+		public List<string> resourcesNames { get { return new List<string>(Resources.Keys); } }
+
+		public VesselResources(IShipconstruct vessel)
 		{ 
-			var Ps = new List<Part<P>>();
-			if(is_vessel)
+			foreach(var part in vessel.Parts)
 			{
-				foreach(Part p in vessel.Parts) 
-					Ps.Add(new Part<P>((P)(object)p));
-				return Ps;
-			}
-			else
-			{
-				foreach(ProtoPartSnapshot p in pvessel.protoPartSnapshots) 
-					Ps.Add(new Part<P>((P)(object)p));
-				return Ps;
-			}	
-		}
-		
-	}
-	#endregion
-	
-	
-	#region VesselResources
-	// Thanks to Taranis Elsu and his Fuel Balancer mod for the inspiration. (c) Taniwha
-	public class ResourcePartMap<P, R>
-	{
-		public Resource<R> resource;
-		public Part<P> part;
-
-		public ResourcePartMap(Resource<R> resource, Part<P> part)
-		{
-			this.resource = resource;
-			this.part = part;
-		}
-	}
-
-	public class ResourceInfo<P, R>
-	{ public List<ResourcePartMap<P, R>> parts = new List<ResourcePartMap<P, R>>(); }
-	
-
-	public interface IVesselResources
-	{
-		double ResourceCapacity(string resource);
-		double ResourceAmount(string resource);
-		double TransferResource(string resource, double amount);
-		void RemoveAllResources(HashSet<string> resources_to_remove = null);
-		List<string> resourcesNames { get; }
-	}
-
-	public class VesselResources<V, P, R> : IVesselResources where V : class
-	{
-		public Dictionary<string, ResourceInfo<P, R>> resources;
-		public List<string> resourcesNames { get { return new List<string>(resources.Keys); } }
-		
-		void AddPart(Part<P> part)
-		{
-			foreach (Resource<R> resource in part.Resources<R>()) 
-			{
-				ResourceInfo<P, R> resourceInfo;
-				if (!resources.ContainsKey(resource.resourceName)) 
+				var proxy = new PartProxy(part);
+				Parts.Add(proxy);
+				foreach(var res in proxy)
 				{
-					resourceInfo = new ResourceInfo<P, R>();
-					resources[resource.resourceName] = resourceInfo;
-				}
-				resourceInfo = resources[resource.resourceName];
-				resourceInfo.parts.Add (new ResourcePartMap<P, R>(resource, part));
-			}
-		}
-
-		void RemovePart(Part<P> part)
-		{
-			var remove_list = new List<string>();
-			foreach(var resinfo in resources) 
-			{
-				string resource = resinfo.Key;
-				ResourceInfo<P, R> resourceInfo = resinfo.Value;
-				foreach(var pm in resourceInfo.parts) 
-				{
-					if (pm.part == part) 
+					List<PartProxy> res_parts;
+					if(!Resources.TryGetValue(res.Key, out res_parts))
 					{
-						resourceInfo.parts.Remove(pm);
-						break;
+						res_parts = new List<PartProxy>();
+						Resources.Add(res.Key, res_parts);
 					}
+					res_parts.Add(proxy);
 				}
-				if (resourceInfo.parts.Count == 0)
-					remove_list.Add (resource);
-			}
-			foreach (string resource in remove_list)
-				resources.Remove(resource);
-		}
-
-		public VesselResources () { resources = new Dictionary<string, ResourceInfo<P, R>>();	}
-
-		public VesselResources (P rootPart)
-		{
-			resources = new Dictionary<string, ResourceInfo<P, R>>();
-			AddPart(new Part<P>(rootPart));
-		}
-
-		public VesselResources(V vessel)
-		{
-			resources = new Dictionary<string, ResourceInfo<P, R>>();
-			var vsl = new Vessel<V>(vessel);
-			foreach (Part<P> part in vsl.Parts<P>()) AddPart(part);
-		}
-
-		// Completely empty the vessel of any and all resources.
-		public void RemoveAllResources(HashSet<string> resources_to_remove = null)
-		{
-			foreach (KeyValuePair<string, ResourceInfo<P, R>> pair in resources) 
-			{
-				string resource = pair.Key;
-				if(resources_to_remove != null && !resources_to_remove.Contains (resource)) 
-					continue;
-				ResourceInfo<P, R> resourceInfo = pair.Value;
-				foreach (ResourcePartMap<P, R> partInfo in resourceInfo.parts)
-					partInfo.resource.amount = 0.0;
 			}
 		}
 
-		// Return the vessel's total capacity for the resource.
-		// If the vessel has no such resource 0.0 is returned.
-		public double ResourceCapacity (string resource)
+		public VesselResources(ProtoVessel proto_vessel)
+		{ Parts = proto_vessel.protoPartSnapshots.ConvertAll(p => new PartProxy(p)); }
+
+		public VesselResources(ConfigNode vessel_node)
+		{ 
+			foreach(var part in vessel_node.GetNodes("PART"))
+				Parts.Add(new PartProxy(part));
+		}
+
+		/// <summary>
+		/// Return the vessel's total capacity for the resource.
+		/// If the vessel has no such resource 0.0 is returned.
+		/// </summary>
+		/// <returns>Total resource capacity.</returns>
+		/// <param name="resource">Resource name.</param>
+		public double ResourceCapacity(string resource)
 		{
-			if (!resources.ContainsKey(resource)) return 0.0;
-			ResourceInfo<P, R> resourceInfo = resources[resource];
-			double capacity = 0.0;
-			foreach (ResourcePartMap<P, R> partInfo in resourceInfo.parts)
-				capacity += partInfo.resource.maxAmount;
+			if(!Resources.ContainsKey(resource)) return 0.0;
+			double capacity = 0;
+			Resources[resource].ForEach(p => capacity += p[resource].maxAmount);
 			return capacity;
 		}
 
-		// Return the vessel's total available amount of the resource.
-		// If the vessel has no such resource 0.0 is returned.
-		public double ResourceAmount (string resource)
+		/// <summary>
+		/// Return the vessel's total available amount of the resource.
+		/// If the vessel has no such resource 0.0 is returned.
+		/// </summary>
+		/// <returns>Total resource amount.</returns>
+		/// <param name="resource">Resource name.</param>
+		public double ResourceAmount(string resource)
 		{
-			if (!resources.ContainsKey (resource)) return 0.0;
-			ResourceInfo<P, R> resourceInfo = resources[resource];
-			double amount = 0.0;
-			foreach (ResourcePartMap<P, R> partInfo in resourceInfo.parts)
-				amount += partInfo.resource.amount;
+			if(!Resources.ContainsKey(resource)) return 0.0;
+			double amount = 0;
+			Resources[resource].ForEach(p => amount += p[resource].amount);
 			return amount;
 		}
 
-		// Transfer a resource into (positive amount) or out of (negative
-		// amount) the vessel. No attempt is made to balance the resource
-		// across parts: they are filled/emptied on a first-come-first-served
-		// basis.
-		// If the vessel has no such resource no action is taken.
-		// Returns the amount of resource not transfered (0 = all has been
-		// transfered).
+		/// <summary>
+		/// Transfer a resource into (positive amount) or out of (negative
+		/// amount) the vessel. No attempt is made to balance the resource
+		/// across parts: they are filled/emptied on a first-come-first-served
+		/// basis.
+		/// If the vessel has no such resource no action is taken.
+		/// Returns the amount of resource not transfered (0 = all has been
+		/// transfered).
+		/// Based on the code from Extraplanetary Launchpads plugin. Resources.cs module.
+		/// </summary>
+		/// <returns>The resource.</returns>
+		/// <param name="resource">Resource.</param>
+		/// <param name="amount">Amount.</param>
 		public double TransferResource(string resource, double amount)
 		{
-			if(!resources.ContainsKey(resource)) return amount;
-			ResourceInfo<P, R> resourceInfo = resources[resource];
-			foreach (ResourcePartMap<P, R> partInfo in resourceInfo.parts) 
+			if(!Resources.ContainsKey(resource)) return 0.0;
+			foreach(var part in Resources[resource]) 
 			{
-				double adjust = amount;
-				Resource<R> res = partInfo.resource;
-				if (adjust < 0  && -adjust > res.amount)
+				var adjust = amount;
+				var res = part[resource];
+				if(adjust < 0  && -adjust > res.amount)
 					// Ensure the resource amount never goes negative
 					adjust = -res.amount;
-				else if (adjust > 0 &&
-						 adjust > (res.maxAmount - res.amount))
+				else if(adjust > 0 &&
+				        adjust > (res.maxAmount - res.amount))
 					// ensure the resource amount never excees the maximum
 					adjust = res.maxAmount - res.amount;
-				partInfo.resource.amount += adjust;
+				res.amount += adjust;
+				res.Sync();
 				amount -= adjust;
 			}
 			return amount;
 		}
 	}
-	#endregion
 	
 	public class ResourceManifest
 	{
