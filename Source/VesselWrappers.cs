@@ -97,6 +97,7 @@ namespace AtHangar
 		{
 			ConfigNode metric_node = node.GetNode("METRIC");
 			vessel_node = node.GetNode("VESSEL");
+			resources = new VesselResources(vessel_node);
 			metric = new Metric(metric_node);
 			name   = node.GetValue("name");
 			flag   = node.GetValue("flag");
