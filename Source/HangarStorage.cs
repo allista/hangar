@@ -223,9 +223,11 @@ namespace AtHangar
 
 		void try_repack_construct(PackedConstruct pc)
 		{ 
-			if(VesselFits(pc) && packed_constructs.TryAdd(pc))
-				OnConstructStored(pc);
-			else unfit_constructs.Add(pc);
+			if(!VesselFits(pc) || !packed_constructs.TryAdd(pc))
+			{
+				unfit_constructs.Add(pc);
+				OnConstructRemoved(pc);
+			}
 		}
 
 		void try_pack_unfit_construct(PackedConstruct pc)
@@ -283,6 +285,7 @@ namespace AtHangar
 			_stored_cost    = VesselsCost.ToString();
 			_used_volume    = UsedVolumeFrac.ToString("P1");
 			on_set_part_params();
+			part.UpdatePartMenu();
 		}
 
 		public override void OnAwake()
@@ -455,7 +458,7 @@ namespace AtHangar
 			//create vessels from constructs and store them
 			foreach(PackedConstruct pc in packed_constructs.Values)
 			{
-				RemoveVessel(pc);
+				packed_constructs.Remove(pc);
 				if(!pc.LoadConstruct()) 
 				{
 					Utils.Log("PackedConstruct: unable to load ShipConstruct {}. " +
@@ -476,7 +479,7 @@ namespace AtHangar
 				while(!vsl.isActiveVessel || !vsl.PartsStarted()) 
 					yield return WaitWithPhysics.ForNextUpdate();
 				//store vessel
-				StoreVessel(new StoredVessel(vsl, ComputeHull));
+				stored_vessels.ForceAdd(new StoredVessel(vsl, ComputeHull));
 				//switch to storage vessel before storing
 				FlightGlobals.ForceSetActiveVessel(vessel);
 				//destroy vessel

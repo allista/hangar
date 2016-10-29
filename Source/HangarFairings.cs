@@ -37,7 +37,30 @@ namespace AtHangar
 		public bool jettisoned, launch_in_progress;
 		List<Part> debris;
 
-		List<string> payload_resources = new List<string>();
+		class PayloadRes : ConfigNodeObject
+		{ 
+			[Persistent] public string name = ""; 
+			[Persistent] public double amount = 0; 
+			[Persistent] public double maxAmount = 0;
+
+			public PayloadRes() {}
+			public PayloadRes(PartResource res)
+			{
+				name = res.resourceName;
+				amount = res.amount;
+				maxAmount = res.maxAmount;
+			}
+
+			public void ApplyTo(PartResource res)
+			{
+				if(name == res.resourceName)
+				{
+					res.amount = amount;
+					res.maxAmount = maxAmount;
+				}
+			}
+		}
+		readonly List<PayloadRes> payload_resources = new List<PayloadRes>();
 
 		public override string GetInfo()
 		{
@@ -83,7 +106,7 @@ namespace AtHangar
 			base.early_setup(state);
 			NoGUI = true;
 			LaunchWithPunch = true;
-			part.CrewCapacity = CrewCapacity;
+			update_crew_capacity(CrewCapacity);
 			Events["EditName"].active = false;
 			FX = part.findFxGroup(FxGroup);
 			fairings = part.FindModelTransforms(Fairings);
@@ -110,7 +133,9 @@ namespace AtHangar
 			if(vessel != null) vessel.SpawnCrew();
 			if(Storage != null)
 			{
-				Storage.OnConstructStored += on_construct_stored;
+				Storage.OnConstructStored += on_ship_stored;
+				Storage.OnConstructRemoved += on_ship_removed;
+				Storage.OnVesselRemoved += on_ship_removed;
 				Storage.OnStorageEmpty += on_storage_empty;
 			}
 		}
@@ -120,7 +145,9 @@ namespace AtHangar
 			base.OnDestroy();
 			if(Storage != null)
 			{
-				Storage.OnConstructStored -= on_construct_stored;
+				Storage.OnConstructStored -= on_ship_stored;
+				Storage.OnConstructRemoved -= on_ship_removed;
+				Storage.OnVesselRemoved -= on_ship_removed;
 				Storage.OnStorageEmpty -= on_storage_empty;
 			}
 		}
@@ -135,7 +162,7 @@ namespace AtHangar
 			return base.try_store_vessel(v);
 		}
 
-		bool store_payload_resources(PackedConstruct payload)
+		bool store_payload_resources(PackedVessel payload)
 		{
 			if(payload_resources.Count > 0) return false;
 			var res_mass = 0.0;
@@ -145,10 +172,10 @@ namespace AtHangar
 				if(part.Resources.Contains(r)) continue;
 				if(Globals.Instance.ResourcesBlacklist.IndexOf(r) >= 0) continue;
 				var res = part.Resources.Add(r, resources.ResourceAmount(r), resources.ResourceCapacity(r), 
-				                             true, false, true, true, PartResource.FlowMode.Both);
+				                             true, true, true, true, PartResource.FlowMode.Both);
 				if(res != null) 
 				{
-					payload_resources.Add(r);
+					payload_resources.Add(new PayloadRes(res));
 					resources.TransferResource(r, -res.amount);
 					res_mass += res.amount*res.info.density;
 				}
@@ -157,22 +184,33 @@ namespace AtHangar
 			return true;
 		}
 
-		bool restore_payload_resources_on_launch()
+		public void ResetPayloadResources()
+		{
+			if(payload_resources.Count == 0) return;
+			foreach(var r in payload_resources)
+			{
+				var res = part.Resources.Get(r.name);
+				if(res != null) r.ApplyTo(res);
+			}
+		}
+
+		bool restore_payload_resources(PackedVessel payload)
 		{
 			if(payload_resources.Count == 0) return true;
-			if(launched_vessel == null) return false;
+			if(HighLogic.LoadedSceneIsEditor)
+				ResetPayloadResources();
 			var res_mass = 0.0;
 			foreach(var r in payload_resources)
 			{
-				var res  = part.Resources.Get(r);
+				var res  = part.Resources.Get(r.name);
 				if(res != null)
 				{
 					res_mass += res.amount * res.info.density;
-					launched_vessel.resources.TransferResource(r, res.amount);
+					payload.resources.TransferResource(r.name, res.amount);
 					part.Resources.Remove(res);
 				}
 			}
-			launched_vessel.mass += (float)res_mass;
+			payload.mass += (float)res_mass;
 			payload_resources.Clear();
 			return true;
 		}
@@ -181,38 +219,44 @@ namespace AtHangar
 		{
 			if(payload_resources.Count == 0) return true;
 			if(Storage != null && Storage.Ready && Storage.ConstructsCount > 0) return false;
-			payload_resources.ForEach(r => part.Resources.Remove(r));
+			payload_resources.ForEach(r => part.Resources.Remove(r.name));
 			payload_resources.Clear();
 			return true;
 		}
 
-		void on_construct_stored(PackedConstruct pc)
+		void on_ship_stored(PackedVessel pc)
 		{
-			update_crew_capacity(pc);
+			update_crew_capacity(pc.CrewCapacity);
 			store_payload_resources(pc);
+		}
+
+		void on_ship_removed(PackedVessel pc)
+		{
+			if(HighLogic.LoadedSceneIsEditor)
+				update_crew_capacity(0);
+			restore_payload_resources(pc);
 		}
 
 		void on_storage_empty()
 		{
-			update_crew_capacity(0);
+			if(HighLogic.LoadedSceneIsEditor)
+				update_crew_capacity(0);
 			clear_payload_resouces();
-		}
-
-		void update_crew_capacity(PackedConstruct vsl)
-		{
-			if(part.partInfo != null && part.partInfo.partPrefab != null &&
-			   vsl.CrewCapacity != part.partInfo.partPrefab.CrewCapacity)
-				update_crew_capacity(vsl.CrewCapacity);
 		}
 
 		void update_crew_capacity(int capacity)
 		{
-			part.partInfo.partPrefab.CrewCapacity = part.CrewCapacity = CrewCapacity = capacity;
-			ShipConstruction.ShipConfig = EditorLogic.fetch.ship.SaveShip();
-			ShipConstruction.ShipManifest = HighLogic.CurrentGame.CrewRoster.DefaultCrewForVessel(ShipConstruction.ShipConfig);
-			if(CrewAssignmentDialog.Instance != null)
-				CrewAssignmentDialog.Instance.RefreshCrewLists(ShipConstruction.ShipManifest, false, true);
-			Utils.UpdateEditorGUI();
+			part.CrewCapacity = CrewCapacity = capacity;
+			if(part.partInfo != null && part.partInfo.partPrefab != null)
+				part.partInfo.partPrefab.CrewCapacity = part.CrewCapacity;
+			if(HighLogic.LoadedSceneIsEditor)
+			{
+				ShipConstruction.ShipConfig = EditorLogic.fetch.ship.SaveShip();
+				ShipConstruction.ShipManifest = HighLogic.CurrentGame.CrewRoster.DefaultCrewForVessel(ShipConstruction.ShipConfig);
+				if(CrewAssignmentDialog.Instance != null)
+					CrewAssignmentDialog.Instance.RefreshCrewLists(ShipConstruction.ShipManifest, false, true);
+				Utils.UpdateEditorGUI();
+			}
 		}
 
 		protected override void before_vessel_launch()
@@ -220,7 +264,6 @@ namespace AtHangar
 			if(fairings == null || jettisoned) return;
 			launched_vessel.crew.Clear();
 			launched_vessel.crew.AddRange(part.protoModuleCrew);
-			restore_payload_resources_on_launch();
 			debris = new List<Part>();
 			debris_cost = 0;
 			debris_mass = 0;
@@ -283,7 +326,7 @@ namespace AtHangar
 		{
 			//check state
 			if(!HighLogic.LoadedSceneIsFlight || Storage == null || !Storage.Ready) yield break;
-			if(Storage.GetVessels().Count == 0) 
+			if(Storage.VesselsCount == 0) 
 			{
 				Utils.Message("No payload");
 				yield break;
@@ -301,8 +344,9 @@ namespace AtHangar
 			TryRestoreVessel(Storage.GetVessels()[0]);
 			//if jettisoning has failed, deactivate the part
 			//otherwise on resume the part is activated automatically
-			if(Storage.enabled) part.deactivate();
+			if(Storage.VesselsCount > 0) part.deactivate();
 			else { while(launched_vessel != null) yield return null; }
+			update_crew_capacity(0);
 			launch_in_progress = false;
 		}
 
@@ -319,8 +363,29 @@ namespace AtHangar
 
 		public override void OnActive()
 		{ 
-			if(!HighLogic.LoadedSceneIsFlight) return;
-			LaunchVessel(); 
+			if(HighLogic.LoadedSceneIsFlight)
+				LaunchVessel(); 
+		}
+
+		public override void OnSave(ConfigNode node)
+		{
+			base.OnSave(node);
+			var payload_node = node.AddNode("PAYLOAD_RESOURCES");
+			payload_resources.ForEach(r => r.Save(payload_node.AddNode("RESOURCE")));
+		}
+
+		public override void OnLoad(ConfigNode node)
+		{
+			base.OnLoad(node);
+			var payload_node = node.GetNode("PAYLOAD_RESOURCES");
+			if(payload_node != null)
+			{
+				foreach(var rn in payload_node.GetNodes("RESOURCE"))
+				{
+					var res = ConfigNodeObject.FromConfig<PayloadRes>(rn);
+					if(res != null) payload_resources.Add(res);
+				}
+			}
 		}
 
 		#if DEBUG
@@ -352,139 +417,6 @@ namespace AtHangar
 		#endif
 	}
 
-	public class Debris : PartModule, IPartCostModifier, IPartMassModifier
-	{
-		const string DEBRIS_PART = "GenericDebris";
-
-		[KSPField(isPersistant = true)] public string original_part_name = string.Empty;
-		[KSPField(isPersistant = true)] public string debris_transform_name = string.Empty;
-		[KSPField(isPersistant = true)] public float  saved_cost, saved_mass = -1f;
-		[KSPField(isPersistant = true)] public float  size = -1f, aspect = -1f;
-		[KSPField(isPersistant = true)] public Quaternion local_rotation = Quaternion.identity;
-
-		public Transform model;
-
-		#region IPart*Modifiers
-		public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation sit) { return saved_cost-defaultCost; }
-		public virtual ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
-
-		public virtual float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return saved_mass-defaultMass; }
-		public virtual ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
-		#endregion
-
-		public override void OnStart(StartState state)
-		{
-			if(model == null &&	!string.IsNullOrEmpty(original_part_name) && !string.IsNullOrEmpty(debris_transform_name))
-			{
-				var info = PartLoader.getPartInfoByName(original_part_name);
-				if(info == null) 
-				{ 
-					this.Log("WARNING: {} part was not found in the database!", original_part_name);
-					return;
-				}
-				model = info.partPrefab.FindModelTransform(debris_transform_name);
-				if(model == null) 
-				{ 
-					this.Log("WARNING: {} part does not have {} transform!", original_part_name, debris_transform_name);
-					return;
-				}
-				model = Instantiate(model.gameObject).transform;
-				var base_model = part.transform.Find("model");
-				model.parent = base_model;
-				model.localPosition = Vector3.zero;
-				model.localRotation = local_rotation;
-				model.parent.localScale = Scale.ScaleVector(base_model.localScale, size, aspect);
-				model.parent.hasChanged = true;
-				part.transform.hasChanged = true;
-			}
-			StartCoroutine(update_drag_cubes());
-		}
-
-		const int skip_updates = 10;
-		IEnumerator<YieldInstruction> update_drag_cubes()
-		{
-			if(!HighLogic.LoadedSceneIsFlight) yield break;
-			for(int i = skip_updates; i > 0; i--) yield return new WaitForFixedUpdate();
-			part.DragCubes.ClearCubes();
-			part.DragCubes.Cubes.Add(DragCubeSystem.Instance.RenderProceduralDragCube(part));
-			part.DragCubes.ResetCubeWeights();
-			part.DragCubes.ForceUpdate(true, true, true);
-		}
-
-		public static Part SetupOnTransform(Vessel original_vessel, Part original_part, 
-		                                    Transform debris_transform, 
-		                                    float density, float cost, double lifetime)
-		{
-			//get the part form DB
-			var info = PartLoader.getPartInfoByName(DEBRIS_PART);
-			if(info == null) return null;
-			//set part's transform and parent the debris model to the part
-			var part = Instantiate(info.partPrefab);
-			part.transform.position = debris_transform.position;
-			part.transform.rotation = original_part.transform.rotation;
-			//copy the model and resize it
-			var model = Instantiate(debris_transform.gameObject).transform;
-			var base_model = part.transform.Find("model");
-			model.parent = base_model;
-			model.localPosition = Vector3.zero;
-			model.rotation = debris_transform.rotation;
-			var resizer = original_part.Modules.GetModule<AnisotropicPartResizer>();
-			if(resizer != null) model.parent.localScale = resizer.scale.ScaleVector(base_model.localScale);
-			part.transform.hasChanged = true;
-			//initialize the part
-			part.gameObject.SetActive(true);
-			part.physicalSignificance = Part.PhysicalSignificance.NONE;
-			part.PromoteToPhysicalPart();
-			part.Rigidbody.SetDensity(density);
-			part.orgPos = Vector3.zero;
-			part.orgRot = Quaternion.identity;
-			//initialize Debris module
-			var debris = part.Modules.GetModule<Debris>();
-			if(debris == null) 
-			{ 
-				Utils.Log("WARNING: {} part does not have Debris module!", DEBRIS_PART);
-				Destroy(part.gameObject); return null; 
-			}
-			debris.model = model;
-			debris.saved_cost = cost;
-			debris.saved_mass = part.Rigidbody.mass;
-			debris.original_part_name = original_part.partInfo.name;
-			debris.debris_transform_name = debris_transform.name;
-			debris.local_rotation = model.localRotation;
-			if(resizer != null)
-			{
-				var scale = resizer.scale;
-				debris.size = scale;
-				debris.aspect = scale.aspect;
-			}
-			debris_transform.gameObject.SetActive(false);
-			//initialize the vessel
-			var vessel = part.gameObject.AddComponent<Vessel>();
-			vessel.name = vessel.vesselName = "Debris";
-			vessel.id = Guid.NewGuid();
-			vessel.Initialize();
-			//setup ids and flag
-			part.flightID = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
-			part.missionID = original_part.missionID;
-			part.launchID = original_part.launchID;
-			part.flagURL = original_part.flagURL;
-			//set part's velocities
-			part.Rigidbody.angularVelocity = original_part.Rigidbody.angularVelocity;
-			part.Rigidbody.velocity = original_part.Rigidbody.velocity + 
-				Vector3.Cross(original_vessel.CurrentCoM - original_part.Rigidbody.worldCenterOfMass, 
-				              part.Rigidbody.angularVelocity);
-			//setup discovery info
-			vessel.DiscoveryInfo.SetLastObservedTime(Planetarium.GetUniversalTime());
-			vessel.DiscoveryInfo.SetUnobservedLifetime(lifetime);
-			vessel.DiscoveryInfo.SetUntrackedObjectSize(UntrackedObjectClass.A);
-			vessel.DiscoveryInfo.SetLevel(DiscoveryLevels.Owned);
-			//inform the game about the new vessel
-			GameEvents.onNewVesselCreated.Fire(vessel);
-			//return the part
-			return part;
-		}
-	}
-
 	public class HangarFairingsUpdater : ModuleUpdater<HangarFairings>
 	{
 		protected override void on_rescale(ModulePair<HangarFairings> mp, Scale scale)
@@ -492,6 +424,7 @@ namespace AtHangar
 			mp.module.JettisonForce = mp.base_module.JettisonForce * scale.absolute.volume;
 			mp.module.FairingsCost  = mp.base_module.FairingsCost * scale.absolute.volume;
 			mp.module.UpdateCoMOffset(scale.ScaleVector(mp.base_module.BaseCoMOffset));
+			if(HighLogic.LoadedSceneIsEditor) mp.module.ResetPayloadResources();
 		}
 	}
 }
