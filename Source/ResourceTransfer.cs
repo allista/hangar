@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 
-
 namespace AtHangar 
 {
 	public class ResourceProxy : ProtoPartResourceSnapshot
 	{
 		protected ConfigNode valuesRef;
+		protected ProtoPartResourceSnapshot protoRef;
 
 		static ConfigNode resource_values(ProtoPartResourceSnapshot res)
 		{
@@ -22,6 +22,7 @@ namespace AtHangar
 		{ 
 			if(res.resourceRef != null)
 				resourceRef = res.resourceRef;
+			protoRef = res;
 		}
 
 		public ResourceProxy(ConfigNode node_ref)
@@ -37,6 +38,12 @@ namespace AtHangar
 				resourceRef.amount = amount;
 				resourceRef.maxAmount = maxAmount;
 				resourceRef.flowState = flowState;
+			}
+			if(protoRef != null)
+			{
+				protoRef.amount = amount;
+				protoRef.maxAmount = maxAmount;
+				protoRef.flowState = flowState;
 			}
 			if(valuesRef != null)
 				Save(valuesRef);
@@ -74,32 +81,31 @@ namespace AtHangar
 		public readonly Dictionary<string, List<PartProxy>> Resources = new Dictionary<string, List<PartProxy>>();
 		public List<string> resourcesNames { get { return new List<string>(Resources.Keys); } }
 
-		public VesselResources(IShipconstruct vessel)
-		{ 
-			foreach(var part in vessel.Parts)
+		void add_part_proxy(PartProxy proxy)
+		{
+			Parts.Add(proxy);
+			foreach(var res in proxy)
 			{
-				var proxy = new PartProxy(part);
-				Parts.Add(proxy);
-				foreach(var res in proxy)
+				List<PartProxy> res_parts;
+				if(!Resources.TryGetValue(res.Key, out res_parts))
 				{
-					List<PartProxy> res_parts;
-					if(!Resources.TryGetValue(res.Key, out res_parts))
-					{
-						res_parts = new List<PartProxy>();
-						Resources.Add(res.Key, res_parts);
-					}
-					res_parts.Add(proxy);
+					res_parts = new List<PartProxy>();
+					Resources.Add(res.Key, res_parts);
 				}
+				res_parts.Add(proxy);
 			}
 		}
 
+		public VesselResources(IShipconstruct vessel)
+		{ vessel.Parts.ForEach(p => add_part_proxy(new PartProxy(p))); }
+
 		public VesselResources(ProtoVessel proto_vessel)
-		{ Parts = proto_vessel.protoPartSnapshots.ConvertAll(p => new PartProxy(p)); }
+		{ proto_vessel.protoPartSnapshots.ForEach(p => add_part_proxy(new PartProxy(p))); }
 
 		public VesselResources(ConfigNode vessel_node)
 		{ 
 			foreach(var part in vessel_node.GetNodes("PART"))
-				Parts.Add(new PartProxy(part));
+				add_part_proxy(new PartProxy(part));
 		}
 
 		/// <summary>
