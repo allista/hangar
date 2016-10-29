@@ -135,9 +135,6 @@ namespace AtHangar
 		}
 
 		#region Tanks
-		public void RescaleTanks(float relative_scale)
-		{ if(tank_manager != null) tank_manager.RescaleTanks(relative_scale); }
-
 		void change_size(float volume)
 		{
 			var V = Mathf.Clamp(Volume+volume, 0, TotalVolume);
