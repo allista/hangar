@@ -584,7 +584,11 @@ namespace AtHangar
 					if(h == null) continue;
 					var t = h.GetSpawnTransform();
 					if(t != null)
-						HangarGUI.DrawYZ(h.PartMetric, t);
+					{
+						if(h.Storage != null && h.Storage.AutoPositionVessel)
+							Utils.GLDrawPoint(t.position, Color.green);
+						else HangarGUI.DrawYZ(h.PartMetric, t);
+					}
 				}
 			}
 			#if DEBUG
