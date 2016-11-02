@@ -30,8 +30,8 @@ namespace AtHangar
 
 		public static void DrawYZ(Metric M, Transform T)
 		{
-			Utils.DrawMeshArrow(Vector3.zero, Vector3.up*M.extents.y*0.8f, T, Color.green);
-			Utils.DrawMeshArrow(Vector3.zero, Vector3.forward*M.extents.z*0.8f, T, Color.blue);
+			Utils.GLVec(T.position, T.up*M.extents.y*0.8f, Color.green);
+			Utils.GLVec(T.position, T.forward*M.extents.z*0.8f, Color.blue);
 		}
 	}
 }
