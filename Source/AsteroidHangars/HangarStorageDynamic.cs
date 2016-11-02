@@ -113,7 +113,7 @@ namespace AtHangar
 		{
 			base.OnSave(node);
 			if(tank_manager != null)
-				tank_manager.Save(node.AddNode(SwitchableTankManager.NODE_NAME));
+				tank_manager.SaveInto(node);
 		}
 
 		//workaround for ConfigNode non-serialization
