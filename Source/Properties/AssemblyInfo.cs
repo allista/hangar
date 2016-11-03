@@ -34,8 +34,8 @@ namespace AtHangar
 	{
 		public ModInfo()
 		{
-			MinKSPVersion = new Version(1,2);
-			MaxKSPVersion = new Version(1,2);
+			MinKSPVersion = new Version(1,2,1);
+			MaxKSPVersion = new Version(1,2,1);
 
 			VersionURL   = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
 			UpgradeURL   = "https://github.com/allista/hangar/releases";
