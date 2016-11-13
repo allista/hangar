@@ -494,7 +494,7 @@ namespace AtHangar
 			Ready = true;
 			//save game afterwards
 			yield return WaitWithPhysics.ForSeconds(0.5f);
-			FlightDriver.PostInitState = new GameBackup(HighLogic.CurrentGame);
+			FlightDriver.PostInitState = new GameBackup(HighLogic.CurrentGame.Updated());
 			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
 		}
 
