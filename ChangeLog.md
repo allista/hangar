@@ -5,8 +5,17 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ###ChangeLog
 
+* **v3.1.0**
+    * Made it possible **vessel launching while rotating and moving, even with acceleration**.
+    * Implemented **temporary storage of resources in Hangar Fairings**. This makes the Fairings **compatible with Life Support** mods.
+    * Added placeholders for internals to all crewed parts. Added "back" stack nodes to ground hangars so that they could be hanged below a skycrane-like carrier.
+    * In Editor positioning arrows are only drawn if a hangar has *Strict Positioning*; otherwise only a dot is drawn.
+    * Bugfixes:
+    	* Crew transfer.
+    	* Prelaunch game saving.
+    	* Debris jettison velocity calculation.
 
-* **v3.0.1**
+* v3.0.1
 	* Yet another fix for vessel positioning on launch.
 	* The game is now autosaved before a vessel is spawned from a hangar.
 	* Spaceport and Big Hangar may be used as standalone control centers (KerbNet integration).
