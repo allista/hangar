@@ -113,7 +113,7 @@ namespace AtHangar
 		{
 			base.OnSave(node);
 			if(tank_manager != null)
-				tank_manager.Save(node.AddNode(SwitchableTankManager.NODE_NAME));
+				tank_manager.SaveInto(node);
 		}
 
 		//workaround for ConfigNode non-serialization
@@ -135,9 +135,6 @@ namespace AtHangar
 		}
 
 		#region Tanks
-		public void RescaleTanks(float relative_scale)
-		{ if(tank_manager != null) tank_manager.RescaleTanks(relative_scale); }
-
 		void change_size(float volume)
 		{
 			var V = Mathf.Clamp(Volume+volume, 0, TotalVolume);

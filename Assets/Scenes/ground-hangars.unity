@@ -727,11 +727,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1956020555}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -453068767, guid: 4ef237d66f19ac1489d5642a0953c2ff, type: 3}
+  m_Script: {fileID: -453068767, guid: 90118262cf80c7549ab37dd61d08c605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   modelName: Hangar1
-  filePath: Hangar/Parts/Models
+  filePath: Hangar/Parts/Models/
   production: 1
   textureFormat: 4
 --- !u!1001 &2013236951

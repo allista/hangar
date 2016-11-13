@@ -26,7 +26,8 @@ namespace AtHangar
 		public float   mass     { get { return metric.mass; } set { metric.mass = value; } }
 		public float   cost     { get { return metric.cost; } set { metric.cost = value; } }
 		public Vector3 CoG      { get { return metric.center; } } //center of geometry
-		public int CrewCapacity { get{ return metric.CrewCapacity; } }
+		public VesselResources  resources { get; protected set; }
+		public int CrewCapacity { get { return metric.CrewCapacity; } }
 
 		public abstract void Save(ConfigNode node);
 		public abstract void Load(ConfigNode node);

@@ -44,9 +44,14 @@ namespace AtHangar
 			if(construct == null) return;
 			foreach(Part p in construct) 
 			{
-				if(p != null && p.gameObject != null)
-					UnityEngine.Object.Destroy(p.gameObject);
+				if(p != null) 
+				{
+					p.OnDelete();
+					if(p.gameObject != null)
+						UnityEngine.Object.Destroy(p.gameObject);
+				}
 			}
+			construct.Clear();
 			construct = null; 
 		}
 
@@ -57,6 +62,7 @@ namespace AtHangar
 			this.flag = flag;
 			vessel_node = ConfigNode.Load(file);
 			vessel_node.name = "VESSEL";
+			resources = new VesselResources(vessel_node);
 			if(!LoadConstruct()) return;
 			name = construct.shipName;
 			id = Guid.NewGuid();
@@ -68,6 +74,7 @@ namespace AtHangar
 			vessel_node = pc.vessel_node;
 			metric = pc.metric;
 			name = pc.name;
+			resources = new VesselResources(vessel_node);
 			if(pc.construct != null)
 				LoadConstruct();
 			id = Guid.NewGuid();
@@ -90,6 +97,7 @@ namespace AtHangar
 		{
 			ConfigNode metric_node = node.GetNode("METRIC");
 			vessel_node = node.GetNode("VESSEL");
+			resources = new VesselResources(vessel_node);
 			metric = new Metric(metric_node);
 			name   = node.GetValue("name");
 			flag   = node.GetValue("flag");
@@ -104,7 +112,6 @@ namespace AtHangar
 		public Vector3 CoM { get { return proto_vessel.CoM; } }
 		public Vector3d dV;
 		public List<ProtoCrewMember> crew { get; private set; }
-		public VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot> resources { get; private set; }
 
 		public StoredVessel() {}
 
@@ -114,8 +121,8 @@ namespace AtHangar
 			metric = new Metric(vsl, compute_hull);
 			id     = proto_vessel.vesselID;
 			name   = proto_vessel.vesselName;
-			crew   = vsl.GetVesselCrew();
-			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(proto_vessel);
+			crew   = proto_vessel.GetVesselCrew();
+			resources = new VesselResources(proto_vessel);
 		}
 
 		public override void Save(ConfigNode node)
@@ -141,7 +148,7 @@ namespace AtHangar
 				crew.Add(new ProtoCrewMember(HighLogic.CurrentGame.Mode, cn));
 			id   = proto_vessel.vesselID;
 			name = proto_vessel.vesselName;
-			resources = new VesselResources<ProtoVessel, ProtoPartSnapshot, ProtoPartResourceSnapshot>(proto_vessel);
+			resources = new VesselResources(proto_vessel);
 		}
 	}
 }
