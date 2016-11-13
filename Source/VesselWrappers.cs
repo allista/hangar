@@ -121,7 +121,7 @@ namespace AtHangar
 			metric = new Metric(vsl, compute_hull);
 			id     = proto_vessel.vesselID;
 			name   = proto_vessel.vesselName;
-			crew   = vsl.GetVesselCrew();
+			crew   = proto_vessel.GetVesselCrew();
 			resources = new VesselResources(proto_vessel);
 		}
 

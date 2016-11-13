@@ -16,29 +16,25 @@ namespace AtHangar
 		int CrewCapacity;
 		List<ProtoCrewMember> crew;
 		List<ProtoCrewMember> selected;
+
+		public CrewTransferWindow()
+		{
+			width = 250; height = 150;
+		}
 		
 		Vector2 scroll_view = Vector2.zero;
         void TransferWindow(int windowId)
         {
-            scroll_view = GUILayout.BeginScrollView(scroll_view, GUILayout.Height(200), GUILayout.Width(300));
+			scroll_view = GUILayout.BeginScrollView(scroll_view, GUILayout.Width(width), GUILayout.Height(height));
             GUILayout.BeginVertical();
             foreach(ProtoCrewMember kerbal in crew)
             {
-                GUILayout.BeginHorizontal();
 				int ki = selected.FindIndex(cr => cr.name == kerbal.name);
-				GUIStyle style = (ki >= 0) ? Styles.green : Styles.normal_button;
-				GUILayout.Label(kerbal.name, style, GUILayout.Width(200));
-				if(ki >= 0)
-                {
-                    if(GUILayout.Button("Selected", Styles.green_button, GUILayout.Width(70)))
-						selected.RemoveAt(ki);
-                }
-				else if(selected.Count < CrewCapacity)
+				if(Utils.ButtonSwitch(kerbal.name, ki >= 0, "", GUILayout.ExpandWidth(true)))
 				{
-					if(GUILayout.Button("Select", style, GUILayout.Width(60)))
-						selected.Add(kerbal);
+					if(ki >= 0) selected.RemoveAt(ki);
+					else selected.Add(kerbal);
 				}
-                GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical();
             GUILayout.EndScrollView();
@@ -56,7 +52,7 @@ namespace AtHangar
 			WindowPos = GUILayout.Window(GetInstanceID(), 
 			                             WindowPos, TransferWindow,
 										 string.Format("Vessel Crew {0}/{1}", selected.Count, CrewCapacity),
-			                             GUILayout.Width(260)).clampToScreen();
+			                             GUILayout.Width(width), GUILayout.Height(height)).clampToScreen();
 		}
 	}
 }

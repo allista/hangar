@@ -74,8 +74,8 @@ namespace AtHangar
 		public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation situation) { return jettisoned ? debris_cost : 0f; }
 		public virtual ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 
-		public virtual float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return jettisoned ? debris_mass : 0f; }
-		public virtual ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+		public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return jettisoned ? debris_mass : 0f; }
+		public override ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 		#endregion
 
 		#region IMultipleDragCube
@@ -289,9 +289,9 @@ namespace AtHangar
 			jettisoned = true;
 		}
 
-		protected override void disable_collisions(bool disable = true)
+		protected override void disable_hangar_collisions(bool disable = true)
 		{
-			base.disable_collisions(disable);
+			base.disable_hangar_collisions(disable);
 			if(debris != null) debris.ForEach(p => p.SetDetectCollisions(!disable));
 		}
 

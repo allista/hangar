@@ -13,7 +13,7 @@ using AT_Utils;
 
 namespace AtHangar
 {
-	public abstract partial class HangarMachinery : ControllableModuleBase
+	public abstract partial class HangarMachinery : ControllableModuleBase, IPartMassModifier
 	{
 		public enum HangarState { Inactive, Active }
 
@@ -85,8 +85,8 @@ namespace AtHangar
 
 		readonly Dictionary<Guid, MemoryTimer> probed_vessels = new Dictionary<Guid, MemoryTimer>();
 
-		[KSPField (isPersistant = true)] Vector3 deltaV = Vector3.zero;
-		[KSPField (isPersistant = true)] bool change_velocity;
+		[KSPField (isPersistant = true)] Vector3 momentumDelta = Vector3.zero;
+		[KSPField (isPersistant = true)] bool apply_force;
 		protected StoredVessel launched_vessel;
 
 		public bool IsControllable 
@@ -285,17 +285,20 @@ namespace AtHangar
 		}
 		#endregion
 
-		#region Physics changes
+		#region Updates
 		public virtual void FixedUpdate()
 		{
 			if(HighLogic.LoadedSceneIsFlight)
 			{
 				//change vessel velocity if requested
-				if(change_velocity)
+				if(apply_force)
 				{
-					vessel.ChangeWorldVelocity(deltaV);
-					change_velocity = false;
-					deltaV = Vector3.zero;
+					if(!momentumDelta.IsZero())
+					{
+						part.Rigidbody.AddForce(momentumDelta, ForceMode.Impulse);
+						momentumDelta = Vector3.zero;
+					}
+					apply_force = false;
 				}
 				//consume energy if hangar is operational
 				if(socket != null && hangar_state == HangarState.Active)
@@ -308,6 +311,12 @@ namespace AtHangar
 					}
 				}
 			}
+		}
+
+		public virtual void Update()
+		{
+			if(something_inside >= 0 && Planetarium.GetUniversalTime()-something_inside > 1)
+				something_inside = -1;
 		}
 		#endregion
 
@@ -397,16 +406,15 @@ namespace AtHangar
 			//deactivate the hangar
 			Deactivate();
 			//calculate velocity change to conserve momentum
-			deltaV = (vsl.orbit.vel-vessel.orbit.vel).xzy*stored_vessel.mass/vessel.GetTotalMass();
-			change_velocity = true;
+			momentumDelta = (vsl.orbit.vel-vessel.orbit.vel).xzy*stored_vessel.mass;
+			apply_force = true;
 			//get vessel crew on board
-			var _crew = new List<ProtoCrewMember>(stored_vessel.crew);
-			CrewTransfer.delCrew(vsl, _crew);
-			vsl.DespawnCrew();
+			var crew = new List<ProtoCrewMember>(stored_vessel.crew);
+			crew = CrewTransfer.delCrew(vsl, crew, false);
 			//first of, add crew to the hangar if there's a place
-			CrewTransfer.addCrew(part, _crew);
+			CrewTransfer.addCrew(part, crew);
 			//then add to other vessel parts if needed
-			CrewTransfer.addCrew(vessel, _crew);
+			CrewTransfer.addCrew(vessel, crew);
 			//switch to hangar vessel before storing
 			if(FlightGlobals.ActiveVessel.id == vsl.id)
 				FlightGlobals.ForceSetActiveVessel(vessel);
@@ -416,14 +424,15 @@ namespace AtHangar
 		}
 
 		//called every frame while part collider is touching the trigger
+		double something_inside = -1;
 		void OnTriggerStay(Collider col)
 		{
+			if(col == null || col.attachedRigidbody == null) return;
+			something_inside = Planetarium.GetUniversalTime();
 			if(hangar_state != HangarState.Active
 				||  Storage == null
-				||  col == null
 				|| !col.CompareTag("Untagged")
-			    ||  col.gameObject.name == Globals.Instance.KethaneMapCollider
-				||  col.attachedRigidbody == null)
+			    ||  col.gameObject.name == Globals.Instance.KethaneMapCollider)
 				return;
 			//get part and try to store vessel
 			Part p = col.attachedRigidbody.GetComponent<Part>();
@@ -461,20 +470,17 @@ namespace AtHangar
 			var vorb  = new Orbit();
 			var d_pos = spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel) - vessel.CurrentCoM;
 			var vpos  = horb.pos + new Vector3d(d_pos.x, d_pos.z, d_pos.y) 
-				+ (horb.vel-horb.GetRotFrameVel(horb.referenceBody))*TimeWarp.fixedDeltaTime;
-			var vvel  = horb.vel;
+				+ (horb.vel+((Vector3d)vessel.rb_velocity).xzy-horb.GetRotFrameVel(horb.referenceBody))*TimeWarp.fixedDeltaTime;
+			var vvel  = horb.vel+((Vector3d)(vessel.rb_velocity + Vector3.Cross(vessel.transform.rotation*vessel.angularVelocity, d_pos))).xzy;
 			if(LaunchWithPunch && !LaunchVelocity.IsZero())
 			{
-				//honor the momentum conservation law
-				//:calculate launched vessel velocity
+				//conserve momentum
 				var hM = vessel.GetTotalMass();
 				var tM = hM + launched_vessel.mass;
 				var d_vel = (Vector3d)part.transform.TransformDirection(LaunchVelocity);
 				launched_vessel.dV = d_vel*hM/tM;
+				momentumDelta = launched_vessel.dV*(-launched_vessel.mass);
 				vvel += launched_vessel.dV.xzy;
-				//:calculate hangar's vessel velocity
-				deltaV = d_vel*(-launched_vessel.mass)/tM; 
-				change_velocity = true;
 			}
 			vorb.UpdateFromStateVectors(vpos, vvel, horb.referenceBody, UT);
 			pv.orbitSnapShot = new OrbitSnapshot(vorb);
@@ -490,24 +496,72 @@ namespace AtHangar
 
 		void onVesselGoOffRails(Vessel vsl)
 		{
-			if(launched_vessel == null) return;
-			if(launched_vessel.vessel != vsl) return;
-			launched_vessel = null;
+			if(launched_vessel == null ||
+			   launched_vessel.vessel != vsl) return;
 			FlightGlobals.ForceSetActiveVessel(vsl);
+			vsl.SpawnCrew();
 		}
 
 		void onVesselLoaded(Vessel vsl)
 		{
-			if(launched_vessel == null) return;
-			if(launched_vessel.vessel != vsl) return;
+			if(launched_vessel == null ||
+			   launched_vessel.vessel != vsl) return;
 			launched_vessel.vessel.parts.ForEach(p => p.partTransform = p.transform);
+		}
+
+		IEnumerator<YieldInstruction> push_and_spin_launched_vessel()
+		{
+			var vsl = launched_vessel.vessel;
+			var startP = part.Rigidbody.worldCenterOfMass;
+			var startAV = part.Rigidbody.angularVelocity;
+			var startAVm = startAV.sqrMagnitude;
+			var vel = launched_vessel.dV;
+			vel += (Vector3d)part.Rigidbody.velocity;
+			vel += Vector3d.Cross(startAV, vsl.CoM-startP);
+			vsl.SetWorldVelocity(vel);
+			for(int i = 0; i < 10; i++)
+			{
+				//this is a hack for incorrect VelocityChange mode (or whatever causing this);
+				//if the startAV is applied once, the resulting vessel.angularVelocity is 2-3 times bigger
+				var deltaAV = startAV-vsl.transform.rotation*vsl.angularVelocity;
+				var deltaAVm = deltaAV.sqrMagnitude;
+				if(deltaAVm < 1e-5) break;
+				var av = deltaAVm > startAVm? deltaAV.ClampMagnitudeH(startAVm*Mathf.Sqrt(1/deltaAVm)) : deltaAV/3;
+				var CoM = vsl.CoM;
+//				this.Log("{}: delta av: {}, av {}", i, deltaAV, av);//debug
+				foreach(Part p in vsl.Parts)
+				{
+					if(p.Rigidbody != null)
+					{
+						p.Rigidbody.AddTorque(av, ForceMode.VelocityChange);
+						p.Rigidbody.AddForce(Vector3.Cross(av, p.Rigidbody.worldCenterOfMass-CoM), ForceMode.VelocityChange);
+					}
+				}
+				yield return null;
+				yield return null;
+//				this.Log("{}: launched av: {}", i, vsl.transform.rotation*vsl.angularVelocity);//debug
+			}
+		}
+
+		static void disable_vsl_colliders(Vessel vsl, List<Collider> colliders)
+		{
+			if(colliders.Count == 0)
+			{
+				vsl.Parts.ForEach(p => colliders.AddRange(p.FindModelComponents<Collider>().Where(c => c.enabled)));
+				colliders.ForEach(c => c.enabled = false);
+			}
+		}
+
+		static void enable_vsl_colliders(List<Collider> colliders)
+		{
+			colliders.ForEach(c => { if(c != null) c.enabled = true; });
+			colliders.Clear();
 		}
 
 		IEnumerator<YieldInstruction> launch_vessel(StoredVessel sv)
 		{
 			launched_vessel = sv;
-			var partV = part.rb.velocity;
-			disable_collisions();
+			disable_hangar_collisions();
 			before_vessel_launch();	
 			TransferResources(launched_vessel);
 			CrewTransfer.addCrew(launched_vessel.proto_vessel, 
@@ -516,49 +570,82 @@ namespace AtHangar
 			yield return new WaitForFixedUpdate();
 			position_launched_vessel();
 			launched_vessel.proto_vessel.Load(HighLogic.CurrentGame.flightState);
-			yield return new WaitForFixedUpdate();
-			disable_collisions(false);
 			var vsl = launched_vessel.vessel;
-			if(vsl == null) yield break;
+			var vsl_colliders = new List<Collider>();
+			if(vsl == null) goto end;
 			if(vessel.LandedOrSplashed)
 			{
 				var pos = vsl.transform.position;
 				var rot = vsl.transform.rotation;
 				while(vsl.packed) 
 				{
-					if(vsl == null) yield break;
-					rot = vsl.transform.rotation;
-					pos = vsl.transform.position;
+					if(vsl == null) goto end;
+					disable_vsl_colliders(vsl, vsl_colliders);
+					try 
+					{ 
+						var spawn_transform = get_spawn_transform(launched_vessel);
+						pos = spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel)
+							-vsl.transform.TransformDirection(launched_vessel.CoM);
+						rot = spawn_transform.rotation;
+						vsl.SetPosition(pos);
+						vsl.SetRotation(rot);
+
+					}
+					catch(Exception e) 
+					{ this.Log("Exception occured during launched_vessel.vessel.SetPosition/Rotation call. Ignoring it:\n{}", e.StackTrace); }
 					vsl.GoOffRails();
-					if(!vsl.packed) break;
 					yield return new WaitForFixedUpdate();
 				}
-				if(vsl == null) yield break;
+				if(vsl == null) goto end;
 				vsl.SetPosition(pos);
 				vsl.SetRotation(rot);
 			}
 			else
 			{
 				vsl.Load();
-				var spawn_transform = get_spawn_transform(launched_vessel);
-				var spos = spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel)
-					-vsl.transform.TransformDirection(launched_vessel.CoM);
-				var svel = partV+launched_vessel.dV;
-				var vvel = vessel.rb_velocity;
+				//hold the vessel inside the hangar until unpacked
 				while(vsl.packed) 
 				{
-					if(vsl == null) yield break;
-					try { vsl.SetPosition(spos); }
+					if(vsl == null) goto end;
+					disable_vsl_colliders(vsl, vsl_colliders);
+					try 
+					{ 
+						var spawn_transform = get_spawn_transform(launched_vessel);
+						vsl.SetPosition(spawn_transform.position+get_vessel_offset(spawn_transform, launched_vessel)
+						                -vsl.transform.TransformDirection(launched_vessel.CoM));
+						vsl.SetRotation(spawn_transform.rotation);
+					}
 					catch(Exception e) 
-					{ this.Log("Exception occured during launched_vessel.vessel.SetPosition call. Ignoring it:\n{}", e.StackTrace); }
-					if(!vsl.packed) break;
-					spos += (svel+vessel.rb_velocity-vvel)*TimeWarp.fixedDeltaTime;
+					{ this.Log("Exception occured during launched_vessel.vessel.SetPosition/Rotation call. Ignoring it:\n{}", e.StackTrace); }
 					yield return new WaitForFixedUpdate();
 				}
 			}
+			disable_hangar_collisions(false);
+			enable_vsl_colliders(vsl_colliders);
+			apply_force = true;
+			yield return StartCoroutine(push_and_spin_launched_vessel());
+			end:
+			{
+				launched_vessel = null;
+				enable_vsl_colliders(vsl_colliders);
+				disable_hangar_collisions(false);
+				yield break;
+			}
 		}
 
-		protected virtual void disable_collisions(bool disable=true) {}
+		#region IPart*Modifiers
+		public virtual float GetModuleMass(float defaultMass, ModifierStagingSituation sit) 
+		{ 
+			if(launched_vessel != null && 
+			   launched_vessel.vessel != null && 
+			   launched_vessel.vessel.packed)
+				return launched_vessel.mass;
+			return 0;
+		}
+		public virtual ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+		#endregion
+
+		protected virtual void disable_hangar_collisions(bool disable=true) {}
 		#endregion
 
 		#region Resources
@@ -640,35 +727,10 @@ namespace AtHangar
 				Utils.Message("Cannot launch a vessel while another one is docked");
 				return false;
 			}
-			//if rotating
-			if(vessel.angularVelocity.sqrMagnitude > Globals.Instance.MaxSqrAngularVelocity)
+			if(something_inside > 0)
 			{
-				Utils.Message("Cannot launch a vessel while rotating");
+				Utils.Message("Cannot launch a vessel when something is inside the docking space");
 				return false;
-			}
-			//if on the ground
-			if(vessel.LandedOrSplashed)
-			{
-				if(vessel.srf_velocity.sqrMagnitude > Globals.Instance.MaxSqrSurfaceVelocity)
-				{
-					Utils.Message("Cannot launch a vessel while moving");
-					return false;
-				}
-			}
-			else //if flying
-			{
-				if(vessel.geeForce > Globals.Instance.MaxGeeForce)
-				{
-					Utils.Message("Cannot launch a vessel under gee force above {0}", 
-					                           Globals.Instance.MaxGeeForce);
-					return false;
-				}
-				if(vessel.mainBody.atmosphere && 
-				   vessel.staticPressurekPa > Globals.Instance.MaxStaticPressure)
-				{
-					Utils.Message("Cannot launch a vessel in low atmosphere");
-					return false;
-				}
 			}
 			return true;
 		}
@@ -694,7 +756,7 @@ namespace AtHangar
 
 		#region Events&Actions
 		//events
-		[KSPEvent (guiActiveEditor = true, guiName = "Open gates", active = true)]
+		[KSPEvent (guiActive = true, guiActiveEditor = true, guiName = "Open gates", active = true)]
 		public void Open() 
 		{ 
 			if(hangar_gates == null) return;
@@ -704,7 +766,7 @@ namespace AtHangar
 			Activate();
 		}
 
-		[KSPEvent (guiActiveEditor = true, guiName = "Close gates", active = false)]
+		[KSPEvent (guiActive = true, guiActiveEditor = true, guiName = "Close gates", active = false)]
 		public void Close()	
 		{ 
 			if(hangar_gates == null) return;

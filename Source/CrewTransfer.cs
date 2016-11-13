@@ -6,7 +6,7 @@ namespace AtHangar
 	{
 		#region Vessel
 		//add some crew to a part
-		public static bool addCrew(Part p, List<ProtoCrewMember> crew)
+		public static bool addCrew(Part p, List<ProtoCrewMember> crew, bool spawn = true)
 		{
 			if(crew.Count == 0) return false;
 			if(p.CrewCapacity <= p.protoModuleCrew.Count) return false;
@@ -14,26 +14,32 @@ namespace AtHangar
 			{
 				var kerbal = crew[0];
 				p.AddCrewmember(kerbal);
-				if(kerbal.seat != null)
-					kerbal.seat.SpawnCrew();
 				crew.RemoveAt(0);
+			}
+			if(spawn)
+			{
+				Vessel.CrewWasModified(p.vessel);
+				p.vessel.DespawnCrew();
+				p.StartCoroutine(CallbackUtil.DelayedCallback(1, p.vessel.SpawnCrew));
 			}
 			return true;
 		}
 		
 		//add some crew to a vessel
-		public static void addCrew(Vessel vsl, List<ProtoCrewMember> crew)
+		public static void addCrew(Vessel vsl, List<ProtoCrewMember> crew, bool spawn = true)
 		{
 			foreach(Part p in vsl.parts)
 			{
 				if(crew.Count == 0) break;
-				addCrew(p, crew);
+				addCrew(p, crew, false);
 			}
-			vsl.SpawnCrew();
+			Vessel.CrewWasModified(vsl);
+			vsl.DespawnCrew();
+			if(spawn) vsl.StartCoroutine(CallbackUtil.DelayedCallback(1, vsl.SpawnCrew));
 		}
 		
 		//remove crew from a part
-		public static List<ProtoCrewMember> delCrew(Part p, List<ProtoCrewMember> crew)
+		public static List<ProtoCrewMember> delCrew(Part p, List<ProtoCrewMember> crew, bool spawn = true)
 		{
 			var deleted = new List<ProtoCrewMember>();
 			if(p.CrewCapacity == 0 || p.protoModuleCrew.Count == 0) return deleted;
@@ -44,18 +50,25 @@ namespace AtHangar
 				{
 					deleted.Add(part_kerbal);
 					p.RemoveCrewmember(part_kerbal);
-					part_kerbal.seat = null;
 				}
+			}
+			if(spawn && deleted.Count > 0)
+			{
+				Vessel.CrewWasModified(p.vessel);
+				p.vessel.DespawnCrew();
+				p.StartCoroutine(CallbackUtil.DelayedCallback(1, p.vessel.SpawnCrew));
 			}
 			return deleted;
 		}
 		
 		//remove crew from a vessel
-		public static List<ProtoCrewMember> delCrew(Vessel vsl, List<ProtoCrewMember> crew)
+		public static List<ProtoCrewMember> delCrew(Vessel vsl, List<ProtoCrewMember> crew, bool spawn = true)
 		{
 			var deleted = new List<ProtoCrewMember>();
-			vsl.parts.ForEach(p => deleted.AddRange(delCrew(p, crew)));
-			vsl.SpawnCrew();
+			vsl.parts.ForEach(p => deleted.AddRange(delCrew(p, crew, false)));
+			Vessel.CrewWasModified(vsl);
+			vsl.DespawnCrew();
+			if(spawn) vsl.StartCoroutine(CallbackUtil.DelayedCallback(1, vsl.SpawnCrew));
 			return deleted;
 		}
 		#endregion
