@@ -131,7 +131,7 @@ namespace AtHangar
 			//set part's velocities
 			part.Rigidbody.angularVelocity = original_part.Rigidbody.angularVelocity;
 			part.Rigidbody.velocity = original_part.Rigidbody.velocity + 
-				Vector3.Cross(original_vessel.CurrentCoM - original_part.Rigidbody.worldCenterOfMass, 
+				Vector3.Cross(original_part.Rigidbody.worldCenterOfMass-part.Rigidbody.worldCenterOfMass, 
 				              part.Rigidbody.angularVelocity);
 			//setup discovery info
 			vessel.DiscoveryInfo.SetLastObservedTime(Planetarium.GetUniversalTime());
