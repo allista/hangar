@@ -592,7 +592,7 @@ namespace AtHangar
 				}
 			}
 			#if DEBUG
-			DrawBounds();
+//			DrawBounds();
 			DrawPoints();
 			#endif
 		}
@@ -624,8 +624,9 @@ namespace AtHangar
 			else if(vessel != null)
 			{
 				vessel_metric.DrawCenter(vessel.vesselTransform);
-				Utils.GLDrawPoint(vessel.vesselTransform.InverseTransformPoint(vessel.CurrentCoM), vessel.vesselTransform, Color.green);
-				Utils.GLDrawPoint(Vector3.zero, vessel.vesselTransform, Color.red);
+				Utils.GLDrawPoint(vessel.transform.position, Color.red);
+				Utils.GLDrawPoint(vessel.CoM, Color.green);
+				Utils.GLLine(vessel.transform.position, vessel.CoM, Color.green);
 			}
 		}
 		#endif
