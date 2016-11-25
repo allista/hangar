@@ -214,10 +214,11 @@ namespace AtHangar
 		{
 			Compressor = null;
 			if(ModuleConfig == null) return false;
-			if(ModuleConfig.HasNode(GasCompressor.NODE_NAME)) 
+			var node = ModuleConfig.GetNode(GasCompressor.NODE_NAME);
+			if(node != null) 
 			{
 				Compressor = new GasCompressor(part);
-				Compressor.Load(ModuleConfig.GetNode(GasCompressor.NODE_NAME));
+				Compressor.Load(node);
 				return true;
 			}
 			return false;
