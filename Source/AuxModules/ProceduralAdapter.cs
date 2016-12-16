@@ -15,11 +15,11 @@ namespace AtHangar
 	{
 		//GUI
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Top Size", guiFormat="S4")]
-		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f)]
+		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f, sigFigs = 4)]
 		public float topSize = 1.0f;
 
 		[KSPField(isPersistant=true, guiActiveEditor=true, guiName="Bottom Size", guiFormat="S4")]
-		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f)]
+		[UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f, sigFigs = 4)]
 		public float bottomSize = 1.0f;
 
 		//module config
@@ -50,10 +50,15 @@ namespace AtHangar
 		//methods
 		public override string GetInfo() 
 		{
-			get_part_components();
-			update_body();
+			prepare_model();
 			part.mass = SurfaceArea*AreaDensity;
 			return base.GetInfo();
+		}
+
+		protected override void prepare_model()
+		{
+			get_part_components();
+			update_body();
 		}
 
 		public override void SaveDefaults()
@@ -87,8 +92,6 @@ namespace AtHangar
 				setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
 				setup_field(Fields["aspect"], minAspect, maxAspect, aspectStepLarge, aspectStepSmall);
 			}
-			get_part_components();
-			update_body();
 		}
 
 		public void Update() 
