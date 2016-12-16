@@ -31,6 +31,8 @@ namespace AtHangar
 
 		public abstract void Save(ConfigNode node);
 		public abstract void Load(ConfigNode node);
+
+		public override string ToString() { return name; }
 	}
 
 	public class VesselsPack<V> : IEnumerable<PackedVessel> where V : PackedVessel, new()
@@ -291,7 +293,7 @@ namespace AtHangar
 				float[] nd = { size.x, size.y, size.z };
 				float[] sd = { s.x, s.y, s.z };
 				Array.Sort(nd); Array.Sort(sd);
-				return nd[0] == sd[0] && nd[1] == sd[1] && nd[2] == sd[2];
+				return nd[0].Equals(sd[0]) && nd[1].Equals(sd[1]) && nd[2].Equals(sd[2]);
 			}
 
 			public void Save(ConfigNode node, bool debug = true)
