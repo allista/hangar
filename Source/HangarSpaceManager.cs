@@ -20,7 +20,7 @@ namespace AtHangar
 
 		public MeshFilter Space { get; protected set; }
 		public Metric SpaceMetric { get; protected set; }
-		public virtual bool Valid { get { return Space != null; } }
+		public virtual bool Valid { get { return !SpaceMetric.Empty; } }
 
 		public override void Load(ConfigNode node)
 		{
@@ -33,10 +33,18 @@ namespace AtHangar
 			}
 		}
 
+		public void SetMetric(Metric metric) { SpaceMetric = metric; }
+
+		public void UpdateMetric()
+		{
+			if(!string.IsNullOrEmpty(HangarSpace))
+				SpaceMetric = new Metric(part, HangarSpace);
+		}
+
 		public HangarSpaceManager(Part part)
 		{ this.part = part; }
 
-		protected static void flip_mesh_if_needed(MeshFilter mesh_filter)
+		protected void flip_mesh_if_needed(MeshFilter mesh_filter)
 		{
 			//check if the hangar space has its normals flipped iside; if not, flip them
 			var flipped = false;
@@ -59,7 +67,7 @@ namespace AtHangar
 			}
 			if(flipped)
 			{
-				Utils.Log("The '{}' mesh is not flipped. Hangar space normals should be pointed INSIDE.", mesh_filter.name);
+				part.Log("The '{}' mesh is not flipped. Hangar space normals should be pointed INSIDE.", mesh_filter.name);
 				mesh.triangles = tris;
 				mesh.RecalculateNormals();
 			}
@@ -67,7 +75,7 @@ namespace AtHangar
 
 		public bool VesselFits(PackedVessel v, Transform position, Vector3 offset)
 		{
-			return v.metric.hull != null? 
+			return Space != null? 
 				v.metric.FitsAligned(position, Space.transform, Space.sharedMesh, offset) :
 				v.metric.FitsAligned(position, part.partTransform, SpaceMetric, offset);
 		}
@@ -114,6 +122,13 @@ namespace AtHangar
 				SpawnOffset = Vector3.zero;
 			if(!string.IsNullOrEmpty(SpawnTransform))
 				spawn_transform = part.FindModelTransform(SpawnTransform);
+			if(spawn_transform == null)
+			{
+				var launch_empty = new GameObject();
+				var parent = Space != null? Space.transform : part.transform;
+				launch_empty.transform.SetParent(parent);
+				spawn_transform = launch_empty.transform;
+			}
 		}
 
 		public Vector3 GetSpawnOffset(PackedVessel v)

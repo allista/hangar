@@ -22,7 +22,6 @@ namespace AtHangar
 		[KSPField] public string BuildTanksFrom  = "Metals";
 		[KSPField] public float  ResourcePerArea = 0.6f; // 200U/m^3, 1m^2*3mm
 
-		public ConfigNode ModuleSave;
 		SwitchableTankManager tank_manager;
 		ResourcePump metal_pump;
 		float max_side;
@@ -56,10 +55,10 @@ namespace AtHangar
 			if(HasTankManager)
 			{
 				tank_manager = new SwitchableTankManager(this);
-				if(ModuleSave == null) 
+				if(ModuleConfig == null) 
 				{ this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
-				if(ModuleSave.HasNode(SwitchableTankManager.NODE_NAME))
-					tank_manager.Load(ModuleSave.GetNode(SwitchableTankManager.NODE_NAME));
+				var node = ModuleConfig.ToConfigNode().GetNode(SwitchableTankManager.NODE_NAME);
+				if(node != null) tank_manager.Load(node);
 				Events["EditTanks"].active = true;
 				if(BuildTanksFrom != string.Empty) 
 				{
@@ -77,7 +76,7 @@ namespace AtHangar
 		protected override void update_metrics()
 		{
 			PartMetric = new Metric(part);
-			HangarMetric = new Metric(StorageSize);
+			SpawnManager.SetMetric(new Metric(StorageSize));
 		}
 
 		public bool AddVolume(float volume) 
@@ -103,12 +102,6 @@ namespace AtHangar
 			}
 		}
 
-		public override void OnLoad(ConfigNode node)
-		{
-			base.OnLoad(node);
-			ModuleSave = node;
-		}
-
 		public override void OnSave(ConfigNode node)
 		{
 			base.OnSave(node);
@@ -117,21 +110,15 @@ namespace AtHangar
 		}
 
 		//workaround for ConfigNode non-serialization
-		public byte[] _module_save;
 		public override void OnBeforeSerialize()
 		{
-			base.OnBeforeSerialize();
 			if(tank_manager != null)
 			{
-				ModuleSave = new ConfigNode();
-				Save(ModuleSave);
+				var node = new ConfigNode();
+				Save(node);
+				ModuleConfig = new ConfigNodeWrapper(node);
 			}
-			_module_save = ConfigNodeWrapper.SaveConfigNode(ModuleSave);
-		}
-		public override void OnAfterDeserialize() 
-		{ 
-			base.OnAfterDeserialize();
-			ModuleSave = ConfigNodeWrapper.RestoreConfigNode(_module_save); 
+			base.OnBeforeSerialize();
 		}
 
 		#region Tanks

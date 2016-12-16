@@ -36,7 +36,7 @@ namespace AtHangar
 			if(pc.construct == null) yield break;
 			Utils.LockEditor(scLock);
 			for(int i = 0; i < 3; i++) yield return null;
-			pc.UpdateMetric(Storage.ComputeHull);
+			pc.UpdateMetric(Storage.HasSpaceMesh);
 			try_store_vessel(pc);
 			pc.UnloadConstruct();
 			Utils.LockEditor(scLock, false);
@@ -212,6 +212,8 @@ namespace AtHangar
 			{ vessels_window.ClearSelection(); vessels_window.UnlockControls(); }
 		}
 		#endregion
+
+		public override string ToString() { return HangarName; }
 
 		#if DEBUG
 		void OnRenderObject()

@@ -81,13 +81,15 @@ namespace AtHangar
 		public HangarState hangar_state { get; private set; }
 
 		public VesselResources HangarResources { get; private set; }
-		readonly public List<ResourceManifest> ResourceTransferList = new List<ResourceManifest>();
+		readonly public ResourceManifestList ResourceTransferList = new ResourceManifestList();
 
 		readonly Dictionary<Guid, MemoryTimer> probed_vessels = new Dictionary<Guid, MemoryTimer>();
 
 		[KSPField (isPersistant = true)] Vector3 momentumDelta = Vector3.zero;
 		[KSPField (isPersistant = true)] bool apply_force;
 		protected StoredVessel launched_vessel;
+
+		[SerializeField] public ConfigNodeWrapper ModuleConfig;
 
 		public bool IsControllable 
 		{ 
@@ -280,6 +282,8 @@ namespace AtHangar
 		public override void OnLoad(ConfigNode node)
 		{ 
 			base.OnLoad(node);
+			if(ModuleConfig == null)
+				ModuleConfig = new ConfigNodeWrapper(node);
 			if(node.HasValue("hangarState"))
 				hangar_state = (HangarState)Enum.Parse(typeof(HangarState), node.GetValue("hangarState"));
 		}
@@ -368,7 +372,7 @@ namespace AtHangar
 				return null;
 			}
 			//check vessel metrics
-			var sv = new StoredVessel(vsl, Storage.ComputeHull);
+			var sv = new StoredVessel(vsl, Storage.HasSpaceMesh);
 			return try_store_vessel(sv) ? sv : null;
 		}
 
@@ -443,11 +447,19 @@ namespace AtHangar
 
 		#region Restore
 		#region Positioning
-		protected abstract Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv);
-		protected virtual Transform get_spawn_transform(PackedVessel pv) { return Storage.GetSpawnTransform(pv); }
-		public virtual Transform GetSpawnTransform() { return Storage.AutoPositionVessel? null : Storage.GetSpawnTransform(); }
 		protected virtual void on_vessel_positioned() {}
 		protected virtual void before_vessel_launch() {}
+
+		protected abstract Vector3 get_spawn_offset(PackedVessel pv);
+		protected abstract Transform get_spawn_transform(PackedVessel pv);
+		public abstract Transform GetSpawnTransform();
+
+		protected virtual Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv)
+		{
+			return vessel.LandedOrSplashed ? 
+				launch_transform.TransformDirection(-sv.CoG + get_spawn_offset(sv)) : 
+				launch_transform.TransformDirection(sv.CoM - sv.CoG + get_spawn_offset(sv));
+		}
 
 		/// <summary>
 		/// Set vessel orbit, transform, coordinates.
@@ -652,54 +664,22 @@ namespace AtHangar
 		public void PrepareResourceList(PackedVessel sv)
 		{
 			if(ResourceTransferList.Count > 0) return;
-			foreach(var r in sv.resources.resourcesNames)
-			{
-				if(HangarResources.ResourceCapacity(r) <= 0) continue;
-				var rm = new ResourceManifest();
-				rm.name          = r;
-				rm.amount        = sv.resources.ResourceAmount(r);
-				rm.capacity      = sv.resources.ResourceCapacity(r);
-				rm.offset        = rm.amount;
-				rm.host_amount   = HangarResources.ResourceAmount(r);
-				rm.host_capacity = HangarResources.ResourceCapacity(r);
-				rm.pool          = rm.host_amount + rm.offset;
-				rm.minAmount     = Math.Max(0, rm.pool-rm.host_capacity);
-				rm.maxAmount     = Math.Min(rm.pool, rm.capacity);
-				ResourceTransferList.Add(rm);
-			}
+			ResourceTransferList.NewTransfer(HangarResources, sv.resources);
 		}
 
 		public void UpdateResourceList()
 		{
 			update_resources();
-			foreach(ResourceManifest rm in ResourceTransferList)
-			{
-				rm.host_amount = HangarResources.ResourceAmount(rm.name);
-				rm.pool        = rm.host_amount + rm.offset;
-				rm.minAmount   = Math.Max(0, rm.pool-rm.host_capacity);
-				rm.maxAmount   = Math.Min(rm.pool, rm.capacity);
-			}
+			ResourceTransferList.UpdateHostInfo(HangarResources);
 		}
 
 		public void TransferResources(PackedVessel sv)
 		{
 			if(ResourceTransferList.Count == 0) return;
-			foreach(var r in ResourceTransferList)
-			{
-				//transfer resource between hangar and protovessel
-				var a = HangarResources.TransferResource(r.name, r.offset-r.amount);
-				a = r.amount-r.offset + a;
-				var b = sv.resources.TransferResource(r.name, a);
-				HangarResources.TransferResource(r.name, b);
-				//update masses
-				PartResourceDefinition res_def = PartResourceLibrary.Instance.GetDefinition(r.name);
-				if(res_def.density <= 0) continue;
-				float dM = (float)a*res_def.density;
-				float dC = (float)a*res_def.unitCost;
-				sv.mass += dM; sv.cost += dC;
-				Storage.UpdateParams();
-			}
-			ResourceTransferList.Clear();
+			double dM, dC;
+			ResourceTransferList.TransferResources(HangarResources, sv.resources, out dM, out dC);
+			sv.mass += (float)dM; sv.cost += (float)dC;
+			Storage.UpdateParams();
 		}
 		#endregion
 

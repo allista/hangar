@@ -11,12 +11,13 @@ using AT_Utils;
 
 namespace AtHangar
 {
-	public class HangarPassage : ControllableModuleBase, ISerializationCallbackReceiver
+	public class HangarPassage : ControllableModuleBase
 	{
 		[KSPField] public bool HideInfo;
 
+		[SerializeField] public ConfigNodeWrapper ModuleConfig;
+
 		public readonly Dictionary<string, PassageNode> Nodes = new Dictionary<string, PassageNode>();
-		public ConfigNode ModuleConfig;
 		public bool Ready { get; protected set; }
 
 		#region Setup
@@ -37,15 +38,9 @@ namespace AtHangar
 		{
 			base.OnLoad(node);
 			//only save config for the first time
-			if(ModuleConfig == null) ModuleConfig = node;
+			if(ModuleConfig == null) 
+				ModuleConfig = new ConfigNodeWrapper(node);
 		}
-
-		//workaround for ConfigNode non-serialization
-		public byte[] _module_config;
-		public virtual void OnBeforeSerialize()
-		{ _module_config = ConfigNodeWrapper.SaveConfigNode(ModuleConfig); }
-		public virtual void OnAfterDeserialize() 
-		{ ModuleConfig = ConfigNodeWrapper.RestoreConfigNode(_module_config); }
 
 		public override void OnStart(StartState state)
 		{
@@ -62,7 +57,7 @@ namespace AtHangar
 			Nodes.Clear();
 			if(ModuleConfig == null) 
 			{ this.Log("ModuleConfig is null. THIS SHOULD NEVER HAPPEN!"); return; }
-			foreach(ConfigNode n in ModuleConfig.GetNodes(PassageNode.NODE_NAME))
+			foreach(ConfigNode n in ModuleConfig.ToConfigNode().GetNodes(PassageNode.NODE_NAME))
 			{
 				var pn = new PassageNode(part);
 				pn.Load(n);
@@ -134,6 +129,27 @@ namespace AtHangar
 		#endregion
 	}
 
+
+	public class PartPassages : ConfigNodeObject
+	{
+		public readonly Dictionary<string, PassageNode> Nodes = new Dictionary<string, PassageNode>();
+
+		protected Part part;
+
+
+
+		public override void Load(ConfigNode node)
+		{
+			base.Load(node);
+			Nodes.Clear();
+			foreach(ConfigNode n in node.GetNodes(PassageNode.NODE_NAME))
+			{
+				var pn = new PassageNode(part);
+				pn.Load(n);
+				Nodes.Add(pn.NodeID, pn);
+			}
+		}
+	}
 
 	public class PassageNode : ConfigNodeObject
 	{
