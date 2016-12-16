@@ -57,13 +57,11 @@
     <Compile Include="Utils\HangarGUI.cs" />
     <Compile Include="GUI\CrewTransferWindow.cs" />
     <Compile Include="GUI\HangarWindow.cs" />
-    <Compile Include="GUI\ResourceTransferWindow.cs" />
     <Compile Include="GUI\Toolbar.cs" />
     <Compile Include="GUI\VesselTransferWindow.cs" />
     <Compile Include="AuxModules\GroundAnchor.cs" />
     <Compile Include="AuxModules\ProceduralAdapter.cs" />
     <Compile Include="AuxModules\TruncatedCone.cs" />
-    <Compile Include="ResourceTransfer.cs" />
     <Compile Include="HangarContract.cs" />
     <Compile Include="LimitedHangarStorage.cs" />
     <Compile Include="HangarFairings.cs" />
