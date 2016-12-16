@@ -19,10 +19,10 @@ namespace AtHangar
 		[KSPField(isPersistant = true)] public string original_part_name = string.Empty;
 		[KSPField(isPersistant = true)] public string debris_transform_name = string.Empty;
 		[KSPField(isPersistant = true)] public float  saved_cost, saved_mass = -1f;
-		[KSPField(isPersistant = true)] public float  size = -1f, aspect = -1f;
+		[KSPField(isPersistant = true)] public Vector3 local_scale = Vector3.one;
 		[KSPField(isPersistant = true)] public Quaternion local_rotation = Quaternion.identity;
 
-		public Transform model;
+		public Transform actual_object;
 
 		#region IPart*Modifiers
 		public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation sit) { return saved_cost-defaultCost; }
@@ -34,7 +34,7 @@ namespace AtHangar
 
 		public override void OnStart(StartState state)
 		{
-			if(model == null &&	!string.IsNullOrEmpty(original_part_name) && !string.IsNullOrEmpty(debris_transform_name))
+			if(actual_object == null &&	!string.IsNullOrEmpty(original_part_name) && !string.IsNullOrEmpty(debris_transform_name))
 			{
 				var info = PartLoader.getPartInfoByName(original_part_name);
 				if(info == null) 
@@ -42,19 +42,19 @@ namespace AtHangar
 					this.Log("WARNING: {} part was not found in the database!", original_part_name);
 					return;
 				}
-				model = info.partPrefab.FindModelTransform(debris_transform_name);
-				if(model == null) 
+				actual_object = info.partPrefab.FindModelTransform(debris_transform_name);
+				if(actual_object == null) 
 				{ 
 					this.Log("WARNING: {} part does not have {} transform!", original_part_name, debris_transform_name);
 					return;
 				}
-				model = Instantiate(model.gameObject).transform;
-				var base_model = part.transform.Find("model");
-				model.parent = base_model;
-				model.localPosition = Vector3.zero;
-				model.localRotation = local_rotation;
-				model.parent.localScale = Scale.ScaleVector(base_model.localScale, size, aspect);
-				model.parent.hasChanged = true;
+				var debris_part_model = part.transform.Find("model");
+				actual_object = Instantiate(actual_object.gameObject).transform;
+				actual_object.parent = debris_part_model;
+				actual_object.localPosition = Vector3.zero;
+				actual_object.localRotation = local_rotation;
+				debris_part_model.localScale = local_scale;
+				debris_part_model.hasChanged = true;
 				part.transform.hasChanged = true;
 			}
 			StartCoroutine(update_drag_cubes());
@@ -71,7 +71,7 @@ namespace AtHangar
 			part.DragCubes.ForceUpdate(true, true, true);
 		}
 
-		public static Part SetupOnTransform(Vessel original_vessel, Part original_part, 
+		public static Part SetupOnTransform(Part original_part, 
 		                                    Transform debris_transform, 
 		                                    float density, float cost, double lifetime)
 		{
@@ -83,13 +83,14 @@ namespace AtHangar
 			part.transform.position = debris_transform.position;
 			part.transform.rotation = original_part.transform.rotation;
 			//copy the model and resize it
-			var model = Instantiate(debris_transform.gameObject).transform;
-			var base_model = part.transform.Find("model");
-			model.parent = base_model;
-			model.localPosition = Vector3.zero;
-			model.rotation = debris_transform.rotation;
-			var resizer = original_part.Modules.GetModule<AnisotropicPartResizer>();
-			if(resizer != null) model.parent.localScale = resizer.scale.ScaleVector(base_model.localScale);
+			var debris_object = Instantiate(debris_transform.gameObject).transform;
+			var debris_part_model = part.transform.Find("model");
+			var orig_part_model = original_part.transform.Find("model");
+			debris_object.parent = debris_part_model;
+			debris_object.localPosition = Vector3.zero;
+			debris_object.rotation = debris_transform.rotation;
+			debris_part_model.localScale = Vector3.Scale(debris_part_model.localScale, orig_part_model.localScale);
+			debris_part_model.hasChanged = true;
 			part.transform.hasChanged = true;
 			//initialize the part
 			part.gameObject.SetActive(true);
@@ -105,18 +106,13 @@ namespace AtHangar
 				Utils.Log("WARNING: {} part does not have Debris module!", DEBRIS_PART);
 				Destroy(part.gameObject); return null; 
 			}
-			debris.model = model;
+			debris.actual_object = debris_object;
 			debris.saved_cost = cost;
 			debris.saved_mass = part.Rigidbody.mass;
 			debris.original_part_name = original_part.partInfo.name;
 			debris.debris_transform_name = debris_transform.name;
-			debris.local_rotation = model.localRotation;
-			if(resizer != null)
-			{
-				var scale = resizer.scale;
-				debris.size = scale;
-				debris.aspect = scale.aspect;
-			}
+			debris.local_rotation = debris_object.localRotation;
+			debris.local_scale = debris_object.parent.localScale;
 			debris_transform.gameObject.SetActive(false);
 			//initialize the vessel
 			var vessel = part.gameObject.AddComponent<Vessel>();

@@ -269,7 +269,7 @@ namespace AtHangar
 			debris_mass = 0;
 			foreach(var f in fairings)
 			{
-				var d = Debris.SetupOnTransform(vessel, part, f, FairingsDensity, FairingsCost, DebrisLifetime);
+				var d = Debris.SetupOnTransform(part, f, FairingsDensity, FairingsCost, DebrisLifetime);
 				var force = f.TransformDirection(JettisonDirection) * JettisonForce * 0.5f;
 				var pos = d.Rigidbody.worldCenterOfMass;
 				d.SetDetectCollisions(false);
