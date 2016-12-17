@@ -16,6 +16,7 @@
 /**/obj/**
 /**/cache/**
 /**/bin/**
+/Assets/**/Materials/*__*.mat
 *~
 *.swp
 *.blend1
