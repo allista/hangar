@@ -89,7 +89,7 @@ namespace AtHangar
 		[KSPField (isPersistant = true)] bool apply_force;
 		protected StoredVessel launched_vessel;
 
-		[SerializeField] public ConfigNodeWrapper ModuleConfig;
+		[SerializeField] public ConfigNode ModuleConfig;
 
 		public bool IsControllable 
 		{ 
@@ -283,7 +283,7 @@ namespace AtHangar
 		{ 
 			base.OnLoad(node);
 			if(ModuleConfig == null)
-				ModuleConfig = new ConfigNodeWrapper(node);
+				ModuleConfig = node;
 			if(node.HasValue("hangarState"))
 				hangar_state = (HangarState)Enum.Parse(typeof(HangarState), node.GetValue("hangarState"));
 		}

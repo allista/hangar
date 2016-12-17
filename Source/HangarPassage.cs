@@ -14,8 +14,7 @@ namespace AtHangar
 	public class HangarPassage : ControllableModuleBase
 	{
 		[KSPField] public bool HideInfo;
-
-		[SerializeField] public ConfigNodeWrapper ModuleConfig;
+		[SerializeField] public ConfigNode ModuleConfig;
 
 		public readonly Dictionary<string, PassageNode> Nodes = new Dictionary<string, PassageNode>();
 		public bool Ready { get; protected set; }
@@ -39,7 +38,7 @@ namespace AtHangar
 			base.OnLoad(node);
 			//only save config for the first time
 			if(ModuleConfig == null) 
-				ModuleConfig = new ConfigNodeWrapper(node);
+				ModuleConfig = node;
 		}
 
 		public override void OnStart(StartState state)
@@ -57,7 +56,7 @@ namespace AtHangar
 			Nodes.Clear();
 			if(ModuleConfig == null) 
 			{ this.Log("ModuleConfig is null. THIS SHOULD NEVER HAPPEN!"); return; }
-			foreach(ConfigNode n in ModuleConfig.ToConfigNode().GetNodes(PassageNode.NODE_NAME))
+			foreach(ConfigNode n in ModuleConfig.GetNodes(PassageNode.NODE_NAME))
 			{
 				var pn = new PassageNode(part);
 				pn.Load(n);
