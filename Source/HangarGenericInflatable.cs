@@ -31,8 +31,6 @@ namespace AtHangar
 
 	public class GasCompressor : ConfigNodeObject
 	{
-		new public const string NODE_NAME = "COMPRESSOR";
-
 		[Persistent] public float ConversionRate  = -1;
 		[Persistent] public float ConsumptionRate = -1;
 		public float OutputFraction { get; private set; }
@@ -50,6 +48,7 @@ namespace AtHangar
 			if(!part.vessel.mainBody.atmosphere) return 0;
 			var pressure = part.vessel.mainBody.GetPressure(part.vessel.altitude);
 			if(pressure < 1e-6) return 0;
+			pressure /= Math.Max(part.vessel.mainBody.atmospherePressureSeaLevel, 101.325);
 			socket.RequestTransfer(ConsumptionRate*TimeWarp.fixedDeltaTime);
 			if(!socket.TransferResource()) return 0 ;
 			OutputFraction = socket.Ratio;
@@ -80,7 +79,9 @@ namespace AtHangar
 		readonly List<AnimatedNode> animated_nodes = new List<AnimatedNode>();
 
 		//compressor
-		[KSPField] public GasCompressor Compressor = new GasCompressor();
+		[KSPField] 
+		[SerializeField]
+		public GasCompressor Compressor = new GasCompressor();
 		bool has_compressed_gas { get { return CompressedGas >= InflatableVolume; } }
 		public FXGroup fxSndCompressor;
 		bool play_compressor;
@@ -278,7 +279,7 @@ namespace AtHangar
 			while(true)
 			{
 				//update GUI
-				CompressedGasDisplay = string.Format("{0:P1}", CompressedGas/InflatableVolume);
+				CompressedGasDisplay = string.Format("{0:P1}", Mathf.Min(CompressedGas/InflatableVolume, 1));
 				//update sounds
 				if(fxSndCompressor.audio != null)
 				{
