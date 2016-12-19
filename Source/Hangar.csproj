@@ -57,7 +57,6 @@
     <Compile Include="Utils\HangarGUI.cs" />
     <Compile Include="GUI\CrewTransferWindow.cs" />
     <Compile Include="GUI\HangarWindow.cs" />
-    <Compile Include="GUI\Toolbar.cs" />
     <Compile Include="GUI\VesselTransferWindow.cs" />
     <Compile Include="AuxModules\GroundAnchor.cs" />
     <Compile Include="AuxModules\ProceduralAdapter.cs" />
@@ -71,6 +70,7 @@
     <Compile Include="AsteroidHangars\SingleUseGrappleNode.cs" />
     <Compile Include="Debris.cs" />
     <Compile Include="HangarSpaceManager.cs" />
+    <Compile Include="GUI\HangarToolbarManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

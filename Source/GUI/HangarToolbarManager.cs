@@ -11,7 +11,7 @@ using AT_Utils;
 
 namespace AtHangar {
 	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
-	public class HangarToolbar : MonoBehaviour
+	public class HangarToolbarManager : MonoBehaviour
 	{
 		const string ICON = "Hangar/Icons/icon_button";
 		static Texture2D icon;
@@ -58,6 +58,9 @@ namespace AtHangar {
 					null, null, null, null,
 					ApplicationLauncher.AppScenes.SPH|ApplicationLauncher.AppScenes.VAB|ApplicationLauncher.AppScenes.FLIGHT,
 					icon);
+				if(HangarWindow.window_enabled)
+					HangarButton.SetTrue(false);
+				else HangarButton.SetFalse(false);
 			}
 		}
 
