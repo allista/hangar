@@ -186,6 +186,9 @@ namespace AtHangar
 		void onVesselChange(Vessel vsl)
 		{
 			vessel = null;
+			hangars.Clear();
+			vessels.Clear();
+			vessel_metric.Clear();
 			if(vsl.isEVA) return;
 			vessel = vsl;
 			update_lists();
@@ -193,7 +196,7 @@ namespace AtHangar
 		}
 
 		void onVesselWasModified(Vessel vsl)
-		{ if(vessel == vsl) update_lists(); }
+		{ if(vsl != null && vessel == vsl) update_lists(); }
 
 		public void Update() 
 		{ 
@@ -477,7 +480,7 @@ namespace AtHangar
 		protected override bool can_draw() { return !vessel_metric.Empty; }
 		protected override void draw_gui()
 		{
-			if(hangars.Count > 0 && !vessel.packed && selected_hangar.IsControllable && !selected_hangar.NoGUI)
+			if(vessel != null && !vessel.packed && hangars.Count > 0 && selected_hangar.IsControllable && !selected_hangar.NoGUI)
 			{
 				//controls
 				LockControls();
