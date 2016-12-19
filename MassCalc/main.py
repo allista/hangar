@@ -147,6 +147,15 @@ if __name__ == '__main__':
                               ],
                      add_mass=0.04, #probe core
                      add_cost=300 + 300) #Light + probe core
+
+    small = part('SmallVTOLHangar',
+                 [volume(72.55, 'hull', C=1, D=0.02,
+                         S=surface(660.26, 0.004, aluminium),
+                         V=[volume(25.56, 'machinery', C=1550, M=3.0,
+                                   V=[battery(E=4000)])]),
+                  ],
+                 add_mass=0.04,  # probe core
+                 add_cost=100 + 300)  # Light + probe core
     
     #inflatables
     inflatable1 = part('InflatableHangar1',
