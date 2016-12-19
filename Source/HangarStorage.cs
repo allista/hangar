@@ -19,6 +19,9 @@ namespace AtHangar
 		#region callbacks
 		public delegate void StoredVesselHandler(StoredVessel sv);
 		public delegate void PackedConstructHandler(PackedConstruct pc);
+		public delegate bool PackedVesselConstraint(PackedVessel pv);
+
+		public PackedVesselConstraint FitConstraint = delegate { return true; };
 
 		public StoredVesselHandler OnVesselStored = delegate {};
 		public PackedConstructHandler OnConstructStored = delegate {};
@@ -127,9 +130,21 @@ namespace AtHangar
 			SpawnManager.UpdateMetric();
 		}
 
+		bool VesselFits(PackedVessel pv)
+		{
+			if(!SpawnManager.VesselFits(pv)) return false;
+			var constraints = FitConstraint.GetInvocationList();
+			for(int i = 0, len = constraints.Length; i < len; i++)
+			{
+				var cons = constraints[i] as PackedVesselConstraint;
+				if(cons != null && !cons(pv)) return false;
+			}
+			return true;
+		}
+
 		void try_repack_construct(PackedConstruct pc)
 		{ 
-			if(!SpawnManager.VesselFits(pc) || !packed_constructs.TryAdd(pc))
+			if(!VesselFits(pc) || !packed_constructs.TryAdd(pc))
 			{
 				unfit_constructs.Add(pc);
 				OnConstructRemoved(pc);
@@ -138,7 +153,7 @@ namespace AtHangar
 
 		void try_pack_unfit_construct(PackedConstruct pc)
 		{ 
-			if(SpawnManager.VesselFits(pc) && packed_constructs.TryAdd(pc))
+			if(VesselFits(pc) && packed_constructs.TryAdd(pc))
 			{
 				unfit_constructs.Remove(pc);
 				OnConstructStored(pc);
@@ -217,6 +232,7 @@ namespace AtHangar
 		public int UnfitCount { get { return unfit_constructs.Count; } }
 		public List<PackedConstruct> UnfitConstucts { get { return unfit_constructs.ToList(); } }
 		public void RemoveUnfit(PackedConstruct pc) { unfit_constructs.Remove(pc); }
+		public void AddUnfit(PackedConstruct pc) { unfit_constructs.Add(pc); }
 
 		public void UpdateParams()
 		{
@@ -317,12 +333,21 @@ namespace AtHangar
 			return false;
 		}
 
+		public virtual bool TryAddUnfit(PackedVessel v)
+		{
+			if(HighLogic.LoadedSceneIsEditor) return false;
+			var pc = v as PackedConstruct;
+			if(pc == null) return false;
+			unfit_constructs.Add(pc); 
+			return true;
+		}
+
 		public virtual bool TryStoreVessel(PackedVessel v)
 		{
 			bool stored = false;
 			var pc = v as PackedConstruct;
 			var sv = v as StoredVessel;
-			if(SpawnManager.VesselFits(v))
+			if(VesselFits(v))
 			{
 				if(pc != null) 
 				{
