@@ -236,21 +236,24 @@ namespace AtHangar
 				Utils.GLVec(launched_vessel.vessel.transform.position, part.Rigidbody.velocity, Color.red);
 				Utils.GLVec(launched_vessel.vessel.transform.position, launched_vessel.dV, Color.cyan);
 			}
-//			if(selected_window[EditorWindows.EditContent] && Storage != null)
-//			{
-//				PackedVessel vsl = null;
-//				if(Storage.ConstructsCount > 0) vsl = Storage.GetConstructs()[0];
-//				else if(Storage.UnfitCount > 0) vsl = Storage.UnfitConstucts[0];
-//				if(vsl != null)
-//				{
-//					var metric = vsl.metric;
-//					var hull = metric.hull;
-//					Utils.DrawPoint(Vector3.zero, Storage.spawn_transform, Color.red);
-//					if(hull != null) Utils.GLDrawHull(hull, get_spawn_transform(vsl), metric.center-Storage.GetSpawnOffset(vsl), Color.green, false);
-//				}
+			if(selected_window[EditorWindows.EditContent] && Storage != null)
+			{
+				PackedVessel vsl = null;
+				if(Storage.ConstructsCount > 0) vsl = Storage.GetConstructs()[0];
+				else if(Storage.UnfitCount > 0) vsl = Storage.UnfitConstucts[0];
+				if(vsl != null)
+				{
+					var metric = vsl.metric;
+					var hull = metric.hull;
+					var spawn_transform = get_spawn_transform(vsl);
+					var spawn_point = metric.center-get_spawn_offset(vsl);
+					Utils.GLDrawPoint(Vector3.zero, spawn_transform, Color.red);
+					Utils.GLVec(spawn_transform.position, spawn_point, Color.magenta);
+					if(hull != null) Utils.GLDrawHull(hull, spawn_transform, Color.green, spawn_point, false);
+				}
 //				if(Storage.hangar_space != null)
 //					Utils.GLDrawMesh(Storage.hangar_space.sharedMesh, Storage.hangar_space.transform, c:Color.cyan, filled:false);
-//			}
+			}
 //			foreach(var dc in part.DragCubes.Cubes)
 //				Utils.GLDrawBounds(new Bounds(dc.Center, dc.Size), part.transform, Color.yellow*dc.Weight);
 		}
