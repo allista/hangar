@@ -248,7 +248,6 @@ namespace AtHangar
 					var spawn_transform = get_spawn_transform(vsl);
 					var spawn_point = metric.center-get_spawn_offset(vsl);
 					Utils.GLDrawPoint(Vector3.zero, spawn_transform, Color.red);
-					Utils.GLVec(spawn_transform.position, spawn_point, Color.magenta);
 					if(hull != null) Utils.GLDrawHull(hull, spawn_transform, Color.green, spawn_point, false);
 				}
 //				if(Storage.hangar_space != null)
