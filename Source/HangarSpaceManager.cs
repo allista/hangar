@@ -124,7 +124,7 @@ namespace AtHangar
 				spawn_transform = part.FindModelTransform(SpawnTransform);
 			if(spawn_transform == null)
 			{
-				var launch_empty = new GameObject();
+				var launch_empty = new GameObject("auto_spawn_empty");
 				var parent = Space != null? Space.transform : part.transform;
 				launch_empty.transform.SetParent(parent);
 				spawn_transform = launch_empty.transform;
