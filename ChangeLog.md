@@ -5,7 +5,21 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ###ChangeLog
 
-* **v3.1.0**
+* **v3.2.0**
+    * Compiled against KSP-1.2.2
+    * Added **Small VTOL Hangar** that acts like a small launchpad: you land on its roof and store the vessel; you launch a vessel and it appears on the roof, then you take off.
+    * MobileSmelter consumes much more power now; comparable with IRSU.
+    * Moved spawn transforms of the ground hangars to the bottom-back corner.
+    * For modders:
+    	* Added HangarEntrance module that acts like HangarGateway, but for the same part that has HangarStorage. This way you can have several different size entrances into the same big HangarStorage.
+    	* Renamed HangarGateway.DockingSpace to .HangarSpace
+    	* Added test hangars to ForModders folder (available on GitHub).
+    * Bugfixes:
+        * Fixed NRE in HangarWindow when "piloting" EVAs.
+        * Fixed toolbar button bug.
+        * Fixed debris resize problem.
+
+* v3.1.0
     * Made it possible **vessel launching while rotating and moving, even with acceleration**.
     * Implemented **temporary storage of resources in Hangar Fairings**. This makes the Fairings **compatible with Life Support** mods.
     * Added placeholders for internals to all crewed parts. Added "back" stack nodes to ground hangars so that they could be hanged below a skycrane-like carrier.
