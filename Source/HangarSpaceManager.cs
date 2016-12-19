@@ -28,8 +28,8 @@ namespace AtHangar
 			if(!string.IsNullOrEmpty(HangarSpace))
 			{
 				Space = part.FindModelComponent<MeshFilter>(HangarSpace);
-				SpaceMetric = new Metric(part, HangarSpace);
 				if(Space != null) flip_mesh_if_needed(Space);
+				UpdateMetric();
 			}
 		}
 
@@ -38,7 +38,7 @@ namespace AtHangar
 		public void UpdateMetric()
 		{
 			if(!string.IsNullOrEmpty(HangarSpace))
-				SpaceMetric = new Metric(part, HangarSpace);
+				SpaceMetric = new Metric(part, HangarSpace, true);
 		}
 
 		public HangarSpaceManager(Part part)
@@ -129,6 +129,7 @@ namespace AtHangar
 				launch_empty.transform.SetParent(parent);
 				spawn_transform = launch_empty.transform;
 			}
+//			Utils.Log("VesselSpawnManager.Load: {}\nMetric: {}", this, SpaceMetric);//debug
 		}
 
 		public Vector3 GetSpawnOffset(PackedVessel v)
