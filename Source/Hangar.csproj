@@ -40,7 +40,6 @@
     </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CrewTransfer.cs" />
     <Compile Include="VesselsPack.cs" />
     <Compile Include="VesselWrappers.cs" />
     <Compile Include="HangarGenericInflatable.cs" />
@@ -55,7 +54,6 @@
     <Compile Include="AsteroidHangars\HangarStorageDynamic.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\HangarGUI.cs" />
-    <Compile Include="GUI\CrewTransferWindow.cs" />
     <Compile Include="GUI\HangarWindow.cs" />
     <Compile Include="GUI\VesselTransferWindow.cs" />
     <Compile Include="AuxModules\GroundAnchor.cs" />
