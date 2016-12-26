@@ -14,7 +14,7 @@ using AT_Utils;
 
 namespace AtHangar
 {
-	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
+	[KSPAddon(KSPAddon.Startup.FlightAndEditor, false)]
 	public class HangarWindow : AddonWindowBase<HangarWindow>
 	{
 		//update parameters
@@ -54,8 +54,11 @@ namespace AtHangar
 		void update_vessel_metric(Vessel vsl = null)
 		{
 			vessel_metric.Clear();
-			if(vsl != null && vsl.loaded) 
-				vessel_metric = new Metric(vsl);
+			if(vsl != null) 
+			{
+				if(vsl.loaded && vsl.parts.Count > 0)
+					vessel_metric = new Metric(vsl);
+			}
 			else if(EditorLogic.fetch != null)
 			{
 				var parts = new List<Part>();
