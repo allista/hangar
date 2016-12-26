@@ -51,7 +51,7 @@ namespace AtHangar
 		public override string GetInfo() 
 		{
 			prepare_model();
-			part.mass = SurfaceArea*AreaDensity;
+			part.mass = mass;
 			return base.GetInfo();
 		}
 
@@ -150,6 +150,9 @@ namespace AtHangar
 			body_collider.sharedMesh = collider_mesh;
 			body_collider.enabled = false;
 			body_collider.enabled = true;
+			//calculate mass and cost changes
+			mass = body.current.Area*AreaDensity;
+			cost = AreaCost*body.current.Area;
 		}
 
 		void update_nodes()
@@ -214,13 +217,8 @@ namespace AtHangar
 		{
 			if(body_mesh == null || body_collider == null) return;
 			update_body();
-			//calculate surface area, mass and cost changes
-			mass = body.current.Area*AreaDensity;
-			cost = AreaCost*body.current.Area;
-			//update attach nodes
 			update_nodes();
-			//save new values
-			old_size   = size;
+			old_size = size;
 			old_aspect = aspect;
 			Utils.UpdateEditorGUI();
 			just_loaded = false;
