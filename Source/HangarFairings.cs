@@ -35,7 +35,7 @@ namespace AtHangar
 
 		[KSPField(isPersistant = true)]
 		public bool jettisoned, launch_in_progress;
-		List<Part> debris;
+		List<Part> debris = new List<Part>();
 
 		class PayloadRes : ConfigNodeObject
 		{ 
@@ -71,10 +71,10 @@ namespace AtHangar
 		}
 
 		#region IPart*Modifiers
-		public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation situation) { return jettisoned ? debris_cost : 0f; }
+		public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation situation) { return jettisoned ? -debris_cost : 0f; }
 		public virtual ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 
-		public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return jettisoned ? debris_mass : 0f; }
+		public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return jettisoned ? -debris_mass : 0f; }
 		public override ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 		#endregion
 
@@ -266,7 +266,6 @@ namespace AtHangar
 			launched_vessel.crew.AddRange(part.protoModuleCrew);
 			debris = new List<Part>();
 			debris_cost = 0;
-			debris_mass = 0;
 			foreach(var f in fairings)
 			{
 				var d = Debris.SetupOnTransform(part, f, FairingsDensity, FairingsCost, DebrisLifetime);
@@ -275,24 +274,23 @@ namespace AtHangar
 				d.SetDetectCollisions(false);
 				d.Rigidbody.AddForceAtPosition(force, pos, ForceMode.Force);
 				part.Rigidbody.AddForceAtPosition(-force, pos, ForceMode.Force);
-				debris_mass += d.Rigidbody.mass;
 				debris_cost += FairingsCost;
 				debris.Add(d);
 			}
-			part.CoMOffset = BaseCoMOffset;
 			part.DragCubes.SetCubeWeight("Fairing ", 0f);
 			part.DragCubes.SetCubeWeight("Clean ", 1f);
 			part.DragCubes.ForceUpdate(true, true, true);
 			//this event is catched by FlightLogger
+			StartCoroutine(CallbackUtil.DelayedCallback(5, update_debris_after_launch));
 			GameEvents.onStageSeparation.Fire(new EventReport(FlightEvents.STAGESEPARATION, part, null, null, StageManager.CurrentStage, string.Empty));
 			if(FX != null) FX.Burst();
 			jettisoned = true;
 		}
 
-		protected override void disable_hangar_collisions(bool disable = true)
+		void update_debris_after_launch()
 		{
-			base.disable_hangar_collisions(disable);
-			if(debris != null) debris.ForEach(p => p.SetDetectCollisions(!disable));
+			debris_mass = 0;
+			debris.ForEach(p => { debris_mass += p.Rigidbody.mass; p.SetDetectCollisions(true); });
 		}
 
 		protected override void on_vessel_positioned()
@@ -345,8 +343,12 @@ namespace AtHangar
 			//if jettisoning has failed, deactivate the part
 			//otherwise on resume the part is activated automatically
 			if(Storage.VesselsCount > 0) part.deactivate();
-			else { while(launched_vessel != null) yield return null; }
-			update_crew_capacity(0);
+			else 
+			{ 
+				while(launched_vessel != null) yield return null;
+				part.CoMOffset = BaseCoMOffset;
+				update_crew_capacity(0);
+			}
 			launch_in_progress = false;
 		}
 
