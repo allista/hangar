@@ -123,6 +123,30 @@ namespace AtHangar
 			name   = proto_vessel.vesselName;
 			crew   = proto_vessel.GetVesselCrew();
 			resources = new VesselResources(proto_vessel);
+
+		}
+
+		public void RemoveProtoVesselCrew()
+		{
+			if(proto_vessel.GetVesselCrew().Count == 0) return;
+			foreach(var p in proto_vessel.protoPartSnapshots)
+			{
+				while(p.protoModuleCrew.Count > 0)
+				{
+					var c = p.GetCrew(0);
+					proto_vessel.RemoveCrew(c);
+					p.RemoveCrew(0);
+				}
+			}
+		}
+
+		public void ExtractProtoVesselCrew(Vessel dest_vessel, Part start_from_part = null)
+		{
+			if(vessel == null) return;
+			if(start_from_part != null) 
+				CrewTransferBatch.moveCrew(vessel, start_from_part, false);
+			CrewTransferBatch.moveCrew(vessel, dest_vessel, false);
+			proto_vessel = vessel.BackupVessel();
 		}
 
 		public override void Save(ConfigNode node)
