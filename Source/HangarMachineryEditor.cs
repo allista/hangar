@@ -36,7 +36,7 @@ namespace AtHangar
 			if(pc.construct == null) yield break;
 			Utils.LockEditor(scLock);
 			for(int i = 0; i < 3; i++) yield return null;
-			pc.UpdateMetric(Storage.HasSpaceMesh);
+			pc.UpdateMetric();
 			try_store_vessel(pc);
 			pc.UnloadConstruct();
 			Utils.LockEditor(scLock, false);

@@ -30,13 +30,13 @@ namespace AtHangar
 			return true;
 		}
 
-		public void UpdateMetric(bool compute_hull = false)
+		public void UpdateMetric()
 		{ 
 			if(construct == null) return;
 			if(construct.parts.Count == 0) return;
 			//sort parts from root to leavs
 			var parts = construct.parts[0].AllConnectedParts();
-			metric = new Metric(parts, compute_hull); 
+			metric = new Metric(parts, true); 
 		}
 
 		public void UnloadConstruct() 
@@ -115,10 +115,10 @@ namespace AtHangar
 
 		public StoredVessel() {}
 
-		public StoredVessel(Vessel vsl, bool compute_hull=false)
+		public StoredVessel(Vessel vsl)
 		{
 			proto_vessel = vsl.BackupVessel();
-			metric = new Metric(vsl, compute_hull);
+			metric = new Metric(vsl, true);
 			id     = proto_vessel.vesselID;
 			name   = proto_vessel.vesselName;
 			crew   = proto_vessel.GetVesselCrew();

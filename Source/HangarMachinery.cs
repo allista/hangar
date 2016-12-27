@@ -372,7 +372,7 @@ namespace AtHangar
 				return null;
 			}
 			//check vessel metrics
-			var sv = new StoredVessel(vsl, Storage.HasSpaceMesh);
+			var sv = new StoredVessel(vsl);
 			return try_store_vessel(sv) ? sv : null;
 		}
 
@@ -413,15 +413,13 @@ namespace AtHangar
 			momentumDelta = (vsl.orbit.vel-vessel.orbit.vel).xzy*stored_vessel.mass;
 			apply_force = true;
 			//get vessel crew on board
-			var crew = new List<ProtoCrewMember>(stored_vessel.crew);
-			crew = CrewTransfer.delCrew(vsl, crew, false);
-			//first of, add crew to the hangar if there's a place
-			CrewTransfer.addCrew(part, crew);
-			//then add to other vessel parts if needed
-			CrewTransfer.addCrew(vessel, crew);
+			stored_vessel.ExtractProtoVesselCrew(vessel, part);
 			//switch to hangar vessel before storing
 			if(FlightGlobals.ActiveVessel.id == vsl.id)
 				FlightGlobals.ForceSetActiveVessel(vessel);
+			//respawn crew portraits
+			if(stored_vessel.crew.Count > 0)
+				CrewTransferBatch.respawnCrew(vessel);
 			//destroy vessel
 			vsl.Die();
 			Utils.Message("\"{0}\" has been docked inside the hangar", stored_vessel.name);
@@ -511,7 +509,7 @@ namespace AtHangar
 			if(launched_vessel == null ||
 			   launched_vessel.vessel != vsl) return;
 			FlightGlobals.ForceSetActiveVessel(vsl);
-			vsl.SpawnCrew();
+			CrewTransferBatch.moveCrew(vessel, vsl, launched_vessel.crew);
 		}
 
 		void onVesselLoaded(Vessel vsl)
@@ -523,6 +521,7 @@ namespace AtHangar
 
 		IEnumerator<YieldInstruction> push_and_spin_launched_vessel()
 		{
+			FlightCameraOverride.UpdateDurationSeconds(1);
 			var vsl = launched_vessel.vessel;
 			var startP = part.Rigidbody.worldCenterOfMass;
 			var startAV = part.Rigidbody.angularVelocity;
@@ -549,7 +548,9 @@ namespace AtHangar
 						p.Rigidbody.AddForce(Vector3.Cross(av, p.Rigidbody.worldCenterOfMass-CoM), ForceMode.VelocityChange);
 					}
 				}
+				FlightCameraOverride.UpdateDurationSeconds(1);
 				yield return null;
+				FlightCameraOverride.UpdateDurationSeconds(1);
 				yield return null;
 //				this.Log("{}: launched av: {}", i, vsl.transform.rotation*vsl.angularVelocity);//debug
 			}
@@ -572,12 +573,14 @@ namespace AtHangar
 
 		IEnumerator<YieldInstruction> launch_vessel(StoredVessel sv)
 		{
+			FlightCameraOverride.HoldCameraStillForSeconds(vessel.transform, 1);
 			launched_vessel = sv;
-			disable_hangar_collisions();
-			before_vessel_launch();	
+			yield return null;
+			before_vessel_launch();
 			TransferResources(launched_vessel);
-			CrewTransfer.addCrew(launched_vessel.proto_vessel, 
-			                     CrewTransfer.delCrew(vessel, launched_vessel.crew));
+			//this is for compatibility with the old crew transfer framework
+			//to prevent crew duplication
+			launched_vessel.RemoveProtoVesselCrew();
 			yield return null;
 			yield return new WaitForFixedUpdate();
 			position_launched_vessel();
@@ -585,6 +588,7 @@ namespace AtHangar
 			var vsl = launched_vessel.vessel;
 			var vsl_colliders = new List<Collider>();
 			if(vsl == null) goto end;
+			FlightCameraOverride.HoldCameraStillForSeconds(vsl.transform, 1, true);
 			if(vessel.LandedOrSplashed)
 			{
 				var pos = vsl.transform.position;
@@ -592,7 +596,9 @@ namespace AtHangar
 				while(vsl.packed) 
 				{
 					if(vsl == null) goto end;
+					vsl.situation = Vessel.Situations.PRELAUNCH;
 					disable_vsl_colliders(vsl, vsl_colliders);
+					FlightCameraOverride.UpdateDurationSeconds(1);
 					try 
 					{ 
 						var spawn_transform = get_spawn_transform(launched_vessel);
@@ -601,7 +607,6 @@ namespace AtHangar
 						rot = spawn_transform.rotation;
 						vsl.SetPosition(pos);
 						vsl.SetRotation(rot);
-
 					}
 					catch(Exception e) 
 					{ this.Log("Exception occured during launched_vessel.vessel.SetPosition/Rotation call. Ignoring it:\n{}", e.StackTrace); }
@@ -611,6 +616,7 @@ namespace AtHangar
 				if(vsl == null) goto end;
 				vsl.SetPosition(pos);
 				vsl.SetRotation(rot);
+				vsl.situation = vessel.situation;
 			}
 			else
 			{
@@ -620,6 +626,7 @@ namespace AtHangar
 				{
 					if(vsl == null) goto end;
 					disable_vsl_colliders(vsl, vsl_colliders);
+					FlightCameraOverride.UpdateDurationSeconds(1);
 					try 
 					{ 
 						var spawn_transform = get_spawn_transform(launched_vessel);
@@ -632,7 +639,6 @@ namespace AtHangar
 					yield return new WaitForFixedUpdate();
 				}
 			}
-			disable_hangar_collisions(false);
 			enable_vsl_colliders(vsl_colliders);
 			apply_force = true;
 			yield return StartCoroutine(push_and_spin_launched_vessel());
@@ -640,7 +646,7 @@ namespace AtHangar
 			{
 				launched_vessel = null;
 				enable_vsl_colliders(vsl_colliders);
-				disable_hangar_collisions(false);
+				GameEvents.onShowUI.Fire();
 				yield break;
 			}
 		}
@@ -656,8 +662,6 @@ namespace AtHangar
 		}
 		public virtual ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 		#endregion
-
-		protected virtual void disable_hangar_collisions(bool disable=true) {}
 		#endregion
 
 		#region Resources
@@ -729,6 +733,7 @@ namespace AtHangar
 			//switch hangar state
 			Deactivate();
 			//restore vessel
+			GameEvents.onHideUI.Fire();
 			Utils.SaveGame(stored_vessel.name+"-before_launch", false);
 			StartCoroutine(launch_vessel(stored_vessel));
 		}

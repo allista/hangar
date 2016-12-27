@@ -382,13 +382,16 @@ namespace AtHangar
 			if(!HighLogic.LoadedSceneIsFlight || packed_constructs.Count == 0) 
 			{ Ready = true;	yield break; }
 			//wait for storage.vessel to be loaded
-			while(!vessel.PartsStarted()) yield return WaitWithPhysics.ForNextUpdate();
+			while(!vessel.loaded || !vessel.PartsStarted()) yield return WaitWithPhysics.ForNextUpdate();
 			while(!enabled) yield return WaitWithPhysics.ForNextUpdate();
 			//wait for other storages to be ready
 			while(!other_storages_ready) yield return WaitWithPhysics.ForNextUpdate();
+			//fix the FlightCamera to prevent it from jumping to and from converted vessels
+			FlightCameraOverride.HoldCameraStillForSeconds(vessel.transform, 1);
 			//create vessels from constructs and store them
 			foreach(PackedConstruct pc in packed_constructs.Values)
 			{
+				FlightCameraOverride.UpdateDurationSeconds(1);
 				packed_constructs.Remove(pc);
 				if(!pc.LoadConstruct()) 
 				{
@@ -403,14 +406,17 @@ namespace AtHangar
 					vessel.landedAt, pc.flag, 
 					FlightDriver.FlightStateCache,
 					new VesselCrewManifest());
+				StageManager.BeginFlight();
 				var vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1];
 				FlightGlobals.ForceSetActiveVessel(vsl);
-				StageManager.BeginFlight();
 				//wait for vsl to be launched
 				while(!vsl.isActiveVessel || !vsl.PartsStarted()) 
+				{
+					FlightCameraOverride.UpdateDurationSeconds(1);
 					yield return WaitWithPhysics.ForNextUpdate();
+				}
 				//store vessel
-				stored_vessels.ForceAdd(new StoredVessel(vsl, HasSpaceMesh));
+				stored_vessels.ForceAdd(new StoredVessel(vsl));
 				//switch to storage vessel before storing
 				FlightGlobals.ForceSetActiveVessel(vessel);
 				//destroy vessel
@@ -421,9 +427,13 @@ namespace AtHangar
 			//switch back to this.vessel and signal to other waiting storages
 			FlightGlobals.ForceSetActiveVessel(vessel);
 			while(!vessel.isActiveVessel || !vessel.PartsStarted()) 
+			{
+				FlightCameraOverride.UpdateDurationSeconds(1);
 				yield return WaitWithPhysics.ForNextUpdate();
+			}
 			Ready = true;
 			//save game afterwards
+			FlightCameraOverride.UpdateDurationSeconds(1);
 			yield return WaitWithPhysics.ForSeconds(0.5f);
 			FlightDriver.PostInitState = new GameBackup(HighLogic.CurrentGame.Updated());
 			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
