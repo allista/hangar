@@ -6,7 +6,7 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 ###ChangeLog
 
 * **v3.2.1**
-    * **KIS inventory** is now transfered with the kerbals when a ship is stored in a hangar or launched from it.
+    * **KIS inventory** is now transferred with the kerbals when a ship is stored in a hangar or launched from it.
     * Implemented **seamless camera transfer** from a hangar to a launched vessel.
     * Fixed mass calculation of stored vessel (issue #177).
     * Made Asteroid Gateway into a Probe Control Point.
