@@ -5,7 +5,14 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ###ChangeLog
 
-* **v3.2.0**
+* **v3.2.1**
+    * **KIS inventory** is now transfered with the kerbals when a ship is stored in a hangar or launched from it.
+    * Implemented **seamless camera transfer** from a hangar to a launched vessel.
+    * Fixed mass calculation of stored vessel (issue #177).
+    * Made Asteroid Gateway into a Probe Control Point.
+    * Corrected density of Fairings panels.
+
+* v3.2.0
     * Compiled against KSP-1.2.2
     * Added **Small VTOL Hangar** that acts like a small launchpad: you land on its roof and store the vessel; you launch a vessel and it appears on the roof, then you take off.
     * MobileSmelter consumes much more power now; comparable with IRSU.
