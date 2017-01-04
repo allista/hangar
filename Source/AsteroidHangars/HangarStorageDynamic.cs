@@ -57,8 +57,9 @@ namespace AtHangar
 				tank_manager = new SwitchableTankManager(this);
 				if(ModuleConfig == null) 
 				{ this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
-				var node = ModuleConfig.GetNode(SwitchableTankManager.NODE_NAME);
-				if(node != null) tank_manager.Load(node);
+				var node = ModuleConfig.GetNode(SwitchableTankManager.NODE_NAME) ?? 
+					new ConfigNode(SwitchableTankManager.NODE_NAME);
+				tank_manager.Load(node);
 				Events["EditTanks"].active = true;
 				if(BuildTanksFrom != string.Empty) 
 				{
