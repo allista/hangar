@@ -204,7 +204,7 @@ namespace AtHangar
 			_stored_vessels = TotalVesselsDocked.ToString();
 			_stored_mass    = Utils.formatMass(VesselsMass);
 			_stored_cost    = VesselsCost.ToString();
-			_used_volume    = UsedVolumeFrac.ToString("P1");
+			_used_volume    = Volume > 0? UsedVolumeFrac.ToString("P1") : "N/A";
 			on_set_part_params();
 			part.UpdatePartMenu();
 		}
