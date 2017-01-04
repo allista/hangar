@@ -22,6 +22,8 @@ namespace AtHangar
 		[KSPField] public string BuildTanksFrom  = "Metals";
 		[KSPField] public float  ResourcePerArea = 0.6f; // 200U/m^3, 1m^2*3mm
 
+		[SerializeField] public ConfigNode ModuleSave;
+
 		SwitchableTankManager tank_manager;
 		ResourcePump metal_pump;
 		float max_side;
@@ -55,9 +57,9 @@ namespace AtHangar
 			if(HasTankManager)
 			{
 				tank_manager = new SwitchableTankManager(this);
-				if(ModuleConfig == null) 
+				if(ModuleSave == null) 
 				{ this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
-				var node = ModuleConfig.GetNode(SwitchableTankManager.NODE_NAME) ?? 
+				var node = ModuleSave.GetNode(SwitchableTankManager.NODE_NAME) ??
 					new ConfigNode(SwitchableTankManager.NODE_NAME);
 				tank_manager.Load(node);
 				Events["EditTanks"].active = true;
@@ -110,14 +112,19 @@ namespace AtHangar
 				tank_manager.SaveInto(node);
 		}
 
-		//workaround for ConfigNode non-serialization
+		public override void OnLoad(ConfigNode node)
+		{
+			base.OnLoad(node);
+			ModuleSave = node;
+		}
+
 		public override void OnBeforeSerialize()
 		{
 			if(tank_manager != null)
 			{
 				var node = new ConfigNode();
 				Save(node);
-				ModuleConfig = node;
+				ModuleSave = node;
 			}
 			base.OnBeforeSerialize();
 		}
