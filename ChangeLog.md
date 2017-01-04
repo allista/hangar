@@ -5,6 +5,9 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ###ChangeLog
 
+* **v3.2.1.2**
+	* Fixed initialization of Configurable Containers within asteroids from a savegame.
+
 * **v3.2.1.1**
     * Fixed Asteroid Drill.
     * Fixed Asteroid Hatch. Moved it to the Coupling category.
