@@ -29,6 +29,7 @@
         { "name": "EditorExtensions" },
         { "name": "ThrottleControlledAvionics" },
         { "name": "ConfigurableContainers" },
+        { "name": "GroundConstruction" },
         { "name": "KSP-AVC" }
     ],
 
