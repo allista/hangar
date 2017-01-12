@@ -38,15 +38,6 @@ namespace AtHangar {
 			}
 		}
 
-//		void OnDestroy() 
-//		{ 
-//			GameEvents.onGUIApplicationLauncherReady.Remove(OnGUIAppLauncherReady);
-//			if(HangarButton != null)
-//				ApplicationLauncher.Instance.RemoveModApplication(HangarButton);
-//			if(HangarToolbarButton != null)
-//				HangarToolbarButton.Destroy(); 
-//		}
-
 		void OnGUIAppLauncherReady()
 		{
 			if(ApplicationLauncher.Ready &&
@@ -58,13 +49,13 @@ namespace AtHangar {
 					null, null, null, null,
 					ApplicationLauncher.AppScenes.SPH|ApplicationLauncher.AppScenes.VAB|ApplicationLauncher.AppScenes.FLIGHT,
 					icon);
-				if(HangarWindow.InstanceEnabled) 
-					HangarButton.SetTrue(false);
-				else HangarButton.SetFalse(false);
 			}
 		}
 
-		void onAppLaunchToggleOn() { HangarWindow.ShowInstance(true); }
-		void onAppLaunchToggleOff() { HangarWindow.ShowInstance(false); }
+		void onAppLaunchToggleOn() 
+		{ HangarWindow.ToggleWithButton(HangarButton); }
+
+		void onAppLaunchToggleOff() 
+		{ HangarWindow.ToggleWithButton(HangarButton); }
 	}
 }
