@@ -133,13 +133,18 @@ namespace AtHangar
 		void change_size(float volume)
 		{
 			var V = Mathf.Clamp(Volume+volume, 0, TotalVolume);
-			var a = Mathf.Pow(WidthToLengthRatio*V, 1f/3);
-			var b = V/(a*a);
-			if(volume < 0 && b > StorageSize.y)
-			{ b = StorageSize.y; a = Mathf.Sqrt(V/b); }
-			else if(volume > 0 && b > max_side)
-			{ b = max_side; a = Mathf.Sqrt(V/b); }
-			StorageSize = new Vector3(a, b, a);
+			if(V.Equals(0))
+				StorageSize = Vector3.zero;
+			else
+			{
+				var a = Mathf.Pow(WidthToLengthRatio*V, 1f/3);
+				var b = V/(a*a);
+				if(volume < 0 && b > StorageSize.y)
+				{ b = StorageSize.y; a = Mathf.Sqrt(V/b); }
+				else if(volume > 0 && b > max_side)
+				{ b = max_side; a = Mathf.Sqrt(V/b); }
+				StorageSize = new Vector3(a, b, a);
+			}
 			Setup();
 		}
 
@@ -170,7 +175,7 @@ namespace AtHangar
 				}
 				else
 				{
-					if(metal_pump.PartialTransfer)
+					if(metal_pump.PartialTransfer && metal_pump.Ratio < 0.999f)
 						Utils.Message("Not enough storage for {0}. The excess was disposed of.", BuildTanksFrom);
 					TanksMass += metal*metal_pump.Resource.density;
 				}
@@ -187,7 +192,7 @@ namespace AtHangar
 			{
 				if(!volume.Equals(_add_tank_last_volume))
 					_add_tank_metal = metal_for_hull(volume) + metal_for_tank(tank_name, volume);
-				GUILayout.Label(Utils.formatUnits(_add_tank_metal), GUILayout.Width(50));
+				GUILayout.Label(Utils.formatUnits(_add_tank_metal), GUILayout.Width(60));
 			}
 			_add_tank_last_volume = volume;
 			var max = GUILayout.Button("Max");
