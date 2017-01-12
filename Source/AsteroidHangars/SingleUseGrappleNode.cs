@@ -16,12 +16,23 @@ namespace AtHangar
 		[KSPField(isPersistant = true, guiName = "Fixed", guiActive = true)] 
 		public bool Fixed;
 
-		readonly SimpleDialog warning = new SimpleDialog();
+		SimpleDialog warning;
 		bool try_fix;
 
 		[KSPField] public string AnimatorID = "_none_";
 		MultiAnimator animator;
 		ModuleAnimateGeneric deployAnimator;
+
+		public override void OnAwake()
+		{
+			base.OnAwake();
+			warning = gameObject.AddComponent<SimpleDialog>();
+		}
+
+		void OnDestroy()
+		{
+			Destroy(warning);
+		}
 
 		public override void OnStart(StartState st)
 		{

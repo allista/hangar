@@ -71,7 +71,7 @@ namespace AtHangar
 
 		//GUI
 		[KSPField (guiName = "Compressed Gas", guiActive=true)] public string CompressedGasDisplay;
-		readonly SimpleDialog warning = new SimpleDialog();
+		SimpleDialog warning;
 		bool try_deflate;
 
 		//modules and nodes
@@ -125,6 +125,7 @@ namespace AtHangar
 		public override void OnAwake()
 		{
 			base.OnAwake();
+			warning = gameObject.AddComponent<SimpleDialog>();
 			GameEvents.onGamePause.Add(onPause);
 			GameEvents.onGameUnpause.Add(onUnpause);
 			GameEvents.onEditorShipModified.Add(UpdateGUI);
@@ -133,6 +134,7 @@ namespace AtHangar
 		public override void OnDestroy()
 		{
 			base.OnDestroy();
+			Destroy(warning);
 			GameEvents.onGamePause.Remove(onPause);
 			GameEvents.onGameUnpause.Remove(onUnpause);
 			GameEvents.onEditorShipModified.Remove(UpdateGUI);
@@ -305,7 +307,7 @@ namespace AtHangar
 			while(try_deflate)
 			{
 				if(has_compressed_gas || Recompressable) { deflate(); break; }
-				else if(!Compressor.Valid)
+				if(!Compressor.Valid)
 					warning.Show("This part is not equipped with a compressor. " +
 								 "You will not be able to inflate it again. " +
 								 "Are you sure you want to deflate the hangar?");

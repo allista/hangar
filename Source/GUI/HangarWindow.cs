@@ -26,10 +26,10 @@ namespace AtHangar
 		static HighlightState highlight_hangar, highlight_storage;
 		enum TransferWindows { None, SelectCrew, TransferResources, RelocateVessels }
 		static Multiplexer<TransferWindows> selected_window = new Multiplexer<TransferWindows>();
-		static Rect InfoWindow;
 		static bool draw_directions;
 
 		//this vessel
+		[ConfigOption] Rect InfoWindow;
 		static Vessel vessel;
 		Metric vessel_metric;
 
@@ -37,18 +37,18 @@ namespace AtHangar
 		string hangars_tooltip = string.Empty;
 		readonly List<HangarMachinery> hangars = new List<HangarMachinery>();
 		HangarMachinery selected_hangar;
-		uint hangar_id;
+		[ConfigOption] uint hangar_id;
 
 		//vessels
 		string vessels_tooltip = string.Empty;
 		List<StoredVessel> vessels = new List<StoredVessel>();
 		StoredVessel selected_vessel;
-		Guid vessel_id;
+		[ConfigOption] Guid vessel_id;
 
 		//vessel relocation, crew and resources transfers
-		readonly CrewTransferWindow crew_window = new CrewTransferWindow();
-		readonly ResourceTransferWindow resources_window = new ResourceTransferWindow();
-		readonly VesselTransferWindow vessels_window = new VesselTransferWindow();
+		CrewTransferWindow crew_window;
+		ResourceTransferWindow resources_window;
+		VesselTransferWindow vessels_window;
 
 		//vessel volume 
 		void update_vessel_metric(Vessel vsl = null)
@@ -137,7 +137,7 @@ namespace AtHangar
 				//first highlight storage
 				if(selected_hangar.ConnectedStorage.Count > 1)
 				{
-					if(do_show && highlight_storage == HighlightState.Enable) 
+					if(doShow && highlight_storage == HighlightState.Enable) 
 						foreach(var s in selected_hangar.ConnectedStorage)
 						{
 							s.part.SetHighlightColor(HangarGUI.UsedVolumeColor(s));
@@ -151,7 +151,7 @@ namespace AtHangar
 					}
 				}
 				//then highlight hangar
-				if(do_show && highlight_hangar == HighlightState.Enable) 
+				if(doShow && highlight_hangar == HighlightState.Enable) 
 				{
 					selected_hangar.part.SetHighlightColor(XKCDColors.LightSeaGreen);
 					selected_hangar.part.SetHighlight(true, false);
@@ -205,7 +205,7 @@ namespace AtHangar
 		{ 
 			if(Time.time > next_update)
 			{
-				if(do_show)
+				if(doShow)
 				{
 					update_vessel_metric(vessel);
 					build_hangar_list(vessel);
@@ -221,28 +221,6 @@ namespace AtHangar
 				}
 				next_update += update_interval;
 			}
-		}
-
-		public override void LoadConfig()
-		{
-			base.LoadConfig();
-			InfoWindow = GetConfigValue<Rect>("InfoWindow", InfoWindow);
-			hangar_id  = GetConfigValue<uint>("hangar_id",  default(uint));
-			vessel_id  = GetConfigValue<Guid>("vessel_id",  Guid.Empty);
-			vessels_window.LoadConfig();
-			resources_window.LoadConfig();
-			crew_window.LoadConfig();
-		}
-
-		public override void SaveConfig()
-		{
-			vessels_window.SaveConfig();
-			resources_window.SaveConfig();
-			crew_window.SaveConfig();
-			SetConfigValue("InfoWindow", InfoWindow);
-			SetConfigValue("hangar_id",  hangar_id);
-			SetConfigValue("vessel_id",  vessel_id);
-			base.SaveConfig();
 		}
 
 		#region GUI
@@ -323,7 +301,8 @@ namespace AtHangar
 		{
 			GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			if(GUILayout.Button("Close")) Show(false);
+			if(GUILayout.Button("Close"))
+				ShowInstance(false);
 			GUILayout.EndHorizontal();
 		}
 
@@ -388,7 +367,7 @@ namespace AtHangar
 			GUILayout.EndHorizontal();
 			Select_Hangar(selected_hangar);
 		}
-		public static void SelectHangar(HangarMachinery hangar) { instance.Select_Hangar(hangar); }
+		public static void SelectHangar(HangarMachinery hangar) { Instance.Select_Hangar(hangar); }
 
 		//Vessel selection list
 		void Select_Vessel(StoredVessel vsl)
@@ -406,7 +385,7 @@ namespace AtHangar
 			GUILayout.EndHorizontal();
 			Select_Vessel(selected_vessel);
 		}
-		public static void SelectVessel(StoredVessel vsl) { instance.Select_Vessel(vsl); }
+		public static void SelectVessel(StoredVessel vsl) { Instance.Select_Vessel(vsl); }
 
 		//vessel info GUI
 		void VesselInfo(int windowID)
@@ -440,7 +419,7 @@ namespace AtHangar
 				else draw_directions = false;
 			}
 			GUILayout.EndVertical();
-			TooltipsAndDragWindow(InfoWindow);
+			TooltipsAndDragWindow();
 		}
 
 		//hangar controls GUI
@@ -468,7 +447,7 @@ namespace AtHangar
 				LaunchButton();
 			}
 			CloseButton();
-			TooltipsAndDragWindow(WindowPos);
+			TooltipsAndDragWindow();
 		}
 		#endregion
 

@@ -135,6 +135,7 @@ namespace AtHangar
 		public override void OnAwake()
 		{
 			base.OnAwake();
+			vessels_window = gameObject.AddComponent<VesselTransferWindow>();
 			vessels_window.WindowPos = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
 			GameEvents.onVesselWasModified.Add(update_connected_storage);
 			GameEvents.onEditorShipModified.Add(update_connected_storage);
@@ -144,6 +145,7 @@ namespace AtHangar
 
 		public virtual void OnDestroy() 
 		{ 
+			Destroy(vessels_window);
 			GameEvents.onVesselWasModified.Remove(update_connected_storage);
 			GameEvents.onEditorShipModified.Remove(update_connected_storage);
 			GameEvents.onVesselGoOffRails.Remove(onVesselGoOffRails);

@@ -29,7 +29,7 @@ namespace AtHangar {
 				HangarToolbarButton.ToolTip     = "Hangar controls and info";
 				HangarToolbarButton.Visibility  = new GameScenesVisibility(GameScenes.FLIGHT,GameScenes.EDITOR);
 				HangarToolbarButton.Visible     = true;
-				HangarToolbarButton.OnClick    += e => HangarWindow.Toggle();
+				HangarToolbarButton.OnClick    += e => HangarWindow.ToggleInstance();
 			}
 			else 
 			{
@@ -58,13 +58,13 @@ namespace AtHangar {
 					null, null, null, null,
 					ApplicationLauncher.AppScenes.SPH|ApplicationLauncher.AppScenes.VAB|ApplicationLauncher.AppScenes.FLIGHT,
 					icon);
-				if(HangarWindow.window_enabled)
+				if(HangarWindow.InstanceEnabled) 
 					HangarButton.SetTrue(false);
 				else HangarButton.SetFalse(false);
 			}
 		}
 
-		void onAppLaunchToggleOn() { HangarWindow.Show(true); }
-		void onAppLaunchToggleOff() { HangarWindow.Show(false); }
+		void onAppLaunchToggleOn() { HangarWindow.ShowInstance(true); }
+		void onAppLaunchToggleOff() { HangarWindow.ShowInstance(false); }
 	}
 }

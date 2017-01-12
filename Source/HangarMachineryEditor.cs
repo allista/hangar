@@ -26,7 +26,7 @@ namespace AtHangar
 		Rect eWindowPos  = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
 		Rect neWindowPos = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 50);
 
-		readonly VesselTransferWindow vessels_window = new VesselTransferWindow();
+		VesselTransferWindow vessels_window;
 		CraftBrowserDialog vessel_selector;
 		EditorFacility facility;
 

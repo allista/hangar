@@ -11,7 +11,7 @@ using AT_Utils;
 
 namespace AtHangar
 {
-	class VesselTransferWindow: GUIWindowBase
+	class VesselTransferWindow : GUIWindowBase
 	{
 		const int scroll_width  = 350;
 		const int scroll_height = 100;
@@ -107,7 +107,7 @@ namespace AtHangar
 			GUILayout.FlexibleSpace();
 			Closed = GUILayout.Button("Close", GUILayout.ExpandWidth(true));
 			GUILayout.EndVertical();
-			TooltipsAndDragWindow(WindowPos);
+			TooltipsAndDragWindow();
 		}
 
 		public void Draw(List<HangarStorage> storages, int windowId)
