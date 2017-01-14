@@ -202,7 +202,7 @@ namespace AtHangar
 
 		protected virtual void update_connected_storage(Vessel vsl)
 		{ 
-			if(vsl != part.vessel || !all_passages_ready) return;
+			if(vsl == null || vsl != part.vessel || !all_passages_ready) return;
 			update_connected_storage(); 
 		}
 

@@ -40,7 +40,7 @@ namespace AtHangar
 
 		void update_state(Vessel vsl)
 		{ 
-			if(vsl != vessel || !all_passages_ready) return;
+			if(vsl == null || vsl != vessel || !all_passages_ready) return;
 			update_state(); 
 		}
 
