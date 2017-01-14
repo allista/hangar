@@ -5,10 +5,17 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ###ChangeLog
 
-* **v3.2.1.2**
+* **v3.2.1.3**
+    * **Dropped RemoteTech and AntennaRange patches.**
+    * Added GroundWorkshop module with 100% efficiency to the Big Ground Hangar (for Ground Construction mod).
+    * **Fixed the NaN storage size** in DynamicStorage caused by creation of 100%V tank.
+    * **Fixed hangar switching** for ships with multiple hangars.
+    * Fixed several NREs.
+
+* v3.2.1.2
 	* Fixed initialization of Configurable Containers within asteroids from a savegame.
 
-* **v3.2.1.1**
+* v3.2.1.1
     * Fixed Asteroid Drill.
     * Fixed Asteroid Hatch. Moved it to the Coupling category.
     * Rebalanced Asteroid Drill:
