@@ -341,7 +341,7 @@ namespace AtHangar
 			GUILayout.EndVertical();
 		}
 
-		void Select_Hangar(HangarMachinery hangar)
+		void select_hangar(HangarMachinery hangar)
 		{
 			if(selected_hangar != hangar)
 			{
@@ -361,16 +361,16 @@ namespace AtHangar
 		{
 			if(hangars.Count < 2) return;
 			GUILayout.BeginHorizontal();
-			selected_hangar = Utils.LeftRightChooser(selected_hangar, hangars, hangars_tooltip);
+			var next_hangar = Utils.LeftRightChooser(selected_hangar, hangars, hangars_tooltip);
 			if(GUILayout.Toggle(highlight_hangar == HighlightState.Enable, "Highlight Hangar")) highlight_hangar = HighlightState.Enable;
 			else if(highlight_hangar == HighlightState.Enable) highlight_hangar = HighlightState.Disable;
 			GUILayout.EndHorizontal();
-			Select_Hangar(selected_hangar);
+			select_hangar(next_hangar);
 		}
-		public static void SelectHangar(HangarMachinery hangar) { Instance.Select_Hangar(hangar); }
+		public static void SelectHangar(HangarMachinery hangar) { Instance.select_hangar(hangar); }
 
 		//Vessel selection list
-		void Select_Vessel(StoredVessel vsl)
+		void select_vessel(StoredVessel vsl)
 		{
 			vessel_id = vsl.proto_vessel.vesselID;
 			if(vsl != selected_vessel) 
@@ -381,11 +381,11 @@ namespace AtHangar
 		void SelectVessel()
 		{
 			GUILayout.BeginHorizontal();
-			selected_vessel = Utils.LeftRightChooser(selected_vessel, vessels, vessels_tooltip);
+			var next_vessel = Utils.LeftRightChooser(selected_vessel, vessels, vessels_tooltip);
 			GUILayout.EndHorizontal();
-			Select_Vessel(selected_vessel);
+			select_vessel(next_vessel);
 		}
-		public static void SelectVessel(StoredVessel vsl) { Instance.Select_Vessel(vsl); }
+		public static void SelectVessel(StoredVessel vsl) { Instance.select_vessel(vsl); }
 
 		//vessel info GUI
 		void VesselInfo(int windowID)
