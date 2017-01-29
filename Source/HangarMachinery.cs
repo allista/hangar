@@ -135,8 +135,7 @@ namespace AtHangar
 		public override void OnAwake()
 		{
 			base.OnAwake();
-			vessels_window = gameObject.AddComponent<VesselTransferWindow>();
-			vessels_window.WindowPos = new Rect(Screen.width/2-windows_width/2, 100, windows_width, 100);
+			hangar_name_editor = gameObject.AddComponent<SimpleTextEntry>();
 			GameEvents.onVesselWasModified.Add(update_connected_storage);
 			GameEvents.onEditorShipModified.Add(update_connected_storage);
 			GameEvents.onVesselGoOffRails.Add(onVesselGoOffRails);
@@ -145,7 +144,9 @@ namespace AtHangar
 
 		public virtual void OnDestroy() 
 		{ 
-			Destroy(vessels_window);
+			Destroy(hangar_name_editor);
+			if(vessels_window != null) Destroy(vessels_window);
+			if(subassembly_selector != null) Destroy(subassembly_selector);
 			GameEvents.onVesselWasModified.Remove(update_connected_storage);
 			GameEvents.onEditorShipModified.Remove(update_connected_storage);
 			GameEvents.onVesselGoOffRails.Remove(onVesselGoOffRails);
@@ -229,6 +230,9 @@ namespace AtHangar
 					var triggers = part.FindModelComponents<Collider>(Trigger);
 					foreach(var c in triggers) c.gameObject.layer = 21; //Part Triggers
 				}
+				//initialize subassembly selector and vessel transfer window
+				subassembly_selector = gameObject.AddComponent<SubassemblySelector>();
+				vessels_window = gameObject.AddComponent<VesselTransferWindow>();
 			}
 			//setup hangar name
 			if(HangarName == "_none_") HangarName = part.Title();

@@ -16,7 +16,7 @@ namespace AtHangar
 		[KSPField(isPersistant = true, guiName = "Fixed", guiActive = true)] 
 		public bool Fixed;
 
-		SimpleDialog warning;
+		SimpleWarning warning;
 		bool try_fix;
 
 		[KSPField] public string AnimatorID = "_none_";
@@ -26,7 +26,7 @@ namespace AtHangar
 		public override void OnAwake()
 		{
 			base.OnAwake();
-			warning = gameObject.AddComponent<SimpleDialog>();
+			warning = gameObject.AddComponent<SimpleWarning>();
 		}
 
 		void OnDestroy()
@@ -149,7 +149,7 @@ namespace AtHangar
 			Styles.Init();
 			while(try_fix)
 			{
-				warning.Show("This will fix the hatch permanently. " +
+				warning.Draw("This will fix the hatch permanently. " +
 					"You will not be able to decouple it ever again. " +
 					"Are you sure you want to continue?");
 				if(warning.Result == SimpleDialog.Answer.None) break;

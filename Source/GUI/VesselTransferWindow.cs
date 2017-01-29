@@ -16,7 +16,18 @@ namespace AtHangar
 		const int scroll_width  = 350;
 		const int scroll_height = 100;
 
-		public bool Closed { get; private set; }
+		public VesselTransferWindow()
+		{
+			width = 400;
+			height = 100;
+			WindowPos = new Rect(Screen.width/2-width/2, 100, width, 100);
+		}
+
+		public override void Awake()
+		{
+			base.Awake();
+			Show(false);
+		}
 
 		List<HangarStorage> storages;
 		HangarStorage lhs, rhs;
@@ -105,20 +116,24 @@ namespace AtHangar
 			GUILayout.EndVertical();
 			GUILayout.EndHorizontal();
 			GUILayout.FlexibleSpace();
-			Closed = GUILayout.Button("Close", GUILayout.ExpandWidth(true));
+			if(GUILayout.Button("Close", Styles.close_button, GUILayout.ExpandWidth(true))) Show(false);
 			GUILayout.EndVertical();
 			TooltipsAndDragWindow();
 		}
 
 		public void Draw(List<HangarStorage> storages, int windowId)
 		{
-			this.storages = storages;
-			LockControls();
-			WindowPos = GUILayout.Window(windowId, 
-			                             WindowPos, TransferWindow,
-			                             "Relocate Vessels",
-			                             GUILayout.Width(scroll_width*2),
-			                             GUILayout.Height(scroll_height*2));
+			if(doShow)
+			{
+				this.storages = storages;
+				LockControls();
+				WindowPos = GUILayout.Window(windowId, 
+				                             WindowPos, TransferWindow,
+				                             "Relocate Vessels",
+				                             GUILayout.Width(scroll_width*2),
+				                             GUILayout.Height(scroll_height*2));
+			}
+			else UnlockControls();
 		}
 		public void Draw(List<HangarStorage> storages) { Draw(storages, GetInstanceID()); }
 
@@ -143,6 +158,12 @@ namespace AtHangar
 			reset_highlight(rhs);
 			lhs = rhs = null; lhs_selected = null;
 			if(storages != null) storages.ForEach(reset_highlight);
+		}
+
+		public override void Show(bool show)
+		{
+			base.Show(show);
+			if(!show) ClearSelection();
 		}
 	}
 }

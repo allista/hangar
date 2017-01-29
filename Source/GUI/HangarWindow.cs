@@ -24,8 +24,6 @@ namespace AtHangar
 		enum HighlightState {  None, Enable, Disable }
 		//settings
 		static HighlightState highlight_hangar, highlight_storage;
-		enum TransferWindows { None, SelectCrew, TransferResources, RelocateVessels }
-		static Multiplexer<TransferWindows> selected_window = new Multiplexer<TransferWindows>();
 		static bool draw_directions;
 
 		//this vessel
@@ -167,7 +165,17 @@ namespace AtHangar
 		protected override void update_content()
 		{
 			base.update_content();
-			next_update = 0;
+			update_vessel_metric(vessel);
+			build_hangar_list(vessel);
+			highlight_parts();
+			if(selected_hangar != null)
+			{
+				//vessel list
+				if(vessels.Count != selected_hangar.VesselsDocked)
+					build_vessel_list(selected_hangar);
+				if(selected_vessel != null && resources_window.WindowEnabled)
+					selected_hangar.UpdateResourceList();
+			}
 		}
 
 		public override void Awake()
@@ -192,6 +200,7 @@ namespace AtHangar
 			hangars.Clear();
 			vessels.Clear();
 			vessel_metric.Clear();
+			subwindows.ForEach(sw => sw.Show(false));
 			if(vsl.isEVA) return;
 			vessel = vsl;
 			update_lists();
@@ -201,24 +210,12 @@ namespace AtHangar
 		void onVesselWasModified(Vessel vsl)
 		{ if(vsl != null && vessel == vsl) update_lists(); }
 
+
 		public void Update() 
 		{ 
 			if(Time.time > next_update)
 			{
-				if(doShow)
-				{
-					update_vessel_metric(vessel);
-					build_hangar_list(vessel);
-					highlight_parts();
-					if(selected_hangar != null)
-					{
-						//vessel list
-						if(vessels.Count != selected_hangar.VesselsDocked)
-							build_vessel_list(selected_hangar);
-						if(selected_vessel != null && selected_window[TransferWindows.TransferResources])
-							selected_hangar.UpdateResourceList();
-					}
-				}
+				if(window_enabled) update_content();
 				next_update += update_interval;
 			}
 		}
@@ -275,7 +272,7 @@ namespace AtHangar
 			   selected_vessel.CrewCapacity == 0 ||
 			   selected_hangar.vessel.GetCrewCount() == 0) return;
 			if(GUILayout.Button("Change Vessel Crew", GUILayout.ExpandWidth(true)))
-				selected_window.Toggle(TransferWindows.SelectCrew);
+				crew_window.Toggle();
 		}
 
 		void ResourcesTransferButton()
@@ -283,7 +280,7 @@ namespace AtHangar
 			if(selected_hangar.NoResourceTransfers ||
 			   selected_vessel == null) return;
 			if(GUILayout.Button("Transfer Resources", GUILayout.ExpandWidth(true)))
-				selected_window.Toggle(TransferWindows.TransferResources);
+				resources_window.Toggle();
 		}
 
 		void VesselsRelocationButton()
@@ -291,10 +288,7 @@ namespace AtHangar
 			if(selected_hangar == null) return;
 			if(!selected_hangar.CanRelocate) return;
 			if(GUILayout.Button("<< Relocate Vessels >>", Styles.yellow_button, GUILayout.ExpandWidth(true)))
-			{
-				selected_window.Toggle(TransferWindows.RelocateVessels);
-				if(!selected_window[TransferWindows.RelocateVessels]) vessels_window.ClearSelection();
-			}
+				vessels_window.Toggle();
 		}
 
 		static void CloseButton()
@@ -455,9 +449,6 @@ namespace AtHangar
 		{
 			base.UnlockControls();
 			Utils.LockIfMouseOver(LockName, InfoWindow, false);
-			crew_window.UnlockControls();
-			resources_window.UnlockControls();
-			vessels_window.UnlockControls();
 		}
 		protected override bool can_draw() { return !vessel_metric.Empty; }
 		protected override void draw_gui()
@@ -474,33 +465,21 @@ namespace AtHangar
 				                             GUILayout.Width(320),
 				                             GUILayout.Height(100)).clampToScreen();
 				//transfers
-				if(selected_vessel == null) selected_window.Off();
-				else if(selected_window[TransferWindows.SelectCrew])
+				if(selected_vessel != null)
+				{
+					//crew transfer
 					crew_window.Draw(selected_hangar.vessel.GetVesselCrew(), 
 					                 selected_vessel.crew, selected_vessel.CrewCapacity);
-				else if(selected_window[TransferWindows.TransferResources])
-				{
+					//resource transfer
 					selected_hangar.PrepareResourceList(selected_vessel);
 					resources_window.Draw(string.Format("Transfer between: \"{0}\" \"{1}\"", 
 					                                    selected_hangar.HangarName, selected_vessel.name), 
 					                      selected_hangar.ResourceTransferList);
 					if(resources_window.transferNow) 
 						selected_hangar.TransferResources(selected_vessel);
-					if(resources_window.Closed)
-					{
-						selected_window[TransferWindows.TransferResources] = false;
-						resources_window.UnlockControls();
-					}
-				}
-				else if(selected_window[TransferWindows.RelocateVessels])
-				{
+					//vessel transfer
 					vessels_window.Draw(selected_hangar.ConnectedStorage);
 					vessels_window.TransferVessel();
-					if(vessels_window.Closed)
-					{
-						vessels_window.ClearSelection();
-						selected_window[TransferWindows.RelocateVessels] = false;
-					}
 				}
 			}
 			else
