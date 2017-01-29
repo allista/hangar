@@ -57,6 +57,17 @@ namespace AtHangar
 
 		public PackedConstruct() {}
 
+		public PackedConstruct(ShipConstruct construct, string flag)
+		{
+			this.flag = flag;
+			this.construct = construct;
+			vessel_node = construct.SaveShip();
+			vessel_node.name = "VESSEL";
+			resources = new VesselResources(vessel_node);
+			name = construct.shipName;
+			id = Guid.NewGuid();
+		}
+
 		public PackedConstruct(string file, string flag)
 		{
 			this.flag = flag;
