@@ -69,6 +69,7 @@
     <Compile Include="Debris.cs" />
     <Compile Include="HangarSpaceManager.cs" />
     <Compile Include="GUI\HangarToolbarManager.cs" />
+    <Compile Include="GUI\SubassemblySelector.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
