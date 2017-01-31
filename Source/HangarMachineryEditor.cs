@@ -163,7 +163,9 @@ namespace AtHangar
 			//edit hangar
 			if(editing_content)
 			{
-				if(vessel_selector == null) 
+				if(vessel_selector == null && 
+				   (subassembly_selector == null || 
+				    !subassembly_selector.WindowEnabled))
 				{
 					Utils.LockIfMouseOver(eLock, eWindowPos);
 					eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,

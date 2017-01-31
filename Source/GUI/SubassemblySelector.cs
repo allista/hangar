@@ -22,6 +22,7 @@ namespace AtHangar
 		{
 			width = 400;
 			height = 200;
+			WindowPos = new Rect(Screen.width/2-width/2, 100, width, 100);
 		}
 
 		public override void Awake()
