@@ -65,11 +65,11 @@
     <Compile Include="Utils\HangarConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\HangarFilterManager.cs" />
-    <Compile Include="AsteroidHangars\SingleUseGrappleNode.cs" />
     <Compile Include="Debris.cs" />
     <Compile Include="HangarSpaceManager.cs" />
     <Compile Include="GUI\HangarToolbarManager.cs" />
     <Compile Include="GUI\SubassemblySelector.cs" />
+    <Compile Include="AsteroidHangars\SingleUseGrappleNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

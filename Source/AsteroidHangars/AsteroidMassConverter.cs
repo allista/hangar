@@ -93,7 +93,7 @@ namespace AtHangar
 				status = "Incompatible hatch";
 				return false;
 			}
-			if(grapple_node == null || !grapple_node.Fixed)
+			if(grapple_node == null || grapple_node.state != SingleUseGrappleNode.State.Fixed)
 			{
 				status = "Hatch is not fixed";
 				return false;
