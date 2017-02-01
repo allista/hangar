@@ -25,6 +25,7 @@
         <Command type="Custom" name="Run Gendarme" command="gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}" workingdir="${ProjectDir}" externalConsole="True" />
       </CustomCommands>
     </CustomCommands>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -38,6 +39,13 @@
         <Command type="AfterBuild" command="gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}" workingdir="${ProjectDir}" externalConsole="True" />
       </CustomCommands>
     </CustomCommands>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Nightbuild|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>..\GameData\Hangar\Plugins</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <DefineConstants>NIGHTBUILD</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="VesselsPack.cs" />
