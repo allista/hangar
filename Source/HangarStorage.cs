@@ -236,6 +236,7 @@ namespace AtHangar
 
 		public void UpdateParams()
 		{
+            packed_constructs.UpdateParams();
 			stored_vessels.UpdateParams();
 			set_part_params();
 		}

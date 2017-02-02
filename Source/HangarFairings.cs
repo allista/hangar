@@ -181,6 +181,7 @@ namespace AtHangar
 				}
 			}
 			payload.mass -= (float)res_mass;
+            Storage.UpdateParams();
 			return true;
 		}
 
@@ -212,6 +213,7 @@ namespace AtHangar
 			}
 			payload.mass += (float)res_mass;
 			payload_resources.Clear();
+            Storage.UpdateParams();
 			return true;
 		}
 
