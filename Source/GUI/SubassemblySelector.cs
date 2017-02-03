@@ -44,7 +44,9 @@ namespace AtHangar
 				var sub = ShipConstruction.LoadTemplate(files[i].FullName);
 				if(sub == null || sub.partCount == 0 || !sub.shipPartsUnlocked) continue;
 				var label = string.Format("<color=yellow><b>{0}</b></color>\n" +
-				                          "mass: {1:F1}t\tcost: {2:F1}f\tsize: {3}", 
+				                          "<color=silver>mass:</color> {1:F1}t " +
+                                          "<color=silver>cost:</color> {2:F0} " +
+                                          "<color=silver>size:</color> {3}", 
 				                          sub.shipName, sub.totalMass, sub.totalCost, 
 				                          Utils.formatDimensions(sub.GetShipSize()));
 				var button = string.IsNullOrEmpty(sub.shipDescription)? new GUIContent(label) : new GUIContent(label, sub.shipDescription);
