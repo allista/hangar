@@ -158,6 +158,7 @@ namespace AtHangar
 				CrewTransferBatch.moveCrew(vessel, start_from_part, false);
 			CrewTransferBatch.moveCrew(vessel, dest_vessel, false);
 			proto_vessel = vessel.BackupVessel();
+            resources = new VesselResources(proto_vessel);
 		}
 
 		public override void Save(ConfigNode node)
