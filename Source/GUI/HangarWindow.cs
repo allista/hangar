@@ -107,14 +107,14 @@ namespace AtHangar
 		{
 			//reset stat
 			vessels.Clear();
-			selected_vessel = null;
+            select_vessel(null);
 			//check hangar
 			if(hangar == null) return;
 			//build new list
 			vessels = hangar.GetVessels();
 			if(vessels.Count == 0) return ;
-			selected_vessel = vessels.Find(v => v.id == vessel_id);
-			if(selected_vessel == null) selected_vessel = vessels[0];
+            select_vessel(vessels.Find(v => v.id == vessel_id));
+            if(selected_vessel == null) select_vessel(vessels[0]);
 			var vessel_names = new List<string>();
 			for(int i = 0; i < vessels.Count; i++)
 				vessel_names.Add(string.Format("{0} {1}\n", i+1, vessels[i].name));
@@ -366,9 +366,20 @@ namespace AtHangar
 		//Vessel selection list
 		void select_vessel(StoredVessel vsl)
 		{
-			vessel_id = vsl.proto_vessel.vesselID;
-			if(vsl != selected_vessel) 
-				selected_hangar.ResourceTransferList.Clear();
+            if(vsl != null)
+            {
+                vessel_id = vsl.proto_vessel.vesselID;
+    			if(vsl != selected_vessel) 
+                {
+    				selected_hangar.ResourceTransferList.Clear();
+                    resources_window.TransferAction = () => selected_hangar.TransferResources(selected_vessel);
+                }
+            }
+            else
+            {
+                vessel_id = Guid.Empty;
+                resources_window.TransferAction = null;
+            }
 			selected_vessel = vsl;
 		}
 
@@ -475,8 +486,6 @@ namespace AtHangar
 					resources_window.Draw(string.Format("Transfer between: \"{0}\" \"{1}\"", 
 					                                    selected_hangar.HangarName, selected_vessel.name), 
 					                      selected_hangar.ResourceTransferList);
-					if(resources_window.transferNow) 
-						selected_hangar.TransferResources(selected_vessel);
 					//vessel transfer
 					vessels_window.Draw(selected_hangar.ConnectedStorage);
 					vessels_window.TransferVessel();
