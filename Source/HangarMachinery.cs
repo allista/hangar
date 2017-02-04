@@ -208,8 +208,10 @@ namespace AtHangar
 		}
 
 		void update_connected_storage(ShipConstruct ship)
-		{ if(!all_passages_ready) return;
-			update_connected_storage(); }
+		{ 
+            if(!all_passages_ready) return;
+			update_connected_storage(); 
+        }
 
 		IEnumerator<YieldInstruction> delayed_update_connected_storage()
 		{
@@ -426,6 +428,8 @@ namespace AtHangar
 			//respawn crew portraits
 			if(stored_vessel.crew.Count > 0)
 				CrewTransferBatch.respawnCrew(vessel);
+            //update display values
+            update_total_values();
 			//destroy vessel
 			vsl.Die();
 			Utils.Message("\"{0}\" has been docked inside the hangar", stored_vessel.name);
@@ -690,6 +694,7 @@ namespace AtHangar
 			ResourceTransferList.TransferResources(HangarResources, sv.resources, out dM, out dC);
 			sv.mass += (float)dM; sv.cost += (float)dC;
 			Storage.UpdateParams();
+            update_total_values();
 		}
 		#endregion
 
