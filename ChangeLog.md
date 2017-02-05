@@ -5,6 +5,15 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ###ChangeLog
 
+* **v3.3.0**
+    * Implemented **subassembly loading into hangars** in Editor.
+    * Converted both Asteroid Hatch and Structural Grapple to use the new SingleUseGrappleNode that **fixes the sliding-hatch problem**. Moved both to Coupling category.
+    * Moved Hatch Port Adapter to Coupling category.
+    * Fixed doubling mass by Hangar Fairings.
+    * Fixed the bug that prevented modification of StoredVessel resources.
+    * Fixed TotalStoredMass display.
+    * Fixed the issues with vessel transfer window.
+
 * **v3.2.1.3**
     * **Dropped RemoteTech and AntennaRange patches.**
     * Added GroundWorkshop module with 100% efficiency to the Big Ground Hangar (for Ground Construction mod).
