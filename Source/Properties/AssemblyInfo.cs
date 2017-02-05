@@ -20,11 +20,11 @@ using AT_Utils;
 
 
 #if NIGHTBUILD
-[assembly: AssemblyVersion("3.2.*")]
+[assembly: AssemblyVersion("3.3.*")]
 #else
-[assembly: AssemblyVersion("3.2.1.3")]
+[assembly: AssemblyVersion("3.3.0.0")]
 #endif
-[assembly: KSPAssembly("Hangar", 3, 2)]
+[assembly: KSPAssembly("Hangar", 3, 3)]
 
 // The following attributes are used to specify the signing key for the assembly, 
 // if desired. See the Mono documentation for more information about signing.
