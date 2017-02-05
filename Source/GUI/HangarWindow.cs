@@ -486,10 +486,10 @@ namespace AtHangar
 					resources_window.Draw(string.Format("Transfer between: \"{0}\" \"{1}\"", 
 					                                    selected_hangar.HangarName, selected_vessel.name), 
 					                      selected_hangar.ResourceTransferList);
-					//vessel transfer
-					vessels_window.Draw(selected_hangar.ConnectedStorage);
-					vessels_window.TransferVessel();
 				}
+                //vessel transfer
+                vessels_window.Draw(selected_hangar.ConnectedStorage);
+                vessels_window.TransferVessel();
 			}
 			else
 			{

@@ -18,8 +18,8 @@ namespace AtHangar
 
 		public VesselTransferWindow()
 		{
-			width = 400;
-			height = 100;
+            width = scroll_width*2;
+            height = scroll_height*2;
 			WindowPos = new Rect(Screen.width/2-width/2, 100, width, 100);
 		}
 
@@ -121,21 +121,20 @@ namespace AtHangar
 			TooltipsAndDragWindow();
 		}
 
-		public void Draw(List<HangarStorage> storages, int windowId)
+		public void Draw(List<HangarStorage> storages)
 		{
 			if(doShow)
 			{
 				this.storages = storages;
 				LockControls();
-				WindowPos = GUILayout.Window(windowId, 
+                WindowPos = GUILayout.Window(GetInstanceID(), 
 				                             WindowPos, TransferWindow,
 				                             "Relocate Vessels",
-				                             GUILayout.Width(scroll_width*2),
-				                             GUILayout.Height(scroll_height*2));
+                                             GUILayout.Width(width),
+                                             GUILayout.Height(height));
 			}
 			else UnlockControls();
 		}
-		public void Draw(List<HangarStorage> storages) { Draw(storages, GetInstanceID()); }
 
 		public void TransferVessel()
 		{

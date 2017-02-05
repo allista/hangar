@@ -183,7 +183,7 @@ namespace AtHangar
 			//transfer vessels
 			if(vessels_window != null)
 			{
-				vessels_window.Draw(ConnectedStorage, GetInstanceID());
+				vessels_window.Draw(ConnectedStorage);
 				vessels_window.TransferVessel();
 			}
 		}
