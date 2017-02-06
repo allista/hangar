@@ -25,6 +25,7 @@
         <Command type="Custom" name="Run Gendarme" command="gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}" workingdir="${ProjectDir}" externalConsole="True" />
       </CustomCommands>
     </CustomCommands>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -38,9 +39,15 @@
         <Command type="AfterBuild" command="gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}" workingdir="${ProjectDir}" externalConsole="True" />
       </CustomCommands>
     </CustomCommands>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Nightbuild|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>..\GameData\Hangar\Plugins</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <DefineConstants>NIGHTBUILD</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CrewTransfer.cs" />
     <Compile Include="VesselsPack.cs" />
     <Compile Include="VesselWrappers.cs" />
     <Compile Include="HangarGenericInflatable.cs" />
@@ -55,22 +62,21 @@
     <Compile Include="AsteroidHangars\HangarStorageDynamic.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\HangarGUI.cs" />
-    <Compile Include="GUI\CrewTransferWindow.cs" />
     <Compile Include="GUI\HangarWindow.cs" />
-    <Compile Include="GUI\ResourceTransferWindow.cs" />
-    <Compile Include="GUI\Toolbar.cs" />
-    <Compile Include="GUI\ToolbarWrapper.cs" />
     <Compile Include="GUI\VesselTransferWindow.cs" />
     <Compile Include="AuxModules\GroundAnchor.cs" />
     <Compile Include="AuxModules\ProceduralAdapter.cs" />
     <Compile Include="AuxModules\TruncatedCone.cs" />
-    <Compile Include="ResourceTransfer.cs" />
     <Compile Include="HangarContract.cs" />
     <Compile Include="LimitedHangarStorage.cs" />
     <Compile Include="HangarFairings.cs" />
     <Compile Include="Utils\HangarConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\HangarFilterManager.cs" />
+    <Compile Include="Debris.cs" />
+    <Compile Include="HangarSpaceManager.cs" />
+    <Compile Include="GUI\HangarToolbarManager.cs" />
+    <Compile Include="GUI\SubassemblySelector.cs" />
     <Compile Include="AsteroidHangars\SingleUseGrappleNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -115,43 +121,43 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\KSP-test\KSP_test_1.2\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\KSP-test\KSP_test_1.2.2\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\KSP-test\KSP_test_1.2\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>..\..\KSP-test\KSP_test_1.2.2\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="KSPAssets">
-      <HintPath>..\..\KSP-test\KSP_test_1.2\KSP_Data\Managed\KSPAssets.dll</HintPath>
+      <HintPath>..\..\KSP-test\KSP_test_1.2.2\KSP_Data\Managed\KSPAssets.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Cecil">
-      <HintPath>..\..\KSP-test\KSP_test_1.2\KSP_Data\Managed\Mono.Cecil.dll</HintPath>
+      <HintPath>..\..\KSP-test\KSP_test_1.2.2\KSP_Data\Managed\Mono.Cecil.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Security">
-      <HintPath>..\..\KSP-test\KSP_test_1.2\KSP_Data\Managed\Mono.Security.dll</HintPath>
+      <HintPath>..\..\KSP-test\KSP_test_1.2.2\KSP_Data\Managed\Mono.Security.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System">
-      <HintPath>..\..\KSP-test\KSP_test_1.2\KSP_Data\Managed\System.dll</HintPath>
+      <HintPath>..\..\KSP-test\KSP_test_1.2.2\KSP_Data\Managed\System.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Core">
-      <HintPath>..\..\KSP-test\KSP_test_1.2\KSP_Data\Managed\System.Core.dll</HintPath>
+      <HintPath>..\..\KSP-test\KSP_test_1.2.2\KSP_Data\Managed\System.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Xml">
-      <HintPath>..\..\KSP-test\KSP_test_1.2\KSP_Data\Managed\System.Xml.dll</HintPath>
+      <HintPath>..\..\KSP-test\KSP_test_1.2.2\KSP_Data\Managed\System.Xml.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\KSP-test\KSP_test_1.2\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\KSP-test\KSP_test_1.2.2\KSP_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\KSP-test\KSP_test_1.2\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\..\KSP-test\KSP_test_1.2.2\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

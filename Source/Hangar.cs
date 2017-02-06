@@ -40,12 +40,14 @@ namespace AtHangar
 			}
 		}
 
-		protected override Vector3 get_vessel_offset(Transform launch_transform, StoredVessel sv)
-		{
-			return vessel.LandedOrSplashed ? 
-				launch_transform.TransformDirection(-sv.CoG + Storage.GetSpawnOffset(sv)) : 
-				launch_transform.TransformDirection(sv.CoM - sv.CoG + Storage.GetSpawnOffset(sv));
-		}
+		protected override Vector3 get_spawn_offset(PackedVessel pv)
+		{ return Storage.SpawnManager.GetSpawnOffset(pv); }
+
+		protected override Transform get_spawn_transform(PackedVessel pv)
+		{ return Storage.SpawnManager.GetSpawnTransform(pv); }
+
+		public override Transform GetSpawnTransform()
+		{ return Storage.SpawnManager.AutoPositionVessel? null : Storage.SpawnManager.GetSpawnTransform(); }
 
 		#if DEBUG
 		[KSPEvent (guiActive = true, guiName = "Check Airlock", active = true)]

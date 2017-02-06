@@ -16,32 +16,37 @@ namespace AtHangar
 {
 	public class HangarStorage : HangarPassage, IPartCostModifier, IPartMassModifier, IControllableModule
 	{
-		#region AutoRotation
-		static readonly Quaternion xyrot = Quaternion.Euler(0, 0, 90);
-		static readonly Quaternion xzrot = Quaternion.Euler(0, 90, 0);
-		static readonly Quaternion yzrot = Quaternion.Euler(90, 0, 0);
-		static readonly Quaternion[,] swaps = 
+		#region callbacks
+		public delegate void StoredVesselHandler(StoredVessel sv);
+		public delegate void PackedConstructHandler(PackedConstruct pc);
+		public delegate bool PackedVesselConstraint(PackedVessel pv);
+
+		public PackedVesselConstraint FitConstraint = delegate { return true; };
+
+		public StoredVesselHandler OnVesselStored = delegate {};
+		public PackedConstructHandler OnConstructStored = delegate {};
+		public StoredVesselHandler OnVesselRemoved = delegate {};
+		public PackedConstructHandler OnConstructRemoved = delegate {};
+		public Action OnStorageEmpty = delegate {};
+
+		void OnPackedVesselRemoved(PackedVessel pv)
 		{
-			{Quaternion.identity, 	xyrot, 					xzrot}, 
-			{xyrot.Inverse(), 		Quaternion.identity, 	yzrot}, 
-			{xzrot.Inverse(), 		yzrot.Inverse(), 		Quaternion.identity}
-		};
+			var sv = pv as StoredVessel;
+			if(sv != null) { OnVesselRemoved(sv); return; }
+			var pc = pv as PackedConstruct;
+			if(pc != null) { OnConstructRemoved(pc); return; }
+		}
 		#endregion
 
 		#region Internals
-		//metrics
-		public Metric PartMetric { get; protected set; }
-		public Metric HangarMetric { get; protected set; }
-
 		//hangar space
-		[KSPField] public string HangarSpace = string.Empty;
-		[KSPField] public string SpawnTransform;
-		[KSPField] public float  UsefulSizeRatio = 0.9f; //in case no HangarSpace is provided and the part metric is used
-		[KSPField] public bool   AutoPositionVessel;
+		[KSPField] public string  HangarSpace = string.Empty;
+		[KSPField] public string  SpawnTransform = string.Empty;
+		[KSPField] public bool    AutoPositionVessel;
 		[KSPField] public Vector3 SpawnOffset = Vector3.zero;
-		public virtual bool ComputeHull { get { return Nodes.Count > 0 || hangar_space != null; } }
-		public MeshFilter hangar_space { get; protected set; }
-		public Transform  spawn_transform { get; protected set; }
+		public VesselSpawnManager SpawnManager { get; protected set; }
+		public bool HasSpaceMesh { get { return SpawnManager.Space != null; } }
+		public Metric PartMetric { get; protected set; }
 
 		//vessels storage
 		readonly static string SCIENCE_DATA = typeof(ScienceData).Name;
@@ -49,8 +54,8 @@ namespace AtHangar
 		readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>(Globals.Instance.EnableVesselPacking);
 		readonly protected VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>(Globals.Instance.EnableVesselPacking);
 		readonly protected List<PackedConstruct> unfit_constructs = new List<PackedConstruct>();
-		public Vector3 Size { get { return HangarMetric.size; } }
-		public float Volume { get { return HangarMetric.volume; } }
+		public Vector3 Size { get { return SpawnManager.SpaceMetric.size; } }
+		public float Volume { get { return SpawnManager.SpaceMetric.volume; } }
 		public int   ConstructsCount { get { return packed_constructs.Count; } }
 		public int   VesselsCount { get { return stored_vessels.Count; } }
 		public int   TotalVesselsDocked { get { return packed_constructs.Count+stored_vessels.Count; } }
@@ -76,12 +81,14 @@ namespace AtHangar
 		#region Setup
 		public override string GetInfo() 
 		{ 
+			SpawnManager = new VesselSpawnManager(part);
+			SpawnManager.Load(ModuleConfig);
 			update_metrics();
 			var info = base.GetInfo();
-			if(HangarMetric.volume > 0)
+			if(SpawnManager.SpaceMetric.volume > 0)
 			{
-				info += string.Format("Available Volume: {0}\n", Utils.formatVolume(HangarMetric.volume));
-				info += string.Format("Dimensions: {0}\n", Utils.formatDimensions(HangarMetric.size));
+				info += string.Format("Available Volume: {0}\n", Utils.formatVolume(SpawnManager.SpaceMetric.volume));
+				info += string.Format("Dimensions: {0}\n", Utils.formatDimensions(SpawnManager.SpaceMetric.size));
 			}
 			return info;
 		}
@@ -109,47 +116,8 @@ namespace AtHangar
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
-			if(AutoPositionVessel) 
-				SpawnOffset = Vector3.zero;
-			if(HangarSpace != string.Empty)
-				hangar_space = part.FindModelComponent<MeshFilter>(HangarSpace);
-			if(SpawnTransform != string.Empty)
-				spawn_transform = part.FindModelTransform(SpawnTransform);
-			if(spawn_transform == null)
-			{
-				var launch_empty = new GameObject();
-				var parent = hangar_space != null? hangar_space.transform : part.transform;
-				launch_empty.transform.SetParent(parent);
-				spawn_transform = launch_empty.transform;
-			}
-			if(hangar_space != null)
-			{
-				//check if the hangar space has its normals flipped iside; if not, flip them
-				var flipped = false;
-				var mesh   = hangar_space.sharedMesh;
-				var tris   = mesh.triangles;
-				var verts  = mesh.vertices;
-				var center = mesh.bounds.center;
-				for(int i = 0, len = tris.Length/3; i < len; i++)
-				{
-					var j = i*3;
-					var p = new Plane(verts[tris[j]], verts[tris[j+1]], verts[tris[j+2]]);
-					var outside = !p.GetSide(center);
-					if(outside)
-					{
-						var t = tris[j];
-						tris[j] = tris[j+2];
-						tris[j+2] = t;
-						flipped = true;
-					}
-				}
-				if(flipped)
-				{
-					this.Log("The '{}' mesh is not flipped. Hangar space normals should be pointed INSIDE.", HangarSpace);
-					mesh.triangles = tris;
-					mesh.RecalculateNormals();
-				}
-			}
+			SpawnManager = new VesselSpawnManager(part);
+			SpawnManager.Load(ModuleConfig);
 			build_storage_checklist();
 		}
 
@@ -159,61 +127,37 @@ namespace AtHangar
 		protected virtual void update_metrics()
 		{
 			PartMetric = new Metric(part);
-			HangarMetric = new Metric(part, HangarSpace);
-			//if hangar metric is not provided, derive it from part metric
-			if(HangarMetric.Empty) HangarMetric = PartMetric*UsefulSizeRatio;
+			SpawnManager.UpdateMetric();
 		}
 
-		static List<KeyValuePair<float, int>> sort_vector(Vector3 v)
+		bool VesselFits(PackedVessel pv)
 		{
-			var s = new List<KeyValuePair<float, int>>(3);
-			s.Add(new KeyValuePair<float, int>(v[0], 0));
-			s.Add(new KeyValuePair<float, int>(v[1], 1));
-			s.Add(new KeyValuePair<float, int>(v[2], 2));
-			s.Sort((x, y) => x.Key.CompareTo(y.Key));
-			return s;
-		}
-
-		public Vector3 GetSpawnOffset(PackedVessel v)
-		{ return SpawnOffset.IsZero() ? SpawnOffset : Vector3.Scale(v.metric.extents, SpawnOffset); }
-
-		public Transform GetSpawnTransform(PackedVessel v = null)
-		{
-			if(AutoPositionVessel && v != null) 
+			if(!SpawnManager.VesselFits(pv)) return false;
+			var constraints = FitConstraint.GetInvocationList();
+			for(int i = 0, len = constraints.Length; i < len; i++)
 			{
-				var s_size = sort_vector(HangarMetric.size);
-				var v_size = sort_vector(v.size);
-				var r1 = swaps[s_size[0].Value, v_size[0].Value];
-				var i2 = s_size[0].Value == v_size[1].Value? 2 : 1;
-				var r2 = swaps[s_size[i2].Value, v_size[i2].Value];
-				spawn_transform.localPosition = Vector3.zero;
-				spawn_transform.localRotation = Quaternion.identity;
-				spawn_transform.rotation = part.transform.rotation * r2 * r1;
+				var cons = constraints[i] as PackedVesselConstraint;
+				if(cons != null && !cons(pv)) return false;
 			}
-			return spawn_transform;
-		}
-
-		public bool VesselFits(PackedVessel v)
-		{
-			var	position = GetSpawnTransform(v);
-			var offset = GetSpawnOffset(v);
-			return ComputeHull ? 
-				v.metric.FitsAligned(position, hangar_space.transform, hangar_space.sharedMesh, offset) :
-				v.metric.FitsAligned(position, part.partTransform, HangarMetric, offset);
+			return true;
 		}
 
 		void try_repack_construct(PackedConstruct pc)
 		{ 
-			if(!VesselFits(pc) || 
-			   !packed_constructs.TryAdd(pc))
+			if(!VesselFits(pc) || !packed_constructs.TryAdd(pc))
+			{
 				unfit_constructs.Add(pc);
+				OnConstructRemoved(pc);
+			}
 		}
 
 		void try_pack_unfit_construct(PackedConstruct pc)
 		{ 
-			if(VesselFits(pc) && 
-			   packed_constructs.TryAdd(pc))
+			if(VesselFits(pc) && packed_constructs.TryAdd(pc))
+			{
 				unfit_constructs.Remove(pc);
+				OnConstructStored(pc);
+			}
 		}
 
 		public override void Setup(bool reset = false)
@@ -222,11 +166,11 @@ namespace AtHangar
 			//initialize part and hangar metric
 			update_metrics();
 			//setup vessels packs
-			stored_vessels.space = HangarMetric;
-			packed_constructs.space = HangarMetric;
+			stored_vessels.space = SpawnManager.SpaceMetric;
+			packed_constructs.space = SpawnManager.SpaceMetric;
 			//display recalculated values
-			hangar_v = Utils.formatVolume(HangarMetric.volume);
-			hangar_d = Utils.formatDimensions(HangarMetric.size);
+			hangar_v = Utils.formatVolume(SpawnManager.SpaceMetric.volume);
+			hangar_d = Utils.formatDimensions(SpawnManager.SpaceMetric.size);
 			if(reset)
 			{   //if resetting, try to repack vessels on resize
 				var constructs = packed_constructs.Values;
@@ -260,8 +204,9 @@ namespace AtHangar
 			_stored_vessels = TotalVesselsDocked.ToString();
 			_stored_mass    = Utils.formatMass(VesselsMass);
 			_stored_cost    = VesselsCost.ToString();
-			_used_volume    = UsedVolumeFrac.ToString("P1");
+			_used_volume    = Volume > 0? UsedVolumeFrac.ToString("P1") : "N/A";
 			on_set_part_params();
+			part.UpdatePartMenu();
 		}
 
 		public override void OnAwake()
@@ -287,9 +232,11 @@ namespace AtHangar
 		public int UnfitCount { get { return unfit_constructs.Count; } }
 		public List<PackedConstruct> UnfitConstucts { get { return unfit_constructs.ToList(); } }
 		public void RemoveUnfit(PackedConstruct pc) { unfit_constructs.Remove(pc); }
+		public void AddUnfit(PackedConstruct pc) { unfit_constructs.Add(pc); }
 
 		public void UpdateParams()
 		{
+            packed_constructs.UpdateParams();
 			stored_vessels.UpdateParams();
 			set_part_params();
 		}
@@ -298,6 +245,7 @@ namespace AtHangar
 		{
 			unfit_constructs.Clear();
 			packed_constructs.Clear();
+			OnStorageEmpty();
 			set_part_params();
 		}
 		#endregion
@@ -305,7 +253,7 @@ namespace AtHangar
 		#region Logistics
 		public override bool CanHold(PackedVessel vsl)
 		{
-			if(!VesselFits(vsl)) return false;
+			if(!SpawnManager.VesselFits(vsl)) return false;
 			var pc = vsl as PackedConstruct;
 			if(pc != null) return packed_constructs.CanAdd(pc);
 			var sv = vsl as StoredVessel;
@@ -326,6 +274,7 @@ namespace AtHangar
 				this.Log("TryTransferTo: trying to remove a PackedVessel that is not present."); 
 				return false; 
 			}
+			OnPackedVesselRemoved(vsl);
 			other.StoreVessel(vsl);
 			return true;
 		}
@@ -335,23 +284,63 @@ namespace AtHangar
 		public void StoreVessel(PackedVessel v)
 		{ 
 			var pc = v as PackedConstruct;
+			if(pc != null) 
+			{
+				packed_constructs.ForceAdd(pc);
+				OnConstructStored(pc);
+				set_part_params();
+				return;
+			}
 			var sv = v as StoredVessel;
-			if(pc != null) packed_constructs.ForceAdd(pc); 
-			else if(sv != null) stored_vessels.ForceAdd(sv);
-			else { this.Log("Unknown PackedVessel type: {}", v); return; }
-			set_part_params(); 
+			if(sv != null) 
+			{
+				stored_vessels.ForceAdd(sv);
+				OnVesselStored(sv);
+				set_part_params();
+				return;
+			}
+			this.Log("Unknown PackedVessel type: {}", v);
 		}
 
 		public bool RemoveVessel(PackedVessel v)
 		{ 
+			var success = false;
 			var pc = v as PackedConstruct;
+			if(pc != null) 
+			{
+				if(packed_constructs.Remove(pc))
+				{
+					OnConstructRemoved(pc);
+					success = true;
+				}
+			}
 			var sv = v as StoredVessel;
-			bool result = false;
-			if(pc != null) result = packed_constructs.Remove(pc); 
-			else if(sv != null) result = stored_vessels.Remove(sv);
-			else { this.Log("Unknown PackedVessel type: {}", v); return false; }
-			set_part_params(); 
-			return result;
+			if(sv != null) 
+			{
+				if(stored_vessels.Remove(sv))
+				{
+					OnVesselRemoved(sv);
+					success = true;
+				}
+			}
+			if(success)
+			{
+				if(packed_constructs.Count == 0 && stored_vessels.Count == 0)
+					OnStorageEmpty();
+				set_part_params();
+				return true;
+			}
+			this.Log("Unknown PackedVessel type: {}", v);
+			return false;
+		}
+
+		public virtual bool TryAddUnfit(PackedVessel v)
+		{
+			if(HighLogic.LoadedSceneIsEditor) return false;
+			var pc = v as PackedConstruct;
+			if(pc == null) return false;
+			unfit_constructs.Add(pc); 
+			return true;
 		}
 
 		public virtual bool TryStoreVessel(PackedVessel v)
@@ -361,15 +350,30 @@ namespace AtHangar
 			var sv = v as StoredVessel;
 			if(VesselFits(v))
 			{
-				if(pc != null) stored = packed_constructs.TryAdd(pc);
-				else if(sv != null) stored = stored_vessels.TryAdd(sv);
+				if(pc != null) 
+				{
+					stored = packed_constructs.TryAdd(pc);
+					if(stored)
+					{
+						OnConstructStored(pc);
+						set_part_params();
+					}
+				}
+				else if(sv != null) 
+				{
+					stored = stored_vessels.TryAdd(sv);
+					if(stored)
+					{
+						OnVesselStored(sv);
+						set_part_params();
+					}
+				}
 				else { this.Log("Unknown PackedVessel type: {}", v); return false; }
 				if(!stored) Utils.Message("There's no room for \"{0}\"", v.name);
 			}
 			else Utils.Message(5, "Insufficient vessel clearance for safe docking\n" +
 			                   "\"{0}\" cannot be stored", v.name);
-			if(stored) set_part_params();
-			else if(HighLogic.LoadedSceneIsEditor && pc != null)
+			if(pc != null && !stored && HighLogic.LoadedSceneIsEditor)
 			{ unfit_constructs.Add(pc); return true; }
 			return stored;
 		}
@@ -379,14 +383,17 @@ namespace AtHangar
 			if(!HighLogic.LoadedSceneIsFlight || packed_constructs.Count == 0) 
 			{ Ready = true;	yield break; }
 			//wait for storage.vessel to be loaded
-			while(!vessel.PartsStarted()) yield return WaitWithPhysics.ForNextUpdate();
+			while(!vessel.loaded || !vessel.PartsStarted()) yield return WaitWithPhysics.ForNextUpdate();
 			while(!enabled) yield return WaitWithPhysics.ForNextUpdate();
 			//wait for other storages to be ready
 			while(!other_storages_ready) yield return WaitWithPhysics.ForNextUpdate();
+			//fix the FlightCamera to prevent it from jumping to and from converted vessels
+			FlightCameraOverride.HoldCameraStillForSeconds(vessel.transform, 1);
 			//create vessels from constructs and store them
 			foreach(PackedConstruct pc in packed_constructs.Values)
 			{
-				RemoveVessel(pc);
+				FlightCameraOverride.UpdateDurationSeconds(1);
+				packed_constructs.Remove(pc);
 				if(!pc.LoadConstruct()) 
 				{
 					Utils.Log("PackedConstruct: unable to load ShipConstruct {}. " +
@@ -400,14 +407,17 @@ namespace AtHangar
 					vessel.landedAt, pc.flag, 
 					FlightDriver.FlightStateCache,
 					new VesselCrewManifest());
+				StageManager.BeginFlight();
 				var vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1];
 				FlightGlobals.ForceSetActiveVessel(vsl);
-				StageManager.BeginFlight();
 				//wait for vsl to be launched
 				while(!vsl.isActiveVessel || !vsl.PartsStarted()) 
+				{
+					FlightCameraOverride.UpdateDurationSeconds(1);
 					yield return WaitWithPhysics.ForNextUpdate();
+				}
 				//store vessel
-				StoreVessel(new StoredVessel(vsl, ComputeHull));
+				stored_vessels.ForceAdd(new StoredVessel(vsl));
 				//switch to storage vessel before storing
 				FlightGlobals.ForceSetActiveVessel(vessel);
 				//destroy vessel
@@ -418,11 +428,15 @@ namespace AtHangar
 			//switch back to this.vessel and signal to other waiting storages
 			FlightGlobals.ForceSetActiveVessel(vessel);
 			while(!vessel.isActiveVessel || !vessel.PartsStarted()) 
+			{
+				FlightCameraOverride.UpdateDurationSeconds(1);
 				yield return WaitWithPhysics.ForNextUpdate();
+			}
 			Ready = true;
 			//save game afterwards
+			FlightCameraOverride.UpdateDurationSeconds(1);
 			yield return WaitWithPhysics.ForSeconds(0.5f);
-			FlightDriver.PostInitState = new GameBackup(HighLogic.CurrentGame);
+			FlightDriver.PostInitState = new GameBackup(HighLogic.CurrentGame.Updated());
 			GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
 		}
 

@@ -3,9 +3,77 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-###ChangeLog###
+###ChangeLog
 
-* **v3.0**
+* **v3.3.0**
+    * Implemented **subassembly loading into hangars** in Editor.
+    * Converted both Asteroid Hatch and Structural Grapple to use the new SingleUseGrappleNode that **fixes the sliding-hatch problem**. Moved both to Coupling category.
+    * Moved Hatch Port Adapter to Coupling category.
+    * Fixed doubling mass by Hangar Fairings.
+    * Fixed the bug that prevented modification of StoredVessel resources.
+    * Fixed TotalStoredMass display.
+    * Fixed the issues with vessel transfer window.
+
+* **v3.2.1.3**
+    * **Dropped RemoteTech and AntennaRange patches.**
+    * Added GroundWorkshop module with 100% efficiency to the Big Ground Hangar (for Ground Construction mod).
+    * **Fixed the NaN storage size** in DynamicStorage caused by creation of 100%V tank.
+    * **Fixed hangar switching** for ships with multiple hangars.
+    * Fixed several NREs.
+
+* v3.2.1.2
+	* Fixed initialization of Configurable Containers within asteroids from a savegame.
+
+* v3.2.1.1
+    * Fixed Asteroid Drill.
+    * Fixed Asteroid Hatch. Moved it to the Coupling category.
+    * Rebalanced Asteroid Drill:
+    	* Fixed heat production and thermal efficiency.
+        * Made the Drill twice more efficient.
+        * Increased RCS power.
+    * Rebalanced Mobile Smelter:
+    	* Changed productivity and thermal configuration.
+        * Disabled SpecialistBonus; the thing is fully automatic and should work without kerbals.
+
+* v3.2.1
+    * **KIS inventory** is now transferred with the kerbals when a ship is stored in a hangar or launched from it.
+    * Implemented **seamless camera transfer** from a hangar to a launched vessel.
+    * Fixed mass calculation of stored vessel (issue #177).
+    * Made Asteroid Gateway into a Probe Control Point.
+    * Corrected density of Fairings panels.
+
+* v3.2.0
+    * Compiled against KSP-1.2.2
+    * Added **Small VTOL Hangar** that acts like a small launchpad: you land on its roof and store the vessel; you launch a vessel and it appears on the roof, then you take off.
+    * MobileSmelter consumes much more power now; comparable with IRSU.
+    * Moved spawn transforms of the ground hangars to the bottom-back corner.
+    * For modders:
+    	* Added HangarEntrance module that acts like HangarGateway, but for the same part that has HangarStorage. This way you can have several different size entrances into the same big HangarStorage.
+    	* Renamed HangarGateway.DockingSpace to .HangarSpace
+    	* Added test hangars to ForModders folder (available on GitHub).
+    * Bugfixes:
+        * Fixed NRE in HangarWindow when "piloting" EVAs.
+        * Fixed toolbar button bug.
+        * Fixed debris resize problem.
+
+* v3.1.0
+    * Made it possible **vessel launching while rotating and moving, even with acceleration**.
+    * Implemented **temporary storage of resources in Hangar Fairings**. This makes the Fairings **compatible with Life Support** mods.
+    * Added placeholders for internals to all crewed parts. Added "back" stack nodes to ground hangars so that they could be hanged below a skycrane-like carrier.
+    * In Editor positioning arrows are only drawn if a hangar has *Strict Positioning*; otherwise only a dot is drawn.
+    * Bugfixes:
+    	* Crew transfer.
+    	* Prelaunch game saving.
+    	* Debris jettison velocity calculation.
+
+* v3.0.1
+	* Yet another fix for vessel positioning on launch.
+	* The game is now autosaved before a vessel is spawned from a hangar.
+	* Spaceport and Big Hangar may be used as standalone control centers (KerbNet integration).
+	* Adapted to changes in Configurable Containers.
+	* Moved ToolbarWrapper to AT_Utils. Updated it.
+
+* v3.0
     * **KSP-1.2 support.**
     * **Requires:**
         * *AT_Utils* library

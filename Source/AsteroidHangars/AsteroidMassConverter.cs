@@ -40,7 +40,7 @@ namespace AtHangar
 
 		void update_state(Vessel vsl)
 		{ 
-			if(vsl != vessel || !all_passages_ready) return;
+			if(vsl == null || vsl != vessel || !all_passages_ready) return;
 			update_state(); 
 		}
 
@@ -73,7 +73,6 @@ namespace AtHangar
 				//get asteroid
 				asteroid = hatch.GetModuleInAttachedPart<ModuleAsteroid>();
 				asteroid_info = asteroid.part.Modules.GetModule<ModuleAsteroidInfo>();
-				lastMass = asteroid_info.currentMassVal;
 				EnableModule();
 			}
 			catch
@@ -87,33 +86,26 @@ namespace AtHangar
 			IsActivated &= can_convert();
 		}
 
-		protected virtual bool can_convert(bool report = false)
+		protected virtual bool can_convert()
 		{
-			if(!report)
-				return asteroid != null
-					&& asteroid_info != null
-					&& storage != null
-					&& grapple_node != null 
-					&& grapple_node.Fixed;
 			if(storage == null)
 			{
-				Utils.Message("The mining can only be performed " +
-				              "through an access port with Dynamic Storage (TM) capabilities.");
+				status = "Incompatible hatch";
 				return false;
 			}
-			if(grapple_node == null || !grapple_node.Fixed)
+			if(grapple_node == null || grapple_node.state != SingleUseGrappleNode.State.Fixed)
 			{
-				Utils.Message("The mining can only be performed through a permanentely fixed acces port.");
+				status = "Hatch is not fixed";
 				return false;
 			}
 			if(asteroid == null || asteroid_info == null)
 			{
-				Utils.Message("No asteroid to mine");
+				status = "No asteroid to mine";
 				return false;
 			}
 			if(!storage.CanAddVolume)
 			{
-				Utils.Message("The space inside the asteroid is already in use. Cannot start mining.");
+				status = "Asteroid is in use";
 				return false;
 			}
 			return true;
@@ -122,17 +114,26 @@ namespace AtHangar
 		protected override ConversionRecipe PrepareRecipe(double deltaTime)
 		{
 			ConversionRecipe recipe = null;
-			IsActivated &= can_convert(true);
+			IsActivated &= can_convert();
 			if(IsActivated)
 			{
 				WasActivated = true;
 				lastMass = asteroid_info.currentMassVal;
 				recipe = base.PrepareRecipe(deltaTime);
-				if(recipe != null && recipe.Outputs.Count > 0)
-					storage.AddVolume((float)((lastMass-asteroid_info.currentMassVal)/asteroid.density));
-				else IsActivated = false;
+				IsActivated &= recipe != null && recipe.Outputs.Count != 0;
 			}
 			return recipe;
+		}
+
+		protected override void PostProcess(ConverterResults result, double deltaTime)
+		{
+			base.PostProcess(result, deltaTime);
+			var dM = lastMass-asteroid_info.currentMassVal;
+			if(dM > 1e-5f)
+			{
+				storage.AddVolume((float)(dM/asteroid.density));
+				lastMass = asteroid_info.currentMassVal;
+			}
 		}
 
 		protected override void PostUpdateCleanup()

@@ -31,6 +31,7 @@ namespace AtHangar
 		{
 			module_name = string.Join("", module_name.Split());
 			if(module_name == typeof(Hangar).Name) return true;
+			if(module_name == typeof(HangarEntrance).Name) return true;
 			if(module_name == typeof(HangarGateway).Name) return true;
 			if(module_name == typeof(HangarStorage).Name) return true;
 			if(module_name == typeof(SimpleHangarStorage).Name) return true;

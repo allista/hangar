@@ -5,6 +5,7 @@
 //
 //  Copyright (c) 2015 Allis Tauri
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace AtHangar
 		void Enable(bool enable);
 	}
 
-	public class ControllableModuleBase : PartModule, IControllableModule
+	public class ControllableModuleBase : SerializableFiledsPartModule, IControllableModule
 	{
 		virtual public bool CanEnable() { return true; }
 		virtual public bool CanDisable() { return true; }
@@ -30,14 +31,15 @@ namespace AtHangar
 
 	public class GasCompressor : ConfigNodeObject
 	{
-		new public const string NODE_NAME = "COMPRESSOR";
-		[Persistent] public float ConversionRate = 0.05f;
-		[Persistent] public float ConsumptionRate = 1.0f;
+		[Persistent] public float ConversionRate  = -1;
+		[Persistent] public float ConsumptionRate = -1;
 		public float OutputFraction { get; private set; }
-		readonly ResourcePump socket;
-		readonly Part part;
+		public bool Valid { get { return ConversionRate > 0 && ConsumptionRate >= 0; } }
 
-		public GasCompressor(Part p) 
+		ResourcePump socket;
+		Part part;
+
+		public void Init(Part p) 
 		{ part = p; socket = p.CreateSocket(); }
 
 		public float CompressGas()
@@ -46,6 +48,7 @@ namespace AtHangar
 			if(!part.vessel.mainBody.atmosphere) return 0;
 			var pressure = part.vessel.mainBody.GetPressure(part.vessel.altitude);
 			if(pressure < 1e-6) return 0;
+			pressure /= Math.Max(part.vessel.mainBody.atmospherePressureSeaLevel, 101.325);
 			socket.RequestTransfer(ConsumptionRate*TimeWarp.fixedDeltaTime);
 			if(!socket.TransferResource()) return 0 ;
 			OutputFraction = socket.Ratio;
@@ -53,7 +56,7 @@ namespace AtHangar
 		}
 	}
 
-	public class HangarGenericInflatable : MultiGeometryAnimator, ISerializationCallbackReceiver
+	public class HangarGenericInflatable : MultiGeometryAnimator
 	{
 		//configuration
 		[KSPField(isPersistant = false)] public string ControlledModules;
@@ -68,7 +71,7 @@ namespace AtHangar
 
 		//GUI
 		[KSPField (guiName = "Compressed Gas", guiActive=true)] public string CompressedGasDisplay;
-		readonly SimpleDialog warning = new SimpleDialog();
+		SimpleWarning warning;
 		bool try_deflate;
 
 		//modules and nodes
@@ -76,7 +79,9 @@ namespace AtHangar
 		readonly List<AnimatedNode> animated_nodes = new List<AnimatedNode>();
 
 		//compressor
-		public GasCompressor Compressor { get; protected set; }
+		[KSPField] 
+		[SerializeField]
+		public GasCompressor Compressor = new GasCompressor();
 		bool has_compressed_gas { get { return CompressedGas >= InflatableVolume; } }
 		public FXGroup fxSndCompressor;
 		bool play_compressor;
@@ -93,7 +98,7 @@ namespace AtHangar
 		#region Info
 		public override string GetInfo()
 		{ 
-			if(!init_compressor()) return "";
+			if(!Compressor.Valid) return "";
 			string info = "Compressor:\n";
 			info += string.Format("Pump Rate: {0}/sec\n", 
 				Utils.formatVolume(Compressor.ConversionRate*Compressor.ConsumptionRate));
@@ -120,6 +125,7 @@ namespace AtHangar
 		public override void OnAwake()
 		{
 			base.OnAwake();
+			warning = gameObject.AddComponent<SimpleWarning>();
 			GameEvents.onGamePause.Add(onPause);
 			GameEvents.onGameUnpause.Add(onUnpause);
 			GameEvents.onEditorShipModified.Add(UpdateGUI);
@@ -128,6 +134,7 @@ namespace AtHangar
 		public override void OnDestroy()
 		{
 			base.OnDestroy();
+			Destroy(warning);
 			GameEvents.onGamePause.Remove(onPause);
 			GameEvents.onGameUnpause.Remove(onUnpause);
 			GameEvents.onEditorShipModified.Remove(UpdateGUI);
@@ -137,11 +144,15 @@ namespace AtHangar
 		{
 			base.OnStart(state);
 			if(state == StartState.None) return;
-			//get sound effects
-			if(CompressorSound != string.Empty)
+			//init compressor
+			if(Compressor.Valid) 
 			{
-				Utils.createFXSound(part, fxSndCompressor, CompressorSound, true);
-				fxSndCompressor.audio.volume = GameSettings.SHIP_VOLUME * SoundVolume;
+				Compressor.Init(part);
+				if(CompressorSound != string.Empty)
+				{
+					Utils.createFXSound(part, fxSndCompressor, CompressorSound, true);
+					fxSndCompressor.audio.volume = GameSettings.SHIP_VOLUME * SoundVolume;
+				}
 			}
 			//get controlled modules
 			if(!string.IsNullOrEmpty(ControlledModules))
@@ -199,7 +210,6 @@ namespace AtHangar
 			if(CompressedGas < 0 && 
 			   (state == StartState.Editor || vessel.staticPressurekPa > 1e-6)) 
 				CompressedGas = InflatableVolume;
-			init_compressor();
 			//prevent accidental looping of animation
 			Loop = false;
 			//update part, GUI and set the flag
@@ -210,32 +220,12 @@ namespace AtHangar
 			isEnabled = false;
 		}
 
-		bool init_compressor()
-		{
-			Compressor = null;
-			if(ModuleConfig == null) return false;
-			if(ModuleConfig.HasNode(GasCompressor.NODE_NAME)) 
-			{
-				Compressor = new GasCompressor(part);
-				Compressor.Load(ModuleConfig.GetNode(GasCompressor.NODE_NAME));
-				return true;
-			}
-			return false;
-		}
-
 		public override void OnLoad(ConfigNode node)
 		{
 			base.OnLoad(node);
 			if(!node.HasValue("State"))
 				State = PackedByDefault? AnimatorState.Closed : AnimatorState.Opened;
 		}
-
-		//workaround for ConfigNode non-serialization
-		public byte[] _module_config;
-		public void OnBeforeSerialize()
-		{ _module_config = ConfigNodeWrapper.SaveConfigNode(ModuleConfig); }
-		public void OnAfterDeserialize() 
-		{ ModuleConfig = ConfigNodeWrapper.RestoreConfigNode(_module_config); }
 		#endregion
 
 		#region Updates
@@ -248,7 +238,7 @@ namespace AtHangar
 				UpdatePart();
 				part.BreakConnectedCompoundParts();
 			}
-			if(Compressor != null && !has_compressed_gas)
+			if(Compressor.Valid && !has_compressed_gas)
 			{
 				CompressedGas += Compressor.CompressGas();
 				if(has_compressed_gas) 
@@ -291,7 +281,7 @@ namespace AtHangar
 			while(true)
 			{
 				//update GUI
-				CompressedGasDisplay = string.Format("{0:P1}", CompressedGas/InflatableVolume);
+				CompressedGasDisplay = string.Format("{0:P1}", Mathf.Min(CompressedGas/InflatableVolume, 1));
 				//update sounds
 				if(fxSndCompressor.audio != null)
 				{
@@ -317,12 +307,12 @@ namespace AtHangar
 			while(try_deflate)
 			{
 				if(has_compressed_gas || Recompressable) { deflate(); break; }
-				else if(Compressor == null)
-					warning.Show("This part is not equipped with a compressor. " +
+				if(!Compressor.Valid)
+					warning.Draw("This part is not equipped with a compressor. " +
 								 "You will not be able to inflate it again. " +
 								 "Are you sure you want to deflate the hangar?");
 				else if(!part.vessel.mainBody.atmosphere)
-					warning.Show("There's no atmosphere here. " +
+					warning.Draw("There's no atmosphere here. " +
 					             "You will not be able to inflate this part again." +
 					             "Are you sure you want to deflate it?");
 				else { deflate(); break; }
@@ -405,8 +395,8 @@ namespace AtHangar
 			mp.module.CompressedGas   *= scale.relative.volume;
 			mp.module.ForwardSpeed     = mp.base_module.ForwardSpeed / (scale.absolute * scale.aspect);
 			mp.module.ReverseSpeed     = mp.base_module.ReverseSpeed / (scale.absolute * scale.aspect);
-			if(mp.module.Compressor == null) return;
-			mp.module.Compressor.ConsumptionRate = mp.base_module.Compressor.ConsumptionRate * scale.absolute.volume;
+			if(mp.module.Compressor.Valid)
+				mp.module.Compressor.ConsumptionRate = mp.base_module.Compressor.ConsumptionRate * scale.absolute.volume;
 		}
 	}
 }

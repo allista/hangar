@@ -16,6 +16,7 @@
 /**/obj/**
 /**/cache/**
 /**/bin/**
+/Assets/**/Materials/*__*.mat
 *~
 *.swp
 *.blend1
@@ -28,6 +29,7 @@
 /Source/Hangar.userprefs
 /Assembly-CSharp.dump
 
+/Assets/Textures/*.png
 /Assets/Textures/sources/
 /Assets/Plugins/
 /Assets/SquadCore/
@@ -42,3 +44,5 @@
 /MassCalc/*_map.py
 /MassCalc/Kerbin*.py
 /MassCalc/path.py
+/Assets/GroundConstruction
+/Development-files
