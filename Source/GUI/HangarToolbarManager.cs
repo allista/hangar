@@ -13,7 +13,8 @@ namespace AtHangar {
 	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
 	public class HangarToolbarManager : MonoBehaviour
 	{
-		const string ICON = "Hangar/Icons/icon_button";
+		const string TOOLBAR_ICON = "Hangar/Icons/toolbar-icon";
+        const string APPLAUNCHER_ICON = "Hangar/Icons/applauncher-icon";
 		static Texture2D icon;
 		static IButton HangarToolbarButton;
 		static ApplicationLauncherButton HangarButton;
@@ -25,7 +26,7 @@ namespace AtHangar {
 			   	HangarToolbarButton == null)
 			{
 				HangarToolbarButton = ToolbarManager.Instance.add ("Hangar", "HangarButton");
-				HangarToolbarButton.TexturePath = ICON;
+                HangarToolbarButton.TexturePath = TOOLBAR_ICON;
 				HangarToolbarButton.ToolTip     = "Hangar controls and info";
 				HangarToolbarButton.Visibility  = new GameScenesVisibility(GameScenes.FLIGHT,GameScenes.EDITOR);
 				HangarToolbarButton.Visible     = true;
@@ -33,7 +34,7 @@ namespace AtHangar {
 			}
 			else 
 			{
-				icon = GameDatabase.Instance.GetTexture(ICON, false);
+                icon = GameDatabase.Instance.GetTexture(APPLAUNCHER_ICON, false);
 				GameEvents.onGUIApplicationLauncherReady.Add(OnGUIAppLauncherReady);
 			}
 		}
