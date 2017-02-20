@@ -8,6 +8,8 @@ MaxSqrSurfaceVelocity = 0.01 //m/s
 MaxGeeForce           = 0.2f //g
 MaxStaticPressure     = 0.01 //atm
 //misc
-MeshesToSkip = flagtransform canopy
-KethaneMapCollider = MapOverlay collider
+MeshesToSkip          = flagtransform canopy
+KethaneMapCollider    = MapOverlay collider
+UseStockAppLauncher   = true
+DontCloneResources    = ElectricCharge, LiquidFuel, Oxidizer, Ore, XenonGas, MonoPropellant
 //:mode=c#:
