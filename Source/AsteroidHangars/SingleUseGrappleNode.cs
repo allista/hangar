@@ -73,19 +73,21 @@ namespace AtHangar
 			//initialize animators
 			armAnimator = part.GetAnimator(ArmAnimatorID);
 			fixAnimator = part.GetAnimator(FixAnimatorID);
-			if(this.state != State.Idle)
+            if(is_docked) 
+                StartCoroutine(CallbackUtil.DelayedCallback(3, reinforce_grapple_joint));
+            else if(this.state > State.Armed)
+                this.state = State.Armed;
+            if(this.state != State.Idle)
 			{
 				if(armAnimator != null) 
 					armAnimator.Open();
 			}
-			if(is_docked) 
-				StartCoroutine(CallbackUtil.DelayedCallback(3, reinforce_grapple_joint));
 			if(this.state == State.Fixed)
 			{
 				if(fixAnimator != null)
 					fixAnimator.Open();
-				disable_decoupling();
 			}
+            update_part_menu();
 			//initialize socket
 			if(GrappleEnergyConsumption > 0) 
 				socket = part.CreateSocket();
@@ -95,13 +97,15 @@ namespace AtHangar
 		{
 			base.OnLoad(node);
 			//node and value names are compatible with ModuleGrappleNode
-			var vinfo = node.GetNode("DOCKEDVESSEL");
+            //deprecated config conversion
+            var vinfo = node.GetNode("THISVESSEL") ?? node.GetNode("DOCKEDVESSEL");
 			if(vinfo != null)
 			{
 				this_vessel = new DockedVesselInfo();
 				this_vessel.Load(vinfo);
 			}
-			vinfo = node.GetNode("DOCKEDVESSEL_Other");
+            //deprecated config conversion
+            vinfo = node.GetNode("DOCKEDVESSEL_Other") ?? node.GetNode("DOCKEDVESSEL");
 			if(vinfo != null)
 			{
 				docked_vessel = new DockedVesselInfo();
@@ -134,11 +138,34 @@ namespace AtHangar
 		{
 			base.OnSave(node);
 			node.AddValue("dockUId", this.dockedPartUId);
-			if(docked_vessel != null)
-				docked_vessel.Save(node.AddNode("DOCKEDVESSEL"));
-			if(this_vessel != null)
-				this_vessel.Save(node.AddNode("THISVESSEL"));
+            if(this_vessel != null)
+                this_vessel.Save(node.AddNode("DOCKEDVESSEL"));
+            if(docked_vessel != null)
+                docked_vessel.Save(node.AddNode("DOCKEDVESSEL_Other"));
 		}
+
+        void update_part_menu()
+        {
+            switch(state)
+            {
+            case State.Idle:
+            case State.Armed:
+                Events["Decouple"].active = false;
+                Events["ToggleArming"].active = true;
+                Events["FixGrapple"].active = false;
+                break;
+            case State.Docked:
+                Events["Decouple"].active = true;
+                Events["ToggleArming"].active = false;
+                Events["FixGrapple"].active = true;
+                break;
+            case State.Fixed:
+                Events["Decouple"].active = false;
+                Events["ToggleArming"].active = false;
+                Events["FixGrapple"].active = false;
+                break;
+            }
+        }
 
 		#region Grappling
 		Part FindContactParts()
@@ -241,11 +268,9 @@ namespace AtHangar
 				if (other.vessel.targetObject.GetVessel() == part.vessel)
 					other.vessel.targetObject = null;
 			}
-			//toggle events
-			Events["ToggleArming"].active = false;
-			Events["Decouple"].active = true;
-			Events["FixGrapple"].active = true;
+			//update state and part menu
 			state = State.Docked;
+            update_part_menu();
 			GameEvents.onVesselWasModified.Fire(vessel);
 		}
 
@@ -254,25 +279,25 @@ namespace AtHangar
 		public void Decouple()
 		{
 			var dockedPart = vessel[dockedPartUId];
-			if(dockedPart == null) return;
-			var parent = part.parent;
-			var old_vessel = vessel;
-			var referenceTransformId = vessel.referenceTransformId;
-			if(parent != dockedPart)
-				dockedPart.Undock(docked_vessel);
-			else part.Undock(this_vessel);
-			AddForceAlongGrapples(dockedPart, -GrappleForce);
-			if(old_vessel == FlightGlobals.ActiveVessel)
-			{
-				if(old_vessel[referenceTransformId] == null)
-					StartCoroutine(CallbackUtil.DelayedCallback(1, () => FlightGlobals.ForceSetActiveVessel(vessel)));
-			}
-			Events["ToggleArming"].active = true;
-			Events["Decouple"].active = false;
-			Events["FixGrapple"].active = false;
+			if(dockedPart != null) 
+            {
+    			var parent = part.parent;
+    			var old_vessel = vessel;
+    			var referenceTransformId = vessel.referenceTransformId;
+    			if(parent != dockedPart)
+    				dockedPart.Undock(docked_vessel);
+    			else part.Undock(this_vessel);
+    			AddForceAlongGrapples(dockedPart, -GrappleForce);
+    			if(old_vessel == FlightGlobals.ActiveVessel)
+    			{
+    				if(old_vessel[referenceTransformId] == null)
+    					StartCoroutine(CallbackUtil.DelayedCallback(1, () => FlightGlobals.ForceSetActiveVessel(vessel)));
+    			}
+            }
 			if(armAnimator != null) 
 				armAnimator.Close();
 			state = State.Idle;
+            update_part_menu();
 		}
 
 		void reinforce_grapple_joint()
@@ -311,13 +336,6 @@ namespace AtHangar
 			} 
 		}
 
-		void disable_decoupling()
-		{
-			Events["Decouple"].active = false;
-			Events["ToggleArming"].active = false;
-			Events["FixGrapple"].active = false;
-		}
-
 		IEnumerator<YieldInstruction> delayed_disable_decoupling()
 		{
 			if(fixAnimator != null)
@@ -327,8 +345,8 @@ namespace AtHangar
 				while(fixAnimator.State != AnimatorState.Opened) 
 					yield return new WaitForSeconds(0.5f);
 			}
-			disable_decoupling();
 			state = State.Fixed;
+            update_part_menu();
 			Utils.Message("The grapple was fixed permanently");
 		}
 
