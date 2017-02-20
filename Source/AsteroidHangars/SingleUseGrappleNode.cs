@@ -351,6 +351,15 @@ namespace AtHangar
 		[KSPEvent(guiName = "Try Arm Grapple", guiActive = true, guiActiveEditor = true, active = true)]
 		public void TryArmGrapple()
 		{ if(armAnimator != null) armAnimator.Toggle(); }
+
+        [KSPEvent(guiName = "Spawn Asteroid", guiActive = true, active = true)]
+        public void MakeAsteroid()
+        {
+            var obt = Orbit.CreateRandomOrbitNearby(vessel.orbit);
+            var seed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
+            var ast = DiscoverableObjectsUtil.SpawnAsteroid("Ast. N"+seed, obt, seed, UntrackedObjectClass.E, 5e5, 1e6);
+            ast.vesselRef.DiscoveryInfo.SetLevel(DiscoveryLevels.Owned);
+        }
 		#endif
 
 		Part target;
