@@ -385,9 +385,7 @@ namespace AtHangar
 
 		void SelectVessel()
 		{
-			GUILayout.BeginHorizontal();
 			var next_vessel = Utils.LeftRightChooser(selected_vessel, vessels, vessels_tooltip);
-			GUILayout.EndHorizontal();
 			select_vessel(next_vessel);
 		}
 		public static void SelectVessel(StoredVessel vsl) { Instance.select_vessel(vsl); }
