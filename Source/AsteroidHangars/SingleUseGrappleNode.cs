@@ -73,7 +73,7 @@ namespace AtHangar
 			//initialize animators
 			armAnimator = part.GetAnimator(ArmAnimatorID);
 			fixAnimator = part.GetAnimator(FixAnimatorID);
-            if(is_docked) 
+            if(IsDocked) 
                 StartCoroutine(CallbackUtil.DelayedCallback(3, reinforce_grapple_joint));
             else if(this.state > State.Armed)
                 this.state = State.Armed;
@@ -327,7 +327,7 @@ namespace AtHangar
 		#endregion
 
 		#region Fixing
-		bool is_docked
+		public bool IsDocked
 		{ 
 			get 
 			{ 
@@ -353,7 +353,7 @@ namespace AtHangar
 		[KSPEvent(guiActive = true, guiName = "Fix Grapple Permanently", active = false)]
 		public void FixGrapple()
 		{ 
-			if(!is_docked) 
+			if(!IsDocked) 
 			{ Utils.Message("Nothing to fix to"); return; }
 			if(fixAnimator != null && fixAnimator.Playing)
 			{ Utils.Message("Already working..."); return; }
