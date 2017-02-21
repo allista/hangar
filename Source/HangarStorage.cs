@@ -253,7 +253,7 @@ namespace AtHangar
 		#region Logistics
 		public override bool CanHold(PackedVessel vsl)
 		{
-			if(!SpawnManager.VesselFits(vsl)) return false;
+			if(!VesselFits(vsl)) return false;
 			var pc = vsl as PackedConstruct;
 			if(pc != null) return packed_constructs.CanAdd(pc);
 			var sv = vsl as StoredVessel;
