@@ -126,10 +126,10 @@ namespace AtHangar
 			{
 				var launch_empty = new GameObject("auto_spawn_empty");
 				var parent = Space != null? Space.transform : part.transform;
-				launch_empty.transform.SetParent(parent);
+                launch_empty.transform.SetParent(parent, false);
 				spawn_transform = launch_empty.transform;
 			}
-//			Utils.Log("VesselSpawnManager.Load: {}\nMetric: {}", this, SpaceMetric);//debug
+//            Utils.Log("{}: VesselSpawnManager.Load: {}\nMetric: {}", part, this, SpaceMetric);//debug
 		}
 
 		public Vector3 GetSpawnOffset(PackedVessel v)
