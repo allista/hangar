@@ -33,7 +33,8 @@ namespace AtHangar
 			base.early_setup(state);
 			SpawnManager = new VesselSpawnManager(part);
 			SpawnManager.Load(ModuleConfig);
-			if(Storage != null) Storage.FitConstraint = SpawnManager.VesselFits;
+			if(Storage != null) 
+                Storage.FitConstraint = SpawnManager.VesselFits;
 		}
 
 		protected override Vector3 get_spawn_offset(PackedVessel pv)
@@ -44,17 +45,6 @@ namespace AtHangar
 
 		public override Transform GetSpawnTransform()
 		{ return SpawnManager.AutoPositionVessel? null : SpawnManager.GetSpawnTransform(); }
-
-//		protected override bool try_store_vessel(PackedVessel v)
-//		{
-//			if(!SpawnManager.VesselFits(v))
-//			{
-//				Utils.Message(6, "Vessel clearance is insufficient for safe docking.\n\n" +
-//				              "\"{0}\" cannot be stored", v.name);
-//				return Storage.TryAddUnfit(v);
-//			}
-//			return Storage.TryStoreVessel(v);
-//		}
 
 		protected override bool can_restore(PackedVessel v)
 		{ 
