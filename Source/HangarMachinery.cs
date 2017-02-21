@@ -422,14 +422,18 @@ namespace AtHangar
 			apply_force = true;
 			//get vessel crew on board
 			stored_vessel.ExtractProtoVesselCrew(vessel, part);
-			//switch to hangar vessel before storing
-			if(FlightGlobals.ActiveVessel.id == vsl.id)
-				FlightGlobals.ForceSetActiveVessel(vessel);
 			//respawn crew portraits
 			if(stored_vessel.crew.Count > 0)
 				CrewTransferBatch.respawnCrew(vessel);
             //update display values
             update_total_values();
+            //switch to the hangar if needed
+            if(FlightGlobals.ActiveVessel == vsl)
+            {
+                FlightCameraOverride.HoldCameraStillForSeconds(vessel.transform, 1);
+                FlightGlobals.ForceSetActiveVessel(vessel);
+                FlightInputHandler.SetNeutralControls();
+            }
 			//destroy vessel
 			vsl.Die();
 			Utils.Message("\"{0}\" has been docked inside the hangar", stored_vessel.name);
