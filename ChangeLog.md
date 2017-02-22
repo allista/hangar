@@ -5,7 +5,15 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ###ChangeLog
 
-* **v3.3.0**
+* **v3.3.1**
+    * Added appropriate CLS configs by Kerbas-ad-astra.
+    * Added separate icons for Toolbar and AppLauncher.
+    * Fixed inability to decouple the grapple/hatch after qsave/load.
+    * Fixed Asteroid Gateway store/launch functionality.
+    * When a vessel is docked inside a hangar the camera is now held still (instead of jump-switching) and the controls are newtralized to avoid accidental engine burns on the hangar's vessel.
+    * Asteroid Gateway's docking space have strict positioning.
+
+* v3.3.0
     * Implemented **subassembly loading into hangars** in Editor.
     * Converted both Asteroid Hatch and Structural Grapple to use the new SingleUseGrappleNode that **fixes the sliding-hatch problem**. Moved both to Coupling category.
     * Moved Hatch Port Adapter to Coupling category.
@@ -14,7 +22,7 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
     * Fixed TotalStoredMass display.
     * Fixed the issues with vessel transfer window.
 
-* **v3.2.1.3**
+* v3.2.1.3
     * **Dropped RemoteTech and AntennaRange patches.**
     * Added GroundWorkshop module with 100% efficiency to the Big Ground Hangar (for Ground Construction mod).
     * **Fixed the NaN storage size** in DynamicStorage caused by creation of 100%V tank.
