@@ -218,6 +218,25 @@ namespace AtHangar
 		#endregion
 
 		#region Docking
+        //failsafe in case DockedVesselInfo is lost
+        void restore_docking_info(Part docked_part)
+        {
+            if(this_vessel == null)
+            {
+                this_vessel = new DockedVesselInfo();
+                this_vessel.name = vessel.vesselName;
+                this_vessel.vesselType = vessel.vesselType;
+                this_vessel.rootPartUId = part.flightID;
+            }
+            if(docked_vessel == null && docked_part != null)
+            {
+                docked_vessel = new DockedVesselInfo();
+                docked_vessel.name = Vessel.AutoRename(vessel, vessel.vesselName);
+                docked_vessel.vesselType = vessel.vesselType;
+                docked_vessel.rootPartUId = docked_part.flightID;
+            }
+        }
+
 		public void DockToVessel(Part other)
 		{
 			this.Log("Docking to vessel: {}", other.vessel.vesselName);
@@ -281,6 +300,7 @@ namespace AtHangar
 			var dockedPart = vessel[dockedPartUId];
 			if(dockedPart != null) 
             {
+                restore_docking_info(dockedPart);
     			var parent = part.parent;
     			var old_vessel = vessel;
     			var referenceTransformId = vessel.referenceTransformId;
