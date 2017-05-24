@@ -526,8 +526,8 @@ namespace AtHangar
 				}
 			}
 			#if DEBUG
-			//			DrawBounds();
-			DrawPoints();
+//			DrawBounds();
+//			DrawPoints();
 			#endif
 		}
 
