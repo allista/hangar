@@ -430,7 +430,7 @@ namespace AtHangar
             //switch to the hangar if needed
             if(FlightGlobals.ActiveVessel == vsl)
             {
-                FlightCameraOverride.HoldCameraStillForSeconds(vessel.transform, 1);
+                FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, vessel.transform, 1);
                 FlightGlobals.ForceSetActiveVessel(vessel);
                 FlightInputHandler.SetNeutralControls();
             }
@@ -587,7 +587,7 @@ namespace AtHangar
 
 		IEnumerator<YieldInstruction> launch_vessel(StoredVessel sv)
 		{
-			FlightCameraOverride.HoldCameraStillForSeconds(vessel.transform, 1);
+            FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, vessel.transform, 1);
 			launched_vessel = sv;
 			yield return null;
 			before_vessel_launch();
@@ -602,7 +602,7 @@ namespace AtHangar
 			var vsl = launched_vessel.vessel;
 			var vsl_colliders = new List<Collider>();
 			if(vsl == null) goto end;
-			FlightCameraOverride.HoldCameraStillForSeconds(vsl.transform, 1, true);
+            FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, vsl.transform, 1, true);
 			if(vessel.LandedOrSplashed)
 			{
 				var pos = vsl.transform.position;

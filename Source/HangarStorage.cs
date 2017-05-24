@@ -388,7 +388,7 @@ namespace AtHangar
 			//wait for other storages to be ready
 			while(!other_storages_ready) yield return WaitWithPhysics.ForNextUpdate();
 			//fix the FlightCamera to prevent it from jumping to and from converted vessels
-			FlightCameraOverride.HoldCameraStillForSeconds(vessel.transform, 1);
+            FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, vessel.transform, 1);
 			//create vessels from constructs and store them
 			foreach(PackedConstruct pc in packed_constructs.Values)
 			{
