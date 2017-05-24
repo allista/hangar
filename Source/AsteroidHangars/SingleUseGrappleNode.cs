@@ -325,9 +325,9 @@ namespace AtHangar
 			var dockedPart = vessel[dockedPartUId];
 			if(dockedPart == null) return;
 			if(part.parent == dockedPart && part.attachJoint != null) 
-				part.attachJoint.SetUnbreakable(true, part.rigidAttachment);
+                part.attachJoint.SetUnbreakable(true, true);
 			else if(dockedPart.parent == part && dockedPart.attachJoint != null) 
-				dockedPart.attachJoint.SetUnbreakable(true, dockedPart.rigidAttachment);
+                dockedPart.attachJoint.SetUnbreakable(true, true);
 			else 
 				this.Log("Unable to find attachJoint when grappled. This should never heppen.\n" +
 				         "part parent {}\n" +
