@@ -404,9 +404,9 @@ namespace AtHangar
 				}
 				ShipConstruction.PutShipToGround(pc.construct, part.transform);
 				ShipConstruction.AssembleForLaunch(pc.construct, 
-					vessel.landedAt, pc.flag, 
-					FlightDriver.FlightStateCache,
-					new VesselCrewManifest());
+                                                   vessel.landedAt, vessel.displaylandedAt, pc.flag, 
+                                                   FlightDriver.FlightStateCache,
+                                                   new VesselCrewManifest());
 				StageManager.BeginFlight();
 				var vsl = FlightGlobals.Vessels[FlightGlobals.Vessels.Count - 1];
 				FlightGlobals.ForceSetActiveVessel(vsl);
