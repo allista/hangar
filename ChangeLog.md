@@ -5,7 +5,11 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ###ChangeLog
 
-* **v3.3.1**
+* **v3.3.1.1**
+    * Compatible with KSP-1.3
+    * Fixed some issues with Single Use Grapple.
+
+* v3.3.1
     * Added appropriate CLS configs by Kerbas-ad-astra.
     * Added separate icons for Toolbar and AppLauncher.
     * Fixed inability to decouple the grapple/hatch after qsave/load.
