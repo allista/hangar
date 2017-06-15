@@ -53,7 +53,7 @@ namespace AtHangar
 		public float UsedVolume
 		{ get { return Storage == null ? 0f : Storage.UsedVolume; } }
 
-		public float UsedVolumeFrac { get { return UsedVolume/Volume; } }
+        public float UsedVolumeFrac { get { return Storage == null || Storage.Volume.Equals(0)? 1 : UsedVolume/Volume; } }
 
 		public List<StoredVessel> GetVessels()
 		{ return Storage == null? new List<StoredVessel>() : Storage.GetVessels(); }
@@ -460,7 +460,7 @@ namespace AtHangar
 		#region Restore
 		#region Positioning
 		protected virtual void on_vessel_positioned() {}
-		protected virtual void before_vessel_launch() {}
+        protected virtual IEnumerable<YieldInstruction> before_vessel_launch() { yield break; }
 
 		protected abstract Vector3 get_spawn_offset(PackedVessel pv);
 		protected abstract Transform get_spawn_transform(PackedVessel pv);
@@ -590,7 +590,8 @@ namespace AtHangar
             FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, vessel.transform, 1);
 			launched_vessel = sv;
 			yield return null;
-			before_vessel_launch();
+            foreach(var yi in before_vessel_launch()) 
+                yield return yi;
 			TransferResources(launched_vessel);
 			//this is for compatibility with the old crew transfer framework
 			//to prevent crew duplication

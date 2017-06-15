@@ -23,7 +23,10 @@ namespace AtHangar
 		[KSPField] public Vector3 JettisonDirection = Vector3.up;
 		[KSPField] public float   JettisonForce     = 50f;
 		[KSPField] public double  DebrisLifetime    = 600;
-		Transform[] fairings;
+        [KSPField] public string  DecoupleNodes     = "";
+
+        List<Transform> fairings = new List<Transform>();
+        List<AttachNode> decoupleNodes = new List<AttachNode>();
 
 		[KSPField(isPersistant = true)] public float debris_cost, debris_mass = -1f;
 
@@ -84,8 +87,8 @@ namespace AtHangar
 
 		public void AssumeDragCubePosition(string anim) 
 		{
-			fairings = part.FindModelTransforms(Fairings);
-			if(fairings == null) return;
+            find_fairings();
+            if(fairings.Count == 0) return;
 			if(anim == "Fairing")
 				fairings.ForEach(f => f.gameObject.SetActive(true));
 			else 
@@ -101,6 +104,16 @@ namespace AtHangar
 			if(jettisoned) part.CoMOffset = BaseCoMOffset;
 		}
 
+        void find_fairings()
+        {
+            fairings.Clear();
+            foreach(var fairing in Utils.ParseLine(Fairings, Utils.Comma))
+            {
+                var transforms = part.FindModelTransforms(fairing);
+                if(transforms != null) fairings.AddRange(transforms);
+            }
+        }
+
 		protected override void early_setup(StartState state)
 		{
 			base.early_setup(state);
@@ -109,8 +122,9 @@ namespace AtHangar
 			update_crew_capacity(CrewCapacity);
 			Events["EditName"].active = false;
 			FX = part.findFxGroup(FxGroup);
-			fairings = part.FindModelTransforms(Fairings);
-			if(fairings != null)
+            //setup fairings
+            find_fairings();
+            if(fairings.Count > 0)
 			{
 				if(jettisoned)
 				{
@@ -129,6 +143,13 @@ namespace AtHangar
 				}
 			}
 			else this.Log("No Fairings transforms found with the name: {}", Fairings);
+            //setup attach nodes
+            decoupleNodes.Clear();
+            foreach(var nodeID in Utils.ParseLine(DecoupleNodes, Utils.Comma))
+            {
+                var node = part.FindAttachNode(nodeID);
+                if(node != null) decoupleNodes.Add(node);
+            }
 			JettisonDirection.Normalize();
 			if(vessel != null) vessel.SpawnCrew();
 			if(Storage != null)
@@ -261,11 +282,64 @@ namespace AtHangar
 			}
 		}
 
-		protected override void before_vessel_launch()
+        struct ForceTarget
+        { 
+            public Vector3 pos;
+            public Vector3 force;
+            public Rigidbody target;
+            public ForceTarget(Rigidbody target, Vector3 force, Vector3 pos)
+            {
+                this.target = target; 
+                this.force = force;
+                this.pos = pos;
+            }
+
+            public void Apply(Rigidbody counterpart)
+            {
+                target.AddForceAtPosition(force, pos, ForceMode.Force);
+                counterpart.AddForceAtPosition(-force, pos, ForceMode.Force);
+            }
+        }
+
+        protected override IEnumerable<YieldInstruction> before_vessel_launch()
 		{
-			if(fairings == null || jettisoned) return;
+            if(fairings.Count == 0 || jettisoned) yield break;
+            //store crew
 			launched_vessel.crew.Clear();
 			launched_vessel.crew.AddRange(part.protoModuleCrew);
+            //decouple surface attached parts and decoupleNodes
+            var decouple = new List<Part>();
+            foreach(var p in part.children)
+            {
+                if(p.srfAttachNode != null && 
+                   p.srfAttachNode.attachedPart == part)
+                    decouple.Add(p);
+            }
+            foreach(var node in decoupleNodes)
+            {
+                if(node.attachedPart != null)
+                {
+                    if(node.attachedPart == part.parent)
+                        decouple.Add(part);
+                    else decouple.Add(node.attachedPart);
+                }
+            }
+            var jettison = new List<ForceTarget>(decouple.Count);
+            foreach(var p in decouple)
+            {
+                var force_target = p;
+                if(p == part) 
+                    force_target = part.parent;
+                p.decouple();
+                if(force_target.Rigidbody != null) 
+                {
+                    var pos = force_target.Rigidbody.worldCenterOfMass;
+                    var force = (pos-part.Rigidbody.worldCenterOfMass).normalized*force_target.mass*JettisonForce*0.5f;
+                    jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos));
+                }
+                yield return null;
+            }
+            //spawn debirs
 			debris = new List<Part>();
 			debris_cost = 0;
 			foreach(var f in fairings)
@@ -273,12 +347,14 @@ namespace AtHangar
 				var d = Debris.SetupOnTransform(part, f, FairingsDensity, FairingsCost, DebrisLifetime);
 				var force = f.TransformDirection(JettisonDirection) * JettisonForce * 0.5f;
 				var pos = d.Rigidbody.worldCenterOfMass;
+                jettison.Add(new ForceTarget(d.Rigidbody, force, pos));
 				d.SetDetectCollisions(false);
-				d.Rigidbody.AddForceAtPosition(force, pos, ForceMode.Force);
-				part.Rigidbody.AddForceAtPosition(-force, pos, ForceMode.Force);
 				debris_cost += FairingsCost;
 				debris.Add(d);
 			}
+            //apply force to spawned/decoupled objects
+            jettison.ForEach(j => j.Apply(part.Rigidbody));
+            //update drag cubes
 			part.DragCubes.SetCubeWeight("Fairing ", 0f);
 			part.DragCubes.SetCubeWeight("Clean ", 1f);
 			part.DragCubes.ForceUpdate(true, true, true);
