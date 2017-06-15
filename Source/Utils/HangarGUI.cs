@@ -15,8 +15,8 @@ namespace AtHangar
 
 		public static void UsedVolumeLabel(float UsedVolume, float UsedVolumeFrac, string label="Used Volume")
 		{
-			GUILayout.Label(string.Format("{0}: {1}   {2:F1}%", label, 
-				Utils.formatVolume(UsedVolume), UsedVolumeFrac*100f), 
+			GUILayout.Label(string.Format("{0}: {1}   {2:P1}", label, 
+				Utils.formatVolume(UsedVolume), UsedVolumeFrac), 
 				Styles.fracStyle(1-UsedVolumeFrac), GUILayout.ExpandWidth(true));
 		}
 
