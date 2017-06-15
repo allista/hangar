@@ -241,6 +241,24 @@ if __name__ == '__main__':
                       ], 
                      add_mass=0.04,
                      add_cost=450)
+
+    box_fairings = part('BoxFairings',
+                         [volume(1.589, 'base', C=1, D=0.02,
+                                 S=surface(18.04, 0.002, Al_Li),
+                                 V=[
+                                    battery(E=50),
+                                    volume(0.1, 'jettison-charge', C=400, M=0.05)]),
+                          volume(1.24, 'cap-left', C=1, D=0.02,
+                                 S=surface(12.98, 0.002, Al_Li)),
+                          volume(0.88, 'cap-right', C=1, D=0.02,
+                                 S=surface(10.91, 0.002, Al_Li)),
+                          volume(0.2062, 'walls', N=8,
+                                 S=surface(5.92, 0.002, composits)),
+                          volume(0.041, 'walls2', N=4,
+                                 S=surface(1.46, 0.002, composits)),
+                          ],
+                         add_mass=0.04,
+                         add_cost=450)
     
     #utilities
     adapter  = part('Adapter', 
