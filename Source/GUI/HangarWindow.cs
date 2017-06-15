@@ -44,9 +44,11 @@ namespace AtHangar
 		[ConfigOption] Guid vessel_id;
 
 		//vessel relocation, crew and resources transfers
+        #pragma warning disable 169
 		CrewTransferWindow crew_window;
 		ResourceTransferWindow resources_window;
 		VesselTransferWindow vessels_window;
+        #pragma warning restore 169
 
 		//vessel volume 
 		void update_vessel_metric(Vessel vsl = null)
@@ -459,7 +461,7 @@ namespace AtHangar
 			base.UnlockControls();
 			Utils.LockIfMouseOver(LockName, InfoWindow, false);
 		}
-		protected override bool can_draw() { return !vessel_metric.Empty; }
+        protected override bool can_draw() { return Time.timeSinceLevelLoad > 3 && !vessel_metric.Empty; }
 		protected override void draw_gui()
 		{
 			if(vessel != null && !vessel.packed && hangars.Count > 0 && selected_hangar.IsControllable && !selected_hangar.NoGUI)
