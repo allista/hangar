@@ -254,7 +254,23 @@ namespace AtHangar
 //			foreach(var dc in part.DragCubes.Cubes)
 //				Utils.GLDrawBounds(new Bounds(dc.Center, dc.Size), part.transform, Color.yellow*dc.Weight);
 		}
-		#endif
+		#else
+        void OnRenderObject()
+        {
+            if(editing_content && Storage != null)
+            {
+                PackedVessel vsl = null;
+                if(Storage.UnfitCount > 0) vsl = Storage.UnfitConstucts[0];
+                else if(Storage.ConstructsCount > 0) vsl = Storage.GetConstructs()[0];
+                if(vsl != null && vsl.metric.hull != null)
+                {
+                    Utils.GLDrawHull2(vsl.metric.hull, get_spawn_transform(vsl), 
+                                      Color.green, 
+                                      vsl.metric.center-get_spawn_offset(vsl), false);
+                }
+            }
+        }
+        #endif
 	}
 }
 
