@@ -23,10 +23,5 @@ namespace AtHangar
                        .Where(t => !t.IsAbstract && (typeof(HangarMachinery).IsAssignableFrom(t) ||
                                                      typeof(HangarStorage).IsAssignableFrom(t))));
         }
-
-        protected override bool filter(AvailablePart part)
-        {
-            return part.moduleInfos.Any(info => MODULES.Any(m => m == info.moduleName));
-        }
 	}
 }
