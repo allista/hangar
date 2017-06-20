@@ -5,7 +5,12 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ###ChangeLog
 
-* **v3.3.1.1**
+* **v3.3.2**
+    * Added **Box Fairings** part for easier payload delivery onto the surface of planets.
+    * Added **displaying of stored vessel**'s convex hull, when storage editor is shown.
+    * Hangar window is now shown after 3s after a level is loaded.
+
+* v3.3.1.1
     * Compatible with KSP-1.3
     * Fixed some issues with Single Use Grapple.
 
