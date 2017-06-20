@@ -16,15 +16,15 @@ namespace AtHangar
 		public static void UsedVolumeLabel(float UsedVolume, float UsedVolumeFrac, string label="Used Volume")
 		{
 			GUILayout.Label(string.Format("{0}: {1}   {2:P1}", label, 
-				Utils.formatVolume(UsedVolume), UsedVolumeFrac), 
-				Styles.fracStyle(1-UsedVolumeFrac), GUILayout.ExpandWidth(true));
+                                          Utils.formatVolume(UsedVolume), UsedVolumeFrac), 
+                            Styles.fracStyle(1-UsedVolumeFrac), GUILayout.ExpandWidth(true));
 		}
 
-		public static void PackedVesselLabel(PackedVessel v)
+        public static bool PackedVesselLabel(PackedVessel v, GUIStyle style = null)
 		{
-			GUILayout.Label(string.Format("{0}: {1}   Cost: {2:F1}", 
-				v.name, Utils.formatMass(v.mass), v.cost), 
-				Styles.label, GUILayout.ExpandWidth(true));
+			return GUILayout.Button(string.Format("{0}: {1}   Cost: {2:F1}", 
+                                                  v.name, Utils.formatMass(v.mass), v.cost), 
+                                    style ?? Styles.label, GUILayout.ExpandWidth(true));
 		}
 		#endregion
 

@@ -38,6 +38,7 @@ namespace AtHangar
 			pc.UpdateMetric();
 			try_store_vessel(pc);
 			pc.UnloadConstruct();
+            highlighted_content = pc;
 			Utils.LockControls(scLock, false);
 		}
 
@@ -88,6 +89,7 @@ namespace AtHangar
 		}
 		void selection_canceled() { vessel_selector = null; }
 
+        PackedVessel highlighted_content;
 		void hangar_content_editor(int windowID)
 		{
 			GUILayout.BeginVertical();
@@ -115,7 +117,8 @@ namespace AtHangar
 			foreach(PackedConstruct pc in constructs)
 			{
 				GUILayout.BeginHorizontal();
-				HangarGUI.PackedVesselLabel(pc);
+                if(HangarGUI.PackedVesselLabel(pc, pc == highlighted_content? Styles.white : Styles.label))
+                    highlighted_content = pc;
 				if(GUILayout.Button("+1", Styles.green_button, GUILayout.Width(25))) 
 					try_store_vessel(pc.Clone());
 				if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) 
@@ -134,7 +137,8 @@ namespace AtHangar
 				foreach(PackedConstruct pc in Storage.UnfitConstucts)
 				{
 					GUILayout.BeginHorizontal();
-					HangarGUI.PackedVesselLabel(pc);
+                    if(HangarGUI.PackedVesselLabel(pc, pc == highlighted_content? Styles.white : Styles.label))
+                        highlighted_content = pc;
 					if(GUILayout.Button("^", Styles.green_button, GUILayout.Width(25))) 
 					{ if(try_store_vessel(pc.Clone())) Storage.RemoveUnfit(pc); }
 					if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) 
@@ -257,16 +261,13 @@ namespace AtHangar
 		#else
         void OnRenderObject()
         {
-            if(editing_content && Storage != null)
+            if(editing_content && vessel_selector == null && Storage != null)
             {
-                PackedVessel vsl = null;
-                if(Storage.UnfitCount > 0) vsl = Storage.UnfitConstucts[0];
-                else if(Storage.ConstructsCount > 0) vsl = Storage.GetConstructs()[0];
-                if(vsl != null && vsl.metric.hull != null)
+                if(highlighted_content != null && highlighted_content.metric.hull != null)
                 {
-                    Utils.GLDrawHull2(vsl.metric.hull, get_spawn_transform(vsl), 
+                    Utils.GLDrawHull2(highlighted_content.metric.hull, get_spawn_transform(highlighted_content), 
                                       Color.green, 
-                                      vsl.metric.center-get_spawn_offset(vsl), false);
+                                      highlighted_content.metric.center-get_spawn_offset(highlighted_content), false);
                 }
             }
         }
