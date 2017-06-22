@@ -252,10 +252,8 @@ if __name__ == '__main__':
                                  S=surface(12.98, 0.002, Al_Li)),
                           volume(0.88, 'cap-right', C=1, D=0.02,
                                  S=surface(10.91, 0.002, Al_Li)),
-                          volume(0.2062, 'walls', N=8,
-                                 S=surface(5.92, 0.002, composits)),
-                          volume(0.041, 'walls2', N=4,
-                                 S=surface(1.46, 0.002, composits)),
+                          volume(0.4537, 'walls', N=4,
+                                 S=surface(12.64, 0.002, composits)),
                           ],
                          add_mass=0.04,
                          add_cost=450)
