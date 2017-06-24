@@ -1,7 +1,7 @@
 { 
     "NAME":"Hangar",
     "URL":"https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version",
-    "DOWNLOAD":"https://github.com/allista/hangar/releases",
+    "DOWNLOAD":"https://spacedock.info/mod/1000/Hangar",
     "CHANGE_LOG_URL":"https://github.com/allista/hangar/blob/master/ChangeLog.md",
     "VERSION":
      {

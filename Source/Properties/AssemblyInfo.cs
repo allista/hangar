@@ -43,7 +43,7 @@ namespace AtHangar
 			MaxKSPVersion = new Version(1,3,0);
 
 			VersionURL   = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
-			UpgradeURL   = "https://github.com/allista/hangar/releases";
+            UpgradeURL   = "https://spacedock.info/mod/1000/Hangar";
 			ChangeLogURL = "https://github.com/allista/hangar/blob/master/ChangeLog.md";
 		}
 	}
