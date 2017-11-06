@@ -250,7 +250,7 @@ namespace AtHangar
 					var spawn_transform = get_spawn_transform(vsl);
 					var spawn_point = metric.center-get_spawn_offset(vsl);
 					Utils.GLDrawPoint(Vector3.zero, spawn_transform, Color.red);
-					if(hull != null) Utils.GLDrawHull(hull, spawn_transform, Color.green, spawn_point, false);
+					if(hull != null) Utils.GLDrawHull(hull, spawn_transform, Color.green, offset:spawn_point, filled:false);
 				}
 //				if(Storage.hangar_space != null)
 //					Utils.GLDrawMesh(Storage.hangar_space.sharedMesh, Storage.hangar_space.transform, c:Color.cyan, filled:false);
@@ -266,7 +266,7 @@ namespace AtHangar
                 if(highlighted_content != null && highlighted_content.metric.hull != null)
                 {
                     Utils.GLDrawHull2(highlighted_content.metric.hull, get_spawn_transform(highlighted_content), 
-                                      Color.green, 
+                                      Color.green, null,
                                       highlighted_content.metric.center-get_spawn_offset(highlighted_content), false);
                 }
             }
