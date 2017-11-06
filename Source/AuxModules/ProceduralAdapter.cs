@@ -92,13 +92,14 @@ namespace AtHangar
 				setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
 				setup_field(Fields["aspect"], minAspect, maxAspect, aspectStepLarge, aspectStepSmall);
 			}
+            StartCoroutine(CallbackUtil.WaitUntil(() => passage == null || passage.Ready, UpdateMesh));
 		}
 
 		public void Update() 
 		{ 
+            if(!HighLogic.LoadedSceneIsEditor) return;
 			if(old_size != size || unequal(old_aspect, aspect))
 			{ UpdateMesh(); part.BreakConnectedCompoundParts(); }
-			else if(just_loaded) UpdateMesh();
 		}
 
 		void get_part_components()
@@ -221,6 +222,7 @@ namespace AtHangar
 			old_size = size;
 			old_aspect = aspect;
 			Utils.UpdateEditorGUI();
+            StartCoroutine(CallbackUtil.DelayedCallback(1, UpdateDragCube));
 			just_loaded = false;
 		}
 	}
