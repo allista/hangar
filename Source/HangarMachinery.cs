@@ -422,9 +422,6 @@ namespace AtHangar
 			apply_force = true;
 			//get vessel crew on board
 			stored_vessel.ExtractProtoVesselCrew(vessel, part);
-			//respawn crew portraits
-			if(stored_vessel.crew.Count > 0)
-				CrewTransferBatch.respawnCrew(vessel);
             //update display values
             update_total_values();
             //switch to the hangar if needed
@@ -434,6 +431,9 @@ namespace AtHangar
                 FlightGlobals.ForceSetActiveVessel(vessel);
                 FlightInputHandler.SetNeutralControls();
             }
+            //respawn crew portraits
+            if(stored_vessel.crew.Count > 0)
+                CrewTransferBatch.respawnCrew(vsl, vessel);
 			//destroy vessel
 			vsl.Die();
 			Utils.Message("\"{0}\" has been docked inside the hangar", stored_vessel.name);
@@ -587,7 +587,7 @@ namespace AtHangar
 
 		IEnumerator<YieldInstruction> launch_vessel(StoredVessel sv)
 		{
-            FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, vessel.transform, 1);
+            FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, part.transform, 1);
 			launched_vessel = sv;
 			yield return null;
             foreach(var yi in before_vessel_launch()) 
@@ -603,7 +603,7 @@ namespace AtHangar
 			var vsl = launched_vessel.vessel;
 			var vsl_colliders = new List<Collider>();
 			if(vsl == null) goto end;
-            FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, vsl.transform, 1, true);
+            FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, part.transform, 1, true);
 			if(vessel.LandedOrSplashed)
 			{
 				var pos = vsl.transform.position;
