@@ -7,70 +7,58 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: asteroid-hatch-dock-adapter
-  m_Shader: {fileID: 4800000, guid: 8deb5d99e5582cb4fa66782c19ee43ad, type: 3}
+  m_Shader: {fileID: 4800000, guid: ac859b44038643d40b88f24aceac191c, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   m_SavedProperties:
     serializedVersion: 2
     m_TexEnvs:
-      data:
-        first:
-          name: _MainTex
-        second:
-          m_Texture: {fileID: 2800000, guid: 68abc5865a6ba56479cfca9f9ff349d4, type: 3}
-          m_Scale: {x: 1, y: 1}
-          m_Offset: {x: 0, y: 0}
-      data:
-        first:
-          name: _BumpMap
-        second:
-          m_Texture: {fileID: 2800000, guid: 0f0905182425f7246b7e02afc34f01cf, type: 3}
-          m_Scale: {x: 1, y: 1}
-          m_Offset: {x: 0, y: 0}
-      data:
-        first:
-          name: _Emissive
-        second:
-          m_Texture: {fileID: 2800000, guid: 65aa4bea15fff094fbf5d6671d251d0b, type: 3}
-          m_Scale: {x: 1, y: 1}
-          m_Offset: {x: 0, y: 0}
+    - first:
+        name: _BumpMap
+      second:
+        m_Texture: {fileID: 2800000, guid: 0f0905182425f7246b7e02afc34f01cf, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - first:
+        name: _Emissive
+      second:
+        m_Texture: {fileID: 2800000, guid: 65aa4bea15fff094fbf5d6671d251d0b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - first:
+        name: _MainTex
+      second:
+        m_Texture: {fileID: 2800000, guid: 68abc5865a6ba56479cfca9f9ff349d4, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
-      data:
-        first:
-          name: _Shininess
-        second: .078125
-      data:
-        first:
-          name: _Opacity
-        second: 1
-      data:
-        first:
-          name: _RimFalloff
-        second: .100000001
+    - first:
+        name: _Opacity
+      second: 1
+    - first:
+        name: _RimFalloff
+      second: 0.1
+    - first:
+        name: _Shininess
+      second: 0.078125
     m_Colors:
-      data:
-        first:
-          name: _Color
-        second: {r: .800000012, g: .800000012, b: .800000012, a: 1}
-      data:
-        first:
-          name: _SpecColor
-        second: {r: .5, g: .5, b: .5, a: 1}
-      data:
-        first:
-          name: _RimColor
-        second: {r: 0, g: 0, b: 0, a: 0}
-      data:
-        first:
-          name: _TemperatureColor
-        second: {r: 0, g: 0, b: 0, a: 0}
-      data:
-        first:
-          name: _BurnColor
-        second: {r: 1, g: 1, b: 1, a: 1}
-      data:
-        first:
-          name: _EmissiveColor
-        second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _BurnColor
+      second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _Color
+      second: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+    - first:
+        name: _EmissiveColor
+      second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _RimColor
+      second: {r: 0, g: 0, b: 0, a: 0}
+    - first:
+        name: _SpecColor
+      second: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - first:
+        name: _TemperatureColor
+      second: {r: 0, g: 0, b: 0, a: 0}
