@@ -22,7 +22,7 @@ using AT_Utils;
 #if NIGHTBUILD
 [assembly: AssemblyVersion("3.3.*")]
 #else
-[assembly: AssemblyVersion("3.3.2.0")]
+[assembly: AssemblyVersion("3.3.3.0")]
 #endif
 [assembly: KSPAssembly("Hangar", 3, 3)]
 
@@ -39,8 +39,8 @@ namespace AtHangar
 	{
 		public ModInfo()
 		{
-			MinKSPVersion = new Version(1,3,0);
-			MaxKSPVersion = new Version(1,3,0);
+			MinKSPVersion = new Version(1,3,1);
+			MaxKSPVersion = new Version(1,3,1);
 
 			VersionURL   = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
             UpgradeURL   = "https://spacedock.info/mod/1000/Hangar";
