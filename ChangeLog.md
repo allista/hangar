@@ -3,7 +3,21 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-###ChangeLog
+* **v3.3.3**
+    * **Single Use Grapples**:
+        * Fixed attachment using auto-generated AttachNodes.
+        * Fixed grapple joint reinforcement.
+        * Added HUD overlay for grapple contact points:
+            * red line means "too far" from attach point
+            * green line means "close enough"
+            * when all are green, grapple is attached immediately
+    * Fixed camera jumping on launch from hangar.
+    * **Merged -- Asteroid Hatch + Asteroid Hatch Port** into a single part. 
+        * *Old parts in flight will function, but will not be available in Editor.*
+    * Added two lamps on the sides of Hatch Port Adapter.
+    * Increased lamp range of Structural Grapple.
+    * Corrected Box Fairing mass calculation.
+    * Procedural Adapter updates mesh after passage is Ready. And updates DragCubes as well.
 
 * **v3.3.2**
     * Added **Box Fairings** part for easier payload delivery onto the surface of planets.
