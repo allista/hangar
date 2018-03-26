@@ -132,7 +132,7 @@ namespace AtHangar
 
 		bool VesselFits(PackedVessel pv)
 		{
-			if(!SpawnManager.VesselFits(pv)) return false;
+            if(pv == null || !SpawnManager.MetricFits(pv.metric)) return false;
 			var constraints = FitConstraint.GetInvocationList();
 			for(int i = 0, len = constraints.Length; i < len; i++)
 			{
@@ -377,6 +377,10 @@ namespace AtHangar
 			{ unfit_constructs.Add(pc); return true; }
 			return stored;
 		}
+
+        public bool Contains(PackedConstruct item) => packed_constructs.Contains(item);
+        public bool Contains(StoredVessel item) => stored_vessels.Contains(item);
+        public bool Contains(PackedVessel item) => packed_constructs.Contains(item) || stored_vessels.Contains(item);
 
 		IEnumerator<YieldInstruction> convert_constructs_to_vessels()
 		{
