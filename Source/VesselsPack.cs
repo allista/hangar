@@ -211,6 +211,7 @@ namespace AtHangar
 		
 		public int Count { get { return stored_vessels.Count; } }
 		public List<V> Values { get { return new List<V>(stored_vessels.Values); } }
+        public bool Contains(V vsl) { return vsl != null && stored_vessels.ContainsKey(vsl.id); }
 
 		#region IEnumerable
 		public IEnumerator<PackedVessel> GetEnumerator()
