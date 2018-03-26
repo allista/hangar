@@ -34,22 +34,22 @@ namespace AtHangar
 			SpawnManager = new VesselSpawnManager(part);
 			SpawnManager.Load(ModuleConfig);
 			if(Storage != null) 
-                Storage.FitConstraint = SpawnManager.VesselFits;
+                Storage.FitConstraint = pv => SpawnManager.MetricFits(pv.metric);
 		}
 
 		protected override Vector3 get_spawn_offset(PackedVessel pv)
-		{ return SpawnManager.GetSpawnOffset(pv); }
+        { return SpawnManager.GetSpawnOffset(pv.metric); }
 
 		protected override Transform get_spawn_transform(PackedVessel pv)
-		{ return SpawnManager.GetSpawnTransform(pv); }
+        { return SpawnManager.GetSpawnTransform(pv.metric); }
 
 		public override Transform GetSpawnTransform()
 		{ return SpawnManager.AutoPositionVessel? null : SpawnManager.GetSpawnTransform(); }
 
 		protected override bool can_restore(PackedVessel v)
 		{ 
-			if(!base.can_restore(v)) return false;
-			if(!SpawnManager.VesselFits(v))
+			if(v == null || !base.can_restore(v)) return false;
+            if(!SpawnManager.MetricFits(v.metric))
 			{
 				Utils.Message(6, "Vessel clearance is insufficient for safe launch.\n\n" +
 				              "\"{0}\" cannot be launched", v.name);

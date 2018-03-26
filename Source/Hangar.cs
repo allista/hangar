@@ -41,10 +41,10 @@ namespace AtHangar
 		}
 
 		protected override Vector3 get_spawn_offset(PackedVessel pv)
-		{ return Storage.SpawnManager.GetSpawnOffset(pv); }
+        { return Storage.SpawnManager.GetSpawnOffset(pv.metric); }
 
 		protected override Transform get_spawn_transform(PackedVessel pv)
-		{ return Storage.SpawnManager.GetSpawnTransform(pv); }
+        { return Storage.SpawnManager.GetSpawnTransform(pv.metric); }
 
 		public override Transform GetSpawnTransform()
 		{ return Storage.SpawnManager.AutoPositionVessel? null : Storage.SpawnManager.GetSpawnTransform(); }
