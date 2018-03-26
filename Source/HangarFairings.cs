@@ -83,7 +83,7 @@ namespace AtHangar
 
 		#region IMultipleDragCube
 		static readonly string[] cube_names = {"Fairing", "Clean"};
-		public string[] GetDragCubeNames() { return cube_names; }
+		public string[] GetDragCubeNames() => cube_names;
 
 		public void AssumeDragCubePosition(string anim) 
 		{
@@ -94,8 +94,8 @@ namespace AtHangar
 			else 
 				fairings.ForEach(f => f.gameObject.SetActive(false));
 		}
-		public bool UsesProceduralDragCubes() { return false; }
-		public bool IsMultipleCubesActive { get { return true; } }
+		public bool UsesProceduralDragCubes() => false;
+		public bool IsMultipleCubesActive => true;
 		#endregion
 
 		public void UpdateCoMOffset(Vector3 CoMOffset)
@@ -444,12 +444,12 @@ namespace AtHangar
 		public void LaunchVessel()
 		{
 			if(launch_in_progress) return;
-			Open();	StartCoroutine(delayed_launch());
+			Open();	
+            StartCoroutine(delayed_launch());
 		}
 
 		[KSPAction("Jettison Payload")]
-		public void LaunchVesselAction(KSPActionParam param)
-		{ LaunchVessel(); }
+		public void LaunchVesselAction(KSPActionParam param) => LaunchVessel();
 
 		public override void OnActive()
 		{ 
