@@ -135,6 +135,14 @@ namespace AtHangar
 		public override void OnAwake()
 		{
 			base.OnAwake();
+            var obj = new GameObject("ContentHullMesh", typeof(MeshFilter), typeof(MeshRenderer));
+            obj.transform.SetParent(gameObject.transform);
+            content_hull_mesh = obj.GetComponent<MeshFilter>();
+            content_hull_renderer = obj.GetComponent<MeshRenderer>();
+            content_hull_renderer.material = Utils.no_z_material;
+            content_hull_renderer.material.color = content_color_fit;
+            content_hull_renderer.enabled = true;
+            obj.SetActive(false);
 			hangar_name_editor = gameObject.AddComponent<SimpleTextEntry>();
 			GameEvents.onVesselWasModified.Add(update_connected_storage);
 			GameEvents.onEditorShipModified.Add(update_connected_storage);
@@ -145,12 +153,18 @@ namespace AtHangar
 		public virtual void OnDestroy() 
 		{ 
 			Destroy(hangar_name_editor);
+            Destroy(content_hull_mesh.gameObject);
 			if(vessels_window != null) Destroy(vessels_window);
 			if(subassembly_selector != null) Destroy(subassembly_selector);
 			GameEvents.onVesselWasModified.Remove(update_connected_storage);
 			GameEvents.onEditorShipModified.Remove(update_connected_storage);
 			GameEvents.onVesselGoOffRails.Remove(onVesselGoOffRails);
 			GameEvents.onVesselLoaded.Remove(onVesselLoaded);
+            if(Storage != null)
+            {
+                Storage.OnConstructStored -= highlight_fitted_content;
+                Storage.OnConstructRemoved -= highlight_unfitted_content;
+            }
 		}
 
 		void update_resources()
@@ -275,6 +289,8 @@ namespace AtHangar
 			early_setup(state);
 			if(Storage == null)
 				this.EnableModule(false);
+            Storage.OnConstructStored += highlight_fitted_content;
+            Storage.OnConstructRemoved += highlight_unfitted_content;
 			Setup();
 			start_coroutines();
 		}
@@ -738,19 +754,16 @@ namespace AtHangar
 		public void TryRestoreVessel(StoredVessel stored_vessel)
 		{
 			if(!can_restore(stored_vessel)) return;
+            Utils.Message("Launching \"{0}\"...", stored_vessel.name);
+            GameEvents.onHideUI.Fire();
+            Utils.SaveGame(stored_vessel.name+"-before_launch", false);
 			//clean up
 			if(!Storage.RemoveVessel(stored_vessel))
-			{
-				Utils.Message("WARNING: restored vessel is not found in the Stored Vessels: {0}\n" +
-					"This should never happen!", stored_vessel.id);
-				return;
-			}
-			Utils.Message("Launching \"{0}\"...", stored_vessel.name);
+				this.Log("WARNING: restored vessel is not found in the Stored Vessels: {0}\n" +
+                         "This should never happen!", stored_vessel.id);
 			//switch hangar state
 			Deactivate();
 			//restore vessel
-			GameEvents.onHideUI.Fire();
-			Utils.SaveGame(stored_vessel.name+"-before_launch", false);
 			StartCoroutine(launch_vessel(stored_vessel));
 		}
 		#endregion

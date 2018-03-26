@@ -24,11 +24,49 @@ namespace AtHangar
 		Rect eWindowPos  = new Rect(Screen.width/2-window_width/2, 100, window_width, 100);
 
 		bool editing_content;
+        static readonly Color content_color_fit = new Color{r=0, g=1, b=0, a=0.25f};
+        static readonly Color content_color_unfit = new Color{r=1, g=0, b=0, a=0.25f};
+        MeshRenderer content_hull_renderer;
+        MeshFilter content_hull_mesh;
+        PackedVessel highlighted_content;
 		SimpleTextEntry hangar_name_editor;
 		VesselTransferWindow vessels_window;
 		SubassemblySelector subassembly_selector;
 		CraftBrowserDialog vessel_selector;
 		EditorFacility facility;
+
+        void highlight_fitted_content(PackedVessel pc)
+        {
+            if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)
+                content_hull_renderer.material.color = content_color_fit;
+        }
+
+        void highlight_unfitted_content(PackedVessel pc)
+        {
+            if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)
+                content_hull_renderer.material.color = content_color_unfit;
+        }
+
+        void set_highlighted_content(PackedVessel pc, bool fits=false)
+        {
+            highlighted_content = pc;
+            content_hull_mesh.gameObject.SetActive(false);
+            if(highlighted_content != null)
+            {
+                var mesh = highlighted_content.metric.hull_mesh;
+                if(mesh != null)
+                {
+                    content_hull_mesh.mesh = mesh;
+                    content_hull_renderer.material.color = fits? content_color_fit : content_color_unfit;
+                    var spawn_transform = get_spawn_transform(highlighted_content);
+                    var offset = get_spawn_offset(highlighted_content)-highlighted_content.metric.center;
+                    content_hull_mesh.transform.position = spawn_transform.position;
+                    content_hull_mesh.transform.rotation = spawn_transform.rotation;
+                    content_hull_mesh.transform.Translate(offset);
+                    content_hull_mesh.gameObject.SetActive(true);
+                }
+            }
+        }
 
 		IEnumerator<YieldInstruction> delayed_try_store_construct(PackedConstruct pc)
 		{
@@ -36,9 +74,9 @@ namespace AtHangar
 			Utils.LockControls(scLock);
 			for(int i = 0; i < 3; i++) yield return null;
 			pc.UpdateMetric();
-			try_store_vessel(pc);
+            try_store_vessel(pc);
 			pc.UnloadConstruct();
-            highlighted_content = pc;
+            set_highlighted_content(pc, Storage.Contains(pc));
 			Utils.LockControls(scLock, false);
 		}
 
@@ -89,7 +127,6 @@ namespace AtHangar
 		}
 		void selection_canceled() { vessel_selector = null; }
 
-        PackedVessel highlighted_content;
 		void hangar_content_editor(int windowID)
 		{
 			GUILayout.BeginVertical();
@@ -118,11 +155,20 @@ namespace AtHangar
 			{
 				GUILayout.BeginHorizontal();
                 if(HangarGUI.PackedVesselLabel(pc, pc == highlighted_content? Styles.white : Styles.label))
-                    highlighted_content = pc;
+                {
+                    if(highlighted_content != pc)
+                        set_highlighted_content(pc, true);
+                    else
+                        set_highlighted_content(null);
+                }
 				if(GUILayout.Button("+1", Styles.green_button, GUILayout.Width(25))) 
 					try_store_vessel(pc.Clone());
 				if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) 
-					Storage.RemoveVessel(pc);
+                {
+                    if(pc == highlighted_content)
+                        set_highlighted_content(null);
+                    Storage.RemoveVessel(pc);
+                }
 				GUILayout.EndHorizontal();
 			}
 			GUILayout.EndVertical();
@@ -138,11 +184,20 @@ namespace AtHangar
 				{
 					GUILayout.BeginHorizontal();
                     if(HangarGUI.PackedVesselLabel(pc, pc == highlighted_content? Styles.white : Styles.label))
-                        highlighted_content = pc;
+                    {
+                        if(highlighted_content != pc)
+                            set_highlighted_content(pc, false);
+                        else
+                            set_highlighted_content(null);
+                    }
 					if(GUILayout.Button("^", Styles.green_button, GUILayout.Width(25))) 
 					{ if(try_store_vessel(pc.Clone())) Storage.RemoveUnfit(pc); }
 					if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) 
-						Storage.RemoveUnfit(pc);
+                    {
+                        if(pc == highlighted_content)
+                            set_highlighted_content(null);
+                        Storage.RemoveUnfit(pc);
+                    }
 					GUILayout.EndHorizontal();
 				}
 				GUILayout.EndVertical();
@@ -150,10 +205,14 @@ namespace AtHangar
 			}
 			//common buttons
 			if(GUILayout.Button("Clear", Styles.red_button, GUILayout.ExpandWidth(true)))
+            {
 				Storage.ClearConstructs();
+                set_highlighted_content(null);
+            }
 			if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
 			{
 				Utils.LockControls(eLock, false);
+                set_highlighted_content(null);
 				editing_content = false;
 			}
 			GUILayout.EndVertical();
@@ -217,58 +276,26 @@ namespace AtHangar
 
 		public override string ToString() { return HangarName; }
 
-		#if DEBUG
-		void OnRenderObject()
-		{
-			if(vessel != null)
-			{
-				if(vessel != FlightGlobals.ActiveVessel)
-				{
-					Utils.GLDrawPoint(vessel.transform.position, Color.red);
-					Utils.GLDrawPoint(vessel.CoM, Color.green);
-				}
-//				Utils.GLLine(vessel.transform.position, vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()+TimeWarp.fixedDeltaTime).xzy+vessel.mainBody.position, Color.magenta);
-//				Utils.GLVec(vessel.transform.position,  vessel.orbit.GetRotFrameVel(vessel.mainBody).xzy*TimeWarp.fixedDeltaTime, Color.blue);	
-				Utils.GLVec(part.transform.position+part.transform.TransformDirection(part.CoMOffset), momentumDelta, Color.red);
-			}
-			if(launched_vessel != null && launched_vessel.vessel != null)
-			{
-				Utils.GLDrawPoint(launched_vessel.vessel.transform.position, Color.yellow);
-				Utils.GLLine(launched_vessel.vessel.transform.position, vessel.transform.position, Color.yellow);
-				Utils.GLVec(launched_vessel.vessel.transform.position, part.Rigidbody.velocity, Color.red);
-				Utils.GLVec(launched_vessel.vessel.transform.position, launched_vessel.dV, Color.cyan);
-			}
-			if(editing_content && Storage != null)
-			{
-				PackedVessel vsl = null;
-				if(Storage.ConstructsCount > 0) vsl = Storage.GetConstructs()[0];
-				else if(Storage.UnfitCount > 0) vsl = Storage.UnfitConstucts[0];
-				if(vsl != null)
-				{
-					var metric = vsl.metric;
-					var hull = metric.hull;
-					var spawn_transform = get_spawn_transform(vsl);
-					var spawn_point = metric.center-get_spawn_offset(vsl);
-					Utils.GLDrawPoint(Vector3.zero, spawn_transform, Color.red);
-					if(hull != null) Utils.GLDrawHull(hull, spawn_transform, Color.green, offset:spawn_point, filled:false);
-				}
-//				if(Storage.hangar_space != null)
-//					Utils.GLDrawMesh(Storage.hangar_space.sharedMesh, Storage.hangar_space.transform, c:Color.cyan, filled:false);
-			}
-//			foreach(var dc in part.DragCubes.Cubes)
-//				Utils.GLDrawBounds(new Bounds(dc.Center, dc.Size), part.transform, Color.yellow*dc.Weight);
-		}
-		#else
+        #if DEBUG
         void OnRenderObject()
         {
-            if(editing_content && vessel_selector == null && Storage != null)
+            if(vessel != null)
             {
-                if(highlighted_content != null && highlighted_content.metric.hull != null)
+                if(vessel != FlightGlobals.ActiveVessel)
                 {
-                    Utils.GLDrawHull2(highlighted_content.metric.hull, get_spawn_transform(highlighted_content), 
-                                      Color.green, null,
-                                      highlighted_content.metric.center-get_spawn_offset(highlighted_content), false);
+                    Utils.GLDrawPoint(vessel.transform.position, Color.red);
+                    Utils.GLDrawPoint(vessel.CoM, Color.green);
                 }
+//              Utils.GLLine(vessel.transform.position, vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()+TimeWarp.fixedDeltaTime).xzy+vessel.mainBody.position, Color.magenta);
+//              Utils.GLVec(vessel.transform.position,  vessel.orbit.GetRotFrameVel(vessel.mainBody).xzy*TimeWarp.fixedDeltaTime, Color.blue);  
+                Utils.GLVec(part.transform.position+part.transform.TransformDirection(part.CoMOffset), momentumDelta, Color.red);
+            }
+            if(launched_vessel != null && launched_vessel.vessel != null)
+            {
+                Utils.GLDrawPoint(launched_vessel.vessel.transform.position, Color.yellow);
+                Utils.GLLine(launched_vessel.vessel.transform.position, vessel.transform.position, Color.yellow);
+                Utils.GLVec(launched_vessel.vessel.transform.position, part.Rigidbody.velocity, Color.red);
+                Utils.GLVec(launched_vessel.vessel.transform.position, launched_vessel.dV, Color.cyan);
             }
         }
         #endif
