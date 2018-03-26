@@ -128,18 +128,28 @@ namespace AtHangar
 			{
 				if(jettisoned)
 				{
-					part.stagingIcon = string.Empty;
 					fairings.ForEach(f => f.gameObject.SetActive(false));
 					part.DragCubes.SetCubeWeight("Fairing ", 0f);
 					part.DragCubes.SetCubeWeight("Clean ", 1f);
 					part.CoMOffset = BaseCoMOffset;
+                    part.stagingIcon = string.Empty;
+                    stagingToggleEnabledEditor = false;
+                    stagingToggleEnabledFlight = false;
+                    Events ["ToggleStaging"].advancedTweakable = true;
+                    SetStaging(false);
+                    part.UpdateStageability(true, true);
 				}
 				else
 				{
-					part.stagingIcon = "DECOUPLER_HOR";
 					fairings.ForEach(f => f.gameObject.SetActive(true));
 					part.DragCubes.SetCubeWeight("Fairing ", 1f);
 					part.DragCubes.SetCubeWeight("Clean ", 0f);
+                    part.stagingIcon = "DECOUPLER_HOR";
+                    stagingToggleEnabledEditor = true;
+                    stagingToggleEnabledFlight = true;
+                    Events ["ToggleStaging"].advancedTweakable = false;
+                    SetStaging(true);
+                    part.UpdateStageability(true, true);
 				}
 			}
 			else this.Log("No Fairings transforms found with the name: {}", Fairings);
