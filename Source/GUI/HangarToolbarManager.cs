@@ -34,10 +34,21 @@ namespace AtHangar {
 			}
 			else 
 			{
-                icon = GameDatabase.Instance.GetTexture(APPLAUNCHER_ICON, false);
+                icon = TextureCache.GetTexture(APPLAUNCHER_ICON);
 				GameEvents.onGUIApplicationLauncherReady.Add(OnGUIAppLauncherReady);
 			}
 		}
+
+        void OnDestroy()
+        {
+            GameEvents.onGUIApplicationLauncherReady.Remove(OnGUIAppLauncherReady);
+            if(HangarButton != null)
+            {
+                ApplicationLauncher.Instance.RemoveOnHideCallback(onAppLaunchToggleOff);
+                ApplicationLauncher.Instance.RemoveOnShowCallback(onAppLaunchToggleOn);
+                ApplicationLauncher.Instance.RemoveApplication(HangarButton);
+            }
+        }
 
 		void OnGUIAppLauncherReady()
 		{
@@ -49,7 +60,7 @@ namespace AtHangar {
 					onAppLaunchToggleOff,
 					null, null, null, null,
 					ApplicationLauncher.AppScenes.SPH|ApplicationLauncher.AppScenes.VAB|ApplicationLauncher.AppScenes.FLIGHT,
-					icon);
+                    icon);
 			}
 		}
 
