@@ -60,7 +60,7 @@ for full_name in full_names:
                 for asset in p['assets']:
                     total_downloads += asset['download_count']
                     print("Tag: %s\nFile: %s\nCreated at: %s" %
-                    	  (p['tag_name'], asset['name'], asset['created_at']))
+                          (p['tag_name'], asset['name'], asset['created_at']))
                     print("Downloads: %d" % asset['download_count'])
                     print("")
             else:

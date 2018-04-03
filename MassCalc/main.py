@@ -472,14 +472,14 @@ if __name__ == '__main__':
                          res_cost=0)
     
     ore_converter = part('RockOreConverter',
-		                 [volume(12.46, 'hull', C=1, D=0.02,
-		                         S=surface(29.98, 0.006, Al_Li),
-		                         V=[volume(12.0, 'machinery', C=2850, M=1.530)])])
+                         [volume(12.46, 'hull', C=1, D=0.02,
+                                 S=surface(29.98, 0.006, Al_Li),
+                                 V=[volume(12.0, 'machinery', C=2850, M=1.530)])])
     
     mobile_smelter = part('MobileSmelter',
-		                 [volume(12.46, 'hull', C=1, D=0.02,
-		                         S=surface(29.98, 0.003, steel),
-		                         V=[volume(12.0, 'machinery', C=6970, M=0.730)])])
+                         [volume(12.46, 'hull', C=1, D=0.02,
+                                 S=surface(29.98, 0.003, steel),
+                                 V=[volume(12.0, 'machinery', C=6970, M=0.730)])])
     
     mobile_smelter = part('SubstrateMixer',
                          [volume(12.46, 'hull', C=1, D=0.02,
@@ -488,13 +488,13 @@ if __name__ == '__main__':
                                     volume(10, 'tanks', C=20)])])
     
     small_tank    = part('*TankS',
-		                 [volume(19.43/2, 'hull', 
-		                         S=surface(25.56, 0.006, Al_Li))])
+                         [volume(19.43/2, 'hull', 
+                                 S=surface(25.56, 0.006, Al_Li))])
     
     radial_tank   = part('RadialTank',
-		                 [volume(0.25, 'hull', C=1, D=0.2,
+                         [volume(0.25, 'hull', C=1, D=0.2,
                                  S=surface(2.23, 0.005, Al_Li),
-		                         V=[volume(0.241, 'container')]),
+                                 V=[volume(0.241, 'container')]),
                           volume(0.006, 'door', C=12, D=2.63)])
     
     print('//:mode=c#:') #for JEdit, Vim and others

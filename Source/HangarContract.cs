@@ -3,12 +3,12 @@
 //
 //namespace AtHangar
 //{
-//	public class HangarContract : Contract
-//	{
-//		protected override bool Generate()
-//		{
-//			return base.Generate();
-//		}
-//	}
+//    public class HangarContract : Contract
+//    {
+//        protected override bool Generate()
+//        {
+//            return base.Generate();
+//        }
+//    }
 //}
 //

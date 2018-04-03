@@ -11,9 +11,9 @@ using AT_Utils;
 
 namespace AtHangar
 {
-	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
+    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class HangarFilterManager : SimplePartFilter
-	{
+    {
         public HangarFilterManager()
         {
             SUBCATEGORY = "Hangars";
@@ -23,5 +23,5 @@ namespace AtHangar
                        .Where(t => !t.IsAbstract && (typeof(HangarMachinery).IsAssignableFrom(t) ||
                                                      typeof(HangarStorage).IsAssignableFrom(t))));
         }
-	}
+    }
 }

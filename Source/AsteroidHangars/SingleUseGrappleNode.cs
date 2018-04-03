@@ -243,7 +243,7 @@ namespace AtHangar
             }
             var p = (parts.Count == num_grapples &&
                     new HashSet<Part>(parts).Count == 1 ? 
-			         parts[0] : null);
+                     parts[0] : null);
             if(p != null && p.vessel.isEVA) p = null;
             can_dock &= p != null;
             return p;

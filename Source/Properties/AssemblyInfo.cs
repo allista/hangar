@@ -35,16 +35,16 @@ using AT_Utils;
 
 namespace AtHangar
 {
-	public class ModInfo : KSP_AVC_Info
-	{
-		public ModInfo()
-		{
-			MinKSPVersion = new Version(1,4,1);
-			MaxKSPVersion = new Version(1,4,1);
+    public class ModInfo : KSP_AVC_Info
+    {
+        public ModInfo()
+        {
+            MinKSPVersion = new Version(1,4,1);
+            MaxKSPVersion = new Version(1,4,1);
 
-			VersionURL   = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
+            VersionURL   = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
             UpgradeURL   = "https://spacedock.info/mod/1000/Hangar";
-			ChangeLogURL = "https://github.com/allista/hangar/blob/master/ChangeLog.md";
-		}
-	}
+            ChangeLogURL = "https://github.com/allista/hangar/blob/master/ChangeLog.md";
+        }
+    }
 }
