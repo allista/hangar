@@ -22,7 +22,13 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <CustomCommands>
       <CustomCommands>
-        <Command type="Custom" name="Run Gendarme" command="gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}" workingdir="${ProjectDir}" externalConsole="True" />
+        <Command>
+          <type>Custom</type>
+          <name>Run Gendarme</name>
+          <command>gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}</command>
+          <workingdir>${ProjectDir}</workingdir>
+          <externalConsole>True</externalConsole>
+        </Command>
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -35,7 +41,12 @@
     <ConsolePause>false</ConsolePause>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}" workingdir="${ProjectDir}" externalConsole="True" />
+        <Command>
+          <type>AfterBuild</type>
+          <command>gendarme --html ../Hangar-Gendarme-Report.html ${TargetFile}</command>
+          <workingdir>${ProjectDir}</workingdir>
+          <externalConsole>True</externalConsole>
+        </Command>
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
