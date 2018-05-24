@@ -17,7 +17,7 @@ namespace AtHangar
         [KSPField] public string  SpawnTransform = string.Empty;
         [KSPField] public bool    AutoPositionVessel;
         [KSPField] public Vector3 SpawnOffset = Vector3.up;
-        public VesselSpawnManager SpawnManager { get; protected set; }
+        public SpawnSpaceManager SpawnManager { get; protected set; }
 
         public override string GetInfo()
         {
@@ -31,7 +31,7 @@ namespace AtHangar
         protected override void early_setup(StartState state)
         {
             base.early_setup(state);
-            SpawnManager = new VesselSpawnManager(part);
+            SpawnManager = new SpawnSpaceManager(part);
             SpawnManager.Load(ModuleConfig);
             if(Storage != null) 
                 Storage.FitConstraint = pv => SpawnManager.MetricFits(pv.metric);

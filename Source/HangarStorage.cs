@@ -40,11 +40,11 @@ namespace AtHangar
 
         #region Internals
         //hangar space
-        [KSPField] public string  HangarSpace = string.Empty;
+        [KSPField] public string  SpawnSpace = string.Empty;
         [KSPField] public string  SpawnTransform = string.Empty;
         [KSPField] public bool    AutoPositionVessel;
         [KSPField] public Vector3 SpawnOffset = Vector3.zero;
-        public VesselSpawnManager SpawnManager { get; protected set; }
+        public SpawnSpaceManager SpawnManager { get; protected set; }
         public bool HasSpaceMesh { get { return SpawnManager.Space != null; } }
         public Metric PartMetric { get; protected set; }
 
@@ -81,7 +81,7 @@ namespace AtHangar
         #region Setup
         public override string GetInfo() 
         { 
-            SpawnManager = new VesselSpawnManager(part);
+            SpawnManager = new SpawnSpaceManager(part);
             SpawnManager.Load(ModuleConfig);
             update_metrics();
             var info = base.GetInfo();
@@ -116,7 +116,7 @@ namespace AtHangar
         protected override void early_setup(StartState state)
         {
             base.early_setup(state);
-            SpawnManager = new VesselSpawnManager(part);
+            SpawnManager = new SpawnSpaceManager(part);
             SpawnManager.Load(ModuleConfig);
             build_storage_checklist();
         }
