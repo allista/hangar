@@ -73,7 +73,6 @@
     <Compile Include="Utils\HangarGUI.cs" />
     <Compile Include="GUI\HangarWindow.cs" />
     <Compile Include="GUI\VesselTransferWindow.cs" />
-    <Compile Include="AuxModules\GroundAnchor.cs" />
     <Compile Include="AuxModules\ProceduralAdapter.cs" />
     <Compile Include="AuxModules\TruncatedCone.cs" />
     <Compile Include="HangarContract.cs" />
