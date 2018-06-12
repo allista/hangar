@@ -155,7 +155,7 @@ namespace AtHangar
             Destroy(hangar_name_editor);
             Destroy(content_hull_mesh.gameObject);
             if(vessels_window != null) Destroy(vessels_window);
-            if(subassembly_selector != null) Destroy(subassembly_selector);
+            if(construct_loader != null) Destroy(construct_loader);
             GameEvents.onVesselWasModified.Remove(update_connected_storage);
             GameEvents.onEditorShipModified.Remove(update_connected_storage);
             GameEvents.onVesselGoOffRails.Remove(onVesselGoOffRails);
@@ -246,9 +246,10 @@ namespace AtHangar
                     var triggers = part.FindModelComponents<Collider>(Trigger);
                     foreach(var c in triggers) c.gameObject.layer = 21; //Part Triggers
                 }
-                //initialize subassembly selector and vessel transfer window
-                subassembly_selector = gameObject.AddComponent<SubassemblySelector>();
+                //initialize ship construct loader and vessel transfer window
                 vessels_window = gameObject.AddComponent<VesselTransferWindow>();
+                construct_loader = gameObject.AddComponent<ShipConstructLoader>();
+                construct_loader.process_construct = process_construct;
             }
             //setup hangar name
             if(HangarName == "_none_") HangarName = part.Title();

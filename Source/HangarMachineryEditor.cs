@@ -31,8 +31,7 @@ namespace AtHangar
         PackedVessel highlighted_content;
         SimpleTextEntry hangar_name_editor;
         VesselTransferWindow vessels_window;
-        SubassemblySelector subassembly_selector;
-        CraftBrowserDialog vessel_selector;
+        ShipConstructLoader construct_loader;
         EditorFacility facility;
 
         void highlight_fitted_content(PackedVessel pc)
@@ -68,20 +67,9 @@ namespace AtHangar
             }
         }
 
-        IEnumerator<YieldInstruction> delayed_try_store_construct(PackedConstruct pc)
+        void process_construct(ShipConstruct construct)
         {
-            if(pc.construct == null) yield break;
-            Utils.LockControls(scLock);
-            for(int i = 0; i < 3; i++) yield return null;
-            pc.UpdateMetric();
-            try_store_vessel(pc);
-            pc.UnloadConstruct();
-            set_highlighted_content(pc, Storage.Contains(pc));
-            Utils.LockControls(scLock, false);
-        }
-
-        void process_loaded_construct(PackedConstruct pc)
-        {
+            var pc = new PackedConstruct(construct, HighLogic.CurrentGame.flagURL);
             //check if the construct contains launch clamps
             if(pc.construct.HasLaunchClamp())
             {
@@ -89,43 +77,11 @@ namespace AtHangar
                 pc.UnloadConstruct();
                 return;
             }
-            //check if it's possible to launch such vessel
-            bool cant_launch = false;
-            var preFlightCheck = new PreFlightCheck(new Callback(() => cant_launch = false), new Callback(() => cant_launch = true));
-            preFlightCheck.AddTest(new PreFlightTests.ExperimentalPartsAvailable(pc.construct));
-            preFlightCheck.RunTests(); 
-            //cleanup loaded parts and try to store construct
-            if(cant_launch) pc.UnloadConstruct();
-            else StartCoroutine(delayed_try_store_construct(pc));
+            pc.UpdateMetric();
+            try_store_vessel(pc);
+            set_highlighted_content(pc, Storage.Contains(pc));
+            pc.UnloadConstruct();
         }
-
-        void subassembly_selected(ShipTemplate template)
-        {
-            ShipConstruction.CreateConstructFromTemplate(template, construct =>
-            {
-                if(construct != null)
-                    process_loaded_construct(new PackedConstruct(construct, HighLogic.CurrentGame.flagURL));
-            });
-        }
-
-        void vessel_selected(string filename, CraftBrowserDialog.LoadType t)
-        {
-            EditorLogic EL = EditorLogic.fetch;
-            if(EL == null) return;
-            //load vessel config
-            vessel_selector = null;
-            var pc = new PackedConstruct(filename, HighLogic.CurrentGame.flagURL);
-            if(pc.construct == null) 
-            {
-                Utils.Log("PackedConstruct: unable to load ShipConstruct from {}. " +
-                          "This usually means that some parts are missing " +
-                          "or some modules failed to initialize.", filename);
-                Utils.Message("Unable to load {0}", filename);
-                return;
-            }
-            process_loaded_construct(pc);
-        }
-        void selection_canceled() { vessel_selector = null; }
 
         void hangar_content_editor(int windowID)
         {
@@ -133,14 +89,9 @@ namespace AtHangar
             GUILayout.BeginHorizontal();
             //Vessel selector
             if(GUILayout.Button("Select Vessel", Styles.normal_button, GUILayout.ExpandWidth(true))) 
-                vessel_selector = 
-                    CraftBrowserDialog.Spawn(
-                        facility,
-                        HighLogic.SaveFolder,
-                        vessel_selected,
-                        selection_canceled, false);
+                construct_loader.SelectVessel();
             if(GUILayout.Button("Select Subassembly", Styles.normal_button, GUILayout.ExpandWidth(true)))
-                subassembly_selector.Show(true);
+                construct_loader.SelectSubassembly();
             GUILayout.EndHorizontal();
             //hangar info
             if(ConnectedStorage.Count > 1)
@@ -226,19 +177,13 @@ namespace AtHangar
             //edit hangar
             if(editing_content)
             {
-                if(vessel_selector == null && 
-                   (subassembly_selector == null || 
-                    !subassembly_selector.WindowEnabled))
-                {
-                    Utils.LockIfMouseOver(eLock, eWindowPos);
-                    eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
-                                                  hangar_content_editor,
-                                                  "Hangar Contents Editor",
-                                                  GUILayout.Width(window_width),
-                                                  GUILayout.Height(300)).clampToScreen();
-                }
-                if(subassembly_selector != null)
-                    subassembly_selector.Draw(subassembly_selected);
+                Utils.LockIfMouseOver(eLock, eWindowPos);
+                eWindowPos = GUILayout.Window(GetInstanceID(), eWindowPos,
+                                              hangar_content_editor,
+                                              "Hangar Contents Editor",
+                                              GUILayout.Width(window_width),
+                                              GUILayout.Height(300)).clampToScreen();
+                construct_loader.Draw();
             }
             //rename hangar
             if(hangar_name_editor.Draw("Rename Hangar") == SimpleDialog.Answer.Yes) 
