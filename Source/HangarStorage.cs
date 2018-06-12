@@ -81,8 +81,9 @@ namespace AtHangar
         #region Setup
         public override string GetInfo() 
         { 
-            SpawnManager = new SpawnSpaceManager(part);
+            SpawnManager = new SpawnSpaceManager();
             SpawnManager.Load(ModuleConfig);
+            SpawnManager.Init(part);
             update_metrics();
             var info = base.GetInfo();
             if(SpawnManager.SpaceMetric.volume > 0)
@@ -116,8 +117,9 @@ namespace AtHangar
         protected override void early_setup(StartState state)
         {
             base.early_setup(state);
-            SpawnManager = new SpawnSpaceManager(part);
+            SpawnManager = new SpawnSpaceManager();
             SpawnManager.Load(ModuleConfig);
+            SpawnManager.Init(part);
             build_storage_checklist();
         }
 

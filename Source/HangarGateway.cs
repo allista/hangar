@@ -31,8 +31,9 @@ namespace AtHangar
         protected override void early_setup(StartState state)
         {
             base.early_setup(state);
-            SpawnManager = new SpawnSpaceManager(part);
+            SpawnManager = new SpawnSpaceManager();
             SpawnManager.Load(ModuleConfig);
+            SpawnManager.Init(part);
             if(Storage != null) 
                 Storage.FitConstraint = pv => SpawnManager.MetricFits(pv.metric);
         }
