@@ -5,9 +5,7 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
-using System.Collections.Generic;
 using UnityEngine;
-using KSP.UI.Screens;
 using AT_Utils;
 
 namespace AtHangar
@@ -37,13 +35,13 @@ namespace AtHangar
         void highlight_fitted_content(PackedVessel pc)
         {
             if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)
-                content_hull_renderer.material.color = content_color_fit;
+                set_highlighted_content(highlighted_content, true);
         }
 
         void highlight_unfitted_content(PackedVessel pc)
         {
             if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)
-                content_hull_renderer.material.color = content_color_unfit;
+                set_highlighted_content(highlighted_content, false);
         }
 
         void set_highlighted_content(PackedVessel pc, bool fits=false)
