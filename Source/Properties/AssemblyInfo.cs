@@ -22,7 +22,7 @@ using AT_Utils;
 #if NIGHTBUILD
 [assembly: AssemblyVersion("3.3.*")]
 #else
-[assembly: AssemblyVersion("3.3.4.1")]
+[assembly: AssemblyVersion("3.3.4.2")]
 #endif
 [assembly: KSPAssembly("Hangar", 3, 3)]
 
