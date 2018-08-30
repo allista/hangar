@@ -60,7 +60,6 @@
     <Compile Include="VesselsPack.cs" />
     <Compile Include="VesselWrappers.cs" />
     <Compile Include="HangarGenericInflatable.cs" />
-    <Compile Include="AnimatedNode.cs" />
     <Compile Include="HangarPassage.cs" />
     <Compile Include="HangarStorage.cs" />
     <Compile Include="HangarMachinery.cs" />
