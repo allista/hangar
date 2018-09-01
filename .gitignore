@@ -25,6 +25,7 @@
 *.mdb
 *.pyc
 *.bak
+*.pdb
 /vessel_positioning.txt
 /Source/Hangar.userprefs
 /Assembly-CSharp.dump
@@ -47,3 +48,7 @@
 /Assets/GroundConstruction
 /Development-files
 /GameData/Hangar/Plugins/Hangar.dll
+
+Hangar-Gendarme-Report.html
+Assets/TextMesh Pro
+UnityPackageManager
