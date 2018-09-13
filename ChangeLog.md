@@ -3,7 +3,13 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.3.4.2**
+* v3.3.4.4
+    * Fixed 5-way RCS thrust effects
+    * Using latest AT_Utils
+
+* v3.3.4.3 -- compatible with KSP01.4.5
+
+* v3.3.4.2
     * Using new stuff from AT_Utils 1.6
     * Fixed content hull mesh rendering on hangar resize.
     * Fixed metric calculation for the stock RadialDrill part.
