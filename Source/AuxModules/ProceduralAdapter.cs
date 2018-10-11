@@ -169,7 +169,6 @@ namespace AtHangar
             if(top_node != null && orig_nodes[0] != null)
             {
                 top_node.position = new Vector3(0, body.current.H/2, 0);
-                part.UpdateAttachedPartPos(top_node);
                 int new_size = orig_nodes[0].size + Mathf.RoundToInt(topSize - orig_size.x);
                 if(new_size < 0) new_size = 0;
                 top_node.size = new_size;
@@ -177,12 +176,14 @@ namespace AtHangar
                 var s = topSize/orig_size.x;
                 top_node.breakingForce  = orig_nodes[0].breakingForce  * s;
                 top_node.breakingTorque = orig_nodes[0].breakingTorque * s;
+                //move the part
+                if(!just_loaded)
+                    part.UpdateAttachedPartPos(top_node);
             }
             AttachNode bottom_node = part.FindAttachNode(BottomNodeName);
             if(bottom_node != null && orig_nodes[1] != null)
             {
                 bottom_node.position = new Vector3(0, -body.current.H/2, 0);
-                part.UpdateAttachedPartPos(bottom_node);
                 int new_size = orig_nodes[1].size + Mathf.RoundToInt(bottomSize - orig_size.y);
                 if(new_size < 0) new_size = 0;
                 bottom_node.size = new_size;
@@ -190,6 +191,9 @@ namespace AtHangar
                 var s = bottomSize/orig_size.y;
                 bottom_node.breakingForce  = orig_nodes[1].breakingForce  * s;
                 bottom_node.breakingTorque = orig_nodes[1].breakingTorque * s;
+                //move the part
+                if(!just_loaded)
+                    part.UpdateAttachedPartPos(bottom_node);
             }
             //no need to update surface attached parts for the first time
             if(just_loaded) return;
