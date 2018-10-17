@@ -96,7 +96,7 @@ namespace AtHangar
 
         void build_storage_checklist()
         {
-            if(!HighLogic.LoadedSceneIsFlight) return;
+            if(!HighLogic.LoadedSceneIsFlight || vessel == null) return;
             storage_checklist.Clear();
             foreach(Part p in vessel.parts)
             {
