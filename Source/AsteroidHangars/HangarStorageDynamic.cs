@@ -197,8 +197,8 @@ namespace AtHangar
             _add_tank_last_volume = volume;
             var max = GUILayout.Button("Max");
             if(max || volume > Volume) volume = Volume;
-            if(volume <= 0) GUILayout.Label("Add", Styles.grey);
-            else if(GUILayout.Button("Add", Styles.green_button))
+            if(volume <= 0) GUILayout.Label("Add", Styles.inactive);
+            else if(GUILayout.Button("Add", Styles.open_button))
             {
                 if(metal_pump == null || convert_metal(_add_tank_metal))
                 {

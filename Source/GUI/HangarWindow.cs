@@ -231,7 +231,7 @@ namespace AtHangar
                &&  selected_hangar.LaunchVelocity != Vector3.zero 
                && !selected_hangar.vessel.LandedOrSplashed)
                 selected_hangar.LaunchWithPunch = GUILayout.Toggle(selected_hangar.LaunchWithPunch, "Push Vessel Out");
-            if(GUILayout.Button("Launch Vessel", Styles.yellow_button, GUILayout.ExpandWidth(true)))
+            if(GUILayout.Button("Launch Vessel", Styles.active_button, GUILayout.ExpandWidth(true)))
                 selected_hangar.TryRestoreVessel(selected_vessel);
             GUILayout.EndHorizontal();
         }
@@ -242,12 +242,12 @@ namespace AtHangar
             {
             case AnimatorState.Closed:
             case AnimatorState.Closing:
-                if(GUILayout.Button("Open Gates", Styles.green_button, GUILayout.ExpandWidth(true)))
+                if(GUILayout.Button("Open Gates", Styles.open_button, GUILayout.ExpandWidth(true)))
                     selected_hangar.Open();
                 break;
             case AnimatorState.Opened:
             case AnimatorState.Opening:
-                if(GUILayout.Button("Close Gates", Styles.red_button, GUILayout.ExpandWidth(true)))
+                if(GUILayout.Button("Close Gates", Styles.close_button, GUILayout.ExpandWidth(true)))
                     selected_hangar.Close();
                 break;
             }
@@ -257,12 +257,12 @@ namespace AtHangar
         {
             if(selected_hangar.hangar_state == HangarMachinery.HangarState.Inactive)
             {
-                if(GUILayout.Button("Activate Hangar", Styles.green_button, GUILayout.ExpandWidth(true)))
+                if(GUILayout.Button("Activate Hangar", Styles.open_button, GUILayout.ExpandWidth(true)))
                     selected_hangar.Activate();
             }
             else
             {
-                if(GUILayout.Button("Deactivate Hangar", Styles.red_button, GUILayout.ExpandWidth(true)))
+                if(GUILayout.Button("Deactivate Hangar", Styles.close_button, GUILayout.ExpandWidth(true)))
                     selected_hangar.Deactivate();
             }
         }
@@ -289,7 +289,7 @@ namespace AtHangar
         {
             if(selected_hangar == null) return;
             if(!selected_hangar.CanRelocate) return;
-            if(GUILayout.Button("<< Relocate Vessels >>", Styles.yellow_button, GUILayout.ExpandWidth(true)))
+            if(GUILayout.Button("<< Relocate Vessels >>", Styles.active_button, GUILayout.ExpandWidth(true)))
                 vessels_window.Toggle();
         }
 
