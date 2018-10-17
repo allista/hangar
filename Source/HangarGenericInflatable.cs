@@ -25,13 +25,13 @@ namespace AtHangar
         virtual public bool CanEnable() { return true; }
         virtual public bool CanDisable() { return true; }
 
-        virtual public void Enable(bool enable) 
+        virtual public void Enable(bool enable)
         { enabled = isEnabled = enable; }
     }
 
     public class GasCompressor : ConfigNodeObject
     {
-        [Persistent] public float ConversionRate  = -1;
+        [Persistent] public float ConversionRate = -1;
         [Persistent] public float ConsumptionRate = -1;
         public float OutputFraction { get; private set; }
         public bool Valid { get { return ConversionRate > 0 && ConsumptionRate >= 0; } }
@@ -39,7 +39,7 @@ namespace AtHangar
         ResourcePump socket;
         Part part;
 
-        public void Init(Part p) 
+        public void Init(Part p)
         { part = p; socket = p.CreateSocket(); }
 
         public float CompressGas()
@@ -49,8 +49,8 @@ namespace AtHangar
             var pressure = part.vessel.mainBody.GetPressure(part.vessel.altitude);
             if(pressure < 1e-6) return 0;
             pressure /= Math.Max(part.vessel.mainBody.atmospherePressureSeaLevel, 101.325);
-            socket.RequestTransfer(ConsumptionRate*TimeWarp.fixedDeltaTime);
-            if(!socket.TransferResource()) return 0 ;
+            socket.RequestTransfer(ConsumptionRate * TimeWarp.fixedDeltaTime);
+            if(!socket.TransferResource()) return 0;
             OutputFraction = socket.Ratio;
             return (float)(pressure * ConversionRate * socket.Result);
         }
@@ -61,16 +61,16 @@ namespace AtHangar
         //configuration
         [KSPField(isPersistant = false)] public string ControlledModules;
         [KSPField(isPersistant = false)] public string AnimatedNodes;
-        [KSPField(isPersistant = false)] public bool   PackedByDefault = true;
-        [KSPField(isPersistant = false)] public float  InflatableVolume;
-        [KSPField(isPersistant = true)]     public float  CompressedGas = -1f;
-        [KSPField(isPersistant = false)] public bool   Recompressable = false;
+        [KSPField(isPersistant = false)] public bool PackedByDefault = true;
+        [KSPField(isPersistant = false)] public float InflatableVolume;
+        [KSPField(isPersistant = true)] public float CompressedGas = -1f;
+        [KSPField(isPersistant = false)] public bool Recompressable = false;
         [KSPField(isPersistant = false)] public string CompressorSound = "Hangar/Sounds/Compressor";
         [KSPField(isPersistant = false)] public string InflationSound = "Hangar/Sounds/Inflate";
-        [KSPField(isPersistant = false)] public float  SoundVolume = 0.2f;
+        [KSPField(isPersistant = false)] public float SoundVolume = 0.2f;
 
         //GUI
-        [KSPField (guiName = "Compressed Gas", guiActive=true)] public string CompressedGasDisplay;
+        [KSPField(guiName = "Compressed Gas", guiActive = true)] public string CompressedGasDisplay;
         SimpleWarning warning;
         bool try_deflate;
 
@@ -79,7 +79,7 @@ namespace AtHangar
         readonly List<AnimatedNode> animated_nodes = new List<AnimatedNode>();
 
         //compressor
-        [KSPField] 
+        [KSPField]
         [SerializeField]
         public GasCompressor Compressor = new GasCompressor();
         bool has_compressed_gas { get { return CompressedGas >= InflatableVolume; } }
@@ -87,7 +87,7 @@ namespace AtHangar
         bool play_compressor;
 
         //metric and scale
-        Part   prefab = null;
+        Part prefab = null;
         Metric prefab_metric;
         Metric part_metric;
         protected float volume_scale = 1;
@@ -97,16 +97,16 @@ namespace AtHangar
 
         #region Info
         public override string GetInfo()
-        { 
+        {
             if(!Compressor.Valid) return "";
             string info = "Compressor:\n";
-            info += string.Format("Pump Rate: {0}/sec\n", 
-                Utils.formatVolume(Compressor.ConversionRate*Compressor.ConsumptionRate));
+            info += string.Format("Pump Rate: {0}/sec\n",
+                Utils.formatVolume(Compressor.ConversionRate * Compressor.ConsumptionRate));
             info += string.Format("Energy Consumption: {0}/sec\n", Compressor.ConsumptionRate);
             return info;
         }
         #endregion
-        
+
         #region Startup
         protected override void onPause()
         {
@@ -145,7 +145,7 @@ namespace AtHangar
             base.OnStart(state);
             if(state == StartState.None) return;
             //init compressor
-            if(Compressor.Valid) 
+            if(Compressor.Valid)
             {
                 Compressor.Init(part);
                 if(CompressorSound != string.Empty)
@@ -157,7 +157,7 @@ namespace AtHangar
             //get controlled modules
             if(!string.IsNullOrEmpty(ControlledModules))
             {
-                foreach(string module_name in ControlledModules.Split(new []{" "}, System.StringSplitOptions.RemoveEmptyEntries))
+                foreach(string module_name in Utils.ParseLine(ControlledModules, Utils.Delimiters))
                 {
                     if(module_name == "") continue;
                     if(!part.Modules.Contains(module_name))
@@ -166,14 +166,14 @@ namespace AtHangar
                         continue;
                     }
                     var modules = new List<IControllableModule>();
-                    foreach(PartModule pm in part.Modules) 
-                    { 
-                        if(pm.moduleName == module_name) 
+                    foreach(PartModule pm in part.Modules)
+                    {
+                        if(pm.moduleName == module_name)
                         {
                             var controllableModule = pm as IControllableModule;
-                            if(controllableModule != null) 
+                            if(controllableModule != null)
                             {
-                                modules.Add(controllableModule); 
+                                modules.Add(controllableModule);
                                 if(State != AnimatorState.Opened)
                                     controllableModule.Enable(false);
                             }
@@ -184,17 +184,17 @@ namespace AtHangar
                 }
             }
             //get animated nodes
-            foreach(string node_name in AnimatedNodes.Split(new []{" "}, System.StringSplitOptions.RemoveEmptyEntries))
+            foreach(string node_name in Utils.ParseLine(AnimatedNodes, Utils.Delimiters))
             {
                 if(node_name == "") continue;
                 Transform node_transform = part.FindModelTransform(node_name);
-                if(node_transform == null) 
+                if(node_transform == null)
                 {
                     this.Log("OnStart: no transform '{}' in {}", node_name, part.name);
                     continue;
                 }
                 AttachNode node = part.FindAttachNode(node_name);
-                if(node == null) node = part.srfAttachNode.id == node_name? part.srfAttachNode : null;
+                if(node == null) node = part.srfAttachNode.id == node_name ? part.srfAttachNode : null;
                 if(node == null)
                 {
                     this.Log("OnStart: no node '{}' in {}", node_name, part.name);
@@ -207,8 +207,9 @@ namespace AtHangar
             prefab = part.partInfo.partPrefab;
             prefab_metric = new Metric(prefab);
             //get compressed gas for the first time
-            if(CompressedGas < 0 && 
-               (state == StartState.Editor || vessel.staticPressurekPa > 1e-6)) 
+            if(CompressedGas < 0 &&
+               (state == StartState.Editor
+                || vessel != null && vessel.staticPressurekPa > 1e-6))
                 CompressedGas = InflatableVolume;
             //prevent accidental looping of animation
             Loop = false;
@@ -224,7 +225,7 @@ namespace AtHangar
         {
             base.OnLoad(node);
             if(!node.HasValue("State"))
-                State = PackedByDefault? AnimatorState.Closed : AnimatorState.Opened;
+                State = PackedByDefault ? AnimatorState.Closed : AnimatorState.Opened;
         }
         #endregion
 
@@ -232,36 +233,36 @@ namespace AtHangar
         public override void FixedUpdate()
         {
             base.FixedUpdate();
-            if(State == AnimatorState.Opening  || 
-                State == AnimatorState.Closing) 
-            { 
+            if(State == AnimatorState.Opening ||
+                State == AnimatorState.Closing)
+            {
                 UpdatePart();
                 part.BreakConnectedCompoundParts();
             }
             if(Compressor.Valid && !has_compressed_gas)
             {
                 CompressedGas += Compressor.CompressGas();
-                if(has_compressed_gas) 
+                if(has_compressed_gas)
                 { play_compressor = false; ToggleEvents(); }
                 else play_compressor = Compressor.OutputFraction > 0;
             }
         }
 
-        #if DEBUG
+#if DEBUG
         public override void Update()
         { 
             base.Update();
             animated_nodes.ForEach(n => n.DrawAnchor());
         }
-        #endif
+#endif
 
-        protected virtual void UpdatePart() 
-        { 
+        protected virtual void UpdatePart()
+        {
             animated_nodes.ForEach(n => n.UpdateNode());
             if(prefab_metric.Empty) return;
-            part_metric  = new Metric(part);
-            volume_scale = part_metric.volume/prefab_metric.volume;
-            part.crashTolerance = prefab.crashTolerance*Mathf.Pow(volume_scale, 0.333333333f);
+            part_metric = new Metric(part);
+            volume_scale = part_metric.volume / prefab_metric.volume;
+            part.crashTolerance = prefab.crashTolerance * Mathf.Pow(volume_scale, 0.333333333f);
         }
 
         IEnumerator<YieldInstruction> FirstTimeUpdateNodes()
@@ -281,13 +282,13 @@ namespace AtHangar
             while(true)
             {
                 //update GUI
-                CompressedGasDisplay = string.Format("{0:P1}", Mathf.Min(CompressedGas/InflatableVolume, 1));
+                CompressedGasDisplay = string.Format("{0:P1}", Mathf.Min(CompressedGas / InflatableVolume, 1));
                 //update sounds
                 if(fxSndCompressor.audio != null)
                 {
                     if(play_compressor)
                     {
-                        fxSndCompressor.audio.pitch = 0.5f + 0.5f*Compressor.OutputFraction;
+                        fxSndCompressor.audio.pitch = 0.5f + 0.5f * Compressor.OutputFraction;
                         if(!fxSndCompressor.audio.isPlaying)
                             fxSndCompressor.audio.Play();
                     }
@@ -300,8 +301,8 @@ namespace AtHangar
 
         public void UpdateGUI(ShipConstruct ship) { UpdatePart(); }
 
-        public void OnGUI() 
-        { 
+        public void OnGUI()
+        {
             if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
             Styles.Init();
             while(try_deflate)
@@ -334,11 +335,11 @@ namespace AtHangar
         {
             if(!enable) EnableModules(enable);
             AnimatorState target_state = enable ? AnimatorState.Opened : AnimatorState.Closed;
-            while(State != target_state) 
-            { 
+            while(State != target_state)
+            {
                 if(State == AnimatorState.Closing && Recompressable && !has_compressed_gas)
-                    CompressedGas += Mathf.Abs(last_progress-progress)*InflatableVolume;
-                yield return null; 
+                    CompressedGas += Mathf.Abs(last_progress - progress) * InflatableVolume;
+                yield return null;
             }
             if(State == AnimatorState.Closed && Recompressable)
                 CompressedGas = InflatableVolume;
@@ -356,9 +357,9 @@ namespace AtHangar
             Events["Deflate"].active = !state;
         }
 
-        [KSPEvent (guiActiveEditor = true, guiActive = true, guiName = "Inflate", active = true)]
-        public void Inflate() 
-        { 
+        [KSPEvent(guiActiveEditor = true, guiActive = true, guiName = "Inflate", active = true)]
+        public void Inflate()
+        {
             if(!has_compressed_gas) return;
             if(State != AnimatorState.Closed) return;
             if(!CanEnableModules()) return;
@@ -367,9 +368,9 @@ namespace AtHangar
             Open(); ToggleEvents();
         }
 
-        [KSPEvent (guiActiveEditor = true, guiActive = true, guiName = "Deflate", active = false)]
-        public void Deflate()    
-        { 
+        [KSPEvent(guiActiveEditor = true, guiActive = true, guiName = "Deflate", active = false)]
+        public void Deflate()
+        {
             if(State != AnimatorState.Opened) return;
             if(!CanDisableModules()) return;
             try_deflate = true;
@@ -392,9 +393,9 @@ namespace AtHangar
         protected override void on_rescale(ModulePair<HangarGenericInflatable> mp, Scale scale)
         {
             mp.module.InflatableVolume = mp.base_module.InflatableVolume * scale.absolute.volume;
-            mp.module.CompressedGas   *= scale.relative.volume;
-            mp.module.ForwardSpeed     = mp.base_module.ForwardSpeed / (scale.absolute * scale.aspect);
-            mp.module.ReverseSpeed     = mp.base_module.ReverseSpeed / (scale.absolute * scale.aspect);
+            mp.module.CompressedGas *= scale.relative.volume;
+            mp.module.ForwardSpeed = mp.base_module.ForwardSpeed / (scale.absolute * scale.aspect);
+            mp.module.ReverseSpeed = mp.base_module.ReverseSpeed / (scale.absolute * scale.aspect);
             if(mp.module.Compressor.Valid)
                 mp.module.Compressor.ConsumptionRate = mp.base_module.Compressor.ConsumptionRate * scale.absolute.volume;
         }
