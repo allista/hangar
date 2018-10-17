@@ -90,6 +90,8 @@ namespace AtHangar
                 construct_loader.SelectVessel();
             if(GUILayout.Button("Select Subassembly", Styles.normal_button, GUILayout.ExpandWidth(true)))
                 construct_loader.SelectSubassembly();
+            if(GUILayout.Button("Select Part", Styles.normal_button, GUILayout.ExpandWidth(true)))
+                construct_loader.SelectPart(part.flagURL);
             GUILayout.EndHorizontal();
             //hangar info
             if(ConnectedStorage.Count > 1)
