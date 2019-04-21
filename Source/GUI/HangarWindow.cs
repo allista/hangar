@@ -44,11 +44,11 @@ namespace AtHangar
         [ConfigOption] Guid vessel_id;
 
         //vessel relocation, crew and resources transfers
-        #pragma warning disable 169
+        #pragma warning disable CS0649
         CrewTransferWindow crew_window;
         ResourceTransferWindow resources_window;
         VesselTransferWindow vessels_window;
-        #pragma warning restore 169
+        #pragma warning restore CS0649
 
         //vessel volume 
         void update_vessel_metric(Vessel vsl = null)
