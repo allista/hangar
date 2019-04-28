@@ -3,7 +3,12 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.3.4.5**
+* **v3.3.5**
+    * Compatible with KSP-1.7
+    * Added ability to **add single parts to a Hangar in editor**.
+    * Several bugfixes
+
+* v3.3.4.5
     * **Moved** Box Fairings to Survivability node on the Tech Tree
     * **Moved** Procedural Adapter to General Construction node
     * Corrected Tech required for the heavy 5-way RCS
