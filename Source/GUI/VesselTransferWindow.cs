@@ -49,13 +49,13 @@ namespace AtHangar
             if(storages == null || storages.Count == 0) return;
             scroll = GUILayout.BeginScrollView(scroll, GUILayout.Height(scroll_height), GUILayout.Width(scroll_width));
             Color selected_color = is_lhs? XKCDColors.Cyan : XKCDColors.Magenta;
-            GUIStyle selected_style = is_lhs? Styles.cyan_button : Styles.magenta_button;
+            GUIStyle selected_style = is_lhs? Styles.sel1_button : Styles.sel2_button;
             GUILayout.BeginVertical();
             foreach(var s in storages)
             {
                 GUIStyle style = (s == selected)? selected_style : Styles.normal_button;
                 if(!is_lhs && s == lhs || is_lhs && s == rhs) 
-                    GUILayout.Label(s.Title(), Styles.grey, GUILayout.ExpandWidth(true));
+                    GUILayout.Label(s.Title(), Styles.inactive, GUILayout.ExpandWidth(true));
                 else if(GUILayout.Button(s.Title(), style, GUILayout.ExpandWidth(true))) 
                 {
                     if(selected != null) reset_highlight(selected);
