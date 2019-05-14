@@ -16,7 +16,7 @@ namespace AtHangar
         protected override string TB_ICON => "Hangar/Icons/toolbar-icon";
         protected override string AL_ICON => "Hangar/Icons/applauncher-icon";
 
-        protected override ApplicationLauncher.AppScenes AP_SCENES =>
+        protected override ApplicationLauncher.AppScenes AL_SCENES =>
         ApplicationLauncher.AppScenes.FLIGHT |
             ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB;
 
