@@ -112,9 +112,9 @@ namespace AtHangar
                     else
                         set_highlighted_content(null);
                 }
-                if(GUILayout.Button("+1", Styles.green_button, GUILayout.Width(25))) 
+                if(GUILayout.Button("+1", Styles.open_button, GUILayout.Width(25))) 
                     try_store_vessel(pc.Clone());
-                if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) 
+                if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
                 {
                     if(pc == highlighted_content)
                         set_highlighted_content(null);
@@ -128,7 +128,7 @@ namespace AtHangar
             constructs = Storage.UnfitConstucts;
             if(constructs.Count > 0)
             {
-                GUILayout.Label("Unfit vessels:", Styles.yellow, GUILayout.ExpandWidth(true));
+                GUILayout.Label("Unfit vessels:", Styles.active, GUILayout.ExpandWidth(true));
                 unfit_scroll = GUILayout.BeginScrollView(unfit_scroll, GUILayout.Height(100), GUILayout.Width(window_width));
                 GUILayout.BeginVertical();
                 foreach(PackedConstruct pc in Storage.UnfitConstucts)
@@ -141,9 +141,9 @@ namespace AtHangar
                         else
                             set_highlighted_content(null);
                     }
-                    if(GUILayout.Button("^", Styles.green_button, GUILayout.Width(25))) 
+                    if(GUILayout.Button("^", Styles.open_button, GUILayout.Width(25))) 
                     { if(try_store_vessel(pc.Clone())) Storage.RemoveUnfit(pc); }
-                    if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(25))) 
+                    if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
                     {
                         if(pc == highlighted_content)
                             set_highlighted_content(null);
@@ -155,7 +155,7 @@ namespace AtHangar
                 GUILayout.EndScrollView();
             }
             //common buttons
-            if(GUILayout.Button("Clear", Styles.red_button, GUILayout.ExpandWidth(true)))
+            if(GUILayout.Button("Clear", Styles.danger_button, GUILayout.ExpandWidth(true)))
             {
                 Storage.ClearConstructs();
                 set_highlighted_content(null);

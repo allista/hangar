@@ -80,7 +80,7 @@
     <Compile Include="Utils\HangarConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Debris.cs" />
-    <Compile Include="GUI\HangarToolbarManager.cs" />
+    <Compile Include="GUI\HangarAppToolbar.cs" />
     <Compile Include="AsteroidHangars\SingleUseGrappleNode.cs" />
     <Compile Include="GUI\HangarFilterManager.cs" />
   </ItemGroup>
