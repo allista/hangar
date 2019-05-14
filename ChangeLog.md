@@ -3,7 +3,11 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.3.5**
+* **v3.3.6**
+    * Added ability to change UI color scheme at runtime
+        * To access the Color Scheme dialog, **right-click the GC toolbar button**
+
+* v3.3.5
     * Compatible with KSP-1.7
     * Added ability to **add single parts to a Hangar in editor**.
     * Several bugfixes
