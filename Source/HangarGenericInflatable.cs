@@ -72,7 +72,6 @@ namespace AtHangar
         //GUI
         [KSPField(guiName = "Compressed Gas", guiActive = true)] public string CompressedGasDisplay;
         SimpleWarning warning;
-        bool try_deflate;
 
         //modules and nodes
         readonly List<IControllableModule> controlled_modules = new List<IControllableModule>();
@@ -126,6 +125,7 @@ namespace AtHangar
         {
             base.OnAwake();
             warning = gameObject.AddComponent<SimpleWarning>();
+            warning.yesCallback = deflate;
             GameEvents.onGamePause.Add(onPause);
             GameEvents.onGameUnpause.Add(onUnpause);
             GameEvents.onEditorShipModified.Add(UpdateGUI);
@@ -300,29 +300,6 @@ namespace AtHangar
         }
 
         public void UpdateGUI(ShipConstruct ship) { UpdatePart(); }
-
-        public void OnGUI()
-        {
-            if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
-            Styles.Init();
-            while(try_deflate)
-            {
-                if(has_compressed_gas || Recompressable) { deflate(); break; }
-                if(!Compressor.Valid)
-                    warning.Draw("This part is not equipped with a compressor. " +
-                                 "You will not be able to inflate it again. " +
-                                 "Are you sure you want to deflate the hangar?");
-                else if(!part.vessel.mainBody.atmosphere)
-                    warning.Draw("There's no atmosphere here. " +
-                                 "You will not be able to inflate this part again." +
-                                 "Are you sure you want to deflate it?");
-                else { deflate(); break; }
-                if(warning.Result == SimpleDialog.Answer.None) break;
-                if(warning.Result == SimpleDialog.Answer.Yes) deflate();
-                try_deflate = false;
-                break;
-            }
-        }
         #endregion
 
         #region Modules Control
@@ -373,14 +350,27 @@ namespace AtHangar
         {
             if(State != AnimatorState.Opened) return;
             if(!CanDisableModules()) return;
-            try_deflate = true;
+            if(warning.WindowEnabled) return;
+            if(has_compressed_gas || Recompressable)
+                deflate();
+            else
+            {
+                if(!Compressor.Valid)
+                    warning.Message = "This part is not equipped with a compressor. " +
+                                      "You will not be able to inflate it again. " +
+                                      "Are you sure you want to deflate the hangar?";
+                else if(!part.vessel.mainBody.atmosphere)
+                    warning.Message = "There's no atmosphere here. " +
+                                      "You will not be able to inflate this part again." +
+                                      "Are you sure you want to deflate it?";
+                warning.Show(true);
+            }
         }
 
         void deflate()
         {
             StartCoroutine(DelayedEnableModules(false));
             Close(); ToggleEvents();
-            try_deflate = false;
         }
 
         [KSPAction("Inflate")]

@@ -78,6 +78,14 @@ namespace AtHangar
         {
             base.OnAwake();
             warning = gameObject.AddComponent<SimpleWarning>();
+            warning.Message = "This will fix the grapple permanently. " +
+                              "You will not be able to decouple it ever again. " +
+                              "Are you sure you want to continue?";
+            warning.yesCallback = () =>
+            {
+                if(fixAnimator != null) fixAnimator.Open();
+                StartCoroutine(delayed_disable_decoupling());
+            };
             GameEvents.onPartJointBreak.Add(onPartJointBreak);
         }
 
@@ -589,14 +597,6 @@ namespace AtHangar
         { 
             if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
             Styles.Init();
-            warning.Draw("This will fix the grapple permanently. " +
-            "You will not be able to decouple it ever again. " +
-            "Are you sure you want to continue?");
-            if(warning.Result == SimpleDialog.Answer.Yes)
-            {
-                if(fixAnimator != null) fixAnimator.Open();
-                StartCoroutine(delayed_disable_decoupling());
-            }
             #if DEBUG
             if(grappleNode != null && grappleNode.owner != null)
                 Utils.GLDrawPoint(grappleNode.owner.transform.TransformPoint(grappleNode.position), Color.green, r: 0.3f);

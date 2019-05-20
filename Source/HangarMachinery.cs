@@ -144,6 +144,8 @@ namespace AtHangar
             content_hull_renderer.enabled = true;
             obj.SetActive(false);
             hangar_name_editor = gameObject.AddComponent<SimpleTextEntry>();
+            hangar_name_editor.Title = "Rename Hangar";
+            hangar_name_editor.yesCallback = () => HangarName = hangar_name_editor.Text;
             GameEvents.onVesselWasModified.Add(update_connected_storage);
             GameEvents.onEditorShipModified.Add(update_connected_storage);
             GameEvents.onVesselGoOffRails.Add(onVesselGoOffRails);
