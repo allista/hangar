@@ -342,7 +342,8 @@ namespace AtHangar
             if(!CanEnableModules()) return;
             if(HighLogic.LoadedSceneIsFlight) CompressedGas = 0;
             StartCoroutine(DelayedEnableModules(true));
-            Open(); ToggleEvents();
+            Open(); 
+            ToggleEvents();
         }
 
         [KSPEvent(guiActiveEditor = true, guiActive = true, guiName = "Deflate", active = false)]
@@ -370,7 +371,8 @@ namespace AtHangar
         void deflate()
         {
             StartCoroutine(DelayedEnableModules(false));
-            Close(); ToggleEvents();
+            Close(); 
+            ToggleEvents();
         }
 
         [KSPAction("Inflate")]
