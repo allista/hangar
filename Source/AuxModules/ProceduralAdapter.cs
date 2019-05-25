@@ -59,6 +59,7 @@ namespace AtHangar
         {
             get_part_components();
             update_body();
+            update_attach_nodes();
         }
 
         public override void SaveDefaults()
@@ -156,14 +157,18 @@ namespace AtHangar
             cost = AreaCost*body.current.Area;
         }
 
-        void update_nodes()
+        void update_passage()
         {
             //update passage nodes
             if(passage != null)
             {
-                passage.Nodes[TopNodeName].Size = new Vector3(size.x, size.x, 0)*UnitDiameter*0.9f;
-                passage.Nodes[BottomNodeName].Size = new Vector3(size.y, size.y, 0)*UnitDiameter*0.9f;
+                passage.Nodes[TopNodeName].Size = new Vector3(size.x, size.x, 0) * UnitDiameter * 0.9f;
+                passage.Nodes[BottomNodeName].Size = new Vector3(size.y, size.y, 0) * UnitDiameter * 0.9f;
             }
+        }
+
+        void update_attach_nodes()
+        {
             //update stack nodes
             AttachNode top_node = part.FindAttachNode(TopNodeName);
             if(top_node != null && orig_nodes[0] != null)
@@ -222,7 +227,8 @@ namespace AtHangar
         {
             if(body_mesh == null || body_collider == null) return;
             update_body();
-            update_nodes();
+            update_attach_nodes();
+            update_passage();
             old_size = size;
             old_aspect = aspect;
             Utils.UpdateEditorGUI();
