@@ -3,7 +3,11 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.3.6**
+* v3.3.6.1
+    * Fixed some issues with Procedural Adapter and APR module.
+    * Using latest AT_Utils
+
+* v3.3.6
     * Added ability to change UI color scheme at runtime
         * To access the Color Scheme dialog, **right-click the GC toolbar button**
 
