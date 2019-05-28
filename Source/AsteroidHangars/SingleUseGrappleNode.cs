@@ -31,7 +31,7 @@ namespace AtHangar
             public bool good;
         }
 
-        [KSPField(isPersistant = true, guiName = "State", guiActive = true)] 
+        [KSPField(isPersistant = true, guiName = "State", guiActive = true)]
         public State state;
         uint dockedPartUId;
 
@@ -78,6 +78,14 @@ namespace AtHangar
         {
             base.OnAwake();
             warning = gameObject.AddComponent<SimpleWarning>();
+            warning.Message = "This will fix the grapple permanently. " +
+                              "You will not be able to decouple it ever again. " +
+                              "Are you sure you want to continue?";
+            warning.yesCallback = () =>
+            {
+                if(fixAnimator != null) fixAnimator.Open();
+                StartCoroutine(delayed_disable_decoupling());
+            };
             GameEvents.onPartJointBreak.Add(onPartJointBreak);
         }
 
@@ -236,13 +244,13 @@ namespace AtHangar
                     var sqr_range = (grapple.position - hit.point).sqrMagnitude;
                     if(sqr_range < GrappleRangeSqr)
                         parts.Add(Part.GetComponentUpwards<Part>(hit.transform.gameObject));
-                    var contact = new Contact{ ori = grapple, point = hit.point, good = sqr_range < DockRangeSqr };
+                    var contact = new Contact { ori = grapple, point = hit.point, good = sqr_range < DockRangeSqr };
                     can_dock &= contact.good;
                     contacts.Add(contact);
                 }
             }
             var p = (parts.Count == num_grapples &&
-                    new HashSet<Part>(parts).Count == 1 ? 
+                    new HashSet<Part>(parts).Count == 1 ?
                      parts[0] : null);
             if(p != null && p.vessel.isEVA) p = null;
             can_dock &= p != null;
@@ -263,9 +271,9 @@ namespace AtHangar
 
         [KSPEvent(guiName = "Toggle Grapple", active = true, guiActive = true)]
         public void ToggleArming()
-        { 
+        {
             if(state == State.Idle || state == State.Armed)
-            { 
+            {
                 if(armAnimator != null) armAnimator.Toggle();
                 else state = State.Armed;
             }
@@ -401,7 +409,7 @@ namespace AtHangar
             GameEvents.onVesselWasModified.Fire(vessel);
         }
 
-        [KSPEvent(guiName = "Release Grapple", active = false, guiActive = true, 
+        [KSPEvent(guiName = "Release Grapple", active = false, guiActive = true,
                   guiActiveUnfocused = true, externalToEVAOnly = true, unfocusedRange = 2f)]
         public void Decouple()
         {
@@ -457,11 +465,11 @@ namespace AtHangar
         #region Fixing
 
         public bool IsDocked
-        { 
+        {
             get
-            { 
+            {
                 return vessel != null && vessel[dockedPartUId] != null;
-            } 
+            }
         }
 
         IEnumerator<YieldInstruction> delayed_disable_decoupling()
@@ -469,7 +477,7 @@ namespace AtHangar
             if(fixAnimator != null)
             {
                 if(fixAnimator.State != AnimatorState.Opening)
-                    yield break; 
+                    yield break;
                 while(fixAnimator.State != AnimatorState.Opened)
                     yield return new WaitForSeconds(0.5f);
             }
@@ -480,7 +488,7 @@ namespace AtHangar
 
         [KSPEvent(guiActive = true, guiName = "Fix Grapple Permanently", active = false)]
         public void FixGrapple()
-        { 
+        {
             if(!IsDocked)
             {
                 Utils.Message("Nothing to fix to");
@@ -496,7 +504,7 @@ namespace AtHangar
 
         #endregion
 
-        #if DEBUG
+#if DEBUG
         [KSPEvent(guiName = "Try Fix Grapple", guiActive = true, guiActiveEditor = true, active = true)]
         public void TryFixGrapple()
         {
@@ -517,7 +525,7 @@ namespace AtHangar
             var ast = DiscoverableObjectsUtil.SpawnAsteroid("Ast. N" + seed, obt, seed, UntrackedObjectClass.E, 5e5, 1e6);
             ast.vesselRef.DiscoveryInfo.SetLevel(DiscoveryLevels.Owned);
         }
-        #endif
+#endif
 
         void Update()
         {
@@ -532,7 +540,7 @@ namespace AtHangar
                     target = FindContactParts();
                     if(target != null && can_dock)
                     {
-                        var rel_vel = Vector3.Dot(part.Rigidbody.velocity - target.Rigidbody.velocity, 
+                        var rel_vel = Vector3.Dot(part.Rigidbody.velocity - target.Rigidbody.velocity,
                                                   (part.Rigidbody.position - target.Rigidbody.position).normalized);
                         if(Mathf.Abs(rel_vel) < DockMaxVel) DockToPart(target);
                     }
@@ -580,27 +588,19 @@ namespace AtHangar
             for(int i = 0, contactsCount = contacts.Count; i < contactsCount; i++)
             {
                 var contact = contacts[i];
-                Utils.GLLine(contact.ori.position, contact.point, 
+                Utils.GLLine(contact.ori.position, contact.point,
                              contact.good ? good_contact_color : bad_contact_color);
             }
         }
 
         public void OnGUI()
-        { 
+        {
             if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
             Styles.Init();
-            warning.Draw("This will fix the grapple permanently. " +
-            "You will not be able to decouple it ever again. " +
-            "Are you sure you want to continue?");
-            if(warning.Result == SimpleDialog.Answer.Yes)
-            {
-                if(fixAnimator != null) fixAnimator.Open();
-                StartCoroutine(delayed_disable_decoupling());
-            }
-            #if DEBUG
+#if DEBUG
             if(grappleNode != null && grappleNode.owner != null)
                 Utils.GLDrawPoint(grappleNode.owner.transform.TransformPoint(grappleNode.position), Color.green, r: 0.3f);
-            #endif
+#endif
         }
     }
 

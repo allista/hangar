@@ -185,9 +185,6 @@ namespace AtHangar
                                               GUILayout.Height(300)).clampToScreen();
                 construct_loader.Draw();
             }
-            //rename hangar
-            if(hangar_name_editor.Draw("Rename Hangar") == SimpleDialog.Answer.Yes) 
-                HangarName = hangar_name_editor.Text;
             //transfer vessels
             if(vessels_window != null)
             {
