@@ -67,10 +67,8 @@ namespace AtHangar
         public float TotalUsedVolume;
         public float TotalStoredMass;
         public float TotalCostMass;
-        public float TotalUsedVolumeFrac
-        { get { return TotalUsedVolume/TotalVolume; } }
-        public bool CanRelocate
-        { get { return ConnectedStorage.Count > 1; } }
+        public float TotalUsedVolumeFrac => TotalUsedVolume / TotalVolume;
+        public bool CanRelocate => ConnectedStorage.Count > 1;
         #endregion
 
         #region Machinery
