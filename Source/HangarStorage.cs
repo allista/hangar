@@ -43,7 +43,7 @@ namespace AtHangar
         [KSPField] public bool    AutoPositionVessel;
         [KSPField] public Vector3 SpawnOffset = Vector3.zero;
         public SpawnSpaceManager SpawnManager { get; protected set; }
-        public bool HasSpaceMesh { get { return SpawnManager.Space != null; } }
+        public bool HasSpaceMesh => SpawnManager.Space != null;
         public Metric PartMetric { get; protected set; }
 
         //vessels storage
@@ -52,14 +52,14 @@ namespace AtHangar
         readonly protected VesselsPack<StoredVessel> stored_vessels = new VesselsPack<StoredVessel>(Globals.Instance.EnableVesselPacking);
         readonly protected VesselsPack<PackedConstruct> packed_constructs = new VesselsPack<PackedConstruct>(Globals.Instance.EnableVesselPacking);
         readonly protected List<PackedConstruct> unfit_constructs = new List<PackedConstruct>();
-        public Vector3 Size { get { return SpawnManager.SpaceMetric.size; } }
-        public float Volume { get { return SpawnManager.SpaceMetric.volume; } }
-        public int   TotalVesselsDocked { get { return packed_constructs.Count+stored_vessels.Count; } }
-        public float VesselsMass { get { return packed_constructs.VesselsMass+stored_vessels.VesselsMass; } }
-        public float VesselsCost { get { return packed_constructs.VesselsCost+stored_vessels.VesselsCost; } }
-        public float UsedVolume  { get { return packed_constructs.UsedVolume+stored_vessels.UsedVolume; } }
-        public float FreeVolume        { get { return Volume-UsedVolume; } }
-        public float UsedVolumeFrac { get { return UsedVolume/Volume; } }
+        public Vector3 Size => SpawnManager.SpaceMetric.size;
+        public float Volume => SpawnManager.SpaceMetric.volume;
+        public int TotalVesselsDocked => packed_constructs.Count + stored_vessels.Count;
+        public float VesselsMass => packed_constructs.VesselsMass + stored_vessels.VesselsMass;
+        public float VesselsCost => packed_constructs.VesselsCost + stored_vessels.VesselsCost;
+        public float UsedVolume => packed_constructs.UsedVolume + stored_vessels.UsedVolume;
+        public float FreeVolume => Volume - UsedVolume;
+        public float UsedVolumeFrac => UsedVolume / Volume;
         //coordination
         readonly List<HangarStorage> storage_checklist = new List<HangarStorage>();
         #endregion
@@ -108,7 +108,7 @@ namespace AtHangar
             }
         }
 
-        bool other_storages_ready { get { return storage_checklist.All(s => s.Ready); } }
+        bool other_storages_ready => storage_checklist.All(s => s.Ready);
 
         protected override void early_setup(StartState state)
         {
@@ -226,8 +226,8 @@ namespace AtHangar
             return vessels;
         }
 
-        public int UnfitCount { get { return unfit_constructs.Count; } }
-        public List<PackedConstruct> UnfitConstucts { get { return unfit_constructs.ToList(); } }
+        public int UnfitCount => unfit_constructs.Count;
+        public List<PackedConstruct> UnfitConstucts => unfit_constructs.ToList();
         public void RemoveUnfit(PackedConstruct pc) { unfit_constructs.Remove(pc); }
         public void AddUnfit(PackedConstruct pc) { unfit_constructs.Add(pc); }
 
