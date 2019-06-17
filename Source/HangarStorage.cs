@@ -54,8 +54,6 @@ namespace AtHangar
         readonly protected List<PackedConstruct> unfit_constructs = new List<PackedConstruct>();
         public Vector3 Size { get { return SpawnManager.SpaceMetric.size; } }
         public float Volume { get { return SpawnManager.SpaceMetric.volume; } }
-        public int   ConstructsCount { get { return packed_constructs.Count; } }
-        public int   VesselsCount { get { return stored_vessels.Count; } }
         public int   TotalVesselsDocked { get { return packed_constructs.Count+stored_vessels.Count; } }
         public float VesselsMass { get { return packed_constructs.VesselsMass+stored_vessels.VesselsMass; } }
         public float VesselsCost { get { return packed_constructs.VesselsCost+stored_vessels.VesselsCost; } }

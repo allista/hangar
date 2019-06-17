@@ -251,7 +251,7 @@ namespace AtHangar
         bool clear_payload_resouces()
         {
             if(payload_resources.Count == 0) return true;
-            if(Storage != null && Storage.Ready && Storage.ConstructsCount > 0) return false;
+            if(Storage != null && Storage.Ready && Storage.TotalVesselsDocked > 0) return false;
             payload_resources.ForEach(r => part.Resources.Remove(r.name));
             payload_resources.Clear();
             return true;
@@ -412,7 +412,7 @@ namespace AtHangar
         {
             //check state
             if(!HighLogic.LoadedSceneIsFlight || Storage == null || !Storage.Ready) yield break;
-            if(Storage.VesselsCount == 0) 
+            if(Storage.TotalVesselsDocked == 0) 
             {
                 Utils.Message("No payload");
                 yield break;
@@ -430,7 +430,8 @@ namespace AtHangar
             TryRestoreVessel(Storage.GetVessels()[0]);
             //if jettisoning has failed, deactivate the part
             //otherwise on resume the part is activated automatically
-            if(Storage.VesselsCount > 0) part.deactivate();
+            if(Storage.TotalVesselsDocked > 0) 
+                part.deactivate();
             else 
             { 
                 while(launched_vessel != null) yield return null;
