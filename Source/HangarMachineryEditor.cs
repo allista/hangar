@@ -8,6 +8,7 @@
 using UnityEngine;
 using AT_Utils;
 using AT_Utils.UI;
+using System.Collections;
 
 namespace AtHangar
 {
@@ -34,16 +35,16 @@ namespace AtHangar
         void highlight_fitted_content(PackedVessel pc)
         {
             if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)
-                set_highlighted_content(highlighted_content, true);
+                SetHighlightedContent(highlighted_content, true);
         }
 
         void highlight_unfitted_content(PackedVessel pc)
         {
             if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)
-                set_highlighted_content(highlighted_content, false);
+                SetHighlightedContent(highlighted_content, false);
         }
 
-        void set_highlighted_content(PackedVessel pc, bool fits=false)
+        public void SetHighlightedContent(PackedVessel pc, bool fits=false)
         {
             highlighted_content = pc;
             content_hull_mesh.gameObject.SetActive(false);
@@ -62,6 +63,36 @@ namespace AtHangar
                     content_hull_mesh.gameObject.SetActive(true);
                 }
             }
+            else
+                stop_at_time = -1;
+        }
+
+        float stop_at_time = -1;
+        IEnumerator stop_highlighting_content_after(float period)
+        {
+            stop_at_time = Time.time + period;
+            do
+            {
+                yield return new WaitForSeconds(stop_at_time - Time.time);
+            } while(stop_at_time-Time.time > 0);
+            if(stop_at_time > 0)
+                SetHighlightedContent(null);
+            stop_at_time = -1;
+        }
+
+        public void HighlightContentTemporary(PackedVessel pc, float period)
+        {
+            if(highlighted_content == null)
+            {
+                SetHighlightedContent(pc, true);
+                StartCoroutine(stop_highlighting_content_after(period));
+            }
+            else
+            {
+                stop_at_time = Time.time + period;
+                if(pc != highlighted_content)
+                    SetHighlightedContent(pc, true);
+            }
         }
 
         void process_construct(ShipConstruct construct)
@@ -76,7 +107,7 @@ namespace AtHangar
             }
             pc.UpdateMetric();
             try_store_vessel(pc);
-            set_highlighted_content(pc, Storage.Contains(pc));
+            SetHighlightedContent(pc, Storage.Contains(pc));
             pc.UnloadConstruct();
         }
 
@@ -107,16 +138,16 @@ namespace AtHangar
                 if(HangarGUI.PackedVesselLabel(pc, pc == highlighted_content? Styles.white : Styles.label))
                 {
                     if(highlighted_content != pc)
-                        set_highlighted_content(pc, true);
+                        SetHighlightedContent(pc, true);
                     else
-                        set_highlighted_content(null);
+                        SetHighlightedContent(null);
                 }
                 if(GUILayout.Button("+1", Styles.open_button, GUILayout.Width(25))) 
                     try_store_vessel(pc.Clone());
                 if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
                 {
                     if(pc == highlighted_content)
-                        set_highlighted_content(null);
+                        SetHighlightedContent(null);
                     Storage.RemoveVessel(pc);
                 }
                 GUILayout.EndHorizontal();
@@ -136,16 +167,16 @@ namespace AtHangar
                     if(HangarGUI.PackedVesselLabel(pc, pc == highlighted_content? Styles.white : Styles.label))
                     {
                         if(highlighted_content != pc)
-                            set_highlighted_content(pc, false);
+                            SetHighlightedContent(pc, false);
                         else
-                            set_highlighted_content(null);
+                            SetHighlightedContent(null);
                     }
                     if(GUILayout.Button("^", Styles.open_button, GUILayout.Width(25))) 
                     { if(try_store_vessel(pc.Clone())) Storage.RemoveUnfit(pc); }
                     if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
                     {
                         if(pc == highlighted_content)
-                            set_highlighted_content(null);
+                            SetHighlightedContent(null);
                         Storage.RemoveUnfit(pc);
                     }
                     GUILayout.EndHorizontal();
@@ -157,12 +188,12 @@ namespace AtHangar
             if(GUILayout.Button("Clear", Styles.danger_button, GUILayout.ExpandWidth(true)))
             {
                 Storage.ClearConstructs();
-                set_highlighted_content(null);
+                SetHighlightedContent(null);
             }
             if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
             {
                 Utils.LockControls(eLock, false);
-                set_highlighted_content(null);
+                SetHighlightedContent(null);
                 editing_content = false;
             }
             GUILayout.EndVertical();
