@@ -374,7 +374,7 @@ namespace AtHangar
                 if(vsl != selected_vessel) 
                 {
                     selected_hangar.ResourceTransferList.Clear();
-                    resources_window.TransferAction = () => selected_hangar.TransferResources(selected_vessel);
+                    resources_window.TransferAction = () => selected_hangar.TransferResources(vsl);
                 }
             }
             else
