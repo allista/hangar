@@ -39,8 +39,8 @@ namespace AtHangar
     {
         public ModInfo()
         {
-            MinKSPVersion = new Version(1,7,0);
-            MaxKSPVersion = new Version(1,7,0);
+            MinKSPVersion = new Version(1, 6, 1);
+            MaxKSPVersion = new Version(1, 7, 2);
 
             VersionURL   = "https://raw.githubusercontent.com/allista/hangar/master/GameData/Hangar/Hangar.version";
             UpgradeURL   = "https://spacedock.info/mod/1000/Hangar";
