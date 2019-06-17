@@ -31,10 +31,8 @@ namespace AtHangar
 
         void OnPackedVesselRemoved(PackedVessel pv)
         {
-            var sv = pv as StoredVessel;
-            if(sv != null) { OnVesselRemoved(sv); return; }
-            var pc = pv as PackedConstruct;
-            if(pc != null) { OnConstructRemoved(pc); return; }
+            if(pv is StoredVessel sv) { OnVesselRemoved(sv); return; }
+            if(pv is PackedConstruct pc) { OnConstructRemoved(pc); return; }
         }
         #endregion
 
@@ -138,8 +136,7 @@ namespace AtHangar
             var constraints = FitConstraint.GetInvocationList();
             for(int i = 0, len = constraints.Length; i < len; i++)
             {
-                var cons = constraints[i] as PackedVesselConstraint;
-                if(cons != null && !cons(pv)) return false;
+                if(constraints[i] is PackedVesselConstraint cons && !cons(pv)) return false;
             }
             return true;
         }
@@ -256,10 +253,8 @@ namespace AtHangar
         public override bool CanHold(PackedVessel vsl)
         {
             if(!VesselFits(vsl)) return false;
-            var pc = vsl as PackedConstruct;
-            if(pc != null) return packed_constructs.CanAdd(pc);
-            var sv = vsl as StoredVessel;
-            if(sv != null) return stored_vessels.CanAdd(sv);
+            if(vsl is PackedConstruct pc) return packed_constructs.CanAdd(pc);
+            if(vsl is StoredVessel sv) return stored_vessels.CanAdd(sv);
             return false;
         }
 
@@ -284,17 +279,15 @@ namespace AtHangar
 
         #region Storage
         public void StoreVessel(PackedVessel v)
-        { 
-            var pc = v as PackedConstruct;
-            if(pc != null) 
+        {
+            if(v is PackedConstruct pc)
             {
                 packed_constructs.ForceAdd(pc);
                 OnConstructStored(pc);
                 set_part_params();
                 return;
             }
-            var sv = v as StoredVessel;
-            if(sv != null) 
+            if(v is StoredVessel sv)
             {
                 stored_vessels.ForceAdd(sv);
                 OnVesselStored(sv);
@@ -307,8 +300,7 @@ namespace AtHangar
         public bool RemoveVessel(PackedVessel v)
         { 
             var success = false;
-            var pc = v as PackedConstruct;
-            if(pc != null) 
+            if(v is PackedConstruct pc)
             {
                 if(packed_constructs.Remove(pc))
                 {
@@ -316,8 +308,7 @@ namespace AtHangar
                     success = true;
                 }
             }
-            var sv = v as StoredVessel;
-            if(sv != null) 
+            if(v is StoredVessel sv)
             {
                 if(stored_vessels.Remove(sv))
                 {
@@ -338,11 +329,12 @@ namespace AtHangar
 
         public virtual bool TryAddUnfit(PackedVessel v)
         {
-            if(HighLogic.LoadedSceneIsEditor) return false;
-            var pc = v as PackedConstruct;
-            if(pc == null) return false;
-            unfit_constructs.Add(pc); 
-            return true;
+            if(HighLogic.LoadedSceneIsEditor && v is PackedConstruct pc)
+            {
+                unfit_constructs.Add(pc);
+                return true;
+            }
+            return false;
         }
 
         public virtual bool TryStoreVessel(PackedVessel v)
