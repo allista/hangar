@@ -3,6 +3,12 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
+* **v3.3.7**
+    * Using the common Color Scheme for the hangar content hint color
+    * Fixed transfer window behavior when selected payload is switched
+    * Added **Show** button that displays content hint for a short time
+        * *this is actually a step toward user-controlled orientation of the payload*
+
 * v3.3.6.1
     * Fixed some issues with Procedural Adapter and APR module.
     * Using latest AT_Utils
