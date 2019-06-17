@@ -374,7 +374,8 @@ namespace AtHangar
                 if(vsl != selected_vessel) 
                 {
                     selected_hangar.ResourceTransferList.Clear();
-                    resources_window.TransferAction = () => selected_hangar.TransferResources(selected_vessel);
+                    resources_window.TransferAction = () => selected_hangar.TransferResources(vsl);
+                    selected_hangar.SetHighlightedContent(null);
                 }
             }
             else
@@ -385,10 +386,15 @@ namespace AtHangar
             selected_vessel = vsl;
         }
 
+        static readonly GUIContent show_button = new GUIContent("Show", "Show current payload for a short time");
         void SelectVessel()
         {
+            GUILayout.BeginHorizontal();
             var next_vessel = Utils.LeftRightChooser(selected_vessel, vessels, vessels_tooltip);
+            if(GUILayout.Button(show_button, Styles.active_button, GUILayout.ExpandWidth(false)))
+                selected_hangar.HighlightContentTemporary(next_vessel, 5);
             select_vessel(next_vessel);
+            GUILayout.EndHorizontal();
         }
         public static void SelectVessel(StoredVessel vsl) { Instance.select_vessel(vsl); }
 
@@ -444,9 +450,7 @@ namespace AtHangar
             GUILayout.EndHorizontal();
             if(vessels.Count > 0)
             {
-                GUILayout.BeginVertical();
                 SelectVessel();
-                GUILayout.EndVertical();
                 CrewTransferButton();
                 ResourcesTransferButton();
                 LaunchButton();

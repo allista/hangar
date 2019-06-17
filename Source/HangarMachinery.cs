@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using AT_Utils;
+using AT_Utils.UI;
 
 namespace AtHangar
 {
@@ -67,10 +68,8 @@ namespace AtHangar
         public float TotalUsedVolume;
         public float TotalStoredMass;
         public float TotalCostMass;
-        public float TotalUsedVolumeFrac
-        { get { return TotalUsedVolume/TotalVolume; } }
-        public bool CanRelocate
-        { get { return ConnectedStorage.Count > 1; } }
+        public float TotalUsedVolumeFrac => TotalUsedVolume / TotalVolume;
+        public bool CanRelocate => ConnectedStorage.Count > 1;
         #endregion
 
         #region Machinery
@@ -140,7 +139,7 @@ namespace AtHangar
             content_hull_mesh = obj.GetComponent<MeshFilter>();
             content_hull_renderer = obj.GetComponent<MeshRenderer>();
             content_hull_renderer.material = Utils.no_z_material;
-            content_hull_renderer.material.color = content_color_fit;
+            content_hull_renderer.material.color = Colors.Good.Alpha(0.25f);
             content_hull_renderer.enabled = true;
             obj.SetActive(false);
             hangar_name_editor = gameObject.AddComponent<SimpleTextEntry>();
