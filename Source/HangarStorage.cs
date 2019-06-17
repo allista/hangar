@@ -54,7 +54,7 @@ namespace AtHangar
         readonly protected List<PackedConstruct> unfit_constructs = new List<PackedConstruct>();
         public Vector3 Size => SpawnManager.SpaceMetric.size;
         public float Volume => SpawnManager.SpaceMetric.volume;
-        public int TotalVesselsDocked => packed_constructs.Count + stored_vessels.Count;
+        public int VesselsCount => packed_constructs.Count + stored_vessels.Count;
         public float VesselsMass => packed_constructs.VesselsMass + stored_vessels.VesselsMass;
         public float VesselsCost => packed_constructs.VesselsCost + stored_vessels.VesselsCost;
         public float UsedVolume => packed_constructs.UsedVolume + stored_vessels.UsedVolume;
@@ -198,7 +198,7 @@ namespace AtHangar
 
         virtual protected void set_part_params(bool reset = false) 
         {
-            _stored_vessels = TotalVesselsDocked.ToString();
+            _stored_vessels = VesselsCount.ToString();
             _stored_mass    = Utils.formatMass(VesselsMass);
             _stored_cost    = VesselsCost.ToString();
             _used_volume    = Volume > 0? UsedVolumeFrac.ToString("P1") : "N/A";

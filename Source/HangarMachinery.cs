@@ -43,7 +43,7 @@ namespace AtHangar
         { get { return Storage == null ? 0f : Storage.Volume; } }
 
         public int VesselsDocked
-        { get { return Storage == null ? 0 : Storage.TotalVesselsDocked; } }
+        { get { return Storage == null ? 0 : Storage.VesselsCount; } }
 
         public float VesselsMass
         { get { return Storage == null ? 0f : Storage.VesselsMass; } }
@@ -200,7 +200,7 @@ namespace AtHangar
             TotalCostMass      = 0;
             foreach(var s in ConnectedStorage)
             {
-                TotalVesselsDocked += s.TotalVesselsDocked;
+                TotalVesselsDocked += s.VesselsCount;
                 TotalVolume        += s.Volume;
                 TotalUsedVolume    += s.UsedVolume;
                 TotalStoredMass    += s.VesselsMass;

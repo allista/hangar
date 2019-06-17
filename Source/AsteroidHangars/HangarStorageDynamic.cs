@@ -99,7 +99,7 @@ namespace AtHangar
         { 
             get
             {
-                return TotalVesselsDocked == 0 && 
+                return VesselsCount == 0 && 
                 tank_manager != null && 
                 tank_manager.TanksCount == 0;
             }
@@ -228,7 +228,7 @@ namespace AtHangar
         [KSPEvent(guiActive = true, guiName = "Edit Tanks", active = false)]
         public void EditTanks()
         { 
-            if(TotalVesselsDocked > 0)
+            if(VesselsCount > 0)
             {
                 Utils.Message("There are some ships docked inside this hangar.\n" +
                               "All works on resource tanks are prohibited for safety reasons.");
@@ -244,7 +244,7 @@ namespace AtHangar
             if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
             if(!selected_window) return;
             if(tank_manager == null) return;
-            if(TotalVesselsDocked > 0) 
+            if(VesselsCount > 0) 
             { 
                 selected_window[TankWindows.EditTanks] = false;
                 tank_manager.UnlockEditor(); 
