@@ -25,7 +25,6 @@
 
     "suggests":
     [
-        { "name": "Extraplanetary-Launchpads" },
         { "name": "EditorExtensions" },
         { "name": "ThrottleControlledAvionics" },
         { "name": "ConfigurableContainers" },
