@@ -7,6 +7,7 @@
 
 using UnityEngine;
 using AT_Utils;
+using AT_Utils.UI;
 
 namespace AtHangar
 {
@@ -22,8 +23,6 @@ namespace AtHangar
         Rect eWindowPos  = new Rect(Screen.width/2-window_width/2, 100, window_width, 100);
 
         bool editing_content;
-        static readonly Color content_color_fit = new Color{r=0, g=1, b=0, a=0.25f};
-        static readonly Color content_color_unfit = new Color{r=1, g=0, b=0, a=0.25f};
         MeshRenderer content_hull_renderer;
         MeshFilter content_hull_mesh;
         PackedVessel highlighted_content;
@@ -54,7 +53,7 @@ namespace AtHangar
                 if(mesh != null)
                 {
                     content_hull_mesh.mesh = mesh;
-                    content_hull_renderer.material.color = fits? content_color_fit : content_color_unfit;
+                    content_hull_renderer.material.color = fits? Colors.Good.Alpha(0.25f) : Colors.Danger.Alpha(0.25f);
                     var spawn_transform = get_spawn_transform(highlighted_content);
                     var offset = get_spawn_offset(highlighted_content)-highlighted_content.metric.center;
                     content_hull_mesh.transform.position = spawn_transform.position;
