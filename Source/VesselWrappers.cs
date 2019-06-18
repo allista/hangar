@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using AT_Utils;
+using KSP.Localization;
 
 namespace AtHangar
 {
@@ -54,7 +55,7 @@ namespace AtHangar
             vessel_node = construct.SaveShip();
             vessel_node.name = "VESSEL";
             resources = new VesselResources(vessel_node);
-            name = construct.shipName;
+            name = Localizer.Format(construct.shipName);
             id = Guid.NewGuid();
         }
 
