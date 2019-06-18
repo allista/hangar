@@ -28,9 +28,30 @@ namespace AtHangar
         public Vector3 CoG      { get { return metric.center; } } //center of geometry
         public VesselResources  resources { get; protected set; }
         public int CrewCapacity { get { return metric.CrewCapacity; } }
+        public List<ProtoCrewMember> crew { get; protected set; } = new List<ProtoCrewMember>();
 
-        public abstract void Save(ConfigNode node);
-        public abstract void Load(ConfigNode node);
+        protected abstract void OnSave(ConfigNode node);
+        public void Save(ConfigNode node)
+        {
+            ConfigNode metric_node = node.AddNode("METRIC");
+            ConfigNode crew_node = node.AddNode("CREW");
+            metric.Save(metric_node);
+            crew.ForEach(c => c.Save(crew_node.AddNode(c.name)));
+            OnSave(node);
+        }
+
+        protected abstract void OnLoad(ConfigNode node);
+        public void Load(ConfigNode node)
+        {
+            ConfigNode metric_node = node.GetNode("METRIC");
+            ConfigNode crew_node = node.GetNode("CREW");
+            metric = new Metric(metric_node);
+            crew = new List<ProtoCrewMember>();
+            if(crew_node != null)
+                foreach(ConfigNode cn in crew_node.nodes)
+                    crew.Add(new ProtoCrewMember(HighLogic.CurrentGame.Mode, cn));
+            OnLoad(node);
+        }
 
         public override string ToString() { return name; }
     }
