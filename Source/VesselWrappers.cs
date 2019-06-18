@@ -40,19 +40,9 @@ namespace AtHangar
         }
 
         public void UnloadConstruct() 
-        { 
-            if(construct == null) return;
-            foreach(Part p in construct) 
-            {
-                if(p != null) 
-                {
-                    p.OnDelete();
-                    if(p.gameObject != null)
-                        UnityEngine.Object.Destroy(p.gameObject);
-                }
-            }
-            construct.Clear();
-            construct = null; 
+        {
+            construct?.Unload();
+            construct = null;
         }
 
         public PackedConstruct() {}
