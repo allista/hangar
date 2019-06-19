@@ -198,19 +198,23 @@ namespace AtHangar
         }
 
         public override void OnAwake()
-        { GameEvents.OnVesselRecoveryRequested.Add(onVesselRecoveryRequested); }
+        {
+            GameEvents.OnVesselRecoveryRequested.Add(onVesselRecoveryRequested);
+        }
 
         public void OnDestroy()
-        { GameEvents.OnVesselRecoveryRequested.Remove(onVesselRecoveryRequested); }
+        {
+            GameEvents.OnVesselRecoveryRequested.Remove(onVesselRecoveryRequested);
+        }
         #endregion
 
         #region Content Management
-        public List<PackedVessel> GetVessels() { return stored_vessels.Values; }
+        public List<PackedVessel> GetVessels() => stored_vessels.Values;
 
         public int UnfitCount => unfit_constructs.Count;
         public List<PackedConstruct> UnfitConstucts => unfit_constructs.ToList();
-        public void RemoveUnfit(PackedConstruct pc) { unfit_constructs.Remove(pc); }
-        public void AddUnfit(PackedConstruct pc) { unfit_constructs.Add(pc); }
+        public void RemoveUnfit(PackedConstruct pc) => unfit_constructs.Remove(pc);
+        public void AddUnfit(PackedConstruct pc) => unfit_constructs.Add(pc);
 
         public void UpdateParams()
         {

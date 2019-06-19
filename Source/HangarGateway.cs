@@ -42,14 +42,14 @@ namespace AtHangar
         protected override bool hangar_is_occupied() =>
         base.hangar_is_occupied() || !SpawnManager.SpawnSpaceEmpty;
 
-        protected override Vector3 get_spawn_offset(PackedVessel pv)
-        { return SpawnManager.GetSpawnOffset(pv.metric); }
+        protected override Vector3 get_spawn_offset(PackedVessel pv) => 
+        SpawnManager.GetSpawnOffset(pv.metric);
 
-        protected override Transform get_spawn_transform(PackedVessel pv)
-        { return SpawnManager.GetSpawnTransform(pv.metric); }
+        protected override Transform get_spawn_transform(PackedVessel pv) => 
+        SpawnManager.GetSpawnTransform(pv.metric);
 
-        public override Transform GetSpawnTransform()
-        { return SpawnManager.AutoPositionVessel ? null : SpawnManager.GetSpawnTransform(); }
+        public override Transform GetSpawnTransform() => 
+        SpawnManager.AutoPositionVessel ? null : SpawnManager.GetSpawnTransform();
 
         protected override bool can_restore(PackedVessel v)
         {
@@ -67,8 +67,8 @@ namespace AtHangar
 
     public class HangarEntrance : ExternalHangar
     {
-        protected override List<HangarPassage> get_connected_passages()
-        { return Storage == null ? null : Storage.ConnectedPassages(); }
+        protected override List<HangarPassage> get_connected_passages() => 
+        Storage?.ConnectedPassages();
 
         protected override void early_setup(StartState state)
         {
@@ -87,8 +87,8 @@ namespace AtHangar
     {
         HangarPassage entrance;
 
-        protected override List<HangarPassage> get_connected_passages()
-        { return entrance == null ? null : entrance.ConnectedPassages(); }
+        protected override List<HangarPassage> get_connected_passages() => 
+        entrance?.ConnectedPassages();
 
         protected override void update_connected_storage()
         {

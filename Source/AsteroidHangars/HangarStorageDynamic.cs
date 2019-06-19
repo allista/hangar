@@ -28,7 +28,7 @@ namespace AtHangar
         ResourcePump metal_pump;
         float max_side;
 
-        public SwitchableTankManager GetTankManager() { return tank_manager; }
+        public SwitchableTankManager GetTankManager() => tank_manager;
 
         #region IPart*Modifiers
         public override float GetModuleCost(float defaultCost, ModifierStagingSituation situation)
@@ -96,15 +96,9 @@ namespace AtHangar
             return true;
         }
 
-        public bool CanAddVolume
-        {
-            get
-            {
-                return VesselsCount == 0 &&
+        public bool CanAddVolume => VesselsCount == 0 &&
                 tank_manager != null &&
                 tank_manager.TanksCount == 0;
-            }
-        }
 
         public override void OnSave(ConfigNode node)
         {
@@ -150,8 +144,8 @@ namespace AtHangar
         }
 
         //area is calculated for a box with sides [a, a, 2a], where a*a*2a = volume
-        float metal_for_hull(float volume)
-        { return Mathf.Sign(volume) * 10 * Mathf.Pow(Mathf.Abs(volume) / 2, 2f / 3) * ResourcePerArea; }
+        float metal_for_hull(float volume) => 
+        Mathf.Sign(volume) * 10 * Mathf.Pow(Mathf.Abs(volume) / 2, 2f / 3) * ResourcePerArea;
 
         float metal_for_tank(string tank_name, float volume)
         {

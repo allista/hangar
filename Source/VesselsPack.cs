@@ -17,8 +17,8 @@ namespace AtHangar
 {
     public abstract class PackedVessel : IConfigNode
     {
+        public Guid id;
         public Metric metric; 
-        public Guid id; 
         public string  name     { get; protected set; }
         public Vector3 size     { get { return metric.size; } }
         public Vector3 extents  { get { return metric.extents; } }
@@ -26,7 +26,9 @@ namespace AtHangar
         public float   mass     { get { return metric.mass; } set { metric.mass = value; } }
         public float   cost     { get { return metric.cost; } set { metric.cost = value; } }
         public Vector3 CoG      { get { return metric.center; } } //center of geometry
+
         public VesselResources  resources { get; protected set; }
+
         public int CrewCapacity { get { return metric.CrewCapacity; } }
         public List<ProtoCrewMember> crew { get; protected set; } = new List<ProtoCrewMember>();
 

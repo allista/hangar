@@ -64,9 +64,11 @@ namespace AtHangar
             vessel_node = ConfigNode.Load(file);
             vessel_node.name = "VESSEL";
             resources = new VesselResources(vessel_node);
-            if(!LoadConstruct()) return;
-            name = construct.shipName;
-            id = Guid.NewGuid();
+            if(LoadConstruct())
+            {
+                name = construct.shipName;
+                id = Guid.NewGuid();
+            }
         }
 
         protected PackedConstruct(PackedConstruct pc)

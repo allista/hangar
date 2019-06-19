@@ -36,25 +36,13 @@ namespace AtHangar
         #region Managed Storage
         public HangarStorage Storage { get; protected set; }
 
-        public virtual Vector3 DockSize
-        { get { return Storage == null ? Vector3.zero : Storage.Size; } }
-
-        public float Volume
-        { get { return Storage == null ? 0f : Storage.Volume; } }
-
-        public int VesselsDocked
-        { get { return Storage == null ? 0 : Storage.VesselsCount; } }
-
-        public float VesselsMass
-        { get { return Storage == null ? 0f : Storage.VesselsMass; } }
-
-        public float VesselsCost
-        { get { return Storage == null ? 0f : Storage.VesselsCost; } }
-
-        public float UsedVolume
-        { get { return Storage == null ? 0f : Storage.UsedVolume; } }
-
-        public float UsedVolumeFrac { get { return Storage == null || Storage.Volume.Equals(0) ? 1 : UsedVolume / Volume; } }
+        public virtual Vector3 DockSize => Storage == null ? Vector3.zero : Storage.Size;
+        public float Volume => Storage == null ? 0f : Storage.Volume;
+        public int VesselsDocked => Storage == null ? 0 : Storage.VesselsCount;
+        public float VesselsMass => Storage == null ? 0f : Storage.VesselsMass;
+        public float VesselsCost => Storage == null ? 0f : Storage.VesselsCost;
+        public float UsedVolume => Storage == null ? 0f : Storage.UsedVolume;
+        public float UsedVolumeFrac => Storage == null || Storage.Volume.Equals(0) ? 1 : UsedVolume / Volume;
 
         public List<PackedVessel> GetVessels() => Storage == null ? new List<PackedVessel>() : Storage.GetVessels();
 
@@ -78,7 +66,7 @@ namespace AtHangar
         protected PackedVessel spawning_vessel;
 
         protected MultiAnimator hangar_gates;
-        public AnimatorState gates_state { get { return hangar_gates == null ? AnimatorState.Opened : hangar_gates.State; } }
+        public AnimatorState gates_state => hangar_gates == null ? AnimatorState.Opened : hangar_gates.State;
         public HangarState hangar_state { get; private set; }
 
         public VesselResources HangarResources { get; private set; }
@@ -92,15 +80,9 @@ namespace AtHangar
 
         [SerializeField] public ConfigNode ModuleConfig;
 
-        public bool IsControllable
-        {
-            get
-            {
-                return vessel.CurrentControlLevel == Vessel.ControlLevel.FULL ||
+        public bool IsControllable => vessel.CurrentControlLevel == Vessel.ControlLevel.FULL ||
                     vessel.CurrentControlLevel == Vessel.ControlLevel.PARTIAL_MANNED ||
                     part.protoModuleCrew.Count > 0;
-            }
-        }
 
         protected ResourcePump socket;
         #endregion
@@ -172,7 +154,7 @@ namespace AtHangar
             HangarResources = new VesselResources(vessel);
         }
 
-        protected bool all_passages_ready { get { return passage_checklist.All(p => p.Ready); } }
+        protected bool all_passages_ready => passage_checklist.All(p => p.Ready);
 
         protected abstract List<HangarPassage> get_connected_passages();
 

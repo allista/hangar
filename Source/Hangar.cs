@@ -26,8 +26,8 @@ namespace AtHangar
             return info;
         }
 
-        protected override List<HangarPassage> get_connected_passages()
-        { return Storage == null ? null : Storage.ConnectedPassages(); }
+        protected override List<HangarPassage> get_connected_passages() => 
+        Storage?.ConnectedPassages();
 
         protected override void early_setup(StartState state)
         {
@@ -43,14 +43,14 @@ namespace AtHangar
         protected override bool hangar_is_occupied() =>
         base.hangar_is_occupied() || !Storage.SpawnManager.SpawnSpaceEmpty;
 
-        protected override Vector3 get_spawn_offset(PackedVessel pv)
-        { return Storage.SpawnManager.GetSpawnOffset(pv.metric); }
+        protected override Vector3 get_spawn_offset(PackedVessel pv) => 
+        Storage.SpawnManager.GetSpawnOffset(pv.metric);
 
-        protected override Transform get_spawn_transform(PackedVessel pv)
-        { return Storage.SpawnManager.GetSpawnTransform(pv.metric); }
+        protected override Transform get_spawn_transform(PackedVessel pv) => 
+        Storage.SpawnManager.GetSpawnTransform(pv.metric);
 
-        public override Transform GetSpawnTransform()
-        { return Storage.SpawnManager.AutoPositionVessel ? null : Storage.SpawnManager.GetSpawnTransform(); }
+        public override Transform GetSpawnTransform() => 
+        Storage.SpawnManager.AutoPositionVessel ? null : Storage.SpawnManager.GetSpawnTransform();
 
 #if DEBUG
         [KSPEvent(guiActive = true, guiName = "Check Airlock", active = true)]
