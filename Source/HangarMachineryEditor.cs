@@ -128,34 +128,37 @@ namespace AtHangar
                 HangarGUI.UsedVolumeLabel(TotalUsedVolume, TotalUsedVolumeFrac, "Total Used Volume");
             HangarGUI.UsedVolumeLabel(UsedVolume, UsedVolumeFrac);
             //hangar contents
-            var constructs = Storage.GetConstructs();
-            constructs.Sort((a, b) => a.name.CompareTo(b.name));
+            var vessels = Storage.GetVessels();
+            vessels.Sort((a, b) => a.name.CompareTo(b.name));
             constructs_scroll = GUILayout.BeginScrollView(constructs_scroll, GUILayout.Height(200), GUILayout.Width(window_width));
             GUILayout.BeginVertical();
-            foreach(PackedConstruct pc in constructs)
+            foreach(PackedVessel pv in vessels)
             {
                 GUILayout.BeginHorizontal();
-                if(HangarGUI.PackedVesselLabel(pc, pc == highlighted_content? Styles.white : Styles.label))
+                if(HangarGUI.PackedVesselLabel(pv, pv == highlighted_content? Styles.white : Styles.label))
                 {
-                    if(highlighted_content != pc)
-                        SetHighlightedContent(pc, true);
+                    if(highlighted_content != pv)
+                        SetHighlightedContent(pv, true);
                     else
                         SetHighlightedContent(null);
                 }
-                if(GUILayout.Button("+1", Styles.open_button, GUILayout.Width(25))) 
-                    try_store_vessel(pc.Clone());
+                if(GUILayout.Button("+1", Styles.open_button, GUILayout.Width(25)))
+                {
+                    if(pv is PackedConstruct pc)
+                        try_store_vessel(pc.Clone());
+                }
                 if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
                 {
-                    if(pc == highlighted_content)
+                    if(pv == highlighted_content)
                         SetHighlightedContent(null);
-                    Storage.RemoveVessel(pc);
+                    Storage.RemoveVessel(pv);
                 }
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical();
             GUILayout.EndScrollView();
             //unfit constructs
-            constructs = Storage.UnfitConstucts;
+            var constructs = Storage.UnfitConstucts;
             if(constructs.Count > 0)
             {
                 GUILayout.Label("Unfit vessels:", Styles.active, GUILayout.ExpandWidth(true));
@@ -261,13 +264,6 @@ namespace AtHangar
 //              Utils.GLLine(vessel.transform.position, vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()+TimeWarp.fixedDeltaTime).xzy+vessel.mainBody.position, Color.magenta);
 //              Utils.GLVec(vessel.transform.position,  vessel.orbit.GetRotFrameVel(vessel.mainBody).xzy*TimeWarp.fixedDeltaTime, Color.blue);  
                 Utils.GLVec(part.transform.position+part.transform.TransformDirection(part.CoMOffset), momentumDelta, Color.red);
-            }
-            if(launched_vessel != null && launched_vessel.vessel != null)
-            {
-                Utils.GLDrawPoint(launched_vessel.vessel.transform.position, Color.yellow);
-                Utils.GLLine(launched_vessel.vessel.transform.position, vessel.transform.position, Color.yellow);
-                Utils.GLVec(launched_vessel.vessel.transform.position, part.Rigidbody.velocity, Color.red);
-                Utils.GLVec(launched_vessel.vessel.transform.position, launched_vessel.dV, Color.cyan);
             }
         }
         #endif

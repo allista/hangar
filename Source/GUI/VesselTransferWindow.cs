@@ -77,7 +77,7 @@ namespace AtHangar
             if(storage == null) return;
             scroll = GUILayout.BeginScrollView(scroll, GUILayout.Height(scroll_height), GUILayout.Width(scroll_width));
             GUILayout.BeginVertical();
-            List<PackedVessel> vessels = storage.GetAllVesselsBase();
+            List<PackedVessel> vessels = storage.GetVessels();
             vessels.Sort((a, b) => a.name.CompareTo(b.name));
             foreach(var v in vessels)
             {

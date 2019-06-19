@@ -56,7 +56,7 @@ namespace AtHangar
         public override string ToString() { return name; }
     }
 
-    public class VesselsPack<V> : IEnumerable<PackedVessel> where V : PackedVessel, new()
+    public class VesselsPack<V> : IEnumerable<PackedVessel> where V : PackedVessel
     {
         Dictionary<Guid, V> stored_vessels = new Dictionary<Guid, V>();
         public Metric space;
@@ -240,29 +240,6 @@ namespace AtHangar
 
         IEnumerator IEnumerable.GetEnumerator()
         { return GetEnumerator(); }
-        #endregion
-
-        #region Save Load
-        public void Save(ConfigNode node)
-        {
-            foreach(V vsl in stored_vessels.Values)
-            {
-                ConfigNode stored_vessel_node = node.AddNode("STORED_VESSEL");
-                vsl.Save(stored_vessel_node);
-            }
-        }
-
-        public void Load(ConfigNode node)
-        {
-            var vessels = new List<V>();
-            foreach(ConfigNode vn in node.nodes)
-            {
-                var vsl = new V();
-                vsl.Load(vn);
-                vessels.Add(vsl);
-            }
-            Set(vessels);
-        }
         #endregion
         #endregion
 

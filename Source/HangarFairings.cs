@@ -77,8 +77,8 @@ namespace AtHangar
         public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation situation) { return jettisoned ? -debris_cost : 0f; }
         public virtual ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 
-        public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return jettisoned ? -debris_mass : 0f; }
-        public override ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+        public virtual float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return jettisoned ? -debris_mass : 0f; }
+        public virtual ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
         #endregion
 
         #region IMultipleDragCube
@@ -164,8 +164,7 @@ namespace AtHangar
             if(vessel != null) vessel.SpawnCrew();
             if(Storage != null)
             {
-                Storage.OnConstructStored += on_ship_stored;
-                Storage.OnConstructRemoved += on_ship_removed;
+                Storage.OnVesselStored += on_ship_stored;
                 Storage.OnVesselRemoved += on_ship_removed;
                 Storage.OnStorageEmpty += on_storage_empty;
             }
@@ -176,8 +175,7 @@ namespace AtHangar
             base.OnDestroy();
             if(Storage != null)
             {
-                Storage.OnConstructStored -= on_ship_stored;
-                Storage.OnConstructRemoved -= on_ship_removed;
+                Storage.OnVesselStored -= on_ship_stored;
                 Storage.OnVesselRemoved -= on_ship_removed;
                 Storage.OnStorageEmpty -= on_storage_empty;
             }
@@ -311,12 +309,12 @@ namespace AtHangar
             }
         }
 
-        protected override IEnumerable<YieldInstruction> before_vessel_launch()
+        protected override IEnumerable<YieldInstruction> before_vessel_launch(PackedVessel vsl)
         {
             if(fairings.Count == 0 || jettisoned) yield break;
             //store crew
-            launched_vessel.crew.Clear();
-            launched_vessel.crew.AddRange(part.protoModuleCrew);
+            vsl.crew.Clear();
+            vsl.crew.AddRange(part.protoModuleCrew);
             //decouple surface attached parts and decoupleNodes
             var decouple = new List<Part>();
             foreach(var p in part.children)
@@ -381,31 +379,41 @@ namespace AtHangar
             debris.ForEach(p => { debris_mass += p.Rigidbody.mass; p.SetDetectCollisions(true); });
         }
 
-        protected override void on_vessel_positioned()
+        protected override void on_vessel_positioned(Vessel launched_vessel)
         {
+            base.on_vessel_positioned(launched_vessel);
             //transfer the target and controls
             var this_vsl = vessel.BackupVessel();
-            launched_vessel.proto_vessel.targetInfo   = this_vsl.targetInfo;
-            launched_vessel.proto_vessel.ctrlState    = this_vsl.ctrlState;
-            launched_vessel.proto_vessel.actionGroups = this_vsl.actionGroups;
+            launched_vessel.protoVessel.targetInfo = this_vsl.targetInfo;
+            launched_vessel.ResumeTarget();
+            launched_vessel.ctrlState.CopyFrom(vessel.ctrlState);
+            launched_vessel.ActionGroups.CopyFrom(vessel.ActionGroups);
             //transfer the flight plan
             if(vessel.patchedConicSolver != null &&
                 vessel.patchedConicSolver.maneuverNodes.Count > 0)
             {
                 var nearest_node = vessel.patchedConicSolver.maneuverNodes[0];
-                var new_orbit = launched_vessel.proto_vessel.orbitSnapShot.Load();
+                var new_orbit = launched_vessel.orbit;
                 var vvel = new_orbit.getOrbitalVelocityAtUT(nearest_node.UT).xzy;
                 var vpos = new_orbit.getPositionAtUT(nearest_node.UT).xzy;
                 nearest_node.nodeRotation = Quaternion.LookRotation(vvel, Vector3d.Cross(-vpos, vvel));
                 nearest_node.DeltaV = nearest_node.nodeRotation.Inverse() * (nearest_node.nextPatch.getOrbitalVelocityAtUT(nearest_node.UT).xzy-vvel);
-                launched_vessel.proto_vessel.flightPlan.ClearData();
-                vessel.patchedConicSolver.Save(launched_vessel.proto_vessel.flightPlan);
+                launched_vessel.flightPlanNode.ClearData();
+                vessel.patchedConicSolver.Save(launched_vessel.flightPlanNode);
+                launched_vessel.patchedConicSolver.Load(launched_vessel.flightPlanNode);
                 vessel.patchedConicSolver.maneuverNodes.Clear();
                 vessel.patchedConicSolver.flightPlan.Clear();
             }
             //turn everything off
             Storage.enabled = Storage.isEnabled = false;
             Events["LaunchVessel"].active = Actions["LaunchVesselAction"].active = false;
+        }
+
+        protected override void on_vessel_launched(Vessel launched_vessel)
+        {
+            base.on_vessel_launched(launched_vessel);
+            part.CoMOffset = BaseCoMOffset;
+            update_crew_capacity(0);
         }
 
         IEnumerator<YieldInstruction> delayed_launch()
@@ -427,17 +435,10 @@ namespace AtHangar
             //activate the hangar, get the vessel from the storage, set its crew
             Activate();
             //try to restore vessel and check the result
-            TryRestoreVessel(Storage.GetVessels()[0]);
-            //if jettisoning has failed, deactivate the part
-            //otherwise on resume the part is activated automatically
-            if(Storage.VesselsCount > 0) 
+            if(!TryRestoreVessel(Storage.GetVessels()[0]))
+                //if jettisoning has failed, deactivate the part
                 part.deactivate();
-            else 
-            { 
-                while(launched_vessel != null) yield return null;
-                part.CoMOffset = BaseCoMOffset;
-                update_crew_capacity(0);
-            }
+            //otherwise on resume the part is activated automatically
             launch_in_progress = false;
         }
 

@@ -39,8 +39,8 @@ namespace AtHangar
 
         //vessels
         string vessels_tooltip = string.Empty;
-        List<StoredVessel> vessels = new List<StoredVessel>();
-        StoredVessel selected_vessel;
+        List<PackedVessel> vessels = new List<PackedVessel>();
+        PackedVessel selected_vessel;
         [ConfigOption] Guid vessel_id;
 
         //vessel relocation, crew and resources transfers
@@ -366,11 +366,11 @@ namespace AtHangar
         public static void SelectHangar(HangarMachinery hangar) { Instance.select_hangar(hangar); }
 
         //Vessel selection list
-        void select_vessel(StoredVessel vsl)
+        void select_vessel(PackedVessel vsl)
         {
             if(vsl != null)
             {
-                vessel_id = vsl.proto_vessel.vesselID;
+                vessel_id = vsl.id;
                 if(vsl != selected_vessel) 
                 {
                     selected_hangar.ResourceTransferList.Clear();
@@ -396,7 +396,7 @@ namespace AtHangar
             select_vessel(next_vessel);
             GUILayout.EndHorizontal();
         }
-        public static void SelectVessel(StoredVessel vsl) { Instance.select_vessel(vsl); }
+        public static void SelectVessel(PackedVessel vsl) { Instance.select_vessel(vsl); }
 
         //vessel info GUI
         void VesselInfo(int windowID)
