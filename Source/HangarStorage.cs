@@ -31,6 +31,7 @@ namespace AtHangar
         [KSPField] public string  SpawnSpace = string.Empty;
         [KSPField] public string  SpawnTransform = string.Empty;
         [KSPField] public bool    AutoPositionVessel;
+        [KSPField] public bool    SpawnSpaceSensor = true;
         [KSPField] public Vector3 SpawnOffset = Vector3.zero;
         public SpawnSpaceManager SpawnManager { get; protected set; }
         public bool HasSpaceMesh => SpawnManager.Space != null;
@@ -105,6 +106,8 @@ namespace AtHangar
             SpawnManager = new SpawnSpaceManager();
             SpawnManager.Load(ModuleConfig);
             SpawnManager.Init(part);
+            if(SpawnSpaceSensor)
+                SpawnManager.SetupSensor();
             build_storage_checklist();
         }
 

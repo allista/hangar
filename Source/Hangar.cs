@@ -40,6 +40,9 @@ namespace AtHangar
             }
         }
 
+        protected override bool hangar_is_occupied() =>
+        base.hangar_is_occupied() || !Storage.SpawnManager.SpawnSpaceEmpty;
+
         protected override Vector3 get_spawn_offset(PackedVessel pv)
         { return Storage.SpawnManager.GetSpawnOffset(pv.metric); }
 

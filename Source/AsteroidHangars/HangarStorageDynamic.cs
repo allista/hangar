@@ -49,6 +49,7 @@ namespace AtHangar
 
         protected override void early_setup(StartState state)
         {
+            SpawnSpaceSensor = false;
             base.early_setup(state);
             Fields["hangar_v"].guiActive = true;
             Fields["hangar_d"].guiActive = true;

@@ -34,9 +34,13 @@ namespace AtHangar
             SpawnManager = new SpawnSpaceManager();
             SpawnManager.Load(ModuleConfig);
             SpawnManager.Init(part);
+            SpawnManager.SetupSensor();
             if(Storage != null) 
                 Storage.FitConstraint = pv => SpawnManager.MetricFits(pv.metric);
         }
+
+        protected override bool hangar_is_occupied() =>
+        base.hangar_is_occupied() || !SpawnManager.SpawnSpaceEmpty;
 
         protected override Vector3 get_spawn_offset(PackedVessel pv)
         { return SpawnManager.GetSpawnOffset(pv.metric); }
