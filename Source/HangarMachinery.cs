@@ -84,6 +84,7 @@ namespace AtHangar
         public VesselResources HangarResources { get; private set; }
         readonly public ResourceManifestList ResourceTransferList = new ResourceManifestList();
 
+        readonly List<SpatialSensor> Triggers = new List<SpatialSensor>();
         readonly Dictionary<Guid, MemoryTimer> probed_vessels = new Dictionary<Guid, MemoryTimer>();
 
         [KSPField (isPersistant = true)] Vector3 momentumDelta = Vector3.zero;
@@ -238,16 +239,20 @@ namespace AtHangar
             {
                 //set vessel type
                 facility = el.ship.shipFacility;
-                //prevent triggers to catch raycasts
-                if(Trigger != string.Empty)
-                {
-                    var triggers = part.FindModelComponents<Collider>(Trigger);
-                    foreach(var c in triggers) c.gameObject.layer = 21; //Part Triggers
-                }
                 //initialize ship construct loader and vessel transfer window
                 vessels_window = gameObject.AddComponent<VesselTransferWindow>();
                 construct_loader = gameObject.AddComponent<ShipConstructLoader>();
                 construct_loader.process_construct = process_construct;
+            }
+            //setup triggers
+            //prevent triggers from catching raycasts
+            if(Trigger != string.Empty)
+            {
+                var triggers = part.FindModelComponents<Collider>(Trigger);
+                if(state == StartState.Editor)
+                    triggers.ForEach(c => c.gameObject.layer = 21); //Part Triggers
+                if(vessel != null)
+                    triggers.ForEach(c => Triggers.Add(SpatialSensor.AddToCollider(c, vessel, 1, on_trigger)));
             }
             //setup hangar name
             if(HangarName == "_none_") HangarName = part.Title();
@@ -344,12 +349,6 @@ namespace AtHangar
                 }
             }
         }
-
-        public virtual void Update()
-        {
-            if(something_inside >= 0 && Planetarium.GetUniversalTime()-something_inside > 1)
-                something_inside = -1;
-        }
         #endregion
 
         #region Store
@@ -359,13 +358,6 @@ namespace AtHangar
         /// <param name="vsl">A vessel to check</param>
         bool hangar_is_ready(Vessel vsl)
         {
-            if(vsl == null || vsl == vessel || !vsl.enabled || vsl.isEVA) return false;
-            //if hangar is not ready, return
-            if(hangar_state == HangarState.Inactive) 
-            {
-                Utils.Message("Activate the hangar first");
-                return false;
-            }
             //always check relative velocity and acceleration
             Vector3 rv = vessel.GetObtVelocity()-vsl.GetObtVelocity();
             if(rv.sqrMagnitude > Globals.Instance.MaxSqrRelVelocity)
@@ -459,21 +451,15 @@ namespace AtHangar
             Utils.Message("\"{0}\" has been docked inside the hangar", stored_vessel.name);
         }
 
-        //called every frame while part collider is touching the trigger
-        double something_inside = -1;
-        void OnTriggerStay(Collider col)
+        protected virtual bool hangar_is_occupied() =>
+        !(Triggers.TrueForAll(t => t.Empty)
+            && docks_checklist.TrueForAll(d => d.vesselInfo == null));
+
+        protected virtual void on_trigger(Part p)
         {
-            if(col == null || col.attachedRigidbody == null) return;
-            something_inside = Planetarium.GetUniversalTime();
-            if(hangar_state != HangarState.Active
-                ||  Storage == null
-                || !col.CompareTag("Untagged")
-                ||  col.gameObject.name == Globals.Instance.KethaneMapCollider)
-                return;
-            //get part and try to store vessel
-            Part p = col.attachedRigidbody.GetComponent<Part>();
-            if(p == null || p.vessel == null) return;
-            process_vessel(p.vessel);
+            if(p != null && p.vessel != null && !p.vessel.isEVA
+               && hangar_state == HangarState.Active)
+                process_vessel(p.vessel);
         }
         #endregion
 
@@ -589,11 +575,6 @@ namespace AtHangar
         protected virtual bool can_restore(PackedVessel v)
         {
             //if hangar is not ready
-            if(hangar_state == HangarState.Inactive) 
-            {
-                Utils.Message("Activate the hangar first");
-                return false;
-            }
             if(vessel_spawner.LaunchInProgress)
             {
                 Utils.Message("Launch is in progress");
@@ -604,13 +585,7 @@ namespace AtHangar
                 Utils.Message("Open hangar gates first");
                 return false;
             }
-            //if something is docked to the hangar docking port (if its present)
-            if(!docks_checklist.TrueForAll(d => d.vesselInfo == null))
-            {
-                Utils.Message("Cannot launch a vessel while another one is docked");
-                return false;
-            }
-            if(something_inside > 0)
+            if(hangar_is_occupied())
             {
                 Utils.Message("Cannot launch a vessel when something is inside the docking space");
                 return false;
