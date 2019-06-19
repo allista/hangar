@@ -13,7 +13,7 @@ namespace AtHangar
 {
     public abstract class ExternalHangar : HangarMachinery
     {
-        [KSPField] public string  HangarSpace = string.Empty;
+        [KSPField] public string  SpawnSpace = string.Empty;
         [KSPField] public string  SpawnTransform = string.Empty;
         [KSPField] public bool    AutoPositionVessel;
         [KSPField] public Vector3 SpawnOffset = Vector3.up;
