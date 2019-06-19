@@ -16,7 +16,7 @@ using AT_Utils;
 namespace AtHangar
 {
     public abstract class PackedVessel : IConfigNode
-    { 
+    {
         public Metric metric; 
         public Guid id; 
         public string  name     { get; protected set; }

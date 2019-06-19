@@ -13,16 +13,16 @@ namespace AtHangar
 {
     public abstract class ExternalHangar : HangarMachinery
     {
-        [KSPField] public string  SpawnSpace = string.Empty;
-        [KSPField] public string  SpawnTransform = string.Empty;
-        [KSPField] public bool    AutoPositionVessel;
+        [KSPField] public string SpawnSpace = string.Empty;
+        [KSPField] public string SpawnTransform = string.Empty;
+        [KSPField] public bool AutoPositionVessel;
         [KSPField] public Vector3 SpawnOffset = Vector3.up;
         public SpawnSpaceManager SpawnManager { get; protected set; }
 
         public override string GetInfo()
         {
             var info = base.GetInfo();
-            info += AutoPositionVessel?
+            info += AutoPositionVessel ?
                 "Free launch positioning\n" :
                 "Strict launch positioning\n";
             return info;
@@ -35,7 +35,7 @@ namespace AtHangar
             SpawnManager.Load(ModuleConfig);
             SpawnManager.Init(part);
             SpawnManager.SetupSensor();
-            if(Storage != null) 
+            if(Storage != null)
                 Storage.FitConstraint = pv => SpawnManager.MetricFits(pv.metric);
         }
 
@@ -49,10 +49,10 @@ namespace AtHangar
         { return SpawnManager.GetSpawnTransform(pv.metric); }
 
         public override Transform GetSpawnTransform()
-        { return SpawnManager.AutoPositionVessel? null : SpawnManager.GetSpawnTransform(); }
+        { return SpawnManager.AutoPositionVessel ? null : SpawnManager.GetSpawnTransform(); }
 
         protected override bool can_restore(PackedVessel v)
-        { 
+        {
             if(v == null || !base.can_restore(v)) return false;
             if(!SpawnManager.MetricFits(v.metric))
             {
@@ -74,7 +74,7 @@ namespace AtHangar
         {
             base.early_setup(state);
             Storage = part.Modules.GetModule<HangarStorage>();
-            if(Storage == null) 
+            if(Storage == null)
             {
                 this.ConfigurationInvalid("\"{0}\" part has no HangarStorage module", part.Title());
                 return;

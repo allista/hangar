@@ -21,17 +21,17 @@ namespace AtHangar
 
         public PackedVesselConstraint FitConstraint = delegate { return true; };
 
-        public PackedVesselHandler OnVesselStored = delegate {};
-        public PackedVesselHandler OnVesselRemoved = delegate {};
-        public Action OnStorageEmpty = delegate {};
+        public PackedVesselHandler OnVesselStored = delegate { };
+        public PackedVesselHandler OnVesselRemoved = delegate { };
+        public Action OnStorageEmpty = delegate { };
         #endregion
 
         #region Internals
         //hangar space
-        [KSPField] public string  SpawnSpace = string.Empty;
-        [KSPField] public string  SpawnTransform = string.Empty;
-        [KSPField] public bool    AutoPositionVessel;
-        [KSPField] public bool    SpawnSpaceSensor = true;
+        [KSPField] public string SpawnSpace = string.Empty;
+        [KSPField] public string SpawnTransform = string.Empty;
+        [KSPField] public bool AutoPositionVessel;
+        [KSPField] public bool SpawnSpaceSensor = true;
         [KSPField] public Vector3 SpawnOffset = Vector3.zero;
         public SpawnSpaceManager SpawnManager { get; protected set; }
         public bool HasSpaceMesh => SpawnManager.Space != null;
@@ -55,18 +55,18 @@ namespace AtHangar
         #endregion
 
         #region GUI
-        [KSPField (guiName = "Volume", guiActiveEditor=true)] public string hangar_v;
-        [KSPField (guiName = "Size",   guiActiveEditor=true)] public string hangar_d;
+        [KSPField(guiName = "Volume", guiActiveEditor = true)] public string hangar_v;
+        [KSPField(guiName = "Size", guiActiveEditor = true)] public string hangar_d;
         //GUI Active
-        [KSPField (guiName = "Vessels",     guiActive=true, guiActiveEditor=true)] public string _stored_vessels;
-        [KSPField (guiName = "Stored Mass", guiActive=true, guiActiveEditor=true)] public string _stored_mass;
-        [KSPField (guiName = "Stored Cost", guiActive=true, guiActiveEditor=true)] public string _stored_cost;
-        [KSPField (guiName = "Used Volume", guiActive=true, guiActiveEditor=true)] public string _used_volume;
+        [KSPField(guiName = "Vessels", guiActive = true, guiActiveEditor = true)] public string _stored_vessels;
+        [KSPField(guiName = "Stored Mass", guiActive = true, guiActiveEditor = true)] public string _stored_mass;
+        [KSPField(guiName = "Stored Cost", guiActive = true, guiActiveEditor = true)] public string _stored_cost;
+        [KSPField(guiName = "Used Volume", guiActive = true, guiActiveEditor = true)] public string _used_volume;
         #endregion
 
         #region Setup
-        public override string GetInfo() 
-        { 
+        public override string GetInfo()
+        {
             SpawnManager = new SpawnSpaceManager();
             SpawnManager.Load(ModuleConfig);
             SpawnManager.Init(part);
@@ -86,13 +86,14 @@ namespace AtHangar
             storage_checklist.Clear();
             foreach(Part p in vessel.parts)
             {
-                if(p == part) 
+                if(p == part)
                 {
                     foreach(var s in p.Modules.OfType<HangarStorage>())
-                    { 
+                    {
                         if(s == this) return;
                         storage_checklist.Add(s);
-                    } return;
+                    }
+                    return;
                 }
                 storage_checklist.AddRange(p.Modules.OfType<HangarStorage>());
             }
@@ -129,7 +130,7 @@ namespace AtHangar
         }
 
         void try_repack_construct(PackedVessel pv)
-        { 
+        {
             if(!VesselFits(pv) || !stored_vessels.TryAdd(pv))
             {
                 if(pv is PackedConstruct pc)
@@ -141,7 +142,7 @@ namespace AtHangar
         }
 
         void try_pack_unfit_construct(PackedConstruct pc)
-        { 
+        {
             if(VesselFits(pc) && stored_vessels.TryAdd(pc))
             {
                 unfit_constructs.Remove(pc);
@@ -166,9 +167,9 @@ namespace AtHangar
                 stored.ForEach(try_repack_construct);
                 if(stored.Count > stored_vessels.Count)
                 {
-                    var dN = stored.Count- stored_vessels.Count;
-                    Utils.Message("The storage became too small. {0} vessels {1} removed", 
-                        dN, dN > 1? "were" : "was");
+                    var dN = stored.Count - stored_vessels.Count;
+                    Utils.Message("The storage became too small. {0} vessels {1} removed",
+                        dN, dN > 1 ? "were" : "was");
                 }
                 else if(unfit_constructs.Count > 0)
                 {
@@ -183,15 +184,15 @@ namespace AtHangar
         {
             var el = EditorLogic.fetch;
             if(el != null) GameEvents.onEditorShipModified.Fire(el.ship);
-//            else if(part.vessel != null) GameEvents.onVesselWasModified.Fire(part.vessel);
+            //            else if(part.vessel != null) GameEvents.onVesselWasModified.Fire(part.vessel);
         }
 
-        virtual protected void set_part_params(bool reset = false) 
+        virtual protected void set_part_params(bool reset = false)
         {
             _stored_vessels = VesselsCount.ToString();
-            _stored_mass    = Utils.formatMass(VesselsMass);
-            _stored_cost    = VesselsCost.ToString();
-            _used_volume    = Volume > 0? UsedVolumeFrac.ToString("P1") : "N/A";
+            _stored_mass = Utils.formatMass(VesselsMass);
+            _stored_cost = VesselsCost.ToString();
+            _used_volume = Volume > 0 ? UsedVolumeFrac.ToString("P1") : "N/A";
             on_set_part_params();
             part.UpdatePartMenu();
         }
@@ -204,7 +205,7 @@ namespace AtHangar
         #endregion
 
         #region Content Management
-        public List<PackedVessel>    GetVessels() { return stored_vessels.Values; }
+        public List<PackedVessel> GetVessels() { return stored_vessels.Values; }
 
         public int UnfitCount => unfit_constructs.Count;
         public List<PackedConstruct> UnfitConstucts => unfit_constructs.ToList();
@@ -227,21 +228,21 @@ namespace AtHangar
         #endregion
 
         #region Logistics
-        public override bool CanHold(PackedVessel vsl) => 
+        public override bool CanHold(PackedVessel vsl) =>
         VesselFits(vsl) && stored_vessels.CanAdd(vsl);
 
         public bool TryTransferTo(PackedVessel vsl, HangarStorage other)
         {
-            if(!CanTransferTo(vsl, other)) 
+            if(!CanTransferTo(vsl, other))
             {
                 Utils.Message("Unable to move \"{0}\" from \"{1}\" to \"{2}\"",
                     vsl.name, this.Title(), other.Title());
                 return false;
             }
             if(!RemoveVessel(vsl))
-            { 
-                this.Log("TryTransferTo: trying to remove a PackedVessel that is not present."); 
-                return false; 
+            {
+                this.Log("TryTransferTo: trying to remove a PackedVessel that is not present.");
+                return false;
             }
             OnVesselRemoved(vsl);
             other.StoreVessel(vsl);
@@ -258,7 +259,7 @@ namespace AtHangar
         }
 
         public bool RemoveVessel(PackedVessel vsl)
-        { 
+        {
             if(stored_vessels.Remove(vsl))
             {
                 OnVesselRemoved(vsl);
@@ -284,13 +285,13 @@ namespace AtHangar
                 else
                     Utils.Message("There's no room for \"{0}\"", vsl.name);
             }
-            else 
+            else
                 Utils.Message(5, "Insufficient vessel clearance for safe docking\n" +
                                  "\"{0}\" cannot be stored", vsl.name);
             if(!stored && HighLogic.LoadedSceneIsEditor && vsl is PackedConstruct pc)
-            { 
-                unfit_constructs.Add(pc); 
-                return true; 
+            {
+                unfit_constructs.Add(pc);
+                return true;
             }
             return stored;
         }
@@ -350,7 +351,7 @@ namespace AtHangar
         }
 
         public override void OnLoad(ConfigNode node)
-        { 
+        {
             base.OnLoad(node);
             //restore stored vessels
             load_vessels<StoredVessel>(node.GetNode("STORED_VESSELS"));
@@ -364,8 +365,8 @@ namespace AtHangar
         #endregion
 
         #region ControllableModule
-        public override bool CanDisable() 
-        { 
+        public override bool CanDisable()
+        {
             if(stored_vessels.Count > 0)
             {
                 Utils.Message("Cannot disable storage: there are vessels inside");
@@ -374,8 +375,8 @@ namespace AtHangar
             return true;
         }
 
-        public override void Enable(bool enable) 
-        { 
+        public override void Enable(bool enable)
+        {
             if(enable) Setup();
             base.Enable(enable);
         }

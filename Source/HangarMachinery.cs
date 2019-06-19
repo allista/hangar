@@ -20,17 +20,17 @@ namespace AtHangar
 
         #region Configuration
         //hangar properties
-        [KSPField (isPersistant = false)] public string AnimatorID = string.Empty;
-        [KSPField (isPersistant = false)] public float  EnergyConsumption = 0.75f;
-        [KSPField (isPersistant = false)] public bool   NoCrewTransfers;
-        [KSPField (isPersistant = false)] public bool   NoResourceTransfers;
-        [KSPField (isPersistant = false)] public bool   NoGUI;
+        [KSPField(isPersistant = false)] public string AnimatorID = string.Empty;
+        [KSPField(isPersistant = false)] public float EnergyConsumption = 0.75f;
+        [KSPField(isPersistant = false)] public bool NoCrewTransfers;
+        [KSPField(isPersistant = false)] public bool NoResourceTransfers;
+        [KSPField(isPersistant = false)] public bool NoGUI;
         //vessel spawning
-        [KSPField (isPersistant = false)] public Vector3 LaunchVelocity = Vector3.zero;
-        [KSPField (isPersistant = true)]  public bool    LaunchWithPunch;
-        [KSPField (isPersistant = false)] public string  CheckDockingPorts = string.Empty;
+        [KSPField(isPersistant = false)] public Vector3 LaunchVelocity = Vector3.zero;
+        [KSPField(isPersistant = true)] public bool LaunchWithPunch;
+        [KSPField(isPersistant = false)] public string CheckDockingPorts = string.Empty;
         //other
-        [KSPField (isPersistant = false)] public string Trigger = string.Empty;
+        [KSPField(isPersistant = false)] public string Trigger = string.Empty;
         #endregion
 
         #region Managed Storage
@@ -54,7 +54,7 @@ namespace AtHangar
         public float UsedVolume
         { get { return Storage == null ? 0f : Storage.UsedVolume; } }
 
-        public float UsedVolumeFrac { get { return Storage == null || Storage.Volume.Equals(0)? 1 : UsedVolume/Volume; } }
+        public float UsedVolumeFrac { get { return Storage == null || Storage.Volume.Equals(0) ? 1 : UsedVolume / Volume; } }
 
         public List<PackedVessel> GetVessels() => Storage == null ? new List<PackedVessel>() : Storage.GetVessels();
 
@@ -62,7 +62,7 @@ namespace AtHangar
         protected List<HangarPassage> passage_checklist = new List<HangarPassage>();
         readonly protected List<ModuleDockingNode> docks_checklist = new List<ModuleDockingNode>();
         readonly public List<HangarStorage> ConnectedStorage = new List<HangarStorage>();
-        public int   TotalVesselsDocked;
+        public int TotalVesselsDocked;
         public float TotalVolume;
         public float TotalUsedVolume;
         public float TotalStoredMass;
@@ -78,7 +78,7 @@ namespace AtHangar
         protected PackedVessel spawning_vessel;
 
         protected MultiAnimator hangar_gates;
-        public AnimatorState gates_state { get { return hangar_gates == null? AnimatorState.Opened : hangar_gates.State; } }
+        public AnimatorState gates_state { get { return hangar_gates == null ? AnimatorState.Opened : hangar_gates.State; } }
         public HangarState hangar_state { get; private set; }
 
         public VesselResources HangarResources { get; private set; }
@@ -87,26 +87,26 @@ namespace AtHangar
         readonly List<SpatialSensor> Triggers = new List<SpatialSensor>();
         readonly Dictionary<Guid, MemoryTimer> probed_vessels = new Dictionary<Guid, MemoryTimer>();
 
-        [KSPField (isPersistant = true)] Vector3 momentumDelta = Vector3.zero;
-        [KSPField (isPersistant = true)] bool apply_force;
+        [KSPField(isPersistant = true)] Vector3 momentumDelta = Vector3.zero;
+        [KSPField(isPersistant = true)] bool apply_force;
 
         [SerializeField] public ConfigNode ModuleConfig;
 
-        public bool IsControllable 
-        { 
-            get 
-            { 
-                return vessel.CurrentControlLevel == Vessel.ControlLevel.FULL || 
-                    vessel.CurrentControlLevel == Vessel.ControlLevel.PARTIAL_MANNED || 
-                    part.protoModuleCrew.Count > 0; 
-            } 
+        public bool IsControllable
+        {
+            get
+            {
+                return vessel.CurrentControlLevel == Vessel.ControlLevel.FULL ||
+                    vessel.CurrentControlLevel == Vessel.ControlLevel.PARTIAL_MANNED ||
+                    part.protoModuleCrew.Count > 0;
+            }
         }
 
         protected ResourcePump socket;
         #endregion
 
         #region GUI
-        [KSPField (guiName = "Hangar Name",   guiActive = true, guiActiveEditor=true, isPersistant = true)]
+        [KSPField(guiName = "Hangar Name", guiActive = true, guiActiveEditor = true, isPersistant = true)]
         public string HangarName = "_none_";
 
         public override string GetInfo()
@@ -114,14 +114,14 @@ namespace AtHangar
             var info = "";
             //energy consumption
             var gates = part.GetAnimator(AnimatorID);
-            if(EnergyConsumption.Equals(0) && (gates == null || gates.EnergyConsumption.Equals(0))) 
+            if(EnergyConsumption.Equals(0) && (gates == null || gates.EnergyConsumption.Equals(0)))
                 info += "Simple cargo bay\n";
             else
             {
                 info += "Energy Cosumption:\n";
                 if(EnergyConsumption > 0)
                     info += string.Format("- Hangar: {0}/sec\n", EnergyConsumption);
-                if(gates != null && gates.EnergyConsumption > 0) 
+                if(gates != null && gates.EnergyConsumption > 0)
                     info += string.Format("- Doors: {0}/sec\n", gates.EnergyConsumption);
             }
             //vessel facilities
@@ -151,8 +151,8 @@ namespace AtHangar
             GameEvents.onEditorShipModified.Add(update_connected_storage);
         }
 
-        public virtual void OnDestroy() 
-        { 
+        public virtual void OnDestroy()
+        {
             Destroy(hangar_name_editor);
             Destroy(content_hull_mesh.gameObject);
             if(vessels_window != null) Destroy(vessels_window);
@@ -167,7 +167,7 @@ namespace AtHangar
         }
 
         void update_resources()
-        { 
+        {
             if(vessel == null) return;
             HangarResources = new VesselResources(vessel);
         }
@@ -184,7 +184,7 @@ namespace AtHangar
             foreach(var p in connected_passages)
             {
                 var other_storage = p as HangarStorage;
-                if(other_storage != null) 
+                if(other_storage != null)
                     ConnectedStorage.Add(other_storage);
             }
         }
@@ -192,17 +192,17 @@ namespace AtHangar
         void update_total_values()
         {
             TotalVesselsDocked = 0;
-            TotalVolume        = 0;
-            TotalUsedVolume    = 0;
-            TotalStoredMass    = 0;
-            TotalCostMass      = 0;
+            TotalVolume = 0;
+            TotalUsedVolume = 0;
+            TotalStoredMass = 0;
+            TotalCostMass = 0;
             foreach(var s in ConnectedStorage)
             {
                 TotalVesselsDocked += s.VesselsCount;
-                TotalVolume        += s.Volume;
-                TotalUsedVolume    += s.UsedVolume;
-                TotalStoredMass    += s.VesselsMass;
-                TotalCostMass      += s.VesselsCost;
+                TotalVolume += s.Volume;
+                TotalUsedVolume += s.UsedVolume;
+                TotalStoredMass += s.VesselsMass;
+                TotalCostMass += s.VesselsCost;
             }
         }
 
@@ -215,15 +215,15 @@ namespace AtHangar
         }
 
         protected virtual void update_connected_storage(Vessel vsl)
-        { 
+        {
             if(vsl == null || vsl != part.vessel || !all_passages_ready) return;
-            update_connected_storage(); 
+            update_connected_storage();
         }
 
         void update_connected_storage(ShipConstruct ship)
-        { 
+        {
             if(!all_passages_ready) return;
-            update_connected_storage(); 
+            update_connected_storage();
         }
 
         IEnumerator<YieldInstruction> delayed_update_connected_storage()
@@ -235,7 +235,7 @@ namespace AtHangar
         protected virtual void early_setup(StartState state)
         {
             var el = EditorLogic.fetch;
-            if(el != null) 
+            if(el != null)
             {
                 //set vessel type
                 facility = el.ship.shipFacility;
@@ -265,11 +265,11 @@ namespace AtHangar
                 Events["Open"].active = false;
                 Events["Close"].active = false;
             }
-            if(EnergyConsumption > 0) 
+            if(EnergyConsumption > 0)
                 socket = part.CreateSocket();
             //get docking ports that are inside hangar sapace
             var docks = part.Modules.OfType<ModuleDockingNode>().ToList();
-            foreach(var d in CheckDockingPorts.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries))
+            foreach(var d in CheckDockingPorts.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
                 docks_checklist.AddRange(docks.Where(m => m.referenceAttachNode == d));
             //get all passages in the vessel
             passage_checklist = part.AllModulesOfType<HangarPassage>();
@@ -286,7 +286,7 @@ namespace AtHangar
         /// Overrides should always check if Storage is not null.
         /// </summary>
         /// <param name="reset">If set to <c>true</c> reset state befor setup.</param>
-        public virtual void Setup(bool reset = false) 
+        public virtual void Setup(bool reset = false)
         { PartMetric = new Metric(part); }
 
         public override void OnStart(StartState state)
@@ -313,7 +313,7 @@ namespace AtHangar
         }
 
         public override void OnLoad(ConfigNode node)
-        { 
+        {
             base.OnLoad(node);
             if(ModuleConfig == null)
                 ModuleConfig = node;
@@ -340,7 +340,7 @@ namespace AtHangar
                 //consume energy if hangar is operational
                 if(socket != null && hangar_state == HangarState.Active)
                 {
-                    socket.RequestTransfer(EnergyConsumption*TimeWarp.fixedDeltaTime);
+                    socket.RequestTransfer(EnergyConsumption * TimeWarp.fixedDeltaTime);
                     if(socket.TransferResource() && socket.PartialTransfer)
                     {
                         Utils.Message("Not enough energy. The hangar has deactivated.");
@@ -359,7 +359,7 @@ namespace AtHangar
         bool hangar_is_ready(Vessel vsl)
         {
             //always check relative velocity and acceleration
-            Vector3 rv = vessel.GetObtVelocity()-vsl.GetObtVelocity();
+            Vector3 rv = vessel.GetObtVelocity() - vsl.GetObtVelocity();
             if(rv.sqrMagnitude > Globals.Instance.MaxSqrRelVelocity)
             {
                 Utils.Message("Cannot accept a moving vessel");
@@ -386,7 +386,7 @@ namespace AtHangar
                 Utils.Message("Crew cannot enter through this hangar. Leave your ship before docking.");
                 return null;
             }
-            if(vsl_crew > vessel.GetCrewCapacity()-vessel.GetCrewCount())
+            if(vsl_crew > vessel.GetCrewCapacity() - vessel.GetCrewCount())
             {
                 Utils.Message("Not enough space for the crew of a docking vessel");
                 return null;
@@ -430,7 +430,7 @@ namespace AtHangar
             //deactivate the hangar
             Deactivate();
             //calculate velocity change to conserve momentum
-            momentumDelta = (vsl.orbit.vel-vessel.orbit.vel).xzy*stored_vessel.mass;
+            momentumDelta = (vsl.orbit.vel - vessel.orbit.vel).xzy * stored_vessel.mass;
             apply_force = true;
             //get vessel crew on board
             stored_vessel.ExtractProtoVesselCrew(vessel, part);
@@ -580,7 +580,7 @@ namespace AtHangar
                 Utils.Message("Launch is in progress");
                 return false;
             }
-            if(hangar_gates != null && hangar_gates.State != AnimatorState.Opened) 
+            if(hangar_gates != null && hangar_gates.State != AnimatorState.Opened)
             {
                 Utils.Message("Open hangar gates first");
                 return false;
@@ -613,9 +613,9 @@ namespace AtHangar
 
         #region Events&Actions
         //events
-        [KSPEvent (guiActive = true, guiActiveEditor = true, guiName = "Open gates", active = true)]
-        public void Open() 
-        { 
+        [KSPEvent(guiActive = true, guiActiveEditor = true, guiName = "Open gates", active = true)]
+        public void Open()
+        {
             if(hangar_gates == null) return;
             hangar_gates.Open();
             Events["Open"].active = false;
@@ -623,20 +623,20 @@ namespace AtHangar
             Activate();
         }
 
-        [KSPEvent (guiActive = true, guiActiveEditor = true, guiName = "Close gates", active = false)]
-        public void Close()    
-        { 
+        [KSPEvent(guiActive = true, guiActiveEditor = true, guiName = "Close gates", active = false)]
+        public void Close()
+        {
             if(hangar_gates == null) return;
-            hangar_gates.Close(); 
+            hangar_gates.Close();
             Events["Open"].active = true;
             Events["Close"].active = false;
             Deactivate();
         }
 
-        public void Activate() { hangar_state = HangarState.Active;    }
+        public void Activate() { hangar_state = HangarState.Active; }
 
-        public void Deactivate() 
-        { 
+        public void Deactivate()
+        {
             hangar_state = HangarState.Inactive;
             clear_hangar_memory();
         }
@@ -668,8 +668,8 @@ namespace AtHangar
         #endregion
 
         #region ControllableModule
-        public override bool CanDisable() 
-        { 
+        public override bool CanDisable()
+        {
             if(EditorLogic.fetch == null && hangar_state == HangarState.Active)
             {
                 Utils.Message("Deactivate the hangar before disabling");
@@ -683,8 +683,8 @@ namespace AtHangar
             return true;
         }
 
-        public override void Enable(bool enable) 
-        { 
+        public override void Enable(bool enable)
+        {
             if(enable) Setup();
             base.Enable(enable);
         }
@@ -692,11 +692,11 @@ namespace AtHangar
     }
 
     public class HangarMachineryUpdater : ModuleUpdater<HangarMachinery>
-    { 
+    {
         protected override void on_rescale(ModulePair<HangarMachinery> mp, Scale scale)
         {
             mp.module.Setup(!scale.FirstTime);
-            mp.module.EnergyConsumption = mp.base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect; 
+            mp.module.EnergyConsumption = mp.base_module.EnergyConsumption * scale.absolute.quad * scale.absolute.aspect;
         }
     }
 }

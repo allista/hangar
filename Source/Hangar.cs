@@ -19,7 +19,7 @@ namespace AtHangar
             var storage = part.Modules.GetModule<HangarStorage>();
             if(storage != null)
             {
-                info += storage.AutoPositionVessel?
+                info += storage.AutoPositionVessel ?
                     "Free launch positioning\n" :
                     "Strict launch positioning\n";
             }
@@ -33,7 +33,7 @@ namespace AtHangar
         {
             base.early_setup(state);
             Storage = part.Modules.GetModule<HangarStorage>();
-            if(Storage == null) 
+            if(Storage == null)
             {
                 this.ConfigurationInvalid("\"{0}\" part has no HangarStorage module", part.Title());
                 return;
@@ -50,12 +50,12 @@ namespace AtHangar
         { return Storage.SpawnManager.GetSpawnTransform(pv.metric); }
 
         public override Transform GetSpawnTransform()
-        { return Storage.SpawnManager.AutoPositionVessel? null : Storage.SpawnManager.GetSpawnTransform(); }
+        { return Storage.SpawnManager.AutoPositionVessel ? null : Storage.SpawnManager.GetSpawnTransform(); }
 
-        #if DEBUG
-        [KSPEvent (guiActive = true, guiName = "Check Airlock", active = true)]
-        public void CheckAirlock() 
-        { 
+#if DEBUG
+        [KSPEvent(guiActive = true, guiName = "Check Airlock", active = true)]
+        public void CheckAirlock()
+        {
             if(part.airlock == null) return;
             RaycastHit raycastHit;
             if(Physics.Raycast(part.airlock.transform.position, (part.airlock.transform.position - part.transform.position).normalized, out raycastHit, 1, 32769))
@@ -68,7 +68,7 @@ namespace AtHangar
                         );
             }
         }
-        #endif
+#endif
     }
 }
 

@@ -118,7 +118,6 @@ namespace AtHangar
             name   = proto_vessel.vesselName;
             crew   = proto_vessel.GetVesselCrew();
             resources = new VesselResources(proto_vessel);
-
         }
 
         public void RemoveProtoVesselCrew()
