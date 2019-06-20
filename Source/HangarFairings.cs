@@ -357,6 +357,7 @@ namespace AtHangar
                 var pos = d.Rigidbody.worldCenterOfMass;
                 jettison.Add(new ForceTarget(d.Rigidbody, force, pos));
                 d.SetDetectCollisions(false);
+                d.vessel.IgnoreGForces(10);
                 debris_cost += FairingsCost;
                 debris.Add(d);
             }
