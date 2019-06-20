@@ -388,6 +388,8 @@ namespace AtHangar
             debris.Clear();
         }
 
+        ConfigNode flightPlanNode;
+        Vector3d orbitalVelocityAfterNode;
         protected override void on_vessel_loaded(Vessel vsl)
         {
             base.on_vessel_loaded(vsl);
@@ -396,48 +398,51 @@ namespace AtHangar
             vsl.ResumeTarget();
             vsl.ctrlState.CopyFrom(vessel.ctrlState);
             vsl.ActionGroups.CopyFrom(vessel.ActionGroups);
-        }
-
-        protected override void on_vessel_off_rails(Vessel vsl)
-        {
-            base.on_vessel_off_rails(vsl);
-            //transfer the flight plan
-            this.Log("patch manager: {}, nodes {}", vessel.patchedConicSolver, vessel.patchedConicSolver?.maneuverNodes);//debug
-            if(vessel.patchedConicSolver != null &&
-                vessel.patchedConicSolver.maneuverNodes.Count > 0)
+            //save the flight plan
+            flightPlanNode = null;
+            if(vessel.patchedConicSolver != null
+               && vessel.patchedConicSolver.maneuverNodes.Count > 0)
             {
+                flightPlanNode = new ConfigNode();
+                vessel.patchedConicSolver.Save(flightPlanNode);
                 var nearest_node = vessel.patchedConicSolver.maneuverNodes[0];
-                this.Log("node dV 0: {}", nearest_node.DeltaV);//debug
-                var o = vsl.orbit;
-                var norm = o.GetOrbitNormal().normalized;
-                var prograde = o.getOrbitalVelocityAtUT(nearest_node.UT);
-                var radial = Vector3d.Cross(prograde, norm).normalized;
-                var orbitalDeltaV = nearest_node.nextPatch.getOrbitalVelocityAtUT(nearest_node.UT) - prograde;
-                prograde.Normalize();
-                nearest_node.DeltaV = new Vector3d(Vector3d.Dot(orbitalDeltaV, radial),
-                                        Vector3d.Dot(orbitalDeltaV, norm),
-                                        Vector3d.Dot(orbitalDeltaV, prograde));
-                this.Log("node dV 1: {}", nearest_node.DeltaV);//debug
-                //var vvel = o.getOrbitalVelocityAtUT(nearest_node.UT).xzy;
-                //var vpos = o.getPositionAtUT(nearest_node.UT).xzy;
-                //nearest_node.nodeRotation = Quaternion.LookRotation(vvel, Vector3d.Cross(-vpos, vvel));
-                //nearest_node.DeltaV = nearest_node.nodeRotation.Inverse() * (nearest_node.nextPatch.getOrbitalVelocityAtUT(nearest_node.UT).xzy - vvel);
-                vsl.flightPlanNode.ClearData();
-                vessel.patchedConicSolver.Save(vsl.flightPlanNode);
-                vsl.patchedConicSolver.Load(vsl.flightPlanNode);
-                //clear this vessel's flight plan
-                vessel.patchedConicSolver.maneuverNodes.Clear();
-                vessel.patchedConicSolver.flightPlan.Clear();
+                orbitalVelocityAfterNode = nearest_node.nextPatch.getOrbitalVelocityAtUT(nearest_node.UT);
                 vessel.flightPlanNode.ClearData();
+                vessel.patchedConicSolver.maneuverNodes.Clear();
             }
+            //turn controls off
+            vessel.ctrlState.Neutralize();
         }
 
         protected override void on_vessel_launched(Vessel vsl)
         {
-            //turn everything off
-            vessel.ctrlState.Neutralize();
-            if(vessel == FlightGlobals.fetch?.activeVessel)
-                FlightInputHandler.SetNeutralControls();
+            FlightInputHandler.ResumeVesselCtrlState(vsl);
+            //transfer the flight plan
+            if(flightPlanNode != null && vsl.patchedConicSolver != null)
+            {
+                var max_tries = 10;
+                vsl.flightPlanNode = flightPlanNode;
+                vsl.patchedConicSolver.Load(flightPlanNode);
+                vsl.patchedConicSolver.UpdateFlightPlan();
+                vsl.StartCoroutine(CallbackUtil.WaitUntil(
+                    () => vsl.patchedConicSolver.maneuverNodes.Count > 0 || max_tries-- < 0,
+                    () =>
+                    {
+                        if(vsl.patchedConicSolver.maneuverNodes.Count == 0) return;
+                        var nearest_node = vsl.patchedConicSolver.maneuverNodes[0];
+                        var o = nearest_node.patch;
+                        var norm = o.GetOrbitNormal().normalized;
+                        var prograde = o.getOrbitalVelocityAtUT(nearest_node.UT);
+                        var orbitalDeltaV = orbitalVelocityAfterNode - prograde;
+                        prograde.Normalize();
+                        var radial = Vector3d.Cross(prograde, norm).normalized;
+                        nearest_node.DeltaV = new Vector3d(Vector3d.Dot(orbitalDeltaV, radial),
+                                                           Vector3d.Dot(orbitalDeltaV, norm),
+                                                           Vector3d.Dot(orbitalDeltaV, prograde));
+                        vsl.patchedConicSolver.UpdateFlightPlan();
+                    }));
+            }
+            //disable storage, launch event and action
             Storage.EnableModule(false);
             Events["LaunchVessel"].active = Actions["LaunchVesselAction"].active = false;
             //update CoM and crew capacity
