@@ -455,6 +455,9 @@ namespace AtHangar
         {
             if(spawning_vessel != null)
                 CrewTransferBatch.moveCrew(vessel, vsl, spawning_vessel.crew);
+            BaseEventDetails data = new BaseEventDetails(BaseEventDetails.Sender.STAGING);
+            data.Set<PartModule>("hangar", this);
+            vsl.Parts.ForEach(p => p.SendEvent("onLaunchedFromHangar", data));
         }
 
         protected abstract Vector3 get_spawn_offset(PackedVessel pv);
