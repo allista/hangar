@@ -377,7 +377,15 @@ namespace AtHangar
         void update_debris_after_launch()
         {
             debris_mass = 0;
-            debris.ForEach(p => { debris_mass += p.Rigidbody.mass; p.SetDetectCollisions(true); });
+            debris.ForEach(p =>
+            {
+                if(p != null && p.Rigidbody != null)
+                {
+                    debris_mass += p.Rigidbody.mass;
+                    p.SetDetectCollisions(true);
+                }
+            });
+            debris.Clear();
         }
 
         protected override void on_vessel_positioned(Vessel launched_vessel)
