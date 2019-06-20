@@ -388,41 +388,62 @@ namespace AtHangar
             debris.Clear();
         }
 
-        protected override void on_vessel_positioned(Vessel launched_vessel)
+        protected override void on_vessel_loaded(Vessel vsl)
         {
-            base.on_vessel_positioned(launched_vessel);
+            base.on_vessel_loaded(vsl);
             //transfer the target and controls
-            var this_vsl = vessel.BackupVessel();
-            launched_vessel.protoVessel.targetInfo = this_vsl.targetInfo;
-            launched_vessel.ResumeTarget();
-            launched_vessel.ctrlState.CopyFrom(vessel.ctrlState);
-            launched_vessel.ActionGroups.CopyFrom(vessel.ActionGroups);
+            vsl.protoVessel.targetInfo = vessel.BackupVessel().targetInfo;
+            vsl.ResumeTarget();
+            vsl.ctrlState.CopyFrom(vessel.ctrlState);
+            vsl.ActionGroups.CopyFrom(vessel.ActionGroups);
+        }
+
+        protected override void on_vessel_off_rails(Vessel vsl)
+        {
+            base.on_vessel_off_rails(vsl);
             //transfer the flight plan
+            this.Log("patch manager: {}, nodes {}", vessel.patchedConicSolver, vessel.patchedConicSolver?.maneuverNodes);//debug
             if(vessel.patchedConicSolver != null &&
                 vessel.patchedConicSolver.maneuverNodes.Count > 0)
             {
                 var nearest_node = vessel.patchedConicSolver.maneuverNodes[0];
-                var new_orbit = launched_vessel.orbit;
-                var vvel = new_orbit.getOrbitalVelocityAtUT(nearest_node.UT).xzy;
-                var vpos = new_orbit.getPositionAtUT(nearest_node.UT).xzy;
-                nearest_node.nodeRotation = Quaternion.LookRotation(vvel, Vector3d.Cross(-vpos, vvel));
-                nearest_node.DeltaV = nearest_node.nodeRotation.Inverse() * (nearest_node.nextPatch.getOrbitalVelocityAtUT(nearest_node.UT).xzy-vvel);
-                launched_vessel.flightPlanNode.ClearData();
-                vessel.patchedConicSolver.Save(launched_vessel.flightPlanNode);
-                launched_vessel.patchedConicSolver.Load(launched_vessel.flightPlanNode);
+                this.Log("node dV 0: {}", nearest_node.DeltaV);//debug
+                var o = vsl.orbit;
+                var norm = o.GetOrbitNormal().normalized;
+                var prograde = o.getOrbitalVelocityAtUT(nearest_node.UT);
+                var radial = Vector3d.Cross(prograde, norm).normalized;
+                var orbitalDeltaV = nearest_node.nextPatch.getOrbitalVelocityAtUT(nearest_node.UT) - prograde;
+                prograde.Normalize();
+                nearest_node.DeltaV = new Vector3d(Vector3d.Dot(orbitalDeltaV, radial),
+                                        Vector3d.Dot(orbitalDeltaV, norm),
+                                        Vector3d.Dot(orbitalDeltaV, prograde));
+                this.Log("node dV 1: {}", nearest_node.DeltaV);//debug
+                //var vvel = o.getOrbitalVelocityAtUT(nearest_node.UT).xzy;
+                //var vpos = o.getPositionAtUT(nearest_node.UT).xzy;
+                //nearest_node.nodeRotation = Quaternion.LookRotation(vvel, Vector3d.Cross(-vpos, vvel));
+                //nearest_node.DeltaV = nearest_node.nodeRotation.Inverse() * (nearest_node.nextPatch.getOrbitalVelocityAtUT(nearest_node.UT).xzy - vvel);
+                vsl.flightPlanNode.ClearData();
+                vessel.patchedConicSolver.Save(vsl.flightPlanNode);
+                vsl.patchedConicSolver.Load(vsl.flightPlanNode);
+                //clear this vessel's flight plan
                 vessel.patchedConicSolver.maneuverNodes.Clear();
                 vessel.patchedConicSolver.flightPlan.Clear();
+                vessel.flightPlanNode.ClearData();
             }
-            //turn everything off
-            Storage.enabled = Storage.isEnabled = false;
-            Events["LaunchVessel"].active = Actions["LaunchVesselAction"].active = false;
         }
 
-        protected override void on_vessel_launched(Vessel launched_vessel)
+        protected override void on_vessel_launched(Vessel vsl)
         {
-            base.on_vessel_launched(launched_vessel);
+            //turn everything off
+            vessel.ctrlState.Neutralize();
+            if(vessel == FlightGlobals.fetch?.activeVessel)
+                FlightInputHandler.SetNeutralControls();
+            Storage.EnableModule(false);
+            Events["LaunchVessel"].active = Actions["LaunchVesselAction"].active = false;
+            //update CoM and crew capacity
             part.CoMOffset = BaseCoMOffset;
             update_crew_capacity(0);
+            base.on_vessel_launched(vsl);
         }
 
         IEnumerator<YieldInstruction> delayed_launch()
