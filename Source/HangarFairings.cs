@@ -16,21 +16,21 @@ namespace AtHangar
 {
     public class HangarFairings : Hangar, IPartCostModifier, IPartMassModifier, IMultipleDragCube
     {
-        [KSPField] public string  Fairings          = "fairings";
-        [KSPField] public float   FairingsDensity   = 0.5f; //t/m3
-        [KSPField] public float   FairingsCost      = 20f;  //credits per fairing
-        [KSPField] public Vector3 BaseCoMOffset     = Vector3.zero;
+        [KSPField] public string Fairings = "fairings";
+        [KSPField] public float FairingsDensity = 0.5f; //t/m3
+        [KSPField] public float FairingsCost = 20f;  //credits per fairing
+        [KSPField] public Vector3 BaseCoMOffset = Vector3.zero;
         [KSPField] public Vector3 JettisonDirection = Vector3.up;
-        [KSPField] public float   JettisonForce     = 50f;
-        [KSPField] public double  DebrisLifetime    = 600;
-        [KSPField] public string  DecoupleNodes     = "";
+        [KSPField] public float JettisonForce = 50f;
+        [KSPField] public double DebrisLifetime = 600;
+        [KSPField] public string DecoupleNodes = "";
 
         List<Transform> fairings = new List<Transform>();
         List<AttachNode> decoupleNodes = new List<AttachNode>();
 
         [KSPField(isPersistant = true)] public float debris_cost, debris_mass = -1f;
 
-        [KSPField] public string  FxGroup = "decouple";
+        [KSPField] public string FxGroup = "decouple";
         FXGroup FX;
 
         [KSPField(isPersistant = true)]
@@ -41,12 +41,12 @@ namespace AtHangar
         List<Part> debris = new List<Part>();
 
         class PayloadRes : ConfigNodeObject
-        { 
-            [Persistent] public string name = ""; 
-            [Persistent] public double amount = 0; 
+        {
+            [Persistent] public string name = "";
+            [Persistent] public double amount = 0;
             [Persistent] public double maxAmount = 0;
 
-            public PayloadRes() {}
+            public PayloadRes() { }
             public PayloadRes(PartResource res)
             {
                 name = res.resourceName;
@@ -82,16 +82,16 @@ namespace AtHangar
         #endregion
 
         #region IMultipleDragCube
-        static readonly string[] cube_names = {"Fairing", "Clean"};
+        static readonly string[] cube_names = { "Fairing", "Clean" };
         public string[] GetDragCubeNames() => cube_names;
 
-        public void AssumeDragCubePosition(string anim) 
+        public void AssumeDragCubePosition(string anim)
         {
             find_fairings();
             if(fairings.Count == 0) return;
             if(anim == "Fairing")
                 fairings.ForEach(f => f.gameObject.SetActive(true));
-            else 
+            else
                 fairings.ForEach(f => f.gameObject.SetActive(false));
         }
         public bool UsesProceduralDragCubes() => false;
@@ -135,7 +135,7 @@ namespace AtHangar
                     part.stagingIcon = string.Empty;
                     stagingToggleEnabledEditor = false;
                     stagingToggleEnabledFlight = false;
-                    Events ["ToggleStaging"].advancedTweakable = true;
+                    Events["ToggleStaging"].advancedTweakable = true;
                     SetStaging(false);
                     part.UpdateStageability(true, true);
                 }
@@ -147,7 +147,7 @@ namespace AtHangar
                     part.stagingIcon = "DECOUPLER_HOR";
                     stagingToggleEnabledEditor = true;
                     stagingToggleEnabledFlight = true;
-                    Events ["ToggleStaging"].advancedTweakable = false;
+                    Events["ToggleStaging"].advancedTweakable = false;
                     SetStaging(true);
                     part.UpdateStageability(true, true);
                 }
@@ -200,13 +200,13 @@ namespace AtHangar
             {
                 if(part.Resources.Contains(r)) continue;
                 if(Globals.Instance.ResourcesBlacklist.IndexOf(r) >= 0) continue;
-                var res = part.Resources.Add(r, resources.ResourceAmount(r), resources.ResourceCapacity(r), 
+                var res = part.Resources.Add(r, resources.ResourceAmount(r), resources.ResourceCapacity(r),
                                              true, true, true, true, PartResource.FlowMode.Both);
-                if(res != null) 
+                if(res != null)
                 {
                     payload_resources.Add(new PayloadRes(res));
                     resources.TransferResource(r, -res.amount);
-                    res_mass += res.amount*res.info.density;
+                    res_mass += res.amount * res.info.density;
                 }
             }
             payload.mass -= (float)res_mass;
@@ -232,7 +232,7 @@ namespace AtHangar
             var res_mass = 0.0;
             foreach(var r in payload_resources)
             {
-                var res  = part.Resources.Get(r.name);
+                var res = part.Resources.Get(r.name);
                 if(res != null)
                 {
                     res_mass += res.amount * res.info.density;
@@ -291,13 +291,13 @@ namespace AtHangar
         }
 
         struct ForceTarget
-        { 
+        {
             public Vector3 pos;
             public Vector3 force;
             public Rigidbody target;
             public ForceTarget(Rigidbody target, Vector3 force, Vector3 pos)
             {
-                this.target = target; 
+                this.target = target;
                 this.force = force;
                 this.pos = pos;
             }
@@ -319,7 +319,7 @@ namespace AtHangar
             var decouple = new List<Part>();
             foreach(var p in part.children)
             {
-                if(p.srfAttachNode != null && 
+                if(p.srfAttachNode != null &&
                    p.srfAttachNode.attachedPart == part)
                     decouple.Add(p);
             }
@@ -336,13 +336,13 @@ namespace AtHangar
             foreach(var p in decouple)
             {
                 var force_target = p;
-                if(p == part) 
+                if(p == part)
                     force_target = part.parent;
                 p.decouple();
-                if(force_target.Rigidbody != null) 
+                if(force_target.Rigidbody != null)
                 {
                     var pos = force_target.Rigidbody.worldCenterOfMass;
-                    var force = (pos-part.Rigidbody.worldCenterOfMass).normalized*force_target.mass*JettisonForce*0.5f;
+                    var force = (pos - part.Rigidbody.worldCenterOfMass).normalized * force_target.mass * JettisonForce * 0.5f;
                     jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos));
                 }
                 yield return null;
@@ -450,17 +450,17 @@ namespace AtHangar
         {
             //check state
             if(!HighLogic.LoadedSceneIsFlight || Storage == null || !Storage.Ready) yield break;
-            if(Storage.VesselsCount == 0) 
+            if(Storage.VesselsCount == 0)
             {
                 Utils.Message("No payload");
                 yield break;
             }
-            if(gates_state != AnimatorState.Opened && 
+            if(gates_state != AnimatorState.Opened &&
                hangar_gates != null && !hangar_gates.Playing) yield break;
             //set the flag and wait for the doors to open
             launch_in_progress = true;
             if(hangar_gates != null)
-                while(hangar_gates.Playing) 
+                while(hangar_gates.Playing)
                     yield return null;
             //activate the hangar, get the vessel from the storage, set its crew
             Activate();
@@ -476,7 +476,7 @@ namespace AtHangar
         public void LaunchVessel()
         {
             if(launch_in_progress) return;
-            Open();    
+            Open();
             StartCoroutine(delayed_launch());
         }
 
@@ -484,9 +484,9 @@ namespace AtHangar
         public void LaunchVesselAction(KSPActionParam param) => LaunchVessel();
 
         public override void OnActive()
-        { 
+        {
             if(HighLogic.LoadedSceneIsFlight)
-                LaunchVessel(); 
+                LaunchVessel();
         }
 
         public override void OnSave(ConfigNode node)
@@ -510,41 +510,41 @@ namespace AtHangar
             }
         }
 
-        #if DEBUG
-//        Vector3d last_pos = Vector3d.zero;
-//        Vector3d last_opos = Vector3d.zero;
-//        public override void FixedUpdate()
-//        {
-//            base.FixedUpdate();
-//            if(debris != null && debris.Count > 0)
-//            {
-//                var d = debris[0];
-//                var delta = (d.vessel.CoM-last_pos).magnitude;
-//                var odelta = (d.orbit.pos-last_opos).magnitude;
-//                this.Log("delta pos:  {}\n" +
-//                         "delta orb:  {}\n" +
-//                         "pos-CB - orb: {}\n" +
-//                         "orbit:\n{}\n" +
-//                         "driver.offsetByFrame {}, was {}\n" +
-//                         "driver.localCoM {}", 
-//                         delta.ToString("F3"), 
-//                         odelta.ToString("F3"),
-//                         (d.vessel.CoMD-d.vessel.mainBody.position).xzy-d.orbit.pos,
-//                         d.orbit, d.vessel.orbitDriver.offsetPosByAFrame, d.vessel.orbitDriver.wasOffsetPosByAFrame,
-//                         d.vessel.orbitDriver.localCoM);
-//                last_pos = d.vessel.CoM;
-//                last_opos = d.orbit.pos;
-//            }
-//        }
-        #endif
+#if DEBUG
+        //        Vector3d last_pos = Vector3d.zero;
+        //        Vector3d last_opos = Vector3d.zero;
+        //        public override void FixedUpdate()
+        //        {
+        //            base.FixedUpdate();
+        //            if(debris != null && debris.Count > 0)
+        //            {
+        //                var d = debris[0];
+        //                var delta = (d.vessel.CoM-last_pos).magnitude;
+        //                var odelta = (d.orbit.pos-last_opos).magnitude;
+        //                this.Log("delta pos:  {}\n" +
+        //                         "delta orb:  {}\n" +
+        //                         "pos-CB - orb: {}\n" +
+        //                         "orbit:\n{}\n" +
+        //                         "driver.offsetByFrame {}, was {}\n" +
+        //                         "driver.localCoM {}", 
+        //                         delta.ToString("F3"), 
+        //                         odelta.ToString("F3"),
+        //                         (d.vessel.CoMD-d.vessel.mainBody.position).xzy-d.orbit.pos,
+        //                         d.orbit, d.vessel.orbitDriver.offsetPosByAFrame, d.vessel.orbitDriver.wasOffsetPosByAFrame,
+        //                         d.vessel.orbitDriver.localCoM);
+        //                last_pos = d.vessel.CoM;
+        //                last_opos = d.orbit.pos;
+        //            }
+        //        }
+#endif
     }
 
     public class HangarFairingsUpdater : ModuleUpdater<HangarFairings>
     {
         protected override void on_rescale(ModulePair<HangarFairings> mp, Scale scale)
-        { 
+        {
             mp.module.JettisonForce = mp.base_module.JettisonForce * scale.absolute.volume;
-            mp.module.FairingsCost  = mp.base_module.FairingsCost * scale.absolute.volume;
+            mp.module.FairingsCost = mp.base_module.FairingsCost * scale.absolute.volume;
             mp.module.UpdateCoMOffset(scale.ScaleVector(mp.base_module.BaseCoMOffset));
             if(HighLogic.LoadedSceneIsEditor) mp.module.ResetPayloadResources();
         }
