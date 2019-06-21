@@ -55,16 +55,22 @@ namespace AtHangar
                 {
                     content_hull_mesh.mesh = mesh;
                     content_hull_renderer.material.color = fits? Colors.Good.Alpha(0.25f) : Colors.Danger.Alpha(0.25f);
-                    var spawn_transform = get_spawn_transform(highlighted_content);
-                    var offset = get_spawn_offset(highlighted_content)-highlighted_content.metric.center;
-                    content_hull_mesh.transform.position = spawn_transform.position;
-                    content_hull_mesh.transform.rotation = spawn_transform.rotation;
-                    content_hull_mesh.transform.Translate(offset);
-                    content_hull_mesh.gameObject.SetActive(true);
+                    update_content_hull_mesh();
                 }
             }
             else
                 stop_at_time = -1;
+        }
+
+        void update_content_hull_mesh()
+        {
+            Vector3 offset;
+            var spawn_transform = get_spawn_transform(highlighted_content, out offset);
+            offset -= highlighted_content.metric.center;
+            content_hull_mesh.transform.position = spawn_transform.position;
+            content_hull_mesh.transform.rotation = spawn_transform.rotation;
+            content_hull_mesh.transform.Translate(offset);
+            content_hull_mesh.gameObject.SetActive(true);
         }
 
         float stop_at_time = -1;

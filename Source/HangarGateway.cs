@@ -42,11 +42,8 @@ namespace AtHangar
         protected override bool hangar_is_occupied() =>
         base.hangar_is_occupied() || !SpawnManager.SpawnSpaceEmpty;
 
-        protected override Vector3 get_spawn_offset(PackedVessel pv) => 
-        SpawnManager.GetSpawnOffset(pv.metric);
-
-        protected override Transform get_spawn_transform(PackedVessel pv) => 
-        SpawnManager.GetSpawnTransform(pv.metric);
+        protected override Transform get_spawn_transform(PackedVessel pv, out Vector3 spawn_offset) => 
+        SpawnManager.GetSpawnTransform(pv.metric, out spawn_offset);
 
         public override Transform GetSpawnTransform() => 
         SpawnManager.AutoPositionVessel ? null : SpawnManager.GetSpawnTransform();

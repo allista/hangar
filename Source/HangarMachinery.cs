@@ -460,8 +460,7 @@ namespace AtHangar
             vsl.Parts.ForEach(p => p.SendEvent("onLaunchedFromHangar", data));
         }
 
-        protected abstract Vector3 get_spawn_offset(PackedVessel pv);
-        protected abstract Transform get_spawn_transform(PackedVessel pv);
+        protected abstract Transform get_spawn_transform(PackedVessel pv, out Vector3 spawn_offset);
         public abstract Transform GetSpawnTransform();
 
         IEnumerator<YieldInstruction> launch_vessel(PackedVessel vsl)
@@ -480,8 +479,9 @@ namespace AtHangar
                 yield return yi;
             TransferResources(vsl);
             var dV = Vector3.zero;
-            var spawn_transfrom = get_spawn_transform(vsl);
-            var spawn_offset = get_spawn_offset(vsl) - vsl.metric.center;
+            Vector3 spawn_offset;
+            var spawn_transfrom = get_spawn_transform(vsl, out spawn_offset);
+            spawn_offset -= vsl.metric.center;
             if(LaunchWithPunch)
                 dV = LaunchVelocity.Local2LocalDir(part.partTransform, spawn_transfrom);
             if(vsl is StoredVessel sv)
