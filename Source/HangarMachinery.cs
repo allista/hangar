@@ -269,7 +269,11 @@ namespace AtHangar
         /// </summary>
         /// <param name="reset">If set to <c>true</c> reset state befor setup.</param>
         public virtual void Setup(bool reset = false)
-        { PartMetric = new Metric(part); }
+        { 
+            PartMetric = new Metric(part);
+            if(highlighted_content != null)
+                update_content_hull_mesh();
+        }
 
         public override void OnStart(StartState state)
         {
