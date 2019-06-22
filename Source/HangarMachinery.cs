@@ -236,6 +236,12 @@ namespace AtHangar
                 if(vessel != null)
                     triggers.ForEach(c => Triggers.Add(SpatialSensor.AddToCollider(c, vessel, 1, on_trigger)));
             }
+            else
+            {
+                this.Log("ERROR: no Trigger is not defined in part cfg");
+                this.EnableModule(false);
+                return;
+            }
             //setup hangar name
             if(HangarName == "_none_") HangarName = part.Title();
             //initialize resources
