@@ -86,18 +86,17 @@ namespace AtHangar
             stop_at_time = -1;
         }
 
-        public void HighlightContentTemporary(PackedVessel pc, float period)
+        public void HighlightContentTemporary(PackedVessel pc, float period, bool fits = true)
         {
             if(highlighted_content == null)
             {
-                SetHighlightedContent(pc, true);
+                SetHighlightedContent(pc, fits);
                 StartCoroutine(stop_highlighting_content_after(period));
             }
             else
             {
                 stop_at_time = Time.time + period;
-                if(pc != highlighted_content)
-                    SetHighlightedContent(pc, true);
+                SetHighlightedContent(pc, fits);
             }
         }
 

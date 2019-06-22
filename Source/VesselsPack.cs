@@ -26,6 +26,7 @@ namespace AtHangar
         public float   mass     { get { return metric.mass; } set { metric.mass = value; } }
         public float   cost     { get { return metric.cost; } set { metric.cost = value; } }
         public Vector3 CoG      { get { return metric.center; } } //center of geometry
+        public Vector3 SpawnRotation = Vector3.zero;
 
         public VesselResources  resources { get; protected set; }
 
@@ -39,6 +40,7 @@ namespace AtHangar
             ConfigNode crew_node = node.AddNode("CREW");
             metric.Save(metric_node);
             crew.ForEach(c => c.Save(crew_node.AddNode(c.name)));
+            node.AddValue("SpawnRotation", SpawnRotation);
             OnSave(node);
         }
 
@@ -52,6 +54,9 @@ namespace AtHangar
             if(crew_node != null)
                 foreach(ConfigNode cn in crew_node.nodes)
                     crew.Add(new ProtoCrewMember(HighLogic.CurrentGame.Mode, cn));
+            var spawn_rotation = node.GetValue("SpawnRotation");
+            if(!string.IsNullOrEmpty(spawn_rotation))
+                SpawnRotation = ConfigNode.ParseVector3(spawn_rotation);
             OnLoad(node);
         }
 

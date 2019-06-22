@@ -463,6 +463,78 @@ namespace AtHangar
             vsl.Parts.ForEach(p => p.SendEvent("onLaunchedFromHangar", data));
         }
 
+        public Quaternion? GetSpawnRotation(PackedVessel vsl)
+        {
+            if(vsl.SpawnRotation.IsZero())
+                return null;
+            return Quaternion.Euler(vsl.SpawnRotation);
+        }
+
+        public void SetSpawnRotation(PackedVessel vsl, Vector3 spawn_rotation)
+        {
+            var old_rotation = vsl.SpawnRotation;
+            vsl.SpawnRotation = spawn_rotation;
+            var fits = Storage.SpawnManager.MetricFits(vsl.metric, GetSpawnRotation(vsl));
+            if(!fits)
+            {
+                vsl.SpawnRotation = old_rotation;
+                Utils.Message("Cannot rotate the vessel that way inside the hangar");
+            }
+            HighlightContentTemporary(vsl, 5, true);
+        }
+
+        public void StepChangeSpawnRotation(PackedVessel vsl, int idx, bool clockwise)
+        {
+            var val = vsl.SpawnRotation[idx];
+            if(clockwise)
+                val = (val + 90) % 360;
+            else
+            {
+                val = val - 90;
+                if(val < 0)
+                {
+                    if(val <= -90)
+                        val = 270;
+                    else
+                        val = 0;
+                }
+            }
+            var new_rotation = vsl.SpawnRotation;
+            new_rotation[idx] = val;
+            SetSpawnRotation(vsl, new_rotation);
+        }
+
+        public void DrawSpawnRotationControls(PackedVessel content)
+        {
+            GUILayout.BeginVertical();
+            GUILayout.Label("Change launch orientation", Styles.boxed_label, GUILayout.ExpandWidth(true));
+            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical();
+            if(GUILayout.Button("X+", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 0, true);
+            if(GUILayout.Button("X-", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 0, false);
+            GUILayout.EndVertical();
+            GUILayout.BeginVertical();
+            if(GUILayout.Button("Y+", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 1, true);
+            if(GUILayout.Button("Y-", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 1, false);
+            GUILayout.EndVertical();
+            GUILayout.BeginVertical();
+            if(GUILayout.Button("Z+", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 2, true);
+            if(GUILayout.Button("Z-", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 2, false);
+            GUILayout.EndVertical();
+            GUILayout.BeginVertical();
+            if(GUILayout.Button("Reset", Styles.active_button, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
+                SetSpawnRotation(content, Vector3.zero);
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
+        }
+
         protected abstract Transform get_spawn_transform(PackedVessel pv, out Vector3 spawn_offset);
         public abstract Transform GetSpawnTransform();
 
@@ -576,6 +648,11 @@ namespace AtHangar
             if(hangar_is_occupied())
             {
                 Utils.Message("Cannot launch a vessel when something is inside the docking space");
+                return false;
+            }
+            if(!Storage.SpawnManager.MetricFits(v.metric, GetSpawnRotation(v)))
+            {
+                Utils.Message("Cannot launch in this orientation");
                 return false;
             }
             return true;

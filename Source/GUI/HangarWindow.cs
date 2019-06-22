@@ -451,6 +451,7 @@ namespace AtHangar
             if(vessels.Count > 0)
             {
                 SelectVessel();
+                selected_hangar.DrawSpawnRotationControls(selected_vessel);
                 CrewTransferButton();
                 ResourcesTransferButton();
                 LaunchButton();
