@@ -20,17 +20,17 @@ namespace AtHangar
 
         #region Configuration
         //hangar properties
-        [KSPField(isPersistant = false)] public string AnimatorID = string.Empty;
-        [KSPField(isPersistant = false)] public float EnergyConsumption = 0.75f;
-        [KSPField(isPersistant = false)] public bool NoCrewTransfers;
-        [KSPField(isPersistant = false)] public bool NoResourceTransfers;
-        [KSPField(isPersistant = false)] public bool NoGUI;
+        [KSPField] public string AnimatorID = string.Empty;
+        [KSPField] public float EnergyConsumption = 0.75f;
+        [KSPField] public bool NoCrewTransfers;
+        [KSPField] public bool NoResourceTransfers;
+        [KSPField] public bool NoGUI;
         //vessel spawning
-        [KSPField(isPersistant = false)] public Vector3 LaunchVelocity = Vector3.zero;
+        [KSPField] public Vector3 LaunchVelocity = Vector3.zero;
         [KSPField(isPersistant = true)] public bool LaunchWithPunch;
-        [KSPField(isPersistant = false)] public string CheckDockingPorts = string.Empty;
+        [KSPField] public string CheckDockingPorts = string.Empty;
         //other
-        [KSPField(isPersistant = false)] public string Trigger = string.Empty;
+        [KSPField] public string Trigger = string.Empty;
         #endregion
 
         #region Managed Storage
@@ -228,7 +228,7 @@ namespace AtHangar
             }
             //setup triggers
             //prevent triggers from catching raycasts
-            if(Trigger != string.Empty)
+            if(!string.IsNullOrEmpty(Trigger))
             {
                 var triggers = part.FindModelComponents<Collider>(Trigger);
                 if(state == StartState.Editor)
@@ -675,9 +675,8 @@ namespace AtHangar
                     StartCoroutine(launch_vessel(stored_vessel));
                     return true;
                 }
-                else
-                    this.Log("WARNING: restored vessel is not found in the Stored Vessels: {0}\n" +
-                                 "This should never happen!", stored_vessel.id);
+                this.Log("WARNING: restored vessel is not found in the Stored Vessels: {0}\n" +
+                             "This should never happen!", stored_vessel.id);
             }
             return false;
         }
