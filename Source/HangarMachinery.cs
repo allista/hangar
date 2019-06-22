@@ -231,7 +231,8 @@ namespace AtHangar
             if(Trigger != string.Empty)
             {
                 var triggers = part.FindModelComponents<Collider>(Trigger);
-                triggers.ForEach(c => c.gameObject.layer = 21); //Part Triggers
+                if(state == StartState.Editor)
+                    triggers.ForEach(c => c.gameObject.layer = 21); //Part Triggers
                 if(vessel != null)
                     triggers.ForEach(c => Triggers.Add(SpatialSensor.AddToCollider(c, vessel, 1, on_trigger)));
             }
