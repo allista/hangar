@@ -14,7 +14,7 @@ using AT_Utils.UI;
 
 namespace AtHangar
 {
-    public abstract partial class HangarMachinery : ControllableModuleBase
+    public abstract partial class HangarMachinery : ControllableModuleBase, IPartMassModifier
     {
         public enum HangarState { Inactive, Active }
 
@@ -753,6 +753,15 @@ namespace AtHangar
             if(enable) Setup();
             base.Enable(enable);
         }
+
+        public virtual float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
+        {
+            if(spawning_vessel != null && spawning_vessel_on_rails)
+                return spawning_vessel.mass;
+            return 0;
+        }
+
+        public virtual ModifierChangeWhen GetModuleMassChangeWhen() => ModifierChangeWhen.CONSTANTLY;
         #endregion
     }
 

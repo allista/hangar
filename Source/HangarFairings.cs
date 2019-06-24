@@ -77,8 +77,11 @@ namespace AtHangar
         public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation situation) { return jettisoned ? -debris_cost : 0f; }
         public virtual ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 
-        public virtual float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return jettisoned ? -debris_mass : 0f; }
-        public virtual ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+        public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
+        {
+            var dm = base.GetModuleMass(defaultMass, sit);
+            return dm + (jettisoned ? -debris_mass : 0f);
+        }
         #endregion
 
         #region IMultipleDragCube
