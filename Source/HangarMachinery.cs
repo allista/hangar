@@ -64,6 +64,7 @@ namespace AtHangar
 
         protected VesselSpawner vessel_spawner;
         protected PackedVessel spawning_vessel;
+        bool spawning_vessel_on_rails;
 
         protected MultiAnimator hangar_gates;
         public AnimatorState gates_state => hangar_gates == null ? AnimatorState.Opened : hangar_gates.State;
@@ -131,6 +132,7 @@ namespace AtHangar
             hangar_name_editor.yesCallback = () => HangarName = hangar_name_editor.Text;
             GameEvents.onVesselWasModified.Add(update_connected_storage);
             GameEvents.onEditorShipModified.Add(update_connected_storage);
+            GameEvents.onPartDie.Add(on_part_die);
         }
 
         public virtual void OnDestroy()
@@ -141,6 +143,7 @@ namespace AtHangar
             if(construct_loader != null) Destroy(construct_loader);
             GameEvents.onVesselWasModified.Remove(update_connected_storage);
             GameEvents.onEditorShipModified.Remove(update_connected_storage);
+            GameEvents.onPartDie.Remove(on_part_die);
             if(Storage != null)
             {
                 Storage.OnVesselStored -= highlight_fitted_content;
@@ -454,7 +457,9 @@ namespace AtHangar
         protected virtual IEnumerable<YieldInstruction> before_vessel_launch(PackedVessel vsl) { yield break; }
         protected virtual void on_vessel_positioned(Vessel vsl) { }
         protected virtual void on_vessel_loaded(Vessel vsl) { }
-        protected virtual void on_vessel_off_rails(Vessel vsl) { }
+
+        protected virtual void on_vessel_off_rails(Vessel vsl) => spawning_vessel_on_rails = false;
+
         protected virtual void on_vessel_launched(Vessel vsl)
         {
             if(spawning_vessel != null)
@@ -469,6 +474,12 @@ namespace AtHangar
             if(vsl.SpawnRotation.IsZero())
                 return null;
             return Quaternion.Euler(vsl.SpawnRotation);
+        }
+
+        protected virtual void on_part_die(Part p)
+        {
+            if(p == part && vessel_spawner.LaunchInProgress)
+                GameEvents.onShowUI.Fire();
         }
 
         public void SetSpawnRotation(PackedVessel vsl, Vector3 spawn_rotation)
@@ -544,6 +555,7 @@ namespace AtHangar
             if(!HighLogic.LoadedSceneIsFlight) yield break;
             while(!FlightGlobals.ready) yield return null;
             FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, part.transform, 1);
+            spawning_vessel_on_rails = true;
             spawning_vessel = vsl;
             vessel_spawner.BeginLaunch();
             //hide UI
