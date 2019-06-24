@@ -195,7 +195,6 @@ namespace AtHangar
         {
             build_connected_storage();
             update_total_values();
-            clear_hangar_memory();
             Events["RelocateVessels"].guiActiveEditor = CanRelocate;
         }
 
@@ -385,11 +384,7 @@ namespace AtHangar
             return try_store_vessel(sv) ? sv : null;
         }
 
-        void clear_hangar_memory()
         {
-            foreach(MemoryTimer timer in probed_vessels.Values)
-                StopCoroutine(timer);
-            probed_vessels.Clear();
         }
 
         /// <summary>
@@ -398,24 +393,12 @@ namespace AtHangar
         /// <param name="vsl">Vessel</param>
         void process_vessel(Vessel vsl)
         {
-            //check if this vessel was encountered before;
-            //if so, reset the timer and return
-            MemoryTimer timer;
-            if(probed_vessels.TryGetValue(vsl.id, out timer))
-            { timer.Reset(); return; }
             //if the vessel is new, check momentary states
             if(!hangar_is_ready(vsl)) return;
             //if the state is OK, try to store the vessel
             var stored_vessel = try_store_vessel(vsl);
-            //if failed, remember it
-            if(stored_vessel == null)
-            {
-                timer = new MemoryTimer();
-                timer.EndAction += () => { if(probed_vessels.ContainsKey(vsl.id)) probed_vessels.Remove(vsl.id); };
-                probed_vessels.Add(vsl.id, timer);
-                StartCoroutine(timer);
-                return;
-            }
+            //vessel does not fit into storage
+            if(stored_vessel == null) return;
             //deactivate the hangar
             Deactivate();
             //calculate velocity change to conserve momentum
@@ -715,7 +698,6 @@ namespace AtHangar
         public void Deactivate()
         {
             hangar_state = HangarState.Inactive;
-            clear_hangar_memory();
         }
 
         public void Toggle()
