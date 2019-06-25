@@ -69,10 +69,7 @@ namespace AtHangar
             base.early_setup(state);
             Storage = part.Modules.GetModule<HangarStorage>();
             if(Storage == null)
-            {
                 this.ConfigurationInvalid("\"{0}\" part has no HangarStorage module", part.Title());
-                return;
-            }
         }
     }
 
@@ -87,17 +84,24 @@ namespace AtHangar
         protected override void update_connected_storage()
         {
             base.update_connected_storage();
-            if(ConnectedStorage.Count == 0) Storage = null;
+            if(ConnectedStorage.Count == 0)
+                Storage = null;
             else if(Storage == null || !ConnectedStorage.Contains(Storage))
-            { Storage = ConnectedStorage[0]; Setup(); }
+            {
+                Storage = ConnectedStorage[0];
+                Setup();
+            }
             this.EnableModule(Storage != null);
         }
 
         protected override void update_connected_storage(Vessel vsl)
         {
-            if(vsl != part.vessel || !all_passages_ready) return;
-            update_connected_storage();
-            if(!enabled && hangar_gates != null) Close();
+            if(vsl == part.vessel && all_passages_ready)
+            {
+                update_connected_storage();
+                if(!enabled && hangar_gates != null)
+                    Close();
+            }
         }
 
         protected override void early_setup(StartState state)

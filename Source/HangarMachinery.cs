@@ -201,8 +201,8 @@ namespace AtHangar
 
         void update_resources()
         {
-            if(vessel == null) return;
-            HangarResources = new VesselResources(vessel);
+            if(vessel != null)
+                HangarResources = new VesselResources(vessel);
         }
 
         protected bool all_passages_ready => passage_checklist.All(p => p.Ready);

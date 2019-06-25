@@ -186,7 +186,8 @@ namespace AtHangar
                 if(node != null) decoupleNodes.Add(node);
             }
             JettisonDirection.Normalize();
-            if(vessel != null) vessel.SpawnCrew();
+            if(vessel != null) 
+                vessel.SpawnCrew();
         }
 
         public override void OnDestroy()
