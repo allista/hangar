@@ -333,7 +333,7 @@ namespace AtHangar
             return stored;
         }
 
-        public bool TryStoreVesselInEditor(PackedVessel vsl) => 
+        public bool TryStoreVesselInEditor(PackedVessel vsl) =>
         TryStoreVessel(vsl, AutoPositionVessel, AutoPositionVessel);
 
         public bool Contains(PackedVessel item) => stored_vessels.Contains(item);

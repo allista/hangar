@@ -16,12 +16,12 @@ namespace AtHangar
     {
         #region In-Editor Content Management
         const int window_width = 400;
-        const string eLock  = "Hangar.EditHangar";
+        const string eLock = "Hangar.EditHangar";
         const string scLock = "Hangar.LoadShipConstruct";
 
         Vector2 constructs_scroll = Vector2.zero;
         Vector2 unfit_scroll = Vector2.zero;
-        Rect eWindowPos  = new Rect(Screen.width/2-window_width/2, 100, window_width, 100);
+        Rect eWindowPos = new Rect(Screen.width / 2 - window_width / 2, 100, window_width, 100);
 
         bool editing_content;
         public enum ContentState { Remains, Fits, DoesntFit };
@@ -62,7 +62,7 @@ namespace AtHangar
                     content_hull_mesh.mesh = mesh;
                     if(state != ContentState.Remains)
                         content_hull_renderer.material.color = state == ContentState.Fits
-                            ? Colors.Good.Alpha(0.25f) 
+                            ? Colors.Good.Alpha(0.25f)
                             : Colors.Danger.Alpha(0.25f);
                     update_content_hull_mesh();
                 }
@@ -115,7 +115,7 @@ namespace AtHangar
             do
             {
                 yield return new WaitForSeconds(stop_at_time - Time.time);
-            } while(stop_at_time-Time.time > 0);
+            } while(stop_at_time - Time.time > 0);
             if(stop_at_time > 0)
                 SetHighlightedContent(null);
             stop_at_time = -1;
@@ -147,7 +147,7 @@ namespace AtHangar
             }
             pc.UpdateMetric();
             try_store_packed_vessel(pc, false);
-            SetHighlightedContent(pc, Storage.Contains(pc)? ContentState.Fits : ContentState.DoesntFit);
+            SetHighlightedContent(pc, Storage.Contains(pc) ? ContentState.Fits : ContentState.DoesntFit);
             pc.UnloadConstruct();
         }
 
@@ -156,7 +156,7 @@ namespace AtHangar
             GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
             //Vessel selector
-            if(GUILayout.Button("Select Vessel", Styles.normal_button, GUILayout.ExpandWidth(true))) 
+            if(GUILayout.Button("Select Vessel", Styles.normal_button, GUILayout.ExpandWidth(true)))
                 construct_loader.SelectVessel();
             if(GUILayout.Button("Select Subassembly", Styles.normal_button, GUILayout.ExpandWidth(true)))
                 construct_loader.SelectSubassembly();
@@ -177,7 +177,7 @@ namespace AtHangar
             foreach(PackedVessel pv in vessels)
             {
                 GUILayout.BeginHorizontal();
-                if(HangarGUI.PackedVesselLabel(pv, pv == highlighted_content? Styles.white : Styles.label))
+                if(HangarGUI.PackedVesselLabel(pv, pv == highlighted_content ? Styles.white : Styles.label))
                 {
                     if(highlighted_content != pv)
                         SetHighlightedContent(pv, ContentState.Fits);
@@ -189,7 +189,7 @@ namespace AtHangar
                     if(pv is PackedConstruct pc)
                         try_store_packed_vessel(pc.Clone(), false);
                 }
-                if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
+                if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25)))
                     Storage.RemoveVessel(pv);
                 GUILayout.EndHorizontal();
             }
@@ -205,19 +205,19 @@ namespace AtHangar
                 foreach(PackedConstruct pc in Storage.UnfitConstucts)
                 {
                     GUILayout.BeginHorizontal();
-                    if(HangarGUI.PackedVesselLabel(pc, pc == highlighted_content? Styles.white : Styles.label))
+                    if(HangarGUI.PackedVesselLabel(pc, pc == highlighted_content ? Styles.white : Styles.label))
                     {
                         if(highlighted_content != pc)
                             SetHighlightedContent(pc, ContentState.DoesntFit);
                         else
                             SetHighlightedContent(null);
                     }
-                    if(GUILayout.Button("^", Styles.open_button, GUILayout.Width(25))) 
-                    { 
-                        if(try_store_packed_vessel(pc.Clone(), false)) 
-                            Storage.RemoveUnfit(pc); 
+                    if(GUILayout.Button("^", Styles.open_button, GUILayout.Width(25)))
+                    {
+                        if(try_store_packed_vessel(pc.Clone(), false))
+                            Storage.RemoveUnfit(pc);
                     }
-                    if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
+                    if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25)))
                         Storage.RemoveUnfit(pc);
                     GUILayout.EndHorizontal();
                 }
@@ -227,7 +227,7 @@ namespace AtHangar
             //common buttons
             if(GUILayout.Button("Clear", Styles.danger_button, GUILayout.ExpandWidth(true)))
                 Storage.ClearVessels();
-            if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
+            if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true)))
             {
                 Utils.LockControls(eLock, false);
                 SetHighlightedContent(null);
@@ -272,8 +272,8 @@ namespace AtHangar
             GUILayout.EndVertical();
         }
 
-        public void OnGUI() 
-        { 
+        public void OnGUI()
+        {
             if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
             Styles.Init();
             //edit hangar
@@ -295,32 +295,32 @@ namespace AtHangar
             }
         }
 
-        [KSPEvent (guiActive = true, guiActiveEditor = true, guiName = "Rename Hangar", active = true)]
-        public void EditName() 
-        { 
+        [KSPEvent(guiActive = true, guiActiveEditor = true, guiName = "Rename Hangar", active = true)]
+        public void EditName()
+        {
             hangar_name_editor.Text = HangarName;
             hangar_name_editor.Toggle();
         }
 
-        [KSPEvent (guiActiveEditor = true, guiName = "Edit contents", active = true)]
-        public void EditHangar() 
-        { 
+        [KSPEvent(guiActiveEditor = true, guiName = "Edit contents", active = true)]
+        public void EditHangar()
+        {
             if(!HighLogic.LoadedSceneIsEditor) return;
             editing_content = !editing_content;
             Utils.LockIfMouseOver(eLock, eWindowPos, editing_content);
         }
 
-        [KSPEvent (guiActiveEditor = true, guiName = "Relocate vessels", active = true)]
-        public void RelocateVessels() 
-        { 
-            if(vessels_window != null) 
-                vessels_window.Toggle(); 
+        [KSPEvent(guiActiveEditor = true, guiName = "Relocate vessels", active = true)]
+        public void RelocateVessels()
+        {
+            if(vessels_window != null)
+                vessels_window.Toggle();
         }
         #endregion
 
         public override string ToString() { return HangarName; }
 
-        #if DEBUG
+#if DEBUG
         void OnRenderObject()
         {
             if(vessel != null)
@@ -330,12 +330,12 @@ namespace AtHangar
                     Utils.GLDrawPoint(vessel.transform.position, Color.red);
                     Utils.GLDrawPoint(vessel.CoM, Color.green);
                 }
-//              Utils.GLLine(vessel.transform.position, vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()+TimeWarp.fixedDeltaTime).xzy+vessel.mainBody.position, Color.magenta);
-//              Utils.GLVec(vessel.transform.position,  vessel.orbit.GetRotFrameVel(vessel.mainBody).xzy*TimeWarp.fixedDeltaTime, Color.blue);  
-                Utils.GLVec(part.transform.position+part.transform.TransformDirection(part.CoMOffset), momentumDelta, Color.red);
+                //              Utils.GLLine(vessel.transform.position, vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()+TimeWarp.fixedDeltaTime).xzy+vessel.mainBody.position, Color.magenta);
+                //              Utils.GLVec(vessel.transform.position,  vessel.orbit.GetRotFrameVel(vessel.mainBody).xzy*TimeWarp.fixedDeltaTime, Color.blue);  
+                Utils.GLVec(part.transform.position + part.transform.TransformDirection(part.CoMOffset), momentumDelta, Color.red);
             }
         }
-        #endif
+#endif
     }
 }
 

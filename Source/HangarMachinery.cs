@@ -333,7 +333,7 @@ namespace AtHangar
             early_setup(state);
             Setup();
             if(Storage != null)
-                start_coroutines(); 
+                start_coroutines();
             else
                 this.EnableModule(false);
         }

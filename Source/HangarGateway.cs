@@ -61,7 +61,7 @@ namespace AtHangar
 
     public class HangarEntrance : ExternalHangar
     {
-        protected override List<HangarPassage> get_connected_passages() => 
+        protected override List<HangarPassage> get_connected_passages() =>
         Storage?.ConnectedPassages();
 
         protected override void early_setup(StartState state)
@@ -78,7 +78,7 @@ namespace AtHangar
     {
         HangarPassage entrance;
 
-        protected override List<HangarPassage> get_connected_passages() => 
+        protected override List<HangarPassage> get_connected_passages() =>
         entrance?.ConnectedPassages();
 
         protected override void update_connected_storage()
