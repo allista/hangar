@@ -598,9 +598,10 @@ namespace AtHangar
         public void StepChangeSpawnRotation(PackedVessel vsl, int idx, bool clockwise)
         {
             var rotation = vsl.GetSpawnRotation() ?? Quaternion.identity;
+            var angle = clockwise ? 90 : -90;
             var axis = Vector3.zero;
             axis[idx] = 1;
-            SetSpawnRotation(vsl, snap_vector3((Quaternion.AngleAxis(90, axis) * rotation).eulerAngles));
+            SetSpawnRotation(vsl, snap_vector3((Quaternion.AngleAxis(angle, axis) * rotation).eulerAngles));
         }
 
         protected virtual Transform get_spawn_transform(PackedVessel pv, out Vector3 spawn_offset) =>
