@@ -156,7 +156,9 @@ namespace AtHangar
             base.OnAwake();
             //content hull mesh
             var obj = new GameObject("ContentHullMesh", typeof(MeshFilter), typeof(MeshRenderer));
-            obj.transform.SetParent(gameObject.transform);
+            obj.transform.SetParent(gameObject.transform, false);
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localRotation = Quaternion.identity;
             content_hull_mesh = obj.GetComponent<MeshFilter>();
             content_hull_renderer = obj.GetComponent<MeshRenderer>();
             content_hull_renderer.material = Utils.no_z_material;
