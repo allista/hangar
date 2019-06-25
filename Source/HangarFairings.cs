@@ -122,6 +122,7 @@ namespace AtHangar
             base.early_setup(state);
             NoGUI = true;
             LaunchWithPunch = true;
+            PayloadFixedInFlight = true;
             update_crew_capacity(CrewCapacity);
             Events["EditName"].active = false;
             FX = part.findFxGroup(FxGroup);
@@ -184,14 +185,18 @@ namespace AtHangar
             }
         }
 
-        protected override bool try_store_vessel(PackedVessel v)
+        protected override bool can_store_vessel(Vessel vsl) => false;
+
+        protected override bool can_store_packed_vessel(PackedVessel vsl, bool in_flight)
         {
+            if(!base.can_store_packed_vessel(vsl, in_flight))
+                return false;
             if(Storage.VesselsCount > 0)
             {
                 Utils.Message("Payload is already stored");
                 return false;
             }
-            return base.try_store_vessel(v);
+            return true;
         }
 
         bool store_payload_resources(PackedVessel payload)

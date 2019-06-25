@@ -60,6 +60,13 @@ namespace AtHangar
             OnLoad(node);
         }
 
+        public Quaternion? GetSpawnRotation()
+        {
+            if(SpawnRotation.IsZero())
+                return null;
+            return Quaternion.Euler(SpawnRotation);
+        }
+
         public override string ToString() { return name; }
     }
 

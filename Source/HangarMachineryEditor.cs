@@ -24,9 +24,10 @@ namespace AtHangar
         Rect eWindowPos  = new Rect(Screen.width/2-window_width/2, 100, window_width, 100);
 
         bool editing_content;
+        public enum ContentState { Remains, Fits, DoesntFit };
         MeshRenderer content_hull_renderer;
         MeshFilter content_hull_mesh;
-        PackedVessel highlighted_content;
+        protected PackedVessel highlighted_content { get; private set; }
         SimpleTextEntry hangar_name_editor;
         VesselTransferWindow vessels_window;
         ShipConstructLoader construct_loader;
@@ -35,16 +36,16 @@ namespace AtHangar
         void highlight_fitted_content(PackedVessel pc)
         {
             if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)
-                SetHighlightedContent(highlighted_content, true);
+                SetHighlightedContent(highlighted_content, ContentState.Fits);
         }
 
         void highlight_unfitted_content(PackedVessel pc)
         {
             if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)
-                SetHighlightedContent(highlighted_content, false);
+                SetHighlightedContent(highlighted_content, ContentState.DoesntFit);
         }
 
-        public void SetHighlightedContent(PackedVessel pc, bool fits=false)
+        public void SetHighlightedContent(PackedVessel pc, ContentState state = ContentState.Remains)
         {
             highlighted_content = pc;
             content_hull_mesh.gameObject.SetActive(false);
@@ -54,7 +55,10 @@ namespace AtHangar
                 if(mesh != null)
                 {
                     content_hull_mesh.mesh = mesh;
-                    content_hull_renderer.material.color = fits? Colors.Good.Alpha(0.25f) : Colors.Danger.Alpha(0.25f);
+                    if(state != ContentState.Remains)
+                        content_hull_renderer.material.color = state == ContentState.Fits
+                            ? Colors.Good.Alpha(0.25f) 
+                            : Colors.Danger.Alpha(0.25f);
                     update_content_hull_mesh();
                 }
             }
@@ -86,17 +90,17 @@ namespace AtHangar
             stop_at_time = -1;
         }
 
-        public void HighlightContentTemporary(PackedVessel pc, float period, bool fits = true)
+        public void HighlightContentTemporary(PackedVessel pc, float period, ContentState state = ContentState.Remains)
         {
             if(highlighted_content == null)
             {
-                SetHighlightedContent(pc, fits);
+                SetHighlightedContent(pc, state);
                 StartCoroutine(stop_highlighting_content_after(period));
             }
             else
             {
                 stop_at_time = Time.time + period;
-                SetHighlightedContent(pc, fits);
+                SetHighlightedContent(pc, state);
             }
         }
 
@@ -111,8 +115,8 @@ namespace AtHangar
                 return;
             }
             pc.UpdateMetric();
-            try_store_vessel(pc);
-            SetHighlightedContent(pc, Storage.Contains(pc));
+            try_store_packed_vessel(pc, false);
+            SetHighlightedContent(pc, Storage.Contains(pc)? ContentState.Fits : ContentState.DoesntFit);
             pc.UnloadConstruct();
         }
 
@@ -133,6 +137,8 @@ namespace AtHangar
                 HangarGUI.UsedVolumeLabel(TotalUsedVolume, TotalUsedVolumeFrac, "Total Used Volume");
             HangarGUI.UsedVolumeLabel(UsedVolume, UsedVolumeFrac);
             //hangar contents
+            if(highlighted_content != null)
+                DrawSpawnRotationControls(highlighted_content);
             var vessels = Storage.GetVessels();
             vessels.Sort((a, b) => a.name.CompareTo(b.name));
             constructs_scroll = GUILayout.BeginScrollView(constructs_scroll, GUILayout.Height(200), GUILayout.Width(window_width));
@@ -143,14 +149,14 @@ namespace AtHangar
                 if(HangarGUI.PackedVesselLabel(pv, pv == highlighted_content? Styles.white : Styles.label))
                 {
                     if(highlighted_content != pv)
-                        SetHighlightedContent(pv, true);
+                        SetHighlightedContent(pv, ContentState.Fits);
                     else
                         SetHighlightedContent(null);
                 }
                 if(GUILayout.Button("+1", Styles.open_button, GUILayout.Width(25)))
                 {
                     if(pv is PackedConstruct pc)
-                        try_store_vessel(pc.Clone());
+                        try_store_packed_vessel(pc.Clone(), false);
                 }
                 if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
                 {
@@ -175,12 +181,15 @@ namespace AtHangar
                     if(HangarGUI.PackedVesselLabel(pc, pc == highlighted_content? Styles.white : Styles.label))
                     {
                         if(highlighted_content != pc)
-                            SetHighlightedContent(pc, false);
+                            SetHighlightedContent(pc, ContentState.DoesntFit);
                         else
                             SetHighlightedContent(null);
                     }
                     if(GUILayout.Button("^", Styles.open_button, GUILayout.Width(25))) 
-                    { if(try_store_vessel(pc.Clone())) Storage.RemoveUnfit(pc); }
+                    { 
+                        if(try_store_packed_vessel(pc.Clone(), false)) 
+                            Storage.RemoveUnfit(pc); 
+                    }
                     if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
                     {
                         if(pc == highlighted_content)
@@ -195,7 +204,7 @@ namespace AtHangar
             //common buttons
             if(GUILayout.Button("Clear", Styles.danger_button, GUILayout.ExpandWidth(true)))
             {
-                Storage.ClearConstructs();
+                Storage.ClearVessels();
                 SetHighlightedContent(null);
             }
             if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
@@ -206,6 +215,41 @@ namespace AtHangar
             }
             GUILayout.EndVertical();
             GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
+        }
+
+        static readonly GUIContent opt_button = new GUIContent("OPT", "Set optimal orientation");
+        public void DrawSpawnRotationControls(PackedVessel content)
+        {
+            GUILayout.BeginVertical();
+            GUILayout.Label("Change launch orientation", Styles.boxed_label, GUILayout.ExpandWidth(true));
+            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical();
+            if(GUILayout.Button("X+", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 0, true);
+            if(GUILayout.Button("X-", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 0, false);
+            GUILayout.EndVertical();
+            GUILayout.BeginVertical();
+            if(GUILayout.Button("Y+", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 1, true);
+            if(GUILayout.Button("Y-", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 1, false);
+            GUILayout.EndVertical();
+            GUILayout.BeginVertical();
+            if(GUILayout.Button("Z+", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 2, true);
+            if(GUILayout.Button("Z-", Styles.active_button, GUILayout.ExpandWidth(true)))
+                StepChangeSpawnRotation(content, 2, false);
+            GUILayout.EndVertical();
+            if(HighLogic.LoadedSceneIsEditor)
+            {
+                GUILayout.BeginVertical();
+                if(GUILayout.Button(opt_button, Styles.good_button, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
+                    SetSpawnRotation(content, spawn_space_manager.GetOptimalRotation(content.size).eulerAngles);
+                GUILayout.EndVertical();
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
         }
 
         public void OnGUI() 

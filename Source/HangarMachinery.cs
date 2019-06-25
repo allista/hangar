@@ -25,6 +25,7 @@ namespace AtHangar
         [KSPField] public bool NoCrewTransfers;
         [KSPField] public bool NoResourceTransfers;
         [KSPField] public bool NoGUI;
+        [KSPField] public bool PayloadFixedInFlight;
         //vessel spawning
         [KSPField] public Vector3 LaunchVelocity = Vector3.zero;
         [KSPField(isPersistant = true)] public bool LaunchWithPunch;
@@ -62,6 +63,7 @@ namespace AtHangar
         #region Machinery
         public Metric PartMetric { get; private set; }
 
+        protected virtual SpawnSpaceManager spawn_space_manager => Storage?.SpawnManager;
         protected VesselSpawner vessel_spawner;
         protected PackedVessel spawning_vessel;
         bool spawning_vessel_on_rails;
@@ -344,7 +346,7 @@ namespace AtHangar
         /// Checks if a vessel can be stored in the hangar right now.
         /// </summary>
         /// <param name="vsl">A vessel to check</param>
-        bool hangar_is_ready(Vessel vsl)
+        protected virtual bool hangar_is_ready(Vessel vsl)
         {
             //always check relative velocity and acceleration
             Vector3 rv = vessel.GetObtVelocity() - vsl.GetObtVelocity();
@@ -362,29 +364,87 @@ namespace AtHangar
             return true;
         }
 
-        protected virtual bool try_store_vessel(PackedVessel v)
-        { return Storage.TryStoreVessel(v); }
-
-        StoredVessel try_store_vessel(Vessel vsl)
+        /// <summary>
+        /// Chech if a Vessel can be stored in flight in using this hangar.
+        /// </summary>
+        /// <param name="vsl">Vessel.</param>
+        protected virtual bool can_store_vessel(Vessel vsl)
         {
             //check vessel crew
             var vsl_crew = vsl.GetCrewCount();
             if(NoCrewTransfers && vsl_crew > 0)
             {
                 Utils.Message("Crew cannot enter through this hangar. Leave your ship before docking.");
-                return null;
+                return false;
             }
             if(vsl_crew > vessel.GetCrewCapacity() - vessel.GetCrewCount())
             {
                 Utils.Message("Not enough space for the crew of a docking vessel");
-                return null;
+                return false;
             }
-            //check vessel metrics
-            var sv = new StoredVessel(vsl);
-            return try_store_vessel(sv) ? sv : null;
+            return true;
         }
 
+        /// <summary>
+        /// Check if a PackedVessel can be stored in flight or in editor using this hangar.
+        /// Use this to implement different logic for in-flight and in-editor vessel storing.
+        /// </summary>
+        /// <param name="vsl">Vessel.</param>
+        /// <param name="in_flight">If set to <c>true</c>, the PackedVessel is stored in flight.</param>
+        protected virtual bool can_store_packed_vessel(PackedVessel vsl, bool in_flight) => true;
+
+        /// <summary>
+        /// Try to store a PackedVessel in flight or in editor using this hangar.
+        /// Use this to implement different logic for in-flight and in-editor vessel storing.
+        /// </summary>
+        /// <param name="vsl">Vessel.</param>
+        /// <param name="in_flight">If set to <c>true</c>, the PackedVessel is stored in flight.</param>
+        protected virtual bool try_store_packed_vessel(PackedVessel vsl, bool in_flight)
         {
+            if(!can_store_packed_vessel(vsl, in_flight))
+                return false;
+            return in_flight
+                ? Storage.TryStoreVessel(vsl, false, false)
+                : Storage.TryStoreVesselInEditor(vsl);
+        }
+
+        static int snap_angle(float a)
+        {
+            var a90 = Mathf.RoundToInt(a / 90);
+            if(a90 > 0)
+                a90 = a90 % 4;
+            else
+                a90 = 4 - (-a90 % 4);
+            if(a90 == 4)
+                a90 = 0;
+            return a90 * 90;
+        }
+
+        static Vector3 snap_vector3(Vector3 vec) =>
+        new Vector3(snap_angle(vec.x), snap_angle(vec.y), snap_angle(vec.z));
+
+        /// <summary>
+        /// Try to store a Vessel in flight.
+        /// </summary>
+        /// <returns>The corresponding StoredVessel or null.</returns>
+        /// <param name="vsl">Vessel.</param>
+        StoredVessel try_store_vessel(Vessel vsl)
+        {
+            if(can_store_vessel(vsl))
+            {
+                //check vessel metrics
+                var sv = new StoredVessel(vsl)
+                {
+                    SpawnRotation = snap_vector3(spawn_space_manager.GetSpawnRotation(vsl.vesselTransform).eulerAngles)
+                };
+                if(try_store_packed_vessel(sv, true))
+                {
+                    SetHighlightedContent(null);
+                    return sv;
+                }
+                HighlightContentTemporary(sv, 5, ContentState.DoesntFit);
+            }
+            return null;
         }
 
         /// <summary>
@@ -423,9 +483,13 @@ namespace AtHangar
             Utils.Message("\"{0}\" has been docked inside the hangar", stored_vessel.name);
         }
 
+        /// <summary>
+        /// Check if the hangar's internal space is occupied in a way that prevents vessel spawning.
+        /// </summary>
         protected virtual bool hangar_is_occupied() =>
         !(Triggers.TrueForAll(t => t.Empty)
-            && docks_checklist.TrueForAll(d => d.vesselInfo == null));
+            && docks_checklist.TrueForAll(d => d.vesselInfo == null)
+            && spawn_space_manager.SpawnSpaceEmpty);
 
         protected virtual void on_trigger(Part p)
         {
@@ -452,13 +516,6 @@ namespace AtHangar
             vsl.Parts.ForEach(p => p.SendEvent("onLaunchedFromHangar", data));
         }
 
-        public Quaternion? GetSpawnRotation(PackedVessel vsl)
-        {
-            if(vsl.SpawnRotation.IsZero())
-                return null;
-            return Quaternion.Euler(vsl.SpawnRotation);
-        }
-
         protected virtual void on_part_die(Part p)
         {
             if(p == part && vessel_spawner.LaunchInProgress)
@@ -467,71 +524,49 @@ namespace AtHangar
 
         public void SetSpawnRotation(PackedVessel vsl, Vector3 spawn_rotation)
         {
+            if(HighLogic.LoadedSceneIsFlight && PayloadFixedInFlight)
+                return;
             var old_rotation = vsl.SpawnRotation;
             vsl.SpawnRotation = spawn_rotation;
-            var fits = Storage.SpawnManager.MetricFits(vsl.metric, GetSpawnRotation(vsl));
-            if(!fits)
+            var fits = spawn_space_manager.MetricFits(vsl.metric, vsl.GetSpawnRotation());
+            if(HighLogic.LoadedSceneIsFlight)
             {
-                vsl.SpawnRotation = old_rotation;
-                Utils.Message("Cannot rotate the vessel that way inside the hangar");
+                if(!fits)
+                {
+                    vsl.SpawnRotation = old_rotation;
+                    Utils.Message("Cannot rotate the vessel that way inside the hangar");
+                }
+                HighlightContentTemporary(vsl, 5);
             }
-            HighlightContentTemporary(vsl, 5, true);
+            else
+            {
+                if(vsl is PackedConstruct pc)
+                {
+                    if(fits)
+                    {
+                        if(Storage.RemoveUnfit(pc))
+                            Storage.TryStoreVessel(pc, false, false);
+                    }
+                    else
+                    {
+                        if(Storage.RemoveVessel(pc))
+                            Storage.AddUnfit(pc);
+                    }
+                }
+                HighlightContentTemporary(vsl, 5, fits ? ContentState.Fits : ContentState.DoesntFit);
+            }
         }
 
         public void StepChangeSpawnRotation(PackedVessel vsl, int idx, bool clockwise)
         {
-            var val = vsl.SpawnRotation[idx];
-            if(clockwise)
-                val = (val + 90) % 360;
-            else
-            {
-                val = val - 90;
-                if(val < 0)
-                {
-                    if(val <= -90)
-                        val = 270;
-                    else
-                        val = 0;
-                }
-            }
-            var new_rotation = vsl.SpawnRotation;
-            new_rotation[idx] = val;
-            SetSpawnRotation(vsl, new_rotation);
+            var rotation = vsl.GetSpawnRotation() ?? Quaternion.identity;
+            var axis = Vector3.zero;
+            axis[idx] = 1;
+            SetSpawnRotation(vsl, snap_vector3((Quaternion.AngleAxis(90, axis) * rotation).eulerAngles));
         }
 
-        public void DrawSpawnRotationControls(PackedVessel content)
-        {
-            GUILayout.BeginVertical();
-            GUILayout.Label("Change launch orientation", Styles.boxed_label, GUILayout.ExpandWidth(true));
-            GUILayout.BeginHorizontal();
-            GUILayout.BeginVertical();
-            if(GUILayout.Button("X+", Styles.active_button, GUILayout.ExpandWidth(true)))
-                StepChangeSpawnRotation(content, 0, true);
-            if(GUILayout.Button("X-", Styles.active_button, GUILayout.ExpandWidth(true)))
-                StepChangeSpawnRotation(content, 0, false);
-            GUILayout.EndVertical();
-            GUILayout.BeginVertical();
-            if(GUILayout.Button("Y+", Styles.active_button, GUILayout.ExpandWidth(true)))
-                StepChangeSpawnRotation(content, 1, true);
-            if(GUILayout.Button("Y-", Styles.active_button, GUILayout.ExpandWidth(true)))
-                StepChangeSpawnRotation(content, 1, false);
-            GUILayout.EndVertical();
-            GUILayout.BeginVertical();
-            if(GUILayout.Button("Z+", Styles.active_button, GUILayout.ExpandWidth(true)))
-                StepChangeSpawnRotation(content, 2, true);
-            if(GUILayout.Button("Z-", Styles.active_button, GUILayout.ExpandWidth(true)))
-                StepChangeSpawnRotation(content, 2, false);
-            GUILayout.EndVertical();
-            GUILayout.BeginVertical();
-            if(GUILayout.Button("Reset", Styles.active_button, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
-                SetSpawnRotation(content, Vector3.zero);
-            GUILayout.EndVertical();
-            GUILayout.EndHorizontal();
-            GUILayout.EndVertical();
-        }
-
-        protected abstract Transform get_spawn_transform(PackedVessel pv, out Vector3 spawn_offset);
-        public abstract Transform GetSpawnTransform();
+        protected virtual Transform get_spawn_transform(PackedVessel pv, out Vector3 spawn_offset) =>
+        spawn_space_manager.GetSpawnTransform(pv.metric, out spawn_offset, pv.GetSpawnRotation());
 
         IEnumerator<YieldInstruction> launch_vessel(PackedVessel vsl)
         {
@@ -646,7 +681,7 @@ namespace AtHangar
                 Utils.Message("Cannot launch a vessel when something is inside the docking space");
                 return false;
             }
-            if(!Storage.SpawnManager.MetricFits(v.metric, GetSpawnRotation(v)))
+            if(!spawn_space_manager.MetricFits(v.metric, v.GetSpawnRotation()))
             {
                 Utils.Message("Cannot launch in this orientation");
                 return false;

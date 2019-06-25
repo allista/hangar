@@ -18,14 +18,16 @@ namespace AtHangar
             return info;
         }
 
-        public override bool TryStoreVessel(PackedVessel v)
+        public override bool TryStoreVessel(PackedVessel vsl,
+                                            bool in_optimal_orientation,
+                                            bool update_vessel_orientation)
         {
             if(VesselsCount > 0)
             {
                 Utils.Message("The storage is already occupied");
                 return false;
             }
-            return base.TryStoreVessel(v);
+            return base.TryStoreVessel(vsl, in_optimal_orientation, update_vessel_orientation);
         }
     }
 
@@ -38,14 +40,16 @@ namespace AtHangar
             return info;
         }
 
-        public override bool TryStoreVessel(PackedVessel v)
+        public override bool TryStoreVessel(PackedVessel vsl,
+                                            bool in_optimal_orientation,
+                                            bool update_vessel_orientation)
         {
-            if(!(v is PackedConstruct))
+            if(!(vsl is PackedConstruct))
             {
                 Utils.Message("A vessel can be fixed inside this storage only during construction.");
                 return false;
             }
-            return base.TryStoreVessel(v);
+            return base.TryStoreVessel(vsl, in_optimal_orientation, update_vessel_orientation);
         }
     }
 }

@@ -13,19 +13,6 @@ namespace AtHangar
 {
     public class Hangar : HangarMachinery
     {
-        public override string GetInfo()
-        {
-            var info = base.GetInfo();
-            var storage = part.Modules.GetModule<HangarStorage>();
-            if(storage != null)
-            {
-                info += storage.AutoPositionVessel ?
-                    "Free launch positioning\n" :
-                    "Strict launch positioning\n";
-            }
-            return info;
-        }
-
         protected override List<HangarPassage> get_connected_passages() => 
         Storage?.ConnectedPassages();
 
@@ -39,15 +26,6 @@ namespace AtHangar
                 return;
             }
         }
-
-        protected override bool hangar_is_occupied() =>
-        base.hangar_is_occupied() || !Storage.SpawnManager.SpawnSpaceEmpty;
-
-        protected override Transform get_spawn_transform(PackedVessel pv, out Vector3 spawn_offset) => 
-        Storage.SpawnManager.GetSpawnTransform(pv.metric, out spawn_offset, GetSpawnRotation(pv));
-
-        public override Transform GetSpawnTransform() => 
-        Storage.SpawnManager.AutoPositionVessel ? null : Storage.SpawnManager.GetSpawnTransform();
 
 #if DEBUG
         [KSPEvent(guiActive = true, guiName = "Check Airlock", active = true)]

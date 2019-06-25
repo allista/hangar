@@ -18,15 +18,7 @@ namespace AtHangar
         [KSPField] public bool AutoPositionVessel;
         [KSPField] public Vector3 SpawnOffset = Vector3.up;
         public SpawnSpaceManager SpawnManager { get; protected set; }
-
-        public override string GetInfo()
-        {
-            var info = base.GetInfo();
-            info += AutoPositionVessel ?
-                "Free launch positioning\n" :
-                "Strict launch positioning\n";
-            return info;
-        }
+        protected override SpawnSpaceManager spawn_space_manager => SpawnManager;
 
         protected override void early_setup(StartState state)
         {
@@ -35,23 +27,28 @@ namespace AtHangar
             SpawnManager.Load(ModuleConfig);
             SpawnManager.Init(part);
             SpawnManager.SetupSensor();
-            if(Storage != null)
-                Storage.FitConstraint = pv => SpawnManager.MetricFits(pv.metric);
         }
 
-        protected override bool hangar_is_occupied() =>
-        base.hangar_is_occupied() || !SpawnManager.SpawnSpaceEmpty;
-
-        protected override Transform get_spawn_transform(PackedVessel pv, out Vector3 spawn_offset) => 
-        SpawnManager.GetSpawnTransform(pv.metric, out spawn_offset, GetSpawnRotation(pv));
-
-        public override Transform GetSpawnTransform() => 
-        SpawnManager.AutoPositionVessel ? null : SpawnManager.GetSpawnTransform();
+        protected override bool can_store_packed_vessel(PackedVessel vsl, bool in_flight)
+        {
+            if(!base.can_store_packed_vessel(vsl, in_flight))
+                return false;
+            Quaternion? rotation = AutoPositionVessel && !in_flight
+                ? SpawnManager.GetOptimalRotation(vsl.size)
+                : vsl.GetSpawnRotation();
+            if(!SpawnManager.MetricFits(vsl.metric, rotation))
+            {
+                Utils.Message(5, "Insufficient vessel clearance in hangar entrance\n" +
+                                 "\"{0}\" cannot be stored", vsl.name);
+                return false;
+            }
+            return true;
+        }
 
         protected override bool can_restore(PackedVessel v)
         {
             if(v == null || !base.can_restore(v)) return false;
-            if(!SpawnManager.MetricFits(v.metric))
+            if(!SpawnManager.MetricFits(v.metric, v.GetSpawnRotation()))
             {
                 Utils.Message(6, "Vessel clearance is insufficient for safe launch.\n\n" +
                               "\"{0}\" cannot be launched", v.name);
@@ -109,16 +106,16 @@ namespace AtHangar
             entrance = part.GetPassage();
         }
 
-        protected override bool try_store_vessel(PackedVessel v)
+        protected override bool try_store_packed_vessel(PackedVessel vsl, bool in_flight)
         {
-            if(!entrance.CanTransferTo(v, Storage))
+            if(!entrance.CanTransferTo(vsl, Storage))
             {
                 Utils.Message(8, "There's no room in the hangar for this vessel,\n" +
                               "OR vessel clearance is insufficient for safe docking.\n\n" +
-                              "\"{0}\" cannot be stored", v.name);
+                              "\"{0}\" cannot be stored", vsl.name);
                 return false;
             }
-            Storage.StoreVessel(v);
+            Storage.StoreVessel(vsl);
             return true;
         }
     }

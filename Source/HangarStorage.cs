@@ -112,26 +112,13 @@ namespace AtHangar
             build_storage_checklist();
         }
 
-        protected virtual void update_metrics()
-        {
-            PartMetric = new Metric(part);
-            SpawnManager.UpdateMetric();
-        }
 
-        bool VesselFits(PackedVessel pv)
-        {
-            if(pv == null || !SpawnManager.MetricFits(pv.metric)) return false;
-            var constraints = FitConstraint.GetInvocationList();
-            for(int i = 0, len = constraints.Length; i < len; i++)
-            {
-                if(constraints[i] is PackedVesselConstraint cons && !cons(pv)) return false;
-            }
-            return true;
-        }
+        bool try_pack_construct(PackedVessel pv) =>
+        VesselFits(pv, AutoPositionVessel) && stored_vessels.TryAdd(pv);
 
         void try_repack_construct(PackedVessel pv)
         {
-            if(!VesselFits(pv) || !stored_vessels.TryAdd(pv))
+            if(!try_pack_construct(pv))
             {
                 if(pv is PackedConstruct pc)
                 {
@@ -143,11 +130,17 @@ namespace AtHangar
 
         void try_pack_unfit_construct(PackedConstruct pc)
         {
-            if(VesselFits(pc) && stored_vessels.TryAdd(pc))
+            if(try_pack_construct(pc))
             {
                 unfit_constructs.Remove(pc);
                 OnVesselStored(pc);
             }
+        }
+
+        protected virtual void update_metrics()
+        {
+            PartMetric = new Metric(part);
+            SpawnManager.UpdateMetric();
         }
 
         public override void Setup(bool reset = false)
@@ -161,14 +154,14 @@ namespace AtHangar
             hangar_v = Utils.formatVolume(SpawnManager.SpaceMetric.volume);
             hangar_d = Utils.formatDimensions(SpawnManager.SpaceMetric.size);
             if(reset)
-            {   //if resetting, try to repack vessels on resize
+            {   //if resetting, try to repack vessels
                 var stored = stored_vessels.Values;
                 stored_vessels.Clear();
                 stored.ForEach(try_repack_construct);
                 if(stored.Count > stored_vessels.Count)
                 {
                     var dN = stored.Count - stored_vessels.Count;
-                    Utils.Message("The storage became too small. {0} vessels {1} removed",
+                    Utils.Message("The storage became too small. {0} vessel(s) {1} removed",
                         dN, dN > 1 ? "were" : "was");
                 }
                 else if(unfit_constructs.Count > 0)
@@ -213,7 +206,7 @@ namespace AtHangar
 
         public int UnfitCount => unfit_constructs.Count;
         public List<PackedConstruct> UnfitConstucts => unfit_constructs.ToList();
-        public void RemoveUnfit(PackedConstruct pc) => unfit_constructs.Remove(pc);
+        public bool RemoveUnfit(PackedConstruct pc) => unfit_constructs.Remove(pc);
         public void AddUnfit(PackedConstruct pc) => unfit_constructs.Add(pc);
 
         public void UpdateParams()
@@ -222,7 +215,7 @@ namespace AtHangar
             set_part_params();
         }
 
-        public void ClearConstructs()
+        public void ClearVessels()
         {
             unfit_constructs.Clear();
             stored_vessels.Clear();
@@ -233,7 +226,7 @@ namespace AtHangar
 
         #region Logistics
         public override bool CanHold(PackedVessel vsl) =>
-        VesselFits(vsl) && stored_vessels.CanAdd(vsl);
+        VesselFits(vsl, true) && stored_vessels.CanAdd(vsl);
 
         public bool TryTransferTo(PackedVessel vsl, HangarStorage other)
         {
@@ -255,6 +248,27 @@ namespace AtHangar
         #endregion
 
         #region Storage
+        public bool VesselFits(PackedVessel pv, bool in_optimal_orientation)
+        {
+            if(pv != null)
+            {
+                Quaternion? rotation = in_optimal_orientation
+                    ? SpawnManager.GetOptimalRotation(pv.size)
+                    : pv.GetSpawnRotation();
+                if(SpawnManager.MetricFits(pv.metric, rotation))
+                {
+                    var constraints = FitConstraint.GetInvocationList();
+                    for(int i = 0, len = constraints.Length; i < len; i++)
+                    {
+                        if(constraints[i] is PackedVesselConstraint cons && !cons(pv))
+                            return false;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void StoreVessel(PackedVessel vsl)
         {
             stored_vessels.ForceAdd(vsl);
@@ -275,13 +289,17 @@ namespace AtHangar
             return false;
         }
 
-        public virtual bool TryStoreVessel(PackedVessel vsl)
+        public virtual bool TryStoreVessel(PackedVessel vsl,
+                                           bool in_optimal_orientation,
+                                           bool update_vessel_orientation)
         {
             bool stored = false;
-            if(VesselFits(vsl))
+            if(VesselFits(vsl, in_optimal_orientation))
             {
                 if(stored_vessels.TryAdd(vsl))
                 {
+                    if(in_optimal_orientation && update_vessel_orientation)
+                        vsl.SpawnRotation = SpawnManager.GetOptimalRotation(vsl.size).eulerAngles;
                     OnVesselStored(vsl);
                     set_part_params();
                     stored = true;
@@ -299,6 +317,9 @@ namespace AtHangar
             }
             return stored;
         }
+
+        public bool TryStoreVesselInEditor(PackedVessel vsl) => 
+        TryStoreVessel(vsl, AutoPositionVessel, AutoPositionVessel);
 
         public bool Contains(PackedVessel item) => stored_vessels.Contains(item);
 
