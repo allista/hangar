@@ -140,7 +140,7 @@ namespace AtHangar
             if(highlighted_content != null)
                 DrawSpawnRotationControls(highlighted_content);
             var vessels = Storage.GetVessels();
-            vessels.Sort((a, b) => a.name.CompareTo(b.name));
+            vessels.Sort((a, b) => string.Compare(a.name, b.name, System.StringComparison.CurrentCulture));
             constructs_scroll = GUILayout.BeginScrollView(constructs_scroll, GUILayout.Height(200), GUILayout.Width(window_width));
             GUILayout.BeginVertical();
             foreach(PackedVessel pv in vessels)
