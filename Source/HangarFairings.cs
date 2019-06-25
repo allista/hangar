@@ -483,6 +483,7 @@ namespace AtHangar
             if(gates_state != AnimatorState.Opened &&
                hangar_gates != null && !hangar_gates.Playing) yield break;
             //set the flag and wait for the doors to open
+            Events[nameof(ShowPayload)].active = false;
             launch_in_progress = true;
             if(hangar_gates != null)
                 while(hangar_gates.Playing)
@@ -491,10 +492,25 @@ namespace AtHangar
             Activate();
             //try to restore vessel and check the result
             if(!TryRestoreVessel(Storage.GetVessels()[0]))
+            {
                 //if jettisoning has failed, deactivate the part
                 part.deactivate();
+                Events[nameof(ShowPayload)].active = true;
+            }
             //otherwise on resume the part is activated automatically
             launch_in_progress = false;
+        }
+
+        [KSPEvent(guiActive = true, guiName = "Show Payload", guiActiveUnfocused = true, externalToEVAOnly = false, unfocusedRange = 300)]
+        public void ShowPayload()
+        {
+            if(Storage.VesselsCount > 0)
+            {
+                if(highlighted_content == null)
+                    HighlightContentTemporary(Storage.GetVessels()[0], 5, ContentState.Fits);
+                else
+                    SetHighlightedContent(null);
+            }
         }
 
         [KSPEvent(guiActive = true, guiName = "Jettison Payload", guiActiveUnfocused = true, externalToEVAOnly = true, unfocusedRange = 4)]
