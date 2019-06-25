@@ -18,19 +18,19 @@ namespace AtHangar
     public abstract class PackedVessel : IConfigNode
     {
         public Guid id;
-        public Metric metric; 
-        public string  name     { get; protected set; }
-        public Vector3 size     { get { return metric.size; } }
-        public Vector3 extents  { get { return metric.extents; } }
-        public float   volume   { get { return metric.volume; } }
-        public float   mass     { get { return metric.mass; } set { metric.mass = value; } }
-        public float   cost     { get { return metric.cost; } set { metric.cost = value; } }
-        public Vector3 CoG      { get { return metric.center; } } //center of geometry
+        public Metric metric;
+        public string name { get; protected set; }
+        public Vector3 size => metric.size;
+        public Vector3 extents => metric.extents;
+        public float volume => metric.volume;
+        public float mass { get => metric.mass; set => metric.mass = value; }
+        public float cost { get => metric.cost; set => metric.cost = value; }
+        public Vector3 CoG => metric.center;  //center of geometry
         public Vector3 SpawnRotation = Vector3.zero;
 
-        public VesselResources  resources { get; protected set; }
+        public VesselResources resources { get; protected set; }
 
-        public int CrewCapacity { get { return metric.CrewCapacity; } }
+        public int CrewCapacity => metric.CrewCapacity;
         public List<ProtoCrewMember> crew { get; protected set; } = new List<ProtoCrewMember>();
 
         protected abstract void OnSave(ConfigNode node);
@@ -75,12 +75,12 @@ namespace AtHangar
         Dictionary<Guid, V> stored_vessels = new Dictionary<Guid, V>();
         public Metric space;
 
-        public bool  UsePacking = true;
+        public bool UsePacking = true;
         public float VesselsMass;
         public float VesselsCost;
         public float UsedVolume;
 
-        public VesselsPack() {}
+        public VesselsPack() { }
         public VesselsPack(bool use_packing) { UsePacking = use_packing; }
         public VesselsPack(Metric space) { this.space = space; }
 
@@ -103,15 +103,15 @@ namespace AtHangar
             Vector3 optimal = s; float delta = 0f;
             foreach(Vector3 v in vs)
             {
-                Vector3 d = box_size-v; //space remainder
+                Vector3 d = box_size - v; //space remainder
                 if(d.x < 0 || d.y < 0 || d.z < 0) continue; //doesn't fit in one of the dimensions
-                float[] d_values = {d.x, d.y, d.z}; 
+                float[] d_values = { d.x, d.y, d.z };
                 float max_d = d_values.Max();
                 if(delta < max_d) { delta = max_d; optimal = v; }
             }
             return optimal;
         }
-        
+
         bool add_vessel(Node n, Vector3 s, Guid id)
         {
             if(n.first != null)
@@ -127,7 +127,7 @@ namespace AtHangar
                     return true;
                 }
                 //clone the node
-                n.first  = new Node(n);
+                n.first = new Node(n);
                 n.second = new Node(n);
                 //rotate the vessel if needed
                 s = optimal_rotation(n.size, s);
@@ -136,20 +136,20 @@ namespace AtHangar
                 //partition node space
                 if(d.x > d.y && d.x > d.z)
                 {
-                    n.first.size.x   = s.x;
-                    n.second.pos.x  += s.x;
+                    n.first.size.x = s.x;
+                    n.second.pos.x += s.x;
                     n.second.size.x -= s.x;
                 }
                 else if(d.y > d.x && d.y > d.z)
                 {
-                    n.first.size.y   = s.y;
-                    n.second.pos.y  += s.y;
+                    n.first.size.y = s.y;
+                    n.second.pos.y += s.y;
                     n.second.size.y -= s.y;
                 }
                 else
                 {
-                    n.first.size.z   = s.z;
-                    n.second.pos.z  += s.z;
+                    n.first.size.z = s.z;
+                    n.second.pos.z += s.z;
                     n.second.size.z -= s.z;
                 }
                 //fit in the first subnode
@@ -158,7 +158,7 @@ namespace AtHangar
         }
 
         static void sort_vessels(List<V> vessels)
-        { vessels.Sort((x,y) => -1*x.metric.volume.CompareTo(y.metric.volume)); } //Descending sort order
+        { vessels.Sort((x, y) => -1 * x.metric.volume.CompareTo(y.metric.volume)); } //Descending sort order
 
         bool pack(List<V> vessels)
         {
@@ -173,27 +173,27 @@ namespace AtHangar
         {
             sort_vessels(vessels);
             var root = new Node(space);
-            var rem  = new List<V>();
-            foreach(V vsl in vessels) 
+            var rem = new List<V>();
+            foreach(V vsl in vessels)
             { if(!add_vessel(root, vsl.size, vsl.id)) rem.Add(vsl); }
             return rem;
         }
         #endregion
 
         #region Main Interface
-        void change_params(V vsl, int k=1)
+        void change_params(V vsl, int k = 1)
         {
-            VesselsMass += k*vsl.mass;
-            VesselsCost += k*vsl.cost;
-            UsedVolume  += k*vsl.volume;
-            if(UsedVolume  < 0) UsedVolume  = 0;
+            VesselsMass += k * vsl.mass;
+            VesselsCost += k * vsl.cost;
+            UsedVolume += k * vsl.volume;
+            if(UsedVolume < 0) UsedVolume = 0;
             if(VesselsMass < 0) VesselsMass = 0;
             if(VesselsCost < 0) VesselsCost = 0;
         }
 
         public void UpdateParams()
         {
-            VesselsMass = 0; VesselsCost = 0; UsedVolume  = 0;
+            VesselsMass = 0; VesselsCost = 0; UsedVolume = 0;
             foreach(V vsl in stored_vessels.Values)
                 change_params(vsl);
         }
@@ -206,7 +206,7 @@ namespace AtHangar
                 vessels.Add(vsl);
                 return pack(vessels);
             }
-            return space.volume-UsedVolume-vsl.volume >= 0;
+            return space.volume - UsedVolume - vsl.volume >= 0;
         }
 
         public bool TryAdd(V vsl)
@@ -217,8 +217,8 @@ namespace AtHangar
             return true;
         }
 
-        public void ForceAdd(V vsl) 
-        { 
+        public void ForceAdd(V vsl)
+        {
             stored_vessels.Add(vsl.id, vsl);
             change_params(vsl);
         }
@@ -229,23 +229,23 @@ namespace AtHangar
             vessels.ForEach(ForceAdd);
         }
 
-        public bool Remove(V vsl) 
-        { 
+        public bool Remove(V vsl)
+        {
             if(stored_vessels.Remove(vsl.id))
             { change_params(vsl, -1); return true; }
             return false;
         }
 
-        public void Clear() 
-        { 
+        public void Clear()
+        {
             stored_vessels.Clear();
             VesselsMass = 0;
             VesselsCost = 0;
-            UsedVolume  = 0;
+            UsedVolume = 0;
         }
-        
-        public int Count { get { return stored_vessels.Count; } }
-        public List<V> Values { get { return new List<V>(stored_vessels.Values); } }
+
+        public int Count => stored_vessels.Count;
+        public List<V> Values => new List<V>(stored_vessels.Values);
         public bool Contains(V vsl) { return vsl != null && stored_vessels.ContainsKey(vsl.id); }
 
         #region IEnumerable
@@ -260,39 +260,39 @@ namespace AtHangar
         public class Node
         {
             //size, position and stored vessel
-            public Vector3 pos  = Vector3.zero;
+            public Vector3 pos = Vector3.zero;
             public Vector3 size = Vector3.zero;
             public Guid vid = Guid.Empty;
 
             //children
-            public Node first  = null;
+            public Node first = null;
             public Node second = null;
 
-            public Node() {}
+            public Node() { }
             public Node(Vector3 pos, Vector3 size)
             {
-                this.pos  = new Vector3(pos.x, pos.y, pos.z);
+                this.pos = new Vector3(pos.x, pos.y, pos.z);
                 this.size = new Vector3(size.x, size.y, size.z);
             }
             public Node(Metric space) : this(Vector3.zero, space.size) { }
-            public Node(Node n) : this(n.pos, n.size) {}
+            public Node(Node n) : this(n.pos, n.size) { }
 
             //all possible rotations of "s" are considered
-            public static bool operator>(Node n, Vector3 s)
-            { 
+            public static bool operator >(Node n, Vector3 s)
+            {
                 float[] nd = { n.size.x, n.size.y, n.size.z };
                 float[] sd = { s.x, s.y, s.z };
                 Array.Sort(nd); Array.Sort(sd);
-                return nd[0] > sd[0] && nd[1] > sd[1] && nd[2] > sd[2]; 
+                return nd[0] > sd[0] && nd[1] > sd[1] && nd[2] > sd[2];
             }
 
             //all possible rotations of "s" are considered
-            public static bool operator<(Node n, Vector3 s)
-            { 
+            public static bool operator <(Node n, Vector3 s)
+            {
                 float[] nd = { n.size.x, n.size.y, n.size.z };
                 float[] sd = { s.x, s.y, s.z };
                 Array.Sort(nd); Array.Sort(sd);
-                return nd[0] < sd[0] || nd[1] < sd[1] || nd[2] < sd[2]; 
+                return nd[0] < sd[0] || nd[1] < sd[1] || nd[2] < sd[2];
             }
 
 
@@ -302,7 +302,7 @@ namespace AtHangar
             /// </summary>
             /// <param name="s">A vector to which the node is compared</param>
             public bool Matches(Vector3 s)
-            { 
+            {
                 float[] nd = { size.x, size.y, size.z };
                 float[] sd = { s.x, s.y, s.z };
                 Array.Sort(nd); Array.Sort(sd);

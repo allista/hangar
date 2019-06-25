@@ -79,7 +79,7 @@ namespace AtHangar
 
         public List<HangarPassage> ConnectedPassages(PassageNode requesting_node = null)
         {
-            var this_node = requesting_node != null? requesting_node.OtherNode : null;
+            var this_node = requesting_node?.OtherNode;
             var C = new List<HangarPassage>{this};
             foreach(var pn in Nodes.Values)
             {
@@ -97,7 +97,7 @@ namespace AtHangar
         {
             if(!enabled) return false;
             if(this == other) return CanHold(vsl);
-            var this_node = requesting_node != null? requesting_node.OtherNode : null;
+            var this_node = requesting_node?.OtherNode;
             bool can_transfer = false;
             foreach(var pn in Nodes.Values)
             {
@@ -114,7 +114,7 @@ namespace AtHangar
             where ModuleT : PartModule
         {
             if(part.HasModule<ModuleT>()) return part;
-            var this_node = requesting_node != null? requesting_node.OtherNode : null;
+            var this_node = requesting_node?.OtherNode;
             foreach(var pn in Nodes.Values)
             {
                 if(pn == this_node) continue;
@@ -177,7 +177,7 @@ namespace AtHangar
         HangarPassage get_other_passage()
         {
             var other_part = OtherPart;
-            return other_part != null ? other_part.Modules.GetModule<HangarPassage>() : null;
+            return other_part?.Modules.GetModule<HangarPassage>();
         }
 
         public HangarPassage OtherPassage 
@@ -197,7 +197,7 @@ namespace AtHangar
             get 
             {
                 var other_passage = get_other_passage();
-                return other_passage != null ? other_passage.GetNodeByPart(part) : null;
+                return other_passage?.GetNodeByPart(part);
             }
         }
 

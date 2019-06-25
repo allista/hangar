@@ -264,7 +264,9 @@ namespace AtHangar
         }
 
         protected virtual void start_coroutines()
-        { StartCoroutine(delayed_update_connected_storage()); }
+        {
+            StartCoroutine(delayed_update_connected_storage());
+        }
 
         /// <summary>
         /// Sets up internal properties that depend on Storage
