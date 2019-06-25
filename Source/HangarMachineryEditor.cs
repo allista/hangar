@@ -214,7 +214,7 @@ namespace AtHangar
                 editing_content = false;
             }
             GUILayout.EndVertical();
-            GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
+            GUIWindowBase.TooltipsAndDragWindow();
         }
 
         static readonly GUIContent opt_button = new GUIContent("OPT", "Set optimal orientation");
