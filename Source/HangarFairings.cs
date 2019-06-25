@@ -22,6 +22,7 @@ namespace AtHangar
         [KSPField] public Vector3 BaseCoMOffset = Vector3.zero;
         [KSPField] public Vector3 JettisonDirection = Vector3.up;
         [KSPField] public float JettisonForce = 50f;
+        [KSPField] public float JettisonTorque = 5f;
         [KSPField] public double DebrisLifetime = 600;
         [KSPField] public string DecoupleNodes = "";
 
@@ -300,11 +301,15 @@ namespace AtHangar
 
         struct ForceTarget
         {
+            static readonly System.Random rnd = new System.Random();
             public Vector3 pos;
             public Vector3 force;
             public Rigidbody target;
-            public ForceTarget(Rigidbody target, Vector3 force, Vector3 pos)
+            public float add_torque;
+
+            public ForceTarget(Rigidbody target, Vector3 force, Vector3 pos, float add_torque = 0)
             {
+                this.add_torque = add_torque;
                 this.target = target;
                 this.force = force;
                 this.pos = pos;
@@ -314,6 +319,13 @@ namespace AtHangar
             {
                 target.AddForceAtPosition(force, pos, ForceMode.Force);
                 counterpart.AddForceAtPosition(-force, pos, ForceMode.Force);
+                if(add_torque > 0)
+                {
+                    var rnd_torque = new Vector3((float)rnd.NextDouble() - 0.5f,
+                                                 (float)rnd.NextDouble() - 0.5f,
+                                                 (float)rnd.NextDouble() - 0.5f);
+                    target.AddRelativeTorque(rnd_torque * add_torque, ForceMode.VelocityChange);
+                }
             }
         }
 
@@ -351,7 +363,7 @@ namespace AtHangar
                 {
                     var pos = force_target.Rigidbody.worldCenterOfMass;
                     var force = (pos - part.Rigidbody.worldCenterOfMass).normalized * force_target.mass * JettisonForce * 0.5f;
-                    jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos));
+                    jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos, 0));
                 }
                 yield return null;
             }
@@ -363,7 +375,7 @@ namespace AtHangar
                 var d = Debris.SetupOnTransform(part, f, FairingsDensity, FairingsCost, DebrisLifetime);
                 var force = f.TransformDirection(JettisonDirection) * JettisonForce * 0.5f;
                 var pos = d.Rigidbody.worldCenterOfMass;
-                jettison.Add(new ForceTarget(d.Rigidbody, force, pos));
+                jettison.Add(new ForceTarget(d.Rigidbody, force, pos, JettisonTorque));
                 d.SetDetectCollisions(false);
                 d.vessel.IgnoreGForces(10);
                 debris_cost += FairingsCost;
