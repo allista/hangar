@@ -275,7 +275,7 @@ namespace AtHangar
         /// </summary>
         /// <param name="reset">If set to <c>true</c> reset state befor setup.</param>
         public virtual void Setup(bool reset = false)
-        { 
+        {
             PartMetric = new Metric(part);
             if(highlighted_content != null)
                 update_content_hull_mesh();
@@ -504,7 +504,9 @@ namespace AtHangar
         #region Restore
         #region Positioning
         protected virtual IEnumerable<YieldInstruction> before_vessel_launch(PackedVessel vsl) { yield break; }
+
         protected virtual void on_vessel_positioned(Vessel vsl) { }
+
         protected virtual void on_vessel_loaded(Vessel vsl) { }
 
         protected virtual void on_vessel_off_rails(Vessel vsl) => spawning_vessel_on_rails = false;

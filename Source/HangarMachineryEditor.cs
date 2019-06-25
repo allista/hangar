@@ -33,6 +33,7 @@ namespace AtHangar
         ShipConstructLoader construct_loader;
         EditorFacility facility;
 
+
         void highlight_fitted_content(PackedVessel pc)
         {
             if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)

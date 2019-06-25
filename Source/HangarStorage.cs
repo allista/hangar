@@ -126,6 +126,7 @@ namespace AtHangar
                     OnVesselRemoved(pc);
                 }
             }
+
         }
 
         void try_pack_unfit_construct(PackedConstruct pc)
