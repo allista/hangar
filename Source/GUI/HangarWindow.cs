@@ -85,8 +85,7 @@ namespace AtHangar
             //check the vessel
             if(vsl == null) return;
             //build new list
-            foreach(var p in vsl.Parts)
-                hangars.AddRange(p.Modules.OfType<HangarMachinery>().Where(h => h.enabled));
+            vsl.Parts.ForEach(p => hangars.AddRange(p.Modules.OfType<HangarMachinery>().Where(h => h.enabled && !h.NoGUI)));
             if(hangars.Count > 0) 
             {
                 selected_hangar = hangars.Find(h => h.part.flightID == hangar_id);
@@ -470,7 +469,7 @@ namespace AtHangar
         protected override bool can_draw() { return Time.timeSinceLevelLoad > 3 && !vessel_metric.Empty; }
         protected override void draw_gui()
         {
-            if(vessel != null && !vessel.packed && hangars.Count > 0 && selected_hangar.IsControllable && !selected_hangar.NoGUI)
+            if(vessel != null && !vessel.packed && hangars.Count > 0 && selected_hangar.IsControllable)
             {
                 //controls
                 LockControls();
