@@ -22,6 +22,15 @@ namespace AtHangar
         [UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f, sigFigs = 4)]
         public float bottomSize = 1.0f;
 
+        void update_and_brake_struts()
+        {
+            UpdateMesh(); 
+            part.BreakConnectedCompoundParts();
+        }
+        protected override void on_aspect_changed(BaseField field, object value) => update_and_brake_struts();
+        protected virtual void on_top_size_changed(BaseField field, object value) => update_and_brake_struts();
+        protected virtual void on_bottom_size_changed(BaseField field, object value) => update_and_brake_struts();
+
         //module config
         [KSPField] public float AreaCost     = 9f;
         [KSPField] public float AreaDensity  = 2.7f*6e-3f; // 2.7t/m^3 * 1m^2 * 6mm: aluminium sheet 6mm thick
@@ -92,15 +101,10 @@ namespace AtHangar
                 setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
                 setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
                 setup_field(Fields["aspect"], minAspect, maxAspect, aspectStepLarge, aspectStepSmall);
+                Fields["topSize"].uiControlEditor.onFieldChanged = on_top_size_changed;
+                Fields["bottomSize"].uiControlEditor.onFieldChanged = on_bottom_size_changed;
             }
             StartCoroutine(CallbackUtil.WaitUntil(() => passage == null || passage.Ready, UpdateMesh));
-        }
-
-        public void Update() 
-        { 
-            if(!HighLogic.LoadedSceneIsEditor) return;
-            if(old_size != size || unequal(old_aspect, aspect))
-            { UpdateMesh(); part.BreakConnectedCompoundParts(); }
         }
 
         void get_part_components()
