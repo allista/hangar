@@ -34,16 +34,19 @@ namespace AtHangar
         EditorFacility facility;
 
 
-        void highlight_fitted_content(PackedVessel pc)
+        void highlight_content(PackedVessel pc, ContentState state)
         {
-            if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)
-                SetHighlightedContent(highlighted_content, ContentState.Fits);
+            if(HighLogic.LoadedSceneIsEditor)
+                SetHighlightedContent(pc, state);
         }
+        void highlight_content_fit(PackedVessel pc) => highlight_content(pc, ContentState.Fits);
+        void highlight_content_unfit(PackedVessel pc) => highlight_content(pc, ContentState.DoesntFit);
 
-        void highlight_unfitted_content(PackedVessel pc)
+        void disable_highlight() => SetHighlightedContent(null);
+        void disable_highlight(PackedVessel pc)
         {
-            if(pc == highlighted_content && HighLogic.LoadedSceneIsEditor)
-                SetHighlightedContent(highlighted_content, ContentState.DoesntFit);
+            if(pc == highlighted_content)
+                disable_highlight();
         }
 
         public void SetHighlightedContent(PackedVessel pc, ContentState state = ContentState.Remains)
@@ -160,11 +163,7 @@ namespace AtHangar
                         try_store_packed_vessel(pc.Clone(), false);
                 }
                 if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
-                {
-                    if(pv == highlighted_content)
-                        SetHighlightedContent(null);
                     Storage.RemoveVessel(pv);
-                }
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical();
@@ -192,11 +191,7 @@ namespace AtHangar
                             Storage.RemoveUnfit(pc); 
                     }
                     if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(25))) 
-                    {
-                        if(pc == highlighted_content)
-                            SetHighlightedContent(null);
                         Storage.RemoveUnfit(pc);
-                    }
                     GUILayout.EndHorizontal();
                 }
                 GUILayout.EndVertical();
@@ -204,10 +199,7 @@ namespace AtHangar
             }
             //common buttons
             if(GUILayout.Button("Clear", Styles.danger_button, GUILayout.ExpandWidth(true)))
-            {
                 Storage.ClearVessels();
-                SetHighlightedContent(null);
-            }
             if(GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true))) 
             {
                 Utils.LockControls(eLock, false);

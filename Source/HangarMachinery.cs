@@ -35,7 +35,40 @@ namespace AtHangar
         #endregion
 
         #region Managed Storage
-        public HangarStorage Storage { get; protected set; }
+        HangarStorage storage;
+        public HangarStorage Storage
+        {
+            get => storage;
+            protected set
+            {
+                if(storage != value)
+                {
+                    if(storage != null)
+                        on_storage_remove(storage);
+                    if(value != null)
+                        on_storage_add(value);
+                    storage = value;
+                }
+            }
+        }
+
+        protected virtual void on_storage_remove(HangarStorage old_storage)
+        {
+            old_storage.OnVesselStored -= highlight_content_fit;
+            old_storage.OnVesselUnfittedAdded -= highlight_content_unfit;
+            old_storage.OnVesselRemoved -= disable_highlight;
+            old_storage.OnVesselUnfittedRemoved -= disable_highlight;
+            old_storage.OnStorageEmpty -= disable_highlight;
+        }
+
+        protected virtual void on_storage_add(HangarStorage new_storage)
+        {
+            new_storage.OnVesselStored += highlight_content_fit;
+            new_storage.OnVesselUnfittedAdded += highlight_content_unfit;
+            new_storage.OnVesselRemoved += disable_highlight;
+            new_storage.OnVesselUnfittedRemoved += disable_highlight;
+            new_storage.OnStorageEmpty += disable_highlight;
+        }
 
         public virtual Vector3 DockSize => Storage == null ? Vector3.zero : Storage.Size;
         public float Volume => Storage == null ? 0f : Storage.Volume;
@@ -146,11 +179,7 @@ namespace AtHangar
             GameEvents.onVesselWasModified.Remove(update_connected_storage);
             GameEvents.onEditorShipModified.Remove(update_connected_storage);
             GameEvents.onPartDie.Remove(on_part_die);
-            if(Storage != null)
-            {
-                Storage.OnVesselStored -= highlight_fitted_content;
-                Storage.OnVesselRemoved -= highlight_unfitted_content;
-            }
+            Storage = null;
         }
 
         void update_resources()
@@ -285,15 +314,11 @@ namespace AtHangar
         {
             base.OnStart(state);
             early_setup(state);
-            if(Storage == null)
-            {
-                this.EnableModule(false);
-                return;
-            }
-            Storage.OnVesselStored += highlight_fitted_content;
-            Storage.OnVesselRemoved += highlight_unfitted_content;
             Setup();
-            start_coroutines();
+            if(Storage != null)
+                start_coroutines(); 
+            else
+                this.EnableModule(false);
         }
         #endregion
 
@@ -542,22 +567,16 @@ namespace AtHangar
                 }
                 HighlightContentTemporary(vsl, 5);
             }
-            else
+            else if(vsl is PackedConstruct pc)
             {
-                if(vsl is PackedConstruct pc)
+                if(fits)
                 {
-                    if(fits)
-                    {
-                        if(Storage.RemoveUnfit(pc))
-                            Storage.TryStoreVessel(pc, false, false);
-                    }
-                    else
-                    {
-                        if(Storage.RemoveVessel(pc))
-                            Storage.AddUnfit(pc);
-                    }
+                    if(Storage.RemoveUnfit(pc))
+                        Storage.TryStoreVessel(pc, false, false);
                 }
-                HighlightContentTemporary(vsl, 5, fits ? ContentState.Fits : ContentState.DoesntFit);
+                else if(Storage.RemoveVessel(pc))
+                    Storage.AddUnfit(pc);
+                SetHighlightedContent(pc);
             }
         }
 

@@ -23,6 +23,8 @@ namespace AtHangar
 
         public PackedVesselHandler OnVesselStored = delegate { };
         public PackedVesselHandler OnVesselRemoved = delegate { };
+        public PackedVesselHandler OnVesselUnfittedAdded = delegate { };
+        public PackedVesselHandler OnVesselUnfittedRemoved = delegate { };
         public Action OnStorageEmpty = delegate { };
         #endregion
 
@@ -120,11 +122,9 @@ namespace AtHangar
         {
             if(!try_pack_construct(pv))
             {
+                OnVesselRemoved(pv);
                 if(pv is PackedConstruct pc)
-                {
-                    unfit_constructs.Add(pc);
-                    OnVesselRemoved(pc);
-                }
+                    AddUnfit(pc);
             }
 
         }
@@ -133,7 +133,7 @@ namespace AtHangar
         {
             if(try_pack_construct(pc))
             {
-                unfit_constructs.Remove(pc);
+                RemoveUnfit(pc);
                 OnVesselStored(pc);
             }
         }
@@ -207,8 +207,22 @@ namespace AtHangar
 
         public int UnfitCount => unfit_constructs.Count;
         public List<PackedConstruct> UnfitConstucts => unfit_constructs.ToList();
-        public bool RemoveUnfit(PackedConstruct pc) => unfit_constructs.Remove(pc);
-        public void AddUnfit(PackedConstruct pc) => unfit_constructs.Add(pc);
+
+        public void AddUnfit(PackedConstruct pc)
+        {
+            unfit_constructs.Add(pc);
+            OnVesselUnfittedAdded(pc);
+        }
+
+        public bool RemoveUnfit(PackedConstruct pc)
+        {
+            if(unfit_constructs.Remove(pc))
+            {
+                OnVesselUnfittedRemoved(pc);
+                return true;
+            }
+            return false;
+        }
 
         public void UpdateParams()
         {
@@ -242,7 +256,6 @@ namespace AtHangar
                 this.Log("TryTransferTo: trying to remove a PackedVessel that is not present.");
                 return false;
             }
-            OnVesselRemoved(vsl);
             other.StoreVessel(vsl);
             return true;
         }
@@ -313,7 +326,7 @@ namespace AtHangar
                                  "\"{0}\" cannot be stored", vsl.name);
             if(!stored && HighLogic.LoadedSceneIsEditor && vsl is PackedConstruct pc)
             {
-                unfit_constructs.Add(pc);
+                AddUnfit(pc);
                 return true;
             }
             return stored;

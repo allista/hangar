@@ -118,6 +118,26 @@ namespace AtHangar
             }
         }
 
+        protected override void on_storage_add(HangarStorage new_storage)
+        {
+            base.on_storage_add(new_storage);
+            new_storage.OnVesselStored += on_ship_stored;
+            new_storage.OnVesselRemoved += on_ship_removed;
+            new_storage.OnVesselUnfittedAdded += on_ship_stored;
+            new_storage.OnVesselUnfittedRemoved += on_ship_removed;
+            new_storage.OnStorageEmpty += on_storage_empty;
+        }
+
+        protected override void on_storage_remove(HangarStorage old_storage)
+        {
+            base.on_storage_remove(old_storage);
+            old_storage.OnVesselStored -= on_ship_stored;
+            old_storage.OnVesselRemoved -= on_ship_removed;
+            old_storage.OnVesselUnfittedAdded -= on_ship_stored;
+            old_storage.OnVesselUnfittedRemoved -= on_ship_removed;
+            old_storage.OnStorageEmpty -= on_storage_empty;
+        }
+
         protected override void early_setup(StartState state)
         {
             base.early_setup(state);
@@ -167,12 +187,6 @@ namespace AtHangar
             }
             JettisonDirection.Normalize();
             if(vessel != null) vessel.SpawnCrew();
-            if(Storage != null)
-            {
-                Storage.OnVesselStored += on_ship_stored;
-                Storage.OnVesselRemoved += on_ship_removed;
-                Storage.OnStorageEmpty += on_storage_empty;
-            }
         }
 
         public override void OnDestroy()
