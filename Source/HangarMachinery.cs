@@ -154,6 +154,7 @@ namespace AtHangar
         public override void OnAwake()
         {
             base.OnAwake();
+            //content hull mesh
             var obj = new GameObject("ContentHullMesh", typeof(MeshFilter), typeof(MeshRenderer));
             obj.transform.SetParent(gameObject.transform);
             content_hull_mesh = obj.GetComponent<MeshFilter>();
@@ -162,9 +163,22 @@ namespace AtHangar
             content_hull_renderer.material.color = Colors.Good.Alpha(0.25f);
             content_hull_renderer.enabled = true;
             obj.SetActive(false);
+            //content orientation hint mesh
+            obj = new GameObject("ContentOrientationHint", typeof(MeshFilter), typeof(MeshRenderer));
+            obj.transform.SetParent(content_hull_mesh.transform, false);
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localRotation = Quaternion.identity;
+            content_orientation_hint = obj.GetComponent<MeshFilter>();
+            var renderer = obj.GetComponent<MeshRenderer>();
+            renderer.material = Utils.no_z_material;
+            renderer.material.color = Colors.Selected1.Alpha(0.25f);
+            renderer.enabled = true;
+            obj.SetActive(true);
+            //utility components
             hangar_name_editor = gameObject.AddComponent<SimpleTextEntry>();
             hangar_name_editor.Title = "Rename Hangar";
             hangar_name_editor.yesCallback = () => HangarName = hangar_name_editor.Text;
+            //game events
             GameEvents.onVesselWasModified.Add(update_connected_storage);
             GameEvents.onEditorShipModified.Add(update_connected_storage);
             GameEvents.onPartDie.Add(on_part_die);
@@ -174,6 +188,7 @@ namespace AtHangar
         {
             Destroy(hangar_name_editor);
             Destroy(content_hull_mesh.gameObject);
+            Destroy(content_orientation_hint.gameObject);
             if(vessels_window != null) Destroy(vessels_window);
             if(construct_loader != null) Destroy(construct_loader);
             GameEvents.onVesselWasModified.Remove(update_connected_storage);

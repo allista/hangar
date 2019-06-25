@@ -27,6 +27,7 @@ namespace AtHangar
         public enum ContentState { Remains, Fits, DoesntFit };
         MeshRenderer content_hull_renderer;
         MeshFilter content_hull_mesh;
+        MeshFilter content_orientation_hint;
         protected PackedVessel highlighted_content { get; private set; }
         SimpleTextEntry hangar_name_editor;
         VesselTransferWindow vessels_window;
@@ -70,6 +71,31 @@ namespace AtHangar
                 stop_at_time = -1;
         }
 
+        void update_content_orientation_hint(PackedVessel vsl)
+        {
+            var c = vsl.CoG;
+            var e = vsl.extents;
+            var mesh = content_orientation_hint.sharedMesh ?? new Mesh();
+            mesh.vertices = new Vector3[]
+            {
+                c+new Vector3(0, e.y, e.z),
+                c+new Vector3(-e.x/4, 0, e.z),
+                c+new Vector3(e.x/4, 0, e.z),
+                c+new Vector3(0, 0, e.z*0.8f),
+            };
+            mesh.triangles = new int[]
+            {
+                0, 1, 2,
+                0, 2, 3,
+                0, 3, 1,
+                3, 1, 2
+            };
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
+            content_orientation_hint.sharedMesh = mesh;
+        }
+
         void update_content_hull_mesh()
         {
             Vector3 offset;
@@ -78,6 +104,7 @@ namespace AtHangar
             content_hull_mesh.transform.position = spawn_transform.position;
             content_hull_mesh.transform.rotation = spawn_transform.rotation;
             content_hull_mesh.transform.Translate(offset);
+            update_content_orientation_hint(highlighted_content);
             content_hull_mesh.gameObject.SetActive(true);
         }
 
