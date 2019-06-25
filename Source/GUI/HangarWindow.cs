@@ -24,7 +24,6 @@ namespace AtHangar
         enum HighlightState {  None, Enable, Disable }
         //settings
         static HighlightState highlight_hangar, highlight_storage;
-        static bool draw_directions;
 
         //this vessel
         [ConfigOption] Rect InfoWindow;
@@ -406,28 +405,6 @@ namespace AtHangar
                                           Utils.formatVolume(vessel_metric.volume)), GUILayout.ExpandWidth(true));
             GUILayout.Label("Size: "+Utils.formatDimensions(vessel_metric.size), GUILayout.ExpandWidth(true));
             GUILayout.Label(String.Format("Crew Capacity: {0}", vessel_metric.CrewCapacity), GUILayout.ExpandWidth(true));
-            if(HighLogic.LoadedSceneIsEditor)
-            {
-                if(GUILayout.Toggle(draw_directions, "Show Directions")) 
-                {
-                    draw_directions = true;
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("Green", Styles.green);
-                    GUILayout.FlexibleSpace();
-                    GUILayout.Label("Vessel's Forward");
-                    GUILayout.EndHorizontal();
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("Blue", Styles.blue);
-                    GUILayout.FlexibleSpace();
-                    GUILayout.Label("Vessel's Bottom");
-                    GUILayout.EndHorizontal();
-                    GUILayout.Label("If there are hangars in the vessel with strict launch positioning, " +
-                                    "additional sets of arrows show orientation in which a vessel will be launched " +
-                                    "from each of such hangars", Styles.label,
-                                    GUILayout.MaxWidth(InfoWindow.width-40), GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-                }
-                else draw_directions = false;
-            }
             GUILayout.EndVertical();
             TooltipsAndDragWindow();
         }
@@ -507,70 +484,6 @@ namespace AtHangar
             }
             highlight_parts();
         }
-
-        void OnRenderObject()
-        {
-            if(HighLogic.LoadedSceneIsEditor && draw_directions && !vessel_metric.Empty)
-            {
-                List<Part> parts;
-                try { parts = EditorLogic.SortedShipList; }
-                catch (NullReferenceException) { parts = null; }
-                if(parts != null && parts.Count > 0 && parts[0] != null)
-                    HangarGUI.DrawYZ(vessel_metric, parts[0].partTransform);
-                for(int i = 0, partsCount = parts.Count; i < partsCount; i++)
-                {
-                    Part p = parts[i];
-                    var h = p.Modules.GetModule<HangarMachinery>();
-                    if(h == null) continue;
-                    var t = h.GetSpawnTransform();
-                    if(t != null)
-                    {
-                        if(h.Storage != null && h.Storage.AutoPositionVessel)
-                            Utils.GLDrawPoint(t.position, Color.green);
-                        else
-                            HangarGUI.DrawYZ(h.PartMetric, t);
-                    }
-                }
-            }
-            #if DEBUG
-//            DrawBounds();
-//            DrawPoints();
-            #endif
-        }
-
-        #if DEBUG
-        void DrawBounds()
-        {
-            if(vessel_metric.Empty) return;
-            if(EditorLogic.fetch != null)
-            {
-                var parts = EditorLogic.fetch.getSortedShipList();
-                if(parts.Count == 0 || parts[0] == null) return;
-                vessel_metric.DrawBox(parts[0].partTransform);
-                if(vessel_metric.hull != null && draw_directions)
-                    Utils.GLDrawHull(vessel_metric.hull, parts[0].partTransform, c:Color.yellow);
-            }
-            //            else vessel_metric.DrawBox(FlightGlobals.ActiveVessel.vesselTransform);
-        }
-
-        void DrawPoints()
-        {
-            if(vessel_metric.Empty) return;
-            if(EditorLogic.fetch != null)
-            {
-                var parts = EditorLogic.fetch.getSortedShipList();
-                if(parts.Count == 0 || parts[0] == null) return;
-                vessel_metric.DrawCenter(parts[0].partTransform);
-            }
-            else if(vessel != null)
-            {
-                vessel_metric.DrawCenter(vessel.vesselTransform);
-                Utils.GLDrawPoint(vessel.transform.position, Color.red);
-                Utils.GLDrawPoint(vessel.CoM, Color.green);
-                Utils.GLLine(vessel.transform.position, vessel.CoM, Color.green);
-            }
-        }
-        #endif
     }
 }
 
