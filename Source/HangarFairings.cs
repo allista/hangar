@@ -362,7 +362,7 @@ namespace AtHangar
                 if(force_target.Rigidbody != null)
                 {
                     var pos = force_target.Rigidbody.worldCenterOfMass;
-                    var force = (pos - part.Rigidbody.worldCenterOfMass).normalized * force_target.mass * JettisonForce * 0.5f;
+                    var force = (pos - part.Rigidbody.worldCenterOfMass).normalized * Utils.ClampH(force_target.mass, 1) * JettisonForce * 0.5f;
                     jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos, 0));
                 }
                 yield return null;
