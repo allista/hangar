@@ -256,6 +256,7 @@ namespace AtHangar
                 this.Log("TryTransferTo: trying to remove a PackedVessel that is not present.");
                 return false;
             }
+            vsl.SpawnRotation = other.SpawnManager.GetOptimalRotation(vsl.size).eulerAngles;
             other.StoreVessel(vsl);
             return true;
         }
