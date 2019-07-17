@@ -52,3 +52,6 @@
 Hangar-Gendarme-Report.html
 Assets/TextMesh Pro
 UnityPackageManager
+/Assembly-CSharp*
+**/UserPrefs.xml
+/Hangar.sln
