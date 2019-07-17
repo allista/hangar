@@ -662,8 +662,7 @@ namespace AtHangar
                     spawning_vessel = null;
                     yield break;
                 }
-                if(pc.construct.shipFacility == EditorFacility.SPH)
-                    pc.construct.Parts[0].localRoot.transform.Rotate(Vector3.left * 90);
+                pc.construct.Parts[0].localRoot.transform.rotation = Quaternion.identity;
                 yield return
                     StartCoroutine(vessel_spawner
                                    .SpawnShipConstruct(pc.construct,
