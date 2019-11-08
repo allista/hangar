@@ -22,14 +22,14 @@ namespace AtHangar
         [UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f, sigFigs = 4)]
         public float bottomSize = 1.0f;
 
-        void update_and_brake_struts()
+        void update_and_break_struts()
         {
             UpdateMesh(); 
             part.BreakConnectedCompoundParts();
         }
-        protected override void on_aspect_changed(BaseField field, object value) => update_and_brake_struts();
-        protected virtual void on_top_size_changed(BaseField field, object value) => update_and_brake_struts();
-        protected virtual void on_bottom_size_changed(BaseField field, object value) => update_and_brake_struts();
+        protected override void on_aspect_changed(BaseField field, object value) => update_and_break_struts();
+        protected virtual void on_top_size_changed(BaseField field, object value) => update_and_break_struts();
+        protected virtual void on_bottom_size_changed(BaseField field, object value) => update_and_break_struts();
 
         //module config
         [KSPField] public float AreaCost     = 9f;
