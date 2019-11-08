@@ -156,6 +156,7 @@ namespace AtHangar
             body_collider.sharedMesh = collider_mesh;
             body_collider.enabled = false;
             body_collider.enabled = true;
+            part.ResetModelMeshRenderersCache();
             //calculate mass and cost changes
             mass = body.current.Area*AreaDensity;
             cost = AreaCost*body.current.Area;
