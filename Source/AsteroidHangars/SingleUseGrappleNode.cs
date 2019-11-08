@@ -243,7 +243,7 @@ namespace AtHangar
                 {
                     var sqr_range = (grapple.position - hit.point).sqrMagnitude;
                     if(sqr_range < GrappleRangeSqr)
-                        parts.Add(Part.GetComponentUpwards<Part>(hit.transform.gameObject));
+                        parts.Add(FlightGlobals.GetPartUpwardsCached(hit.transform.gameObject));
                     var contact = new Contact { ori = grapple, point = hit.point, good = sqr_range < DockRangeSqr };
                     can_dock &= contact.good;
                     contacts.Add(contact);
