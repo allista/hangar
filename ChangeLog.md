@@ -3,7 +3,61 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.3.7**
+* **v3.4.0 - ReOrientation**
+    * **Supports KSP-1.8.1**
+    * **Hangar contents may be rotated both in Editor and in Flight**
+        * Payload may be rotated in 90 degree steps using the dedicated UI.
+            The orientation is indicated by a translucent arrow drawn
+            along with the content hint. The arrow indicates the bottom and
+            front directions of the payload.
+        * **In Flight rotation is allowed only if the rotated payload fits**
+            inside docking space. And disabled for fairings and single-use
+            hangars.
+        * **Orientation of each stored vessel is preserved**, so if you have
+            docked (in flight), say, nose-forward, that is how the vessel will
+            be launched, unless rotated manually before launch. _Note: the
+            orientation will be actually slightly corrected, so that the
+            stored vessel is aligned with the hangar._
+        * When a storred vessel is transferred from one storage to the other
+            its orientation is set to the optimal one for the recieving storage.
+    * **Mobile Smelter is deprecated** in favor of the ISRUs. _As usual, parts
+        already in flight will be functional, but it wouldn't be available
+        in Editor._
+    * **Asteroid Hatch creates resource tanks using _Material Kits_.** _Existing
+        hatches will still use Metals, only the new parts will be affected.
+        Tanks will cost slightly more, but will weight the same._
+    * **ISRUs are patched to produce _Material Kits_** the same way they do
+        in Global Construction (unless MKS is installed).
+    * **Vessels stored in Editor are not _spawned-and-stored_ anymore** during
+        the launch, which caused considerable lag.
+    * **Hangars don't launch stored vessels if any physical object is present
+        within their docking space.**
+    * Vessel docking is triggerred only with dedicated trigger-colliders,
+        rather than with any trigger-colliders on the part, like airlocks
+        and ladders.
+    * Added **Show Payload** button to part menu of fairings to show their
+        content as they don't have the Hangar Window interface.
+    * Numerous bugfixes and improvements:
+        * Localizing vessel names.
+        * Fixed NRE in case a jettisoned fairing is destroyed immediately.
+        * Update content_hull_mesh on hangar resize.
+        * Fixed UI not showing after launch from hangar if it was destroyed
+            before launch ended.
+        * Several performance improvements due to the use of the frameworks
+            from AT_Utils rather than the legacy Hangar code.
+        * Showing tooltips in HangarEditor.
+        * Added random angular velocities to debris jettisoned from fairings
+            for visual effect.
+        * Limit the jettison force for parts decoupled form a fairing when
+            it is itself jettisonned.
+        * Fixed content highlighting in Hangar Gateway.
+        * Improved hangar fairings texture and model.
+        * Removed deprecated Readme.pdf from the distribution.
+    * For modders (and for future integration with TCA):
+        * Sending the Hangar PartModule as `onLaunchedFromHangar` `KSPEvent`
+            to _all_ parts of the launched vessel.
+
+* v3.3.7
     * Using the common Color Scheme for the hangar content hint color
     * Fixed transfer window behavior when selected payload is switched
     * Added **Show** button that displays content hint for a short time
@@ -15,7 +69,7 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 * v3.3.6
     * Added ability to change UI color scheme at runtime
-        * To access the Color Scheme dialog, **right-click the GC toolbar button**
+        * To access the Color Scheme dialog, **right-click the Hangar toolbar button**
 
 * v3.3.5
     * Compatible with KSP-1.7
@@ -49,7 +103,7 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
             * green line means "close enough"
             * when all are green, grapple is attached immediately
     * Fixed camera jumping on launch from hangar.
-    * **Merged -- Asteroid Hatch + Asteroid Hatch Port** into a single part. 
+    * **Merged -- Asteroid Hatch + Asteroid Hatch Port** into a single part.
         * *Old parts in flight will function, but will not be available in Editor.*
     * Added two lamps on the sides of Hatch Port Adapter.
     * Increased lamp range of Structural Grapple.
