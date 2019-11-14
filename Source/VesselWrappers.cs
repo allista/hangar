@@ -6,9 +6,9 @@
 //  Copyright (c) 2016 Allis Tauri
 
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using AT_Utils;
+using KSP.Localization;
 
 namespace AtHangar
 {
@@ -40,19 +40,9 @@ namespace AtHangar
         }
 
         public void UnloadConstruct() 
-        { 
-            if(construct == null) return;
-            foreach(Part p in construct) 
-            {
-                if(p != null) 
-                {
-                    p.OnDelete();
-                    if(p.gameObject != null)
-                        UnityEngine.Object.Destroy(p.gameObject);
-                }
-            }
-            construct.Clear();
-            construct = null; 
+        {
+            construct?.Unload();
+            construct = null;
         }
 
         public PackedConstruct() {}
@@ -64,7 +54,7 @@ namespace AtHangar
             vessel_node = construct.SaveShip();
             vessel_node.name = "VESSEL";
             resources = new VesselResources(vessel_node);
-            name = construct.shipName;
+            name = Localizer.Format(construct.shipName);
             id = Guid.NewGuid();
         }
 
@@ -74,9 +64,11 @@ namespace AtHangar
             vessel_node = ConfigNode.Load(file);
             vessel_node.name = "VESSEL";
             resources = new VesselResources(vessel_node);
-            if(!LoadConstruct()) return;
-            name = construct.shipName;
-            id = Guid.NewGuid();
+            if(LoadConstruct())
+            {
+                name = construct.shipName;
+                id = Guid.NewGuid();
+            }
         }
 
         protected PackedConstruct(PackedConstruct pc)
@@ -94,25 +86,21 @@ namespace AtHangar
         public virtual PackedConstruct Clone()
         { return new PackedConstruct(this); }
 
-        public override void Save(ConfigNode node)
+        protected override void OnSave(ConfigNode node)
         {
-            ConfigNode metric_node = node.AddNode("METRIC");
             node.AddNode(vessel_node);
-            metric.Save(metric_node);
             node.AddValue("name", name);
             node.AddValue("flag", flag);
-            node.AddValue("id",   id);
+            node.AddValue("id", id);
         }
 
-        public override void Load(ConfigNode node)
+        protected override void OnLoad(ConfigNode node)
         {
-            ConfigNode metric_node = node.GetNode("METRIC");
             vessel_node = node.GetNode("VESSEL");
             resources = new VesselResources(vessel_node);
-            metric = new Metric(metric_node);
-            name   = node.GetValue("name");
-            flag   = node.GetValue("flag");
-            id     = new Guid(node.GetValue("id"));
+            name = node.GetValue("name");
+            flag = node.GetValue("flag");
+            id = new Guid(node.GetValue("id"));
         }
     }
 
@@ -121,8 +109,6 @@ namespace AtHangar
         public ProtoVessel proto_vessel { get; private set; }
         public Vessel vessel { get { return proto_vessel.vesselRef; } }
         public Vector3 CoM { get { return proto_vessel.CoM; } }
-        public Vector3d dV;
-        public List<ProtoCrewMember> crew { get; private set; }
 
         public StoredVessel() {}
 
@@ -134,7 +120,6 @@ namespace AtHangar
             name   = proto_vessel.vesselName;
             crew   = proto_vessel.GetVesselCrew();
             resources = new VesselResources(proto_vessel);
-
         }
 
         public void RemoveProtoVesselCrew()
@@ -161,28 +146,17 @@ namespace AtHangar
             resources = new VesselResources(proto_vessel);
         }
 
-        public override void Save(ConfigNode node)
+        protected override void OnSave(ConfigNode node)
         {
-            //nodes
             ConfigNode vessel_node = node.AddNode("VESSEL");
-            ConfigNode metric_node = node.AddNode("METRIC");
-            ConfigNode crew_node   = node.AddNode("CREW");
             proto_vessel.Save(vessel_node);
-            metric.Save(metric_node);
-            crew.ForEach(c => c.Save(crew_node.AddNode(c.name)));
         }
 
-        public override void Load(ConfigNode node)
+        protected override void OnLoad(ConfigNode node)
         {
             ConfigNode vessel_node = node.GetNode("VESSEL");
-            ConfigNode metric_node = node.GetNode("METRIC");
-            ConfigNode crew_node   = node.GetNode("CREW");
             proto_vessel = new ProtoVessel(vessel_node, HighLogic.CurrentGame);
-            metric = new Metric(metric_node);
-            crew   = new List<ProtoCrewMember>();
-            foreach(ConfigNode cn in crew_node.nodes) 
-                crew.Add(new ProtoCrewMember(HighLogic.CurrentGame.Mode, cn));
-            id   = proto_vessel.vesselID;
+            id = proto_vessel.vesselID;
             name = proto_vessel.vesselName;
             resources = new VesselResources(proto_vessel);
         }

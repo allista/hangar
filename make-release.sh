@@ -4,6 +4,7 @@ cd $(dirname "$0")
 
 ../../PyKSPutils/make_mod_release  -s 'Source' \
 -e '*/ForModders/*' '*/config.xml' '*.user' '*.orig' '*.mdb' '*.pdb' \
+'*/System.*.dll' '*/Mono.*.dll' '*/Unity.*.dll' \
 'GameData/000_AT_Utils/Plugins/AnimatedConverters.dll' \
 'GameData/000_AT_Utils/Plugins/SubmodelResizer.dll' \
 'GameData/ConfigurableContainers/Parts/*' \

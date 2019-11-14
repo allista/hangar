@@ -7,44 +7,30 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: fairings2
-  m_Shader: {fileID: 4800000, guid: 4eb23d6a8a22cd2408ed28ac1ce15ed3, type: 3}
+  m_Shader: {fileID: 4800000, guid: 9d70c5341ccdb4f4c8c43701bf65a6d8, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
+  disabledShaderPasses: []
   m_SavedProperties:
-    serializedVersion: 2
+    serializedVersion: 3
     m_TexEnvs:
-      data:
-        first:
-          name: _MainTex
-        second:
-          m_Texture: {fileID: 2800000, guid: 48678c5194e094c44b957dcea277f317, type: 3}
-          m_Scale: {x: 1, y: 1}
-          m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: c99a18dd8ca2a434dad85e9b1f39db8e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 48678c5194e094c44b957dcea277f317, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
-      data:
-        first:
-          name: _Opacity
-        second: 1
-      data:
-        first:
-          name: _RimFalloff
-        second: .100000001
+    - _Opacity: 1
+    - _RimFalloff: 0.1
     m_Colors:
-      data:
-        first:
-          name: _Color
-        second: {r: 1, g: 1, b: 1, a: 1}
-      data:
-        first:
-          name: _RimColor
-        second: {r: 0, g: 0, b: 0, a: 0}
-      data:
-        first:
-          name: _TemperatureColor
-        second: {r: 0, g: 0, b: 0, a: 0}
-      data:
-        first:
-          name: _BurnColor
-        second: {r: 1, g: 1, b: 1, a: 1}
+    - _BurnColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _RimColor: {r: 0, g: 0, b: 0, a: 0}
+    - _TemperatureColor: {r: 0, g: 0, b: 0, a: 0}
