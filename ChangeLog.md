@@ -3,7 +3,25 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.4.0 - ReOrientation**
+* **v3.4.1**
+    * Updated **Tech Tree limits for Size and Aspect**:
+        * _General Construction_: size/aspect [0.75, 1.5]
+        * _Miniaturization_: size/aspect [0.5
+        * **Precision Engineering**: size/aspect [**0.1**
+        * _Advanced Construction_: size/aspect 3]
+        * _Specialized Construction_: size/aspect 6]
+        * _Composites_: size/aspect 12]
+        * **Meta Materials**: size/aspect **1000**]
+    * _Hopefully_ fixed aerodynamics of stock cargo bays that are patched to be
+      hangars instead.
+    * For modders:
+        * `onLaunchedFromHangar` provides additional `bool fromFairings == true` 
+           data field when a vessel is launched from `HangarFairings`
+           module. This may be needed, because in this case the launched
+           vessel should behave as if it was just the next stage of the
+           carrier.
+
+* v3.4.0 - **ReOrientation**
     * **Supports KSP-1.8.1**
     * **Hangar contents may be rotated both in Editor and in Flight**
         * Payload may be rotated in 90 degree steps using the dedicated UI.

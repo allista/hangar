@@ -449,6 +449,12 @@ namespace AtHangar
             vessel.ctrlState.Neutralize();
         }
 
+        protected override void process_on_vessel_launched_data(BaseEventDetails data)
+        {
+            base.process_on_vessel_launched_data(data);
+            data.Set<bool>("fromFairings", true);
+        }
+
         protected override void on_vessel_launched(Vessel vsl)
         {
             FlightInputHandler.ResumeVesselCtrlState(vsl);

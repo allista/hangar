@@ -553,12 +553,14 @@ namespace AtHangar
 
         protected virtual void on_vessel_off_rails(Vessel vsl) => spawning_vessel_on_rails = false;
 
+        protected virtual void process_on_vessel_launched_data(BaseEventDetails data) {}
         protected virtual void on_vessel_launched(Vessel vsl)
         {
             if(spawning_vessel != null)
                 CrewTransferBatch.moveCrew(vessel, vsl, spawning_vessel.crew);
-            BaseEventDetails data = new BaseEventDetails(BaseEventDetails.Sender.STAGING);
+            var data = new BaseEventDetails(BaseEventDetails.Sender.STAGING);
             data.Set<PartModule>("hangar", this);
+            process_on_vessel_launched_data(data);
             vsl.Parts.ForEach(p => p.SendEvent("onLaunchedFromHangar", data));
         }
 
