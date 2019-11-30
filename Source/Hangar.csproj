@@ -65,7 +65,6 @@
     </ItemGroup>
     <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets"/>
     <ItemGroup>
-        <None Include="Hangar.userprefs"/>
     </ItemGroup>
     <ProjectExtensions>
         <MonoDevelop>
