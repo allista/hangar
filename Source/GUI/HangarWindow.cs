@@ -61,12 +61,12 @@ namespace AtHangar
             }
             else if(EditorLogic.fetch != null)
             {
-                var parts = new List<Part>();
+                List<Part> parts;
                 try { parts = EditorLogic.SortedShipList; }
                 catch (NullReferenceException) { return; }
                 #if !DEBUG
                 if(parts.Count > 0 && parts[0] != null)
-                vessel_metric = new Metric(parts);
+                    vessel_metric = new Metric(parts);
                 #else
                 if(parts.Count > 0 && parts[0] != null)
                     vessel_metric = new Metric(parts, true);
