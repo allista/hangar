@@ -622,8 +622,6 @@ namespace AtHangar
             //hide UI
             GameEvents.onHideUI.Fire();
             yield return null;
-            Utils.SaveGame(vsl.name + "-before_launch", false);
-            yield return null;
             foreach(var yi in before_vessel_launch(vsl))
                 yield return yi;
             TransferResources(vsl);
@@ -735,6 +733,7 @@ namespace AtHangar
         {
             if(HighLogic.LoadedSceneIsFlight && can_restore(stored_vessel))
             {
+                Utils.SaveGame(stored_vessel.name + "-before_launch", false);
                 if(Storage.RemoveVessel(stored_vessel))
                 {
                     Deactivate();
