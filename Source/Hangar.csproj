@@ -36,6 +36,7 @@
         <DefineConstants>NIGHTBUILD</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="HangarVesselModule.cs" />
         <Compile Include="VesselsPack.cs" />
         <Compile Include="VesselWrappers.cs" />
         <Compile Include="HangarGenericInflatable.cs" />

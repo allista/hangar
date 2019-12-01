@@ -28,6 +28,7 @@ namespace AtHangar
         //this vessel
         [ConfigOption] Rect InfoWindow;
         static Vessel vessel;
+        static HangarVesselModule vesselModule;
         Metric vessel_metric;
 
         //hangars
@@ -202,9 +203,21 @@ namespace AtHangar
             vessel_metric.Clear();
             subwindows.ForEach(sw => sw.Show(false));
             if(vsl.isEVA) return;
+            vesselModule = vsl.vesselModules.Find(m => m is HangarVesselModule) as HangarVesselModule;
+            if(vesselModule == null)
+                return;
             vessel = vsl;
             update_lists();
             highlight_parts();
+            Show(vesselModule.ShowHangarWindow);
+        }
+
+        public override void Show(bool show)
+        {
+            if(vesselModule == null)
+                return;
+            vesselModule.ShowHangarWindow = show;
+            base.Show(show);
         }
 
         void onVesselWasModified(Vessel vsl)
