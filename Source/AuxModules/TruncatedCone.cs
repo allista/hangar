@@ -12,8 +12,8 @@ namespace AtHangar
         //internal constants
         float dR, h2, ny, nk;
 
-        public static float SurfaceArea(float R1, float R2, float H)
-        { return Mathf.PI*(R1*R1 + R2*R2 + (R1+R2)*Mathf.Sqrt(H*H + Mathf.Pow(R1-R2, 2))); }
+        public static float SurfaceArea(float R1, float R2, float H) => 
+            Mathf.PI*(R1*R1 + R2*R2 + (R1+R2)*Mathf.Sqrt(H*H + Mathf.Pow(R1-R2, 2)));
 
         public static float Volume(float R1, float R2, float H) =>
             Mathf.PI / 3f * H * (R1 * R1 + R1 * R2 + R2 * R2);

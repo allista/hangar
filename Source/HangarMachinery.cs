@@ -215,15 +215,15 @@ namespace AtHangar
 
         protected abstract List<HangarPassage> get_connected_passages();
 
-        void build_connected_storage()
+        private void build_connected_storage()
         {
             ConnectedStorage.Clear();
             var connected_passages = get_connected_passages();
-            if(connected_passages == null) return;
+            if(connected_passages == null)
+                return;
             foreach(var p in connected_passages)
             {
-                var other_storage = p as HangarStorage;
-                if(other_storage != null)
+                if(p is HangarStorage other_storage)
                     ConnectedStorage.Add(other_storage);
             }
         }
@@ -267,7 +267,8 @@ namespace AtHangar
 
         IEnumerator<YieldInstruction> delayed_update_connected_storage()
         {
-            while(!all_passages_ready) yield return null;
+            while(!all_passages_ready)
+                yield return null;
             update_connected_storage();
         }
 
@@ -309,7 +310,7 @@ namespace AtHangar
             //setup magnetic damper
             hangar_damper = ATMagneticDamper.GetDamper(part, DamperID);
             //get docking ports that are inside hangar sapace
-            var docks = part.Modules.OfType<ModuleDockingNode>().ToList();
+            var docks = part.Modules.GetModules<ModuleDockingNode>();
             foreach(var d in CheckDockingPorts.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
                 docks_checklist.AddRange(docks.Where(m => m.referenceAttachNode == d));
             //get all passages in the vessel
@@ -553,7 +554,10 @@ namespace AtHangar
         #region Positioning
         protected virtual IEnumerable<YieldInstruction> before_vessel_launch(PackedVessel vsl) { yield break; }
 
-        protected virtual void on_vessel_positioned(Vessel vsl) { }
+        protected virtual void on_vessel_positioned(Vessel vsl)
+        {
+
+        }
 
         protected virtual void on_vessel_loaded(Vessel vsl) { }
 
@@ -572,7 +576,8 @@ namespace AtHangar
             }
         }
 
-        protected virtual void process_on_vessel_launched_data(BaseEventDetails data) {}
+        protected virtual void process_on_vessel_launched_data(BaseEventDetails data) { }
+
         protected virtual void on_vessel_launched(Vessel vsl)
         {
             if(spawning_vessel != null)
@@ -812,8 +817,10 @@ namespace AtHangar
 
         public void Toggle()
         {
-            if(hangar_state == HangarState.Active) Deactivate();
-            else Activate();
+            if(hangar_state == HangarState.Active)
+                Deactivate();
+            else
+                Activate();
         }
 
         //actions

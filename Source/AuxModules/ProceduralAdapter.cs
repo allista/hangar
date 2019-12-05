@@ -175,7 +175,7 @@ namespace AtHangar
             part.ResetModelMeshRenderersCache();
             //calculate mass and cost changes
             mass = body.current.Area*AreaDensity;
-            cost = AreaCost*body.current.Area;
+            cost = body.current.Area*AreaCost;
         }
 
         void update_passage()
