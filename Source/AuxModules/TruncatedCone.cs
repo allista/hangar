@@ -7,7 +7,7 @@ namespace AtHangar
     public class TruncatedCone
     {
         //cone properties
-        readonly public float R1, R2, H, Area;
+        readonly public float R1, R2, H, Area, V;
 
         //internal constants
         float dR, h2, ny, nk;
@@ -15,10 +15,14 @@ namespace AtHangar
         public static float SurfaceArea(float R1, float R2, float H)
         { return Mathf.PI*(R1*R1 + R2*R2 + (R1+R2)*Mathf.Sqrt(H*H + Mathf.Pow(R1-R2, 2))); }
 
+        public static float Volume(float R1, float R2, float H) =>
+            Mathf.PI / 3f * H * (R1 * R1 + R1 * R2 + R2 * R2);
+
         public TruncatedCone(float R1, float R2, float H)
         { 
             this.R1 = R1; this.R2 = R2; this.H = H; 
             Area = SurfaceArea(R1, R2, H);
+            V = Volume(R1, R2, H);
             //constants
             dR = R2-R1;
             h2 = H/2f;

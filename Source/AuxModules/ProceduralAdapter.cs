@@ -36,6 +36,7 @@ namespace AtHangar
         [KSPField] public float AreaDensity  = 2.7f*6e-3f; // 2.7t/m^3 * 1m^2 * 6mm: aluminium sheet 6mm thick
         [KSPField] public float UnitDiameter = 1.25f; // m
         [KSPField] public float Length       = 1f;    // m
+        [KSPField] public float UsableVolumeRatio = 1f;
 
         [KSPField] public string BodyName       = "adapter";
         [KSPField] public string ColliderName   = "collider";
@@ -249,6 +250,10 @@ namespace AtHangar
             update_body();
             update_attach_nodes();
             update_passage();
+            var data = new BaseEventDetails(BaseEventDetails.Sender.AUTO);
+            data.Set<string>("volName", "Tankage");
+            data.Set<double>("newTotalVolume", body.current.V*UsableVolumeRatio);
+            part.SendEvent("OnPartVolumeChanged", data);
             old_size = size;
             old_aspect = aspect;
             Utils.UpdateEditorGUI();
