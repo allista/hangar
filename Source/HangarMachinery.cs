@@ -647,8 +647,9 @@ namespace AtHangar
             if(hangar_damper != null)
                 hangar_damper.EnableDamper(false);
             vessel_spawner.BeginLaunch();
-            //hide UI
+#if !DEBUG
             GameEvents.onHideUI.Fire();
+#endif
             yield return null;
             foreach(var yi in before_vessel_launch(vsl))
                 yield return yi;
