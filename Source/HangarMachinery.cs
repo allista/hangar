@@ -685,7 +685,7 @@ namespace AtHangar
                     Utils.Log("Unable to load ShipConstruct {}. " +
                               "This usually means that some parts are missing " +
                               "or some modules failed to initialize.", pc.name);
-                    Utils.Message("Something whent wrong. Ship cannot be launched.");
+                    Utils.Message("Something went wrong. Ship cannot be launched.");
                     GameEvents.onShowUI.Fire();
                     vessel_spawner.AbortLaunch();
                     spawning_vessel = null;
