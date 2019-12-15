@@ -102,8 +102,8 @@ namespace AtHangar
             foreach(var grapple in Utils.ParseLine(GrappleTransforms, Utils.Whitespace))
                 grapple_transforms.AddRange(part.FindModelTransforms(grapple));
             //initialize animators
-            armAnimator = part.GetAnimator(ArmAnimatorID);
-            fixAnimator = part.GetAnimator(FixAnimatorID);
+            armAnimator = part.GetAnimator<MultiAnimator>(ArmAnimatorID);
+            fixAnimator = part.GetAnimator<MultiAnimator>(FixAnimatorID);
             if(IsDocked)
             {
                 var dockedPart = vessel[dockedPartUId];
@@ -178,7 +178,7 @@ namespace AtHangar
                     state = State.Docked;
                 else
                 {
-                    armAnimator = part.GetAnimator(ArmAnimatorID);
+                    armAnimator = part.GetAnimator<MultiAnimator>(ArmAnimatorID);
                     if(armAnimator != null &&
                        armAnimator.State == AnimatorState.Opened)
                         state = State.Armed;

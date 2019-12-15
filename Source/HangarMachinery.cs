@@ -132,7 +132,7 @@ namespace AtHangar
         {
             var info = "";
             //energy consumption
-            var gates = part.GetAnimator(AnimatorID);
+            var gates = part.GetAnimator<MultiAnimator>(AnimatorID);
             if(EnergyConsumption.Equals(0) && (gates == null || gates.EnergyConsumption.Equals(0)))
                 info += "Simple cargo bay\n";
             else
@@ -295,7 +295,7 @@ namespace AtHangar
             //initialize resources
             update_resources();
             //initialize Animator
-            hangar_gates = part.GetAnimator(AnimatorID);
+            hangar_gates = part.GetAnimator<MultiAnimator>(AnimatorID);
             if(hangar_gates == null)
             {
                 Events["Open"].active = false;
