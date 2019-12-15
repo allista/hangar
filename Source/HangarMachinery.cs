@@ -628,6 +628,7 @@ namespace AtHangar
             yield return null;
             foreach(var yi in before_vessel_launch(vsl))
                 yield return yi;
+            yield return new WaitForFixedUpdate();
             TransferResources(vsl);
             var dV = Vector3.zero;
             Vector3 spawn_offset;
