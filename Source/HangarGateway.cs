@@ -96,12 +96,12 @@ namespace AtHangar
 
         protected override void update_connected_storage(Vessel vsl)
         {
-            if(vsl == part.vessel && all_passages_ready)
             {
                 update_connected_storage();
                 if(!enabled && hangar_gates != null)
                     Close();
             }
+            if(vsl != part.vessel || vsl == null || !all_passages_ready)
         }
 
         protected override void early_setup(StartState state)
