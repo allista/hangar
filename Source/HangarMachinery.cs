@@ -22,6 +22,7 @@ namespace AtHangar
         #region Configuration
         //hangar properties
         [KSPField] public string AnimatorID = string.Empty;
+        [KSPField] public string DamperID = string.Empty;
         [KSPField] public float EnergyConsumption = 0.75f;
         [KSPField] public bool NoCrewTransfers;
         [KSPField] public bool NoResourceTransfers;
@@ -103,6 +104,7 @@ namespace AtHangar
         bool spawning_vessel_on_rails;
 
         protected MultiAnimator hangar_gates;
+        protected ATMagneticDamper hangar_damper;
         public AnimatorState gates_state => hangar_gates == null ? AnimatorState.Opened : hangar_gates.State;
         public HangarState hangar_state { get; private set; }
 
@@ -303,6 +305,8 @@ namespace AtHangar
             }
             if(EnergyConsumption > 0)
                 socket = part.CreateSocket();
+            //setup magnetic damper
+            hangar_damper = ATMagneticDamper.GetDamper(part, DamperID);
             //get docking ports that are inside hangar sapace
             var docks = part.Modules.OfType<ModuleDockingNode>().ToList();
             foreach(var d in CheckDockingPorts.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
@@ -555,7 +559,20 @@ namespace AtHangar
 
         protected virtual void on_vessel_loaded(Vessel vsl) { }
 
-        protected virtual void on_vessel_off_rails(Vessel vsl) => spawning_vessel_on_rails = false;
+        protected virtual void on_vessel_off_rails(Vessel vsl)
+        {
+            spawning_vessel_on_rails = false;
+            if(hangar_damper != null)
+            {
+                if(LaunchWithPunch && !LaunchVelocity.IsZero())
+                    hangar_damper.EnableDamper(false);
+                else
+                {
+                    hangar_damper.EnableDamper(true);
+                    hangar_damper.AttractorEnabled = false;
+                }
+            }
+        }
 
         protected virtual void process_on_vessel_launched_data(BaseEventDetails data) {}
         protected virtual void on_vessel_launched(Vessel vsl)
@@ -566,6 +583,11 @@ namespace AtHangar
             data.Set<PartModule>("hangar", this);
             process_on_vessel_launched_data(data);
             vsl.Parts.ForEach(p => p.SendEvent("onLaunchedFromHangar", data));
+            if(hangar_damper != null
+               && hangar_damper.DamperEnabled
+               && !hangar_damper.EnableControls)
+                StartCoroutine(CallbackUtil
+                    .DelayedCallback(5f, hangar_damper.EnableDamper, false));
         }
 
         protected virtual void on_part_die(Part p)
@@ -622,6 +644,8 @@ namespace AtHangar
             FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, part.transform, 1);
             spawning_vessel_on_rails = true;
             spawning_vessel = vsl;
+            if(hangar_damper != null)
+                hangar_damper.EnableDamper(false);
             vessel_spawner.BeginLaunch();
             //hide UI
             GameEvents.onHideUI.Fire();
@@ -772,7 +796,15 @@ namespace AtHangar
             Deactivate();
         }
 
-        public void Activate() { hangar_state = HangarState.Active; }
+        public void Activate()
+        {
+            hangar_state = HangarState.Active;
+            if(hangar_damper != null && hangar_damper.HasAttractor)
+            {
+                hangar_damper.EnableDamper(true);
+                hangar_damper.AttractorEnabled = true;
+            }
+        }
 
         public void Deactivate()
         {
