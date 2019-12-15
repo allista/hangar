@@ -6,6 +6,7 @@
 //  Copyright (c) 2016 Allis Tauri
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -154,6 +155,8 @@ namespace AtHangar
         public override void OnAwake()
         {
             base.OnAwake();
+            //vessel spawner
+            vessel_spawner = gameObject.AddComponent<VesselSpawner>();
             //content hull mesh
             var obj = new GameObject("ContentHullMesh", typeof(MeshFilter), typeof(MeshRenderer));
             obj.transform.SetParent(gameObject.transform, false);
@@ -188,6 +191,7 @@ namespace AtHangar
 
         public virtual void OnDestroy()
         {
+            Destroy(vessel_spawner);
             Destroy(hangar_name_editor);
             Destroy(content_hull_mesh.gameObject);
             Destroy(content_orientation_hint.gameObject);
@@ -306,7 +310,7 @@ namespace AtHangar
             //get all passages in the vessel
             passage_checklist = part.AllModulesOfType<HangarPassage>();
             //vessel spawner
-            vessel_spawner = new VesselSpawner(part);
+            vessel_spawner.Init(part);
         }
 
         protected virtual void start_coroutines()
@@ -611,7 +615,7 @@ namespace AtHangar
         protected virtual Transform get_spawn_transform(PackedVessel pv, out Vector3 spawn_offset) =>
         spawn_space_manager.GetSpawnTransform(pv.metric, out spawn_offset, pv.GetSpawnRotation());
 
-        IEnumerator<YieldInstruction> launch_vessel(PackedVessel vsl)
+        IEnumerator launch_vessel(PackedVessel vsl)
         {
             if(!HighLogic.LoadedSceneIsFlight) yield break;
             while(!FlightGlobals.ready) yield return null;
@@ -636,17 +640,16 @@ namespace AtHangar
                 //this is for compatibility with the old crew transfer framework
                 //to prevent crew duplication
                 sv.RemoveProtoVesselCrew();
-                yield return
-                    StartCoroutine(vessel_spawner
-                                   .SpawnProtoVessel(sv.proto_vessel,
-                                                     spawn_transfrom,
-                                                     spawn_offset,
-                                                     dV,
-                                                     null,
-                                                     on_vessel_positioned,
-                                                     on_vessel_loaded,
-                                                     on_vessel_off_rails,
-                                                     on_vessel_launched));
+                vessel_spawner.SpawnProtoVessel(sv.proto_vessel,
+                    spawn_transfrom,
+                    spawn_offset,
+                    dV,
+                    null,
+                    on_vessel_positioned,
+                    on_vessel_loaded,
+                    on_vessel_off_rails,
+                    on_vessel_launched);
+                yield return vessel_spawner.WaitForLaunch;
             }
             else if(vsl is PackedConstruct pc)
             {
@@ -663,16 +666,15 @@ namespace AtHangar
                     yield break;
                 }
                 pc.construct.Parts[0].localRoot.transform.rotation = Quaternion.identity;
-                yield return
-                    StartCoroutine(vessel_spawner
-                                   .SpawnShipConstruct(pc.construct,
-                                                       spawn_transfrom,
-                                                       spawn_offset,
-                                                       dV,
-                                                       on_vessel_positioned,
-                                                       on_vessel_loaded,
-                                                       on_vessel_off_rails,
-                                                       on_vessel_launched));
+                vessel_spawner.SpawnShipConstruct(pc.construct,
+                    spawn_transfrom,
+                    spawn_offset,
+                    dV,
+                    on_vessel_positioned,
+                    on_vessel_loaded,
+                    on_vessel_off_rails,
+                    on_vessel_launched);
+                yield return vessel_spawner.WaitForLaunch;
             }
             GameEvents.onShowUI.Fire();
             spawning_vessel = null;
