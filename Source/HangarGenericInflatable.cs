@@ -386,8 +386,6 @@ namespace AtHangar
         {
             mp.module.InflatableVolume = mp.base_module.InflatableVolume * scale.absolute.volume;
             mp.module.CompressedGas *= scale.relative.volume;
-            mp.module.ForwardSpeed = mp.base_module.ForwardSpeed / (scale.absolute * scale.aspect);
-            mp.module.ReverseSpeed = mp.base_module.ReverseSpeed / (scale.absolute * scale.aspect);
             if(mp.module.Compressor.Valid)
                 mp.module.Compressor.ConsumptionRate = mp.base_module.Compressor.ConsumptionRate * scale.absolute.volume;
         }
