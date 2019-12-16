@@ -288,8 +288,8 @@ namespace AtHangar
             if(!string.IsNullOrEmpty(Trigger))
             {
                 var triggers = part.FindModelComponents<Collider>(Trigger);
-                if(state == StartState.Editor)
-                    triggers.ForEach(c => c.gameObject.layer = 21); //Part Triggers
+                var layer = state == StartState.Editor ? 21 : 2; // Part Triggers : Ignore Raycasts
+                triggers.ForEach(c => c.gameObject.layer = layer);
                 if(vessel != null)
                     triggers.ForEach(c => Triggers.Add(SpatialSensor.AddToCollider(c, vessel, 1, on_trigger)));
             }
