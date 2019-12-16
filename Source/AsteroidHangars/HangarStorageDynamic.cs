@@ -80,7 +80,7 @@ namespace AtHangar
         protected override void update_metrics()
         {
             PartMetric = new Metric(part);
-            SpawnManager.SetMetric(new Metric(StorageSize));
+            SpawnManager.SpaceMetric = new Metric(StorageSize);
         }
 
         public bool AddVolume(float volume)
