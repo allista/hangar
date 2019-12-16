@@ -250,6 +250,7 @@ namespace AtHangar
             build_connected_storage();
             update_total_values();
             Events["RelocateVessels"].guiActiveEditor = CanRelocate;
+            this.EnableModule(Storage != null);
         }
 
         protected virtual void update_connected_storage(Vessel vsl)
@@ -340,10 +341,7 @@ namespace AtHangar
             base.OnStart(state);
             early_setup(state);
             Setup();
-            if(Storage != null)
-                start_coroutines();
-            else
-                this.EnableModule(false);
+            start_coroutines();
         }
         #endregion
 
