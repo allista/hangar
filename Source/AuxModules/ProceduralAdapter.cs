@@ -27,9 +27,9 @@ namespace AtHangar
             UpdateMesh(); 
             part.BreakConnectedCompoundParts();
         }
-        protected override void on_aspect_changed(BaseField field, object value) => update_and_break_struts();
-        protected virtual void on_top_size_changed(BaseField field, object value) => update_and_break_struts();
-        protected virtual void on_bottom_size_changed(BaseField field, object value) => update_and_break_struts();
+        protected override void on_aspect_changed(object value) => update_and_break_struts();
+        protected virtual void on_top_size_changed(object value) => update_and_break_struts();
+        protected virtual void on_bottom_size_changed(object value) => update_and_break_struts();
 
         //module config
         [KSPField] public float AreaCost     = 9f;
@@ -117,10 +117,17 @@ namespace AtHangar
                 setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
                 setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
                 setup_field(Fields["aspect"], minAspect, maxAspect, aspectStepLarge, aspectStepSmall);
-                Fields["topSize"].uiControlEditor.onFieldChanged = on_top_size_changed;
-                Fields["bottomSize"].uiControlEditor.onFieldChanged = on_bottom_size_changed;
+                Fields["topSize"].OnValueModified += on_top_size_changed;
+                Fields["bottomSize"].OnValueModified += on_bottom_size_changed;
             }
             StartCoroutine(CallbackUtil.WaitUntil(() => passage == null || passage.Ready, UpdateMesh));
+        }
+
+        protected override void OnDestroy()
+        {
+            Fields[nameof(topSize)].OnValueModified -= on_top_size_changed;
+            Fields[nameof(bottomSize)].OnValueModified -= on_bottom_size_changed;
+            base.OnDestroy();
         }
 
         void get_part_components()
