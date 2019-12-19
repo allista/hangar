@@ -3,7 +3,44 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.4.1**
+* **v3.5.0**
+    * **Magnetic Dampers**
+        * All hangars except for VTOL and fairings now have the 
+          ATMagneticDamper module.
+        * It can be switched on/off even remotely.
+        * Its attenuation can also be changed in PAW in flight.
+        * Orbital hangars also have attractors, i.e. they not only damp velocity
+          of vessels within their premises, but can also pull them in and dock
+          them inside automatically.
+        * The polarity of the attractor could be changed remotely, so a vessel
+          launched from an orbital hangar can order the hangar to push it
+          slowly outside. Much like with the "Launch with Punch" option, but
+          the vessel is physically controlled all the way by the hangar.
+        * **Damper works in Time Warp**, so a vessel that is left inside the
+          hangar's docking space will not fly though its walls anymore.
+        * **The damper is controlled** by the hangar in that it is automatically
+          activated on launch and, in case of the orbital hangars, on hangar
+          activation. This **helps a lot** with launching heavy-with-many-parts
+          rovers and planes that tend to jump on their wheels and explode.
+          Should also help with sliding issues mentioned on the forum. 
+    * Hagar window remembers its **visibility per vessel**.
+    * When Configurable Containers are installed, the **Universal Fuel Tank**
+      is added to fuel tanks. It is basically the Procedural Adapter 
+      with Tank Manager and LFO tanks by default.
+    * Updated the Square Heatshields' configs to be more stock-like
+    * Moved Square Heatshields to **Thermal category**
+    * Moved non-ground and non-inflatible hangars to **Payload category**
+    * Fixed the problem with Hangar Gateway that was missing the storage in 
+      mined asteroids after game reloading or vessel switching.
+    * Fixed the problem with exploding vessels, when launched in very tight 
+      quarters, i.e. with some parts of the launched vessel mere centimeters
+      away from the hangar walls.
+    * Fixed directions of RCS plumes on the Hangar Gateway
+    * Fixed costs of square heatshield
+    * Fixed the problem with automatic game saves before vessel spawning.
+    * Various fixes and adaptations to AT_Utils API changes.
+
+* v3.4.1
     * Updated **Tech Tree limits for Size and Aspect**:
         * _General Construction_: size/aspect [0.75, 1.5]
         * _Miniaturization_: size/aspect [0.5
