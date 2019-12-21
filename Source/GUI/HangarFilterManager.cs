@@ -11,7 +11,7 @@ using AT_Utils;
 
 namespace AtHangar
 {
-    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
+    [KSPAddon(KSPAddon.Startup.EditorAny, false)]
     public class HangarFilterManager : SimplePartFilter
     {
         public HangarFilterManager()
