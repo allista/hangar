@@ -10,7 +10,7 @@ using AT_Utils;
 
 namespace AtHangar
 {
-    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
+    [KSPAddon(KSPAddon.Startup.EveryScene, true)]
     public class HangarAppToolbar : AppToolbar<HangarAppToolbar>
     {
         protected override string TB_ICON => "Hangar/Icons/toolbar-icon";

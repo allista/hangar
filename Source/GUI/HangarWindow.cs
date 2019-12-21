@@ -28,6 +28,7 @@ namespace AtHangar
         //this vessel
         [ConfigOption] Rect InfoWindow;
         static Vessel vessel;
+        static HangarVesselModule vesselModule;
         Metric vessel_metric;
 
         //hangars
@@ -60,12 +61,12 @@ namespace AtHangar
             }
             else if(EditorLogic.fetch != null)
             {
-                var parts = new List<Part>();
+                List<Part> parts;
                 try { parts = EditorLogic.SortedShipList; }
                 catch (NullReferenceException) { return; }
                 #if !DEBUG
                 if(parts.Count > 0 && parts[0] != null)
-                vessel_metric = new Metric(parts);
+                    vessel_metric = new Metric(parts);
                 #else
                 if(parts.Count > 0 && parts[0] != null)
                     vessel_metric = new Metric(parts, true);
@@ -202,9 +203,21 @@ namespace AtHangar
             vessel_metric.Clear();
             subwindows.ForEach(sw => sw.Show(false));
             if(vsl.isEVA) return;
+            vesselModule = vsl.vesselModules.Find(m => m is HangarVesselModule) as HangarVesselModule;
+            if(vesselModule == null)
+                return;
             vessel = vsl;
             update_lists();
             highlight_parts();
+            Show(vesselModule.ShowHangarWindow);
+        }
+
+        public override void Show(bool show)
+        {
+            if(vesselModule == null)
+                return;
+            vesselModule.ShowHangarWindow = show;
+            base.Show(show);
         }
 
         void onVesselWasModified(Vessel vsl)

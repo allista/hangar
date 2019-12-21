@@ -6,6 +6,7 @@
 //  Copyright (c) 2016 Allis Tauri
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace AtHangar
         #region Configuration
         //hangar properties
         [KSPField] public string AnimatorID = string.Empty;
+        [KSPField] public string DamperID = string.Empty;
         [KSPField] public float EnergyConsumption = 0.75f;
         [KSPField] public bool NoCrewTransfers;
         [KSPField] public bool NoResourceTransfers;
@@ -102,6 +104,7 @@ namespace AtHangar
         bool spawning_vessel_on_rails;
 
         protected MultiAnimator hangar_gates;
+        protected ATMagneticDamper hangar_damper;
         public AnimatorState gates_state => hangar_gates == null ? AnimatorState.Opened : hangar_gates.State;
         public HangarState hangar_state { get; private set; }
 
@@ -131,7 +134,7 @@ namespace AtHangar
         {
             var info = "";
             //energy consumption
-            var gates = part.GetAnimator(AnimatorID);
+            var gates = part.GetAnimator<MultiAnimator>(AnimatorID);
             if(EnergyConsumption.Equals(0) && (gates == null || gates.EnergyConsumption.Equals(0)))
                 info += "Simple cargo bay\n";
             else
@@ -154,6 +157,8 @@ namespace AtHangar
         public override void OnAwake()
         {
             base.OnAwake();
+            //vessel spawner
+            vessel_spawner = gameObject.AddComponent<VesselSpawner>();
             //content hull mesh
             var obj = new GameObject("ContentHullMesh", typeof(MeshFilter), typeof(MeshRenderer));
             obj.transform.SetParent(gameObject.transform, false);
@@ -188,6 +193,7 @@ namespace AtHangar
 
         public virtual void OnDestroy()
         {
+            Destroy(vessel_spawner);
             Destroy(hangar_name_editor);
             Destroy(content_hull_mesh.gameObject);
             Destroy(content_orientation_hint.gameObject);
@@ -209,15 +215,15 @@ namespace AtHangar
 
         protected abstract List<HangarPassage> get_connected_passages();
 
-        void build_connected_storage()
+        private void build_connected_storage()
         {
             ConnectedStorage.Clear();
             var connected_passages = get_connected_passages();
-            if(connected_passages == null) return;
+            if(connected_passages == null)
+                return;
             foreach(var p in connected_passages)
             {
-                var other_storage = p as HangarStorage;
-                if(other_storage != null)
+                if(p is HangarStorage other_storage)
                     ConnectedStorage.Add(other_storage);
             }
         }
@@ -244,6 +250,7 @@ namespace AtHangar
             build_connected_storage();
             update_total_values();
             Events["RelocateVessels"].guiActiveEditor = CanRelocate;
+            this.EnableModule(Storage != null);
         }
 
         protected virtual void update_connected_storage(Vessel vsl)
@@ -260,7 +267,8 @@ namespace AtHangar
 
         IEnumerator<YieldInstruction> delayed_update_connected_storage()
         {
-            while(!all_passages_ready) yield return null;
+            while(!all_passages_ready)
+                yield return null;
             update_connected_storage();
         }
 
@@ -281,8 +289,8 @@ namespace AtHangar
             if(!string.IsNullOrEmpty(Trigger))
             {
                 var triggers = part.FindModelComponents<Collider>(Trigger);
-                if(state == StartState.Editor)
-                    triggers.ForEach(c => c.gameObject.layer = 21); //Part Triggers
+                var layer = state == StartState.Editor ? 21 : 2; // Part Triggers : Ignore Raycasts
+                triggers.ForEach(c => c.gameObject.layer = layer);
                 if(vessel != null)
                     triggers.ForEach(c => Triggers.Add(SpatialSensor.AddToCollider(c, vessel, 1, on_trigger)));
             }
@@ -291,7 +299,7 @@ namespace AtHangar
             //initialize resources
             update_resources();
             //initialize Animator
-            hangar_gates = part.GetAnimator(AnimatorID);
+            hangar_gates = part.GetAnimator<MultiAnimator>(AnimatorID);
             if(hangar_gates == null)
             {
                 Events["Open"].active = false;
@@ -299,14 +307,16 @@ namespace AtHangar
             }
             if(EnergyConsumption > 0)
                 socket = part.CreateSocket();
+            //setup magnetic damper
+            hangar_damper = ATMagneticDamper.GetDamper(part, DamperID);
             //get docking ports that are inside hangar sapace
-            var docks = part.Modules.OfType<ModuleDockingNode>().ToList();
+            var docks = part.Modules.GetModules<ModuleDockingNode>();
             foreach(var d in CheckDockingPorts.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
                 docks_checklist.AddRange(docks.Where(m => m.referenceAttachNode == d));
             //get all passages in the vessel
             passage_checklist = part.AllModulesOfType<HangarPassage>();
             //vessel spawner
-            vessel_spawner = new VesselSpawner(part);
+            vessel_spawner.Init(part);
         }
 
         protected virtual void start_coroutines()
@@ -332,10 +342,7 @@ namespace AtHangar
             base.OnStart(state);
             early_setup(state);
             Setup();
-            if(Storage != null)
-                start_coroutines();
-            else
-                this.EnableModule(false);
+            start_coroutines();
         }
         #endregion
 
@@ -547,13 +554,30 @@ namespace AtHangar
         #region Positioning
         protected virtual IEnumerable<YieldInstruction> before_vessel_launch(PackedVessel vsl) { yield break; }
 
-        protected virtual void on_vessel_positioned(Vessel vsl) { }
+        protected virtual void on_vessel_positioned(Vessel vsl)
+        {
+
+        }
 
         protected virtual void on_vessel_loaded(Vessel vsl) { }
 
-        protected virtual void on_vessel_off_rails(Vessel vsl) => spawning_vessel_on_rails = false;
+        protected virtual void on_vessel_off_rails(Vessel vsl)
+        {
+            spawning_vessel_on_rails = false;
+            if(hangar_damper != null)
+            {
+                if(LaunchWithPunch && !LaunchVelocity.IsZero())
+                    hangar_damper.EnableDamper(false);
+                else
+                {
+                    hangar_damper.EnableDamper(true);
+                    hangar_damper.AttractorEnabled = false;
+                }
+            }
+        }
 
-        protected virtual void process_on_vessel_launched_data(BaseEventDetails data) {}
+        protected virtual void process_on_vessel_launched_data(BaseEventDetails data) { }
+
         protected virtual void on_vessel_launched(Vessel vsl)
         {
             if(spawning_vessel != null)
@@ -562,6 +586,11 @@ namespace AtHangar
             data.Set<PartModule>("hangar", this);
             process_on_vessel_launched_data(data);
             vsl.Parts.ForEach(p => p.SendEvent("onLaunchedFromHangar", data));
+            if(hangar_damper != null
+               && hangar_damper.DamperEnabled
+               && !hangar_damper.EnableControls)
+                StartCoroutine(CallbackUtil
+                    .DelayedCallback(5f, hangar_damper.EnableDamper, false));
         }
 
         protected virtual void on_part_die(Part p)
@@ -611,21 +640,23 @@ namespace AtHangar
         protected virtual Transform get_spawn_transform(PackedVessel pv, out Vector3 spawn_offset) =>
         spawn_space_manager.GetSpawnTransform(pv.metric, out spawn_offset, pv.GetSpawnRotation());
 
-        IEnumerator<YieldInstruction> launch_vessel(PackedVessel vsl)
+        IEnumerator launch_vessel(PackedVessel vsl)
         {
             if(!HighLogic.LoadedSceneIsFlight) yield break;
             while(!FlightGlobals.ready) yield return null;
             FlightCameraOverride.AnchorForSeconds(FlightCameraOverride.Mode.Hold, part.transform, 1);
             spawning_vessel_on_rails = true;
             spawning_vessel = vsl;
+            if(hangar_damper != null)
+                hangar_damper.EnableDamper(false);
             vessel_spawner.BeginLaunch();
-            //hide UI
+#if !DEBUG
             GameEvents.onHideUI.Fire();
-            yield return null;
-            Utils.SaveGame(vsl.name + "-before_launch", false);
+#endif
             yield return null;
             foreach(var yi in before_vessel_launch(vsl))
                 yield return yi;
+            yield return new WaitForFixedUpdate();
             TransferResources(vsl);
             var dV = Vector3.zero;
             Vector3 spawn_offset;
@@ -638,17 +669,16 @@ namespace AtHangar
                 //this is for compatibility with the old crew transfer framework
                 //to prevent crew duplication
                 sv.RemoveProtoVesselCrew();
-                yield return
-                    StartCoroutine(vessel_spawner
-                                   .SpawnProtoVessel(sv.proto_vessel,
-                                                     spawn_transfrom,
-                                                     spawn_offset,
-                                                     dV,
-                                                     null,
-                                                     on_vessel_positioned,
-                                                     on_vessel_loaded,
-                                                     on_vessel_off_rails,
-                                                     on_vessel_launched));
+                vessel_spawner.SpawnProtoVessel(sv.proto_vessel,
+                    spawn_transfrom,
+                    spawn_offset,
+                    dV,
+                    null,
+                    on_vessel_positioned,
+                    on_vessel_loaded,
+                    on_vessel_off_rails,
+                    on_vessel_launched);
+                yield return vessel_spawner.WaitForLaunch;
             }
             else if(vsl is PackedConstruct pc)
             {
@@ -658,23 +688,22 @@ namespace AtHangar
                     Utils.Log("Unable to load ShipConstruct {}. " +
                               "This usually means that some parts are missing " +
                               "or some modules failed to initialize.", pc.name);
-                    Utils.Message("Something whent wrong. Ship cannot be launched.");
+                    Utils.Message("Something went wrong. Ship cannot be launched.");
                     GameEvents.onShowUI.Fire();
                     vessel_spawner.AbortLaunch();
                     spawning_vessel = null;
                     yield break;
                 }
                 pc.construct.Parts[0].localRoot.transform.rotation = Quaternion.identity;
-                yield return
-                    StartCoroutine(vessel_spawner
-                                   .SpawnShipConstruct(pc.construct,
-                                                       spawn_transfrom,
-                                                       spawn_offset,
-                                                       dV,
-                                                       on_vessel_positioned,
-                                                       on_vessel_loaded,
-                                                       on_vessel_off_rails,
-                                                       on_vessel_launched));
+                vessel_spawner.SpawnShipConstruct(pc.construct,
+                    spawn_transfrom,
+                    spawn_offset,
+                    dV,
+                    on_vessel_positioned,
+                    on_vessel_loaded,
+                    on_vessel_off_rails,
+                    on_vessel_launched);
+                yield return vessel_spawner.WaitForLaunch;
             }
             GameEvents.onShowUI.Fire();
             spawning_vessel = null;
@@ -735,6 +764,7 @@ namespace AtHangar
         {
             if(HighLogic.LoadedSceneIsFlight && can_restore(stored_vessel))
             {
+                Utils.SaveGame(stored_vessel.name + "-before_launch", false);
                 if(Storage.RemoveVessel(stored_vessel))
                 {
                     Deactivate();
@@ -770,7 +800,16 @@ namespace AtHangar
             Deactivate();
         }
 
-        public void Activate() { hangar_state = HangarState.Active; }
+        public void Activate()
+        {
+            hangar_state = HangarState.Active;
+            if(hangar_damper != null && hangar_damper.HasAttractor)
+            {
+                hangar_damper.EnableDamper(true);
+                hangar_damper.AttractorEnabled = true;
+                hangar_damper.InvertAttractor = false;
+            }
+        }
 
         public void Deactivate()
         {
@@ -779,8 +818,10 @@ namespace AtHangar
 
         public void Toggle()
         {
-            if(hangar_state == HangarState.Active) Deactivate();
-            else Activate();
+            if(hangar_state == HangarState.Active)
+                Deactivate();
+            else
+                Activate();
         }
 
         //actions

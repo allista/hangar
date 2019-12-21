@@ -27,15 +27,16 @@ namespace AtHangar
             UpdateMesh(); 
             part.BreakConnectedCompoundParts();
         }
-        protected override void on_aspect_changed(BaseField field, object value) => update_and_break_struts();
-        protected virtual void on_top_size_changed(BaseField field, object value) => update_and_break_struts();
-        protected virtual void on_bottom_size_changed(BaseField field, object value) => update_and_break_struts();
+        protected override void on_aspect_changed(object value) => update_and_break_struts();
+        protected virtual void on_top_size_changed(object value) => update_and_break_struts();
+        protected virtual void on_bottom_size_changed(object value) => update_and_break_struts();
 
         //module config
         [KSPField] public float AreaCost     = 9f;
         [KSPField] public float AreaDensity  = 2.7f*6e-3f; // 2.7t/m^3 * 1m^2 * 6mm: aluminium sheet 6mm thick
         [KSPField] public float UnitDiameter = 1.25f; // m
         [KSPField] public float Length       = 1f;    // m
+        [KSPField] public float UsableVolumeRatio = 1f;
 
         [KSPField] public string BodyName       = "adapter";
         [KSPField] public string ColliderName   = "collider";
@@ -66,20 +67,35 @@ namespace AtHangar
 
         protected override void prepare_model()
         {
+            orig_nodes[0] = base_part.FindAttachNode(TopNodeName);
+            orig_nodes[1] = base_part.FindAttachNode(BottomNodeName);
+            var adapter = base_part.Modules.GetModule<HangarProceduralAdapter>();
+            if(adapter != null)
+                orig_size = adapter.size;
+            else
+                this.Log("Can't find base ProceduralAdapter module");
             get_part_components();
             update_body();
             update_attach_nodes();
         }
 
+        private TruncatedCone new_cone(float top, float bottom, float asp)
+        {
+            var uR = UnitDiameter / 2;
+            return new TruncatedCone(bottom * uR, top * uR, Length * asp);
+        }
+
+        protected override void update_orig_mass_and_cost()
+        {
+            var cone = new_cone(orig_size.x, orig_size.y, orig_aspect);
+            orig_mass = cone.Area * AreaDensity;
+            orig_cost = cone.Area * AreaCost;
+        }
+
         public override void SaveDefaults()
         {
-            base.SaveDefaults();
-            HangarProceduralAdapter adapter = base_part.Modules.GetModule<HangarProceduralAdapter>();
-            if(adapter != null) orig_size = adapter.size;
-            else this.Log("Can't find base ProceduralAdapter module");
             old_size = size;
-            orig_nodes[0] = base_part.FindAttachNode(TopNodeName);
-            orig_nodes[1] = base_part.FindAttachNode(BottomNodeName);
+            base.SaveDefaults();
         }
 
         public override void OnStart(StartState state)
@@ -101,10 +117,17 @@ namespace AtHangar
                 setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
                 setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
                 setup_field(Fields["aspect"], minAspect, maxAspect, aspectStepLarge, aspectStepSmall);
-                Fields["topSize"].uiControlEditor.onFieldChanged = on_top_size_changed;
-                Fields["bottomSize"].uiControlEditor.onFieldChanged = on_bottom_size_changed;
+                Fields["topSize"].OnValueModified += on_top_size_changed;
+                Fields["bottomSize"].OnValueModified += on_bottom_size_changed;
             }
             StartCoroutine(CallbackUtil.WaitUntil(() => passage == null || passage.Ready, UpdateMesh));
+        }
+
+        protected override void OnDestroy()
+        {
+            Fields[nameof(topSize)].OnValueModified -= on_top_size_changed;
+            Fields[nameof(bottomSize)].OnValueModified -= on_bottom_size_changed;
+            base.OnDestroy();
         }
 
         void get_part_components()
@@ -140,11 +163,11 @@ namespace AtHangar
         void update_body()
         {
             //recalculate the cone
-            float H  = Length*aspect;
-            float Rb = bottomSize*UnitDiameter/2;
-            float Rt = topSize*UnitDiameter/2;
-            if(body == null) body = new State<TruncatedCone>(new TruncatedCone(Rb, Rt, H));
-            else body.current = new TruncatedCone(Rb, Rt, H);
+            var cone = new_cone(topSize, bottomSize, aspect);
+            if(body == null)
+                body = new State<TruncatedCone>(cone);
+            else
+                body.current = cone;
             //calculate number of sides and dimensions
             int sides = Mathf.RoundToInt(24+6*(Mathf.Max(topSize, bottomSize)-1));
             sides += sides%2; // make sides even
@@ -159,7 +182,7 @@ namespace AtHangar
             part.ResetModelMeshRenderersCache();
             //calculate mass and cost changes
             mass = body.current.Area*AreaDensity;
-            cost = AreaCost*body.current.Area;
+            cost = body.current.Area*AreaCost;
         }
 
         void update_passage()
@@ -234,6 +257,10 @@ namespace AtHangar
             update_body();
             update_attach_nodes();
             update_passage();
+            var data = new BaseEventDetails(BaseEventDetails.Sender.AUTO);
+            data.Set<string>("volName", "Tankage");
+            data.Set<double>("newTotalVolume", body.current.V*UsableVolumeRatio);
+            part.SendEvent("OnPartVolumeChanged", data);
             old_size = size;
             old_aspect = aspect;
             Utils.UpdateEditorGUI();

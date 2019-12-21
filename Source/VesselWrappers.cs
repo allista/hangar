@@ -14,9 +14,9 @@ namespace AtHangar
 {
     public class PackedConstruct : PackedVessel
     {
-        public string flag { get; private set; }
         public ShipConstruct construct { get; private set; }
-        ConfigNode vessel_node;
+        private ConfigNode vessel_node;
+        private string flag;
 
         public bool LoadConstruct()
         {

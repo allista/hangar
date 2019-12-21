@@ -62,7 +62,7 @@ namespace AtHangar
     public class HangarEntrance : ExternalHangar
     {
         protected override List<HangarPassage> get_connected_passages() =>
-        Storage?.ConnectedPassages();
+            Storage != null ? Storage.ConnectedPassages() : null;
 
         protected override void early_setup(StartState state)
         {
@@ -76,10 +76,10 @@ namespace AtHangar
 
     public class HangarGateway : ExternalHangar
     {
-        HangarPassage entrance;
+        private HangarPassage entrance;
 
         protected override List<HangarPassage> get_connected_passages() =>
-        entrance?.ConnectedPassages();
+            entrance != null ? entrance.ConnectedPassages() : null;
 
         protected override void update_connected_storage()
         {
@@ -96,12 +96,11 @@ namespace AtHangar
 
         protected override void update_connected_storage(Vessel vsl)
         {
-            if(vsl == part.vessel && all_passages_ready)
-            {
-                update_connected_storage();
-                if(!enabled && hangar_gates != null)
-                    Close();
-            }
+            if(vsl != part.vessel || vsl == null || !all_passages_ready)
+                return;
+            update_connected_storage();
+            if(!enabled && hangar_gates != null)
+                Close();
         }
 
         protected override void early_setup(StartState state)
