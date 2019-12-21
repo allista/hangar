@@ -5,7 +5,7 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 * **v3.5.0**
     * **Magnetic Dampers**
-        * All hangars except for VTOL and fairings now have the 
+        * All hangars except for VTOL and fairings now have the
           ATMagneticDamper module.
         * It can be switched on/off even remotely.
         * Its attenuation can also be changed in PAW in flight.
@@ -22,17 +22,19 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
           activated on launch and, in case of the orbital hangars, on hangar
           activation. This **helps a lot** with launching heavy-with-many-parts
           rovers and planes that tend to jump on their wheels and explode.
-          Should also help with sliding issues mentioned on the forum. 
+          Should also help with sliding issues mentioned on the forum.
     * Hagar window remembers its **visibility per vessel**.
     * When Configurable Containers are installed, the **Universal Fuel Tank**
-      is added to fuel tanks. It is basically the Procedural Adapter 
+      is added to fuel tanks. It is basically the Procedural Adapter
       with Tank Manager and LFO tanks by default.
+    * **Rover Lander** and **Mk3 Hangar** both spawn vessels at the floor now.
+      No more falling from the center of the hangar.
     * Updated the Square Heatshields' configs to be more stock-like
     * Moved Square Heatshields to **Thermal category**
     * Moved non-ground and non-inflatible hangars to **Payload category**
-    * Fixed the problem with Hangar Gateway that was missing the storage in 
+    * Fixed the problem with Hangar Gateway that was missing the storage in
       mined asteroids after game reloading or vessel switching.
-    * Fixed the problem with exploding vessels, when launched in very tight 
+    * Fixed the problem with exploding vessels, when launched in very tight
       quarters, i.e. with some parts of the launched vessel mere centimeters
       away from the hangar walls.
     * Fixed directions of RCS plumes on the Hangar Gateway
