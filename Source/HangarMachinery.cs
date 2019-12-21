@@ -807,6 +807,7 @@ namespace AtHangar
             {
                 hangar_damper.EnableDamper(true);
                 hangar_damper.AttractorEnabled = true;
+                hangar_damper.InvertAttractor = false;
             }
         }
 
