@@ -3,7 +3,11 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.5.0.1**
+* **v3.5.0.2**
+    * **Compatible with KSP-1.9**
+    * Compiled against AT_Utils 1.9.2
+
+* v3.5.0.1
     * Compiled against AT_Utils 1.9.1
 
 * v3.5.0
