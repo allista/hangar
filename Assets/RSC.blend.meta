@@ -1,0 +1,211 @@
+fileFormatVersion: 2
+guid: 3ea24a02cb0267046957f403c6ffac79
+ModelImporter:
+  serializedVersion: 21
+  fileIDToRecycleName:
+    100000: B9_Control_RCS_Block_R12
+    100002: collider
+    100004: Mesh1
+    100006: Mesh1_001
+    100008: model_rcs_block_r12
+    100010: rcs-holes
+    100012: rcs-holes_001
+    100014: rcs-port-1
+    100016: rcs-port-collider
+    100018: rcs-port-collider_001
+    100020: RCSthruster
+    100022: RCSthruster_001
+    100024: RCSthruster_002
+    100026: RCSthruster_003
+    100028: RCSthruster_004
+    100030: RCSthruster_005
+    100032: RCSthruster_006
+    100034: RCSthruster_007
+    100036: RCSthruster_008
+    100038: RCSthruster_009
+    100040: RCSthruster_010
+    100042: RCSthruster_011
+    100044: RCSthruster_012
+    100046: RCSthruster_013
+    100048: RCSthruster_014
+    100050: RCSthruster_015
+    100052: RCSthruster_016
+    100054: RCSthruster_017
+    100056: RCSthruster_018
+    100058: RCSthruster_019
+    100060: RCSthruster_020
+    100062: RCSthruster_021
+    100064: RCSthruster_022
+    100066: RCSthruster_023
+    100068: RSC
+    100070: //RootNode
+    100072: rsc-port
+    100074: RSCthruster
+    100076: RSCthruster_001
+    100078: RSCthruster_002
+    100080: RSCthruster_003
+    100082: RSCthruster_004
+    100084: RSCthruster_005
+    100086: RSCthruster_006
+    100088: RSCthruster_007
+    100090: thrusters
+    100092: thrusters_001
+    100094: thrusters_002
+    400000: B9_Control_RCS_Block_R12
+    400002: collider
+    400004: Mesh1
+    400006: Mesh1_001
+    400008: model_rcs_block_r12
+    400010: rcs-holes
+    400012: rcs-holes_001
+    400014: rcs-port-1
+    400016: rcs-port-collider
+    400018: rcs-port-collider_001
+    400020: RCSthruster
+    400022: RCSthruster_001
+    400024: RCSthruster_002
+    400026: RCSthruster_003
+    400028: RCSthruster_004
+    400030: RCSthruster_005
+    400032: RCSthruster_006
+    400034: RCSthruster_007
+    400036: RCSthruster_008
+    400038: RCSthruster_009
+    400040: RCSthruster_010
+    400042: RCSthruster_011
+    400044: RCSthruster_012
+    400046: RCSthruster_013
+    400048: RCSthruster_014
+    400050: RCSthruster_015
+    400052: RCSthruster_016
+    400054: RCSthruster_017
+    400056: RCSthruster_018
+    400058: RCSthruster_019
+    400060: RCSthruster_020
+    400062: RCSthruster_021
+    400064: RCSthruster_022
+    400066: RCSthruster_023
+    400068: RSC
+    400070: //RootNode
+    400072: rsc-port
+    400074: RSCthruster
+    400076: RSCthruster_001
+    400078: RSCthruster_002
+    400080: RSCthruster_003
+    400082: RSCthruster_004
+    400084: RSCthruster_005
+    400086: RSCthruster_006
+    400088: RSCthruster_007
+    400090: thrusters
+    400092: thrusters_001
+    400094: thrusters_002
+    2300000: collider
+    2300002: Mesh1
+    2300004: Mesh1_001
+    2300006: rcs-holes
+    2300008: rcs-holes_001
+    2300010: rcs-port-1
+    2300012: rcs-port-collider
+    2300014: rcs-port-collider_001
+    2300016: RSC
+    2300018: rsc-port
+    2300020: thrusters_001
+    3300000: collider
+    3300002: Mesh1
+    3300004: Mesh1_001
+    3300006: rcs-holes
+    3300008: rcs-holes_001
+    3300010: rcs-port-1
+    3300012: rcs-port-collider
+    3300014: rcs-port-collider_001
+    3300016: RSC
+    3300018: rsc-port
+    3300020: thrusters_001
+    4300000: rcs-port-1
+    4300002: rcs-holes_001
+    4300004: rcs-port-collider_001
+    4300006: RSC
+    4300008: collider
+    4300010: rsc-port
+    4300012: rcs-holes
+    4300014: rcs-port-collider
+    4300016: thrusters_001
+    4300018: Mesh1_001
+    4300020: Mesh1
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,171 @@
+fileFormatVersion: 2
+guid: ff4976abf1ea6564db95dd8c5c4745e3
+ModelImporter:
+  serializedVersion: 21
+  fileIDToRecycleName:
+    100000: base-collider
+    100002: cap
+    100004: cap-collider
+    100006: cap-collider_001
+    100008: cap-collider_002
+    100010: cap-collider_003
+    100012: cap_001
+    100014: collider
+    100016: //RootNode
+    100018: fairings-collider
+    100020: fairings-collider_001
+    100022: fairings-collider_002
+    100024: fairings-collider_003
+    100026: fairings-collider_004
+    100028: fairings-collider_005
+    100030: fairings-collider_006
+    100032: fairings-collider_007
+    100034: hangar-space
+    100036: launch-position
+    400000: base-collider
+    400002: cap
+    400004: cap-collider
+    400006: cap-collider_001
+    400008: cap-collider_002
+    400010: cap-collider_003
+    400012: cap_001
+    400014: collider
+    400016: //RootNode
+    400018: fairings-collider
+    400020: fairings-collider_001
+    400022: fairings-collider_002
+    400024: fairings-collider_003
+    400026: fairings-collider_004
+    400028: fairings-collider_005
+    400030: fairings-collider_006
+    400032: fairings-collider_007
+    400034: hangar-space
+    400036: launch-position
+    2300000: base-collider
+    2300002: cap
+    2300004: cap-collider
+    2300006: cap-collider_001
+    2300008: cap-collider_002
+    2300010: cap-collider_003
+    2300012: cap_001
+    2300014: //RootNode
+    2300016: fairings-collider
+    2300018: fairings-collider_001
+    2300020: fairings-collider_002
+    2300022: fairings-collider_003
+    2300024: fairings-collider_004
+    2300026: fairings-collider_005
+    2300028: fairings-collider_006
+    2300030: fairings-collider_007
+    2300032: hangar-space
+    3300000: base-collider
+    3300002: cap
+    3300004: cap-collider
+    3300006: cap-collider_001
+    3300008: cap-collider_002
+    3300010: cap-collider_003
+    3300012: cap_001
+    3300014: //RootNode
+    3300016: fairings-collider
+    3300018: fairings-collider_001
+    3300020: fairings-collider_002
+    3300022: fairings-collider_003
+    3300024: fairings-collider_004
+    3300026: fairings-collider_005
+    3300028: fairings-collider_006
+    3300030: fairings-collider_007
+    3300032: hangar-space
+    4300000: fairings
+    4300002: cap
+    4300004: cap-collider_001
+    4300006: cap-collider
+    4300008: cap_001
+    4300010: cap-collider_003
+    4300012: cap-collider_002
+    4300014: hangar-space
+    4300016: base-collider
+    4300018: fairings-collider_007
+    4300020: fairings-collider_006
+    4300022: fairings-collider_005
+    4300024: fairings-collider_004
+    4300026: fairings-collider_003
+    4300028: fairings-collider_002
+    4300030: fairings-collider_001
+    4300032: fairings-collider
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

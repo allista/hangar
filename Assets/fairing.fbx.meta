@@ -1,0 +1,341 @@
+fileFormatVersion: 2
+guid: c591c718dd5200c48981acd31b600ae4
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: base-collider
+    100002: //RootNode
+    100004: fairings
+    100006: fairings-collider
+    100008: fairings-collider-bottom
+    100010: fairings-collider_001
+    100012: fairings-collider_002
+    100014: fairings-collider_003
+    100016: fairings-collider_004
+    100018: fairings-collider_005
+    100020: fairings-collider_006
+    100022: fairings-collider_007
+    100024: hangar-space
+    100026: hinge
+    100028: hinge_001
+    100030: hinge_002
+    100032: hinge_003
+    100034: hinge_004
+    100036: hinge_005
+    100038: hinge_006
+    100040: hinge_007
+    100042: launch-position
+    100044: petal
+    100046: petal_001
+    100048: petal_002
+    100050: petal_003
+    100052: petal_004
+    100054: petal_005
+    100056: petal_006
+    100058: petal_007
+    100060: petals
+    100062: cap
+    100064: cap-collider
+    100066: cap-collider_001
+    100068: cap-collider_002
+    100070: cap-collider_003
+    100072: cap_001
+    100074: collider
+    400000: base-collider
+    400002: //RootNode
+    400004: fairings
+    400006: fairings-collider
+    400008: fairings-collider-bottom
+    400010: fairings-collider_001
+    400012: fairings-collider_002
+    400014: fairings-collider_003
+    400016: fairings-collider_004
+    400018: fairings-collider_005
+    400020: fairings-collider_006
+    400022: fairings-collider_007
+    400024: hangar-space
+    400026: hinge
+    400028: hinge_001
+    400030: hinge_002
+    400032: hinge_003
+    400034: hinge_004
+    400036: hinge_005
+    400038: hinge_006
+    400040: hinge_007
+    400042: launch-position
+    400044: petal
+    400046: petal_001
+    400048: petal_002
+    400050: petal_003
+    400052: petal_004
+    400054: petal_005
+    400056: petal_006
+    400058: petal_007
+    400060: petals
+    400062: cap
+    400064: cap-collider
+    400066: cap-collider_001
+    400068: cap-collider_002
+    400070: cap-collider_003
+    400072: cap_001
+    400074: collider
+    2300000: base-collider
+    2300002: //RootNode
+    2300004: fairings
+    2300006: fairings-collider
+    2300008: fairings-collider-bottom
+    2300010: fairings-collider_001
+    2300012: fairings-collider_002
+    2300014: fairings-collider_003
+    2300016: fairings-collider_004
+    2300018: fairings-collider_005
+    2300020: fairings-collider_006
+    2300022: fairings-collider_007
+    2300024: hangar-space
+    2300026: hinge
+    2300028: hinge_001
+    2300030: hinge_002
+    2300032: hinge_003
+    2300034: hinge_004
+    2300036: hinge_005
+    2300038: hinge_006
+    2300040: hinge_007
+    2300042: petal
+    2300044: petal_001
+    2300046: petal_002
+    2300048: petal_003
+    2300050: petal_004
+    2300052: petal_005
+    2300054: petal_006
+    2300056: petal_007
+    2300058: cap
+    2300060: cap-collider
+    2300062: cap-collider_001
+    2300064: cap-collider_002
+    2300066: cap-collider_003
+    2300068: cap_001
+    3300000: base-collider
+    3300002: //RootNode
+    3300004: fairings
+    3300006: fairings-collider
+    3300008: fairings-collider-bottom
+    3300010: fairings-collider_001
+    3300012: fairings-collider_002
+    3300014: fairings-collider_003
+    3300016: fairings-collider_004
+    3300018: fairings-collider_005
+    3300020: fairings-collider_006
+    3300022: fairings-collider_007
+    3300024: hangar-space
+    3300026: hinge
+    3300028: hinge_001
+    3300030: hinge_002
+    3300032: hinge_003
+    3300034: hinge_004
+    3300036: hinge_005
+    3300038: hinge_006
+    3300040: hinge_007
+    3300042: petal
+    3300044: petal_001
+    3300046: petal_002
+    3300048: petal_003
+    3300050: petal_004
+    3300052: petal_005
+    3300054: petal_006
+    3300056: petal_007
+    3300058: cap
+    3300060: cap-collider
+    3300062: cap-collider_001
+    3300064: cap-collider_002
+    3300066: cap-collider_003
+    3300068: cap_001
+    4300000: fairings-base
+    4300002: hangar-space
+    4300004: base-collider
+    4300006: fairings
+    4300008: fairings-collider_007
+    4300010: fairings-collider_006
+    4300012: fairings-collider_005
+    4300014: fairings-collider_004
+    4300016: fairings-collider_003
+    4300018: fairings-collider_002
+    4300020: fairings-collider_001
+    4300022: fairings-collider-bottom
+    4300024: fairings-collider
+    4300026: petal
+    4300028: hinge
+    4300030: petal_007
+    4300032: hinge_007
+    4300034: petal_006
+    4300036: hinge_006
+    4300038: petal_004
+    4300040: hinge_004
+    4300042: petal_005
+    4300044: hinge_005
+    4300046: petal_003
+    4300048: hinge_003
+    4300050: petal_002
+    4300052: hinge_002
+    4300054: petal_001
+    4300056: hinge_001
+    4300058: cap
+    4300060: cap-collider_001
+    4300062: cap-collider
+    4300064: cap_001
+    4300066: cap-collider_003
+    4300068: cap-collider_002
+    7400000: open-petals
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 2
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: open-petals
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 49
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: base-collider
+        weight: 1
+      - path: fairings
+        weight: 1
+      - path: fairings/fairings-collider
+        weight: 1
+      - path: fairings/fairings-collider-bottom
+        weight: 1
+      - path: fairings/fairings-collider_001
+        weight: 1
+      - path: fairings/fairings-collider_002
+        weight: 1
+      - path: fairings/fairings-collider_003
+        weight: 1
+      - path: fairings/fairings-collider_004
+        weight: 1
+      - path: fairings/fairings-collider_005
+        weight: 1
+      - path: fairings/fairings-collider_006
+        weight: 1
+      - path: fairings/fairings-collider_007
+        weight: 1
+      - path: hangar-space
+        weight: 1
+      - path: hangar-space/launch-position
+        weight: 1
+      - path: petals
+        weight: 1
+      - path: petals/petal
+        weight: 1
+      - path: petals/petal/hinge
+        weight: 1
+      - path: petals/petal_001
+        weight: 1
+      - path: petals/petal_001/hinge_001
+        weight: 1
+      - path: petals/petal_002
+        weight: 1
+      - path: petals/petal_002/hinge_002
+        weight: 1
+      - path: petals/petal_003
+        weight: 1
+      - path: petals/petal_003/hinge_003
+        weight: 1
+      - path: petals/petal_004
+        weight: 1
+      - path: petals/petal_004/hinge_004
+        weight: 1
+      - path: petals/petal_005
+        weight: 1
+      - path: petals/petal_005/hinge_005
+        weight: 1
+      - path: petals/petal_006
+        weight: 1
+      - path: petals/petal_006/hinge_006
+        weight: 1
+      - path: petals/petal_007
+        weight: 1
+      - path: petals/petal_007/hinge_007
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

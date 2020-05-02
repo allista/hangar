@@ -1,0 +1,212 @@
+fileFormatVersion: 2
+guid: 3314a644ea0b0f74d9a36712d986a2ea
+ModelImporter:
+  serializedVersion: 21
+  fileIDToRecycleName:
+    100000: attachNode
+    100002: attachNode_001
+    100004: attachNode_002
+    100006: attachNode_003
+    100008: collider-fixing-bar
+    100010: collider-fixing-bar_001
+    100012: collider-fixing-bar_002
+    100014: collider-fixing-bar_003
+    100016: collider-hub
+    100018: collider-radial
+    100020: collider-radial-curved
+    100022: collider-s1
+    100024: collider-s1-s1
+    100026: collider-s1-s1_001
+    100028: collider-s1-s1_002
+    100030: collider-x
+    100032: collider-y
+    100034: collider-z
+    100036: fixing-bar
+    100038: fixing-bar_001
+    100040: fixing-bar_002
+    100042: fixing-bar_003
+    100044: radial-adapter-s1-1
+    100046: radial-adapter-s1-1-mk2
+    100048: radial-adapter-s1-2
+    100050: radial-adapter-s1-2-mk2
+    100052: //RootNode
+    100054: s1-s1-adapter
+    100056: station-hub-long-s1
+    400000: attachNode
+    400002: attachNode_001
+    400004: attachNode_002
+    400006: attachNode_003
+    400008: collider-fixing-bar
+    400010: collider-fixing-bar_001
+    400012: collider-fixing-bar_002
+    400014: collider-fixing-bar_003
+    400016: collider-hub
+    400018: collider-radial
+    400020: collider-radial-curved
+    400022: collider-s1
+    400024: collider-s1-s1
+    400026: collider-s1-s1_001
+    400028: collider-s1-s1_002
+    400030: collider-x
+    400032: collider-y
+    400034: collider-z
+    400036: fixing-bar
+    400038: fixing-bar_001
+    400040: fixing-bar_002
+    400042: fixing-bar_003
+    400044: radial-adapter-s1-1
+    400046: radial-adapter-s1-1-mk2
+    400048: radial-adapter-s1-2
+    400050: radial-adapter-s1-2-mk2
+    400052: //RootNode
+    400054: s1-s1-adapter
+    400056: station-hub-long-s1
+    2300000: collider-fixing-bar
+    2300002: collider-fixing-bar_001
+    2300004: collider-fixing-bar_002
+    2300006: collider-fixing-bar_003
+    2300008: collider-hub
+    2300010: collider-radial
+    2300012: collider-radial-curved
+    2300014: collider-s1
+    2300016: collider-s1-s1
+    2300018: collider-s1-s1_001
+    2300020: collider-s1-s1_002
+    2300022: collider-x
+    2300024: collider-y
+    2300026: collider-z
+    2300028: fixing-bar
+    2300030: fixing-bar_001
+    2300032: fixing-bar_002
+    2300034: fixing-bar_003
+    2300036: radial-adapter-s1-1
+    2300038: radial-adapter-s1-1-mk2
+    2300040: radial-adapter-s1-2
+    2300042: radial-adapter-s1-2-mk2
+    2300044: s1-s1-adapter
+    2300046: station-hub-long-s1
+    3300000: collider-fixing-bar
+    3300002: collider-fixing-bar_001
+    3300004: collider-fixing-bar_002
+    3300006: collider-fixing-bar_003
+    3300008: collider-hub
+    3300010: collider-radial
+    3300012: collider-radial-curved
+    3300014: collider-s1
+    3300016: collider-s1-s1
+    3300018: collider-s1-s1_001
+    3300020: collider-s1-s1_002
+    3300022: collider-x
+    3300024: collider-y
+    3300026: collider-z
+    3300028: fixing-bar
+    3300030: fixing-bar_001
+    3300032: fixing-bar_002
+    3300034: fixing-bar_003
+    3300036: radial-adapter-s1-1
+    3300038: radial-adapter-s1-1-mk2
+    3300040: radial-adapter-s1-2
+    3300042: radial-adapter-s1-2-mk2
+    3300044: s1-s1-adapter
+    3300046: station-hub-long-s1
+    4300000: radial-adapter-s1-1-mk2
+    4300002: fixing-bar_002
+    4300004: collider-fixing-bar_002
+    4300006: collider-s1-s1_002
+    4300008: fixing-bar_001
+    4300010: collider-fixing-bar_001
+    4300012: radial-adapter-s1-2-mk2
+    4300014: fixing-bar
+    4300016: collider-fixing-bar
+    4300018: fixing-bar_003
+    4300020: collider-fixing-bar_003
+    4300022: collider-s1-s1_001
+    4300024: s1-s1-adapter
+    4300026: radial-adapter-s1-1
+    4300028: collider-radial-curved
+    4300030: collider-s1
+    4300032: station-hub-long-s1
+    4300034: collider-y
+    4300036: collider-x
+    4300038: collider-z
+    4300040: collider-hub
+    4300042: radial-adapter-s1-2
+    4300044: collider-radial
+    4300046: collider-s1-s1
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

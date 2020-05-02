@@ -1,0 +1,269 @@
+fileFormatVersion: 2
+guid: 071299f21332a764cb8adb2dcc48a568
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: cabin-position
+    100004: collider-back
+    100006: collider_001
+    100008: collider_002
+    100010: collider_003
+    100012: collider_004
+    100014: collider_005
+    100016: collider_006
+    100018: collider_007
+    100020: collider_008
+    100022: colliders
+    100024: dock-position
+    100026: gateway-door
+    100028: gateway-door_001
+    100030: hangar-space
+    100032: hangar-trigger
+    100034: launch-position
+    100036: rail
+    100038: rail_001
+    100040: rail_002
+    100042: rail_003
+    100044: collider-door
+    100046: collider-door_001
+    100048: collider_000
+    100050: asteroid-gateway
+    100052: Point
+    100054: rcs-position
+    100056: left-lamp
+    100058: lights
+    100060: right-lamp
+    400000: //RootNode
+    400002: cabin-position
+    400004: collider-back
+    400006: collider_001
+    400008: collider_002
+    400010: collider_003
+    400012: collider_004
+    400014: collider_005
+    400016: collider_006
+    400018: collider_007
+    400020: collider_008
+    400022: colliders
+    400024: dock-position
+    400026: gateway-door
+    400028: gateway-door_001
+    400030: hangar-space
+    400032: hangar-trigger
+    400034: launch-position
+    400036: rail
+    400038: rail_001
+    400040: rail_002
+    400042: rail_003
+    400044: collider-door
+    400046: collider-door_001
+    400048: collider_000
+    400050: asteroid-gateway
+    400052: Point
+    400054: rcs-position
+    400056: left-lamp
+    400058: lights
+    400060: right-lamp
+    2300000: //RootNode
+    2300002: collider-back
+    2300004: collider_001
+    2300006: collider_002
+    2300008: collider_003
+    2300010: collider_004
+    2300012: collider_005
+    2300014: collider_006
+    2300016: collider_007
+    2300018: collider_008
+    2300020: gateway-door
+    2300022: gateway-door_001
+    2300024: hangar-space
+    2300026: hangar-trigger
+    2300028: rail
+    2300030: rail_001
+    2300032: rail_002
+    2300034: rail_003
+    2300036: collider-door
+    2300038: collider-door_001
+    2300040: collider_000
+    2300042: asteroid-gateway
+    3300000: //RootNode
+    3300002: collider-back
+    3300004: collider_001
+    3300006: collider_002
+    3300008: collider_003
+    3300010: collider_004
+    3300012: collider_005
+    3300014: collider_006
+    3300016: collider_007
+    3300018: collider_008
+    3300020: gateway-door
+    3300022: gateway-door_001
+    3300024: hangar-space
+    3300026: hangar-trigger
+    3300028: rail
+    3300030: rail_001
+    3300032: rail_002
+    3300034: rail_003
+    3300036: collider-door
+    3300038: collider-door_001
+    3300040: collider_000
+    3300042: asteroid-gateway
+    4300000: asteroid-gateway
+    4300002: hangar-trigger
+    4300004: hangar-space
+    4300006: gateway-door
+    4300008: rail
+    4300010: rail_001
+    4300012: gateway-door_001
+    4300014: rail_002
+    4300016: rail_003
+    4300018: collider-back
+    4300020: collider_007
+    4300022: collider_006
+    4300024: collider_005
+    4300026: collider_004
+    4300028: collider_003
+    4300030: collider_002
+    4300032: collider_001
+    4300034: collider_008
+    4300036: collider-door
+    4300038: collider-door_001
+    4300040: collider_000
+    7400000: open-gates
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: open-gates
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 249
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: cabin-position
+        weight: 1
+      - path: colliders
+        weight: 1
+      - path: colliders/collider-back
+        weight: 1
+      - path: colliders/collider_001
+        weight: 1
+      - path: colliders/collider_002
+        weight: 1
+      - path: colliders/collider_003
+        weight: 1
+      - path: colliders/collider_004
+        weight: 1
+      - path: colliders/collider_005
+        weight: 1
+      - path: colliders/collider_006
+        weight: 1
+      - path: colliders/collider_007
+        weight: 1
+      - path: colliders/collider_008
+        weight: 1
+      - path: dock-position
+        weight: 1
+      - path: gateway-door
+        weight: 1
+      - path: gateway-door/rail
+        weight: 1
+      - path: gateway-door/rail_001
+        weight: 1
+      - path: gateway-door_001
+        weight: 1
+      - path: gateway-door_001/rail_002
+        weight: 1
+      - path: gateway-door_001/rail_003
+        weight: 1
+      - path: hangar-space
+        weight: 1
+      - path: hangar-trigger
+        weight: 1
+      - path: launch-position
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

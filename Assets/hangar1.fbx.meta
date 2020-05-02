@@ -1,0 +1,219 @@
+fileFormatVersion: 2
+guid: e70a8007526b0af4d90448a70cc89250
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: clamp
+    100002: collider
+    100004: collider_back
+    100006: collider_bottom
+    100008: collider_clamp
+    100010: collider_left
+    100012: collider_right
+    100014: collider_top
+    100016: dockingNode
+    100018: gates
+    100020: hangar-lamp
+    100022: //RootNode
+    100024: hangar_space
+    100026: launch_position
+    100028: trigger_hangar
+    100030: solarpanel
+    100032: suncatcher
+    100034: collider_bottom_front
+    100036: Cube
+    100038: hangar1
+    100040: rail
+    400000: clamp
+    400002: collider
+    400004: collider_back
+    400006: collider_bottom
+    400008: collider_clamp
+    400010: collider_left
+    400012: collider_right
+    400014: collider_top
+    400016: dockingNode
+    400018: gates
+    400020: hangar-lamp
+    400022: //RootNode
+    400024: hangar_space
+    400026: launch_position
+    400028: trigger_hangar
+    400030: solarpanel
+    400032: suncatcher
+    400034: collider_bottom_front
+    400036: Cube
+    400038: hangar1
+    400040: rail
+    2300000: clamp
+    2300002: collider_back
+    2300004: collider_bottom
+    2300006: collider_clamp
+    2300008: collider_left
+    2300010: collider_right
+    2300012: collider_top
+    2300014: gates
+    2300016: //RootNode
+    2300018: hangar_space
+    2300020: trigger_hangar
+    2300022: solarpanel
+    2300024: collider_bottom_front
+    2300026: Cube
+    2300028: hangar1
+    2300030: rail
+    3300000: clamp
+    3300002: collider_back
+    3300004: collider_bottom
+    3300006: collider_clamp
+    3300008: collider_left
+    3300010: collider_right
+    3300012: collider_top
+    3300014: gates
+    3300016: //RootNode
+    3300018: hangar_space
+    3300020: trigger_hangar
+    3300022: solarpanel
+    3300024: collider_bottom_front
+    3300026: Cube
+    3300028: hangar1
+    3300030: rail
+    4300000: model
+    4300002: hangar_space
+    4300004: gates
+    4300006: trigger_hangar
+    4300008: clamp
+    4300010: collider_clamp
+    4300012: collider_back
+    4300014: collider_bottom
+    4300016: collider_right
+    4300018: collider_left
+    4300020: collider_top
+    4300022: hangar
+    4300024: hangar1
+    4300026: solarpanel
+    4300028: collider_bottom_front
+    4300030: Cube
+    4300032: rail
+    7400000: open-gate
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: open-gate
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 149
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: clamp
+        weight: 1
+      - path: clamp/collider_clamp
+        weight: 1
+      - path: collider
+        weight: 1
+      - path: collider/collider_back
+        weight: 1
+      - path: collider/collider_bottom
+        weight: 1
+      - path: collider/collider_left
+        weight: 1
+      - path: collider/collider_right
+        weight: 1
+      - path: collider/collider_top
+        weight: 1
+      - path: dockingNode
+        weight: 1
+      - path: gates
+        weight: 1
+      - path: hangar-lamp
+        weight: 1
+      - path: hangar_space
+        weight: 1
+      - path: launch_position
+        weight: 1
+      - path: trigger_hangar
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

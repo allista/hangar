@@ -1,0 +1,217 @@
+fileFormatVersion: 2
+guid: 079ad49d63eee844688e6cbf09bfb90b
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: air-intake
+    100002: axis
+    100004: blade
+    100006: blade_001
+    100008: blade_002
+    100010: blade_003
+    100012: central-fixer
+    100014: collider-base
+    100016: collider-stator
+    100018: //RootNode
+    100020: motor
+    100022: motor-fixer
+    100024: rotor
+    100026: rotor_001
+    100028: stator
+    100030: thrustTransform
+    100032: collider-motor
+    100034: gimbal
+    100036: base
+    100038: Point
+    400000: air-intake
+    400002: axis
+    400004: blade
+    400006: blade_001
+    400008: blade_002
+    400010: blade_003
+    400012: central-fixer
+    400014: collider-base
+    400016: collider-stator
+    400018: //RootNode
+    400020: motor
+    400022: motor-fixer
+    400024: rotor
+    400026: rotor_001
+    400028: stator
+    400030: thrustTransform
+    400032: collider-motor
+    400034: gimbal
+    400036: base
+    400038: Point
+    2300000: axis
+    2300002: blade
+    2300004: blade_001
+    2300006: blade_002
+    2300008: blade_003
+    2300010: central-fixer
+    2300012: collider-base
+    2300014: collider-stator
+    2300016: //RootNode
+    2300018: motor
+    2300020: motor-fixer
+    2300022: rotor
+    2300024: rotor_001
+    2300026: stator
+    2300028: collider-motor
+    2300030: base
+    3300000: axis
+    3300002: blade
+    3300004: blade_001
+    3300006: blade_002
+    3300008: blade_003
+    3300010: central-fixer
+    3300012: collider-base
+    3300014: collider-stator
+    3300016: //RootNode
+    3300018: motor
+    3300020: motor-fixer
+    3300022: rotor
+    3300024: rotor_001
+    3300026: stator
+    3300028: collider-motor
+    3300030: base
+    4300000: base
+    4300002: collider-base
+    4300004: axis
+    4300006: stator
+    4300008: central-fixer
+    4300010: motor
+    4300012: rotor
+    4300014: blade_001
+    4300016: blade
+    4300018: rotor_001
+    4300020: blade_003
+    4300022: blade_002
+    4300024: motor-fixer
+    4300026: collider-stator
+    4300028: collider-motor
+    7400000: spin
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 0
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: spin
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 99
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: collider-base
+        weight: 1
+      - path: thrustTransform
+        weight: 1
+      - path: thrustTransform/axis
+        weight: 1
+      - path: thrustTransform/axis/stator
+        weight: 1
+      - path: thrustTransform/axis/stator/air-intake
+        weight: 1
+      - path: thrustTransform/axis/stator/central-fixer
+        weight: 1
+      - path: thrustTransform/axis/stator/central-fixer/motor
+        weight: 1
+      - path: thrustTransform/axis/stator/central-fixer/motor/motor-fixer
+        weight: 1
+      - path: thrustTransform/axis/stator/central-fixer/motor/rotor
+        weight: 1
+      - path: thrustTransform/axis/stator/central-fixer/motor/rotor/blade
+        weight: 1
+      - path: thrustTransform/axis/stator/central-fixer/motor/rotor/blade_001
+        weight: 1
+      - path: thrustTransform/axis/stator/central-fixer/motor/rotor_001
+        weight: 1
+      - path: thrustTransform/axis/stator/central-fixer/motor/rotor_001/blade_002
+        weight: 1
+      - path: thrustTransform/axis/stator/central-fixer/motor/rotor_001/blade_003
+        weight: 1
+      - path: thrustTransform/axis/stator/collider-stator
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

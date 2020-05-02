@@ -1,0 +1,154 @@
+fileFormatVersion: 2
+guid: 44d168d4980b2f843bc8ab37aec3f084
+ModelImporter:
+  serializedVersion: 21
+  fileIDToRecycleName:
+    100000: collider
+    100002: collider-bottom
+    100004: collider-bottom_001
+    100006: collider-bottom_002
+    100008: collider-wall
+    100010: collider-wall_001
+    100012: collider-wall_002
+    100014: collider-wall_003
+    100016: collider-wall_004
+    100018: collider-wall_005
+    100020: collider-wall_006
+    100022: collider-wall_007
+    100024: fairing
+    100026: //RootNode
+    100028: port-collider
+    400000: collider
+    400002: collider-bottom
+    400004: collider-bottom_001
+    400006: collider-bottom_002
+    400008: collider-wall
+    400010: collider-wall_001
+    400012: collider-wall_002
+    400014: collider-wall_003
+    400016: collider-wall_004
+    400018: collider-wall_005
+    400020: collider-wall_006
+    400022: collider-wall_007
+    400024: fairing
+    400026: //RootNode
+    400028: port-collider
+    2300000: collider-bottom
+    2300002: collider-bottom_001
+    2300004: collider-bottom_002
+    2300006: collider-wall
+    2300008: collider-wall_001
+    2300010: collider-wall_002
+    2300012: collider-wall_003
+    2300014: collider-wall_004
+    2300016: collider-wall_005
+    2300018: collider-wall_006
+    2300020: collider-wall_007
+    2300022: fairing
+    2300024: //RootNode
+    2300026: port-collider
+    3300000: collider-bottom
+    3300002: collider-bottom_001
+    3300004: collider-bottom_002
+    3300006: collider-wall
+    3300008: collider-wall_001
+    3300010: collider-wall_002
+    3300012: collider-wall_003
+    3300014: collider-wall_004
+    3300016: collider-wall_005
+    3300018: collider-wall_006
+    3300020: collider-wall_007
+    3300022: fairing
+    3300024: //RootNode
+    3300026: port-collider
+    4300000: square-heatshield
+    4300002: fairing
+    4300004: collider-bottom_002
+    4300006: collider-bottom_001
+    4300008: port-collider
+    4300010: collider-wall_007
+    4300012: collider-wall_006
+    4300014: collider-wall_003
+    4300016: collider-wall_002
+    4300018: collider-wall_001
+    4300020: collider-wall
+    4300022: collider-bottom
+    4300024: collider-wall_005
+    4300026: collider-wall_004
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

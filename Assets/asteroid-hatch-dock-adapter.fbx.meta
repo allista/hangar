@@ -1,0 +1,255 @@
+fileFormatVersion: 2
+guid: d0f3e342c76354143aa76ec32b8b00c4
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: asteroid-hatch-port
+    100004: collider-port-petals
+    100006: collider-port-petals_001
+    100008: collider-port-petals_002
+    100010: collider-port-petals_003
+    100012: collider-port-wall
+    100014: collider-port-wall-small
+    100016: collider-port-wall-small_001
+    100018: collider-port-wall-small_002
+    100020: collider-port-wall-small_003
+    100022: collider-port-wall_001
+    100024: collider-port-wall_002
+    100026: collider-port-wall_003
+    100028: collider-s2-plate
+    100030: lamp
+    100032: port-docking-node
+    100034: rail
+    100036: rail_001
+    100038: rail_002
+    100040: rail_003
+    100042: lamp-collider-l
+    100044: lamp-collider-r
+    100046: lamp-l
+    100048: lamp-r
+    400000: //RootNode
+    400002: asteroid-hatch-port
+    400004: collider-port-petals
+    400006: collider-port-petals_001
+    400008: collider-port-petals_002
+    400010: collider-port-petals_003
+    400012: collider-port-wall
+    400014: collider-port-wall-small
+    400016: collider-port-wall-small_001
+    400018: collider-port-wall-small_002
+    400020: collider-port-wall-small_003
+    400022: collider-port-wall_001
+    400024: collider-port-wall_002
+    400026: collider-port-wall_003
+    400028: collider-s2-plate
+    400030: lamp
+    400032: port-docking-node
+    400034: rail
+    400036: rail_001
+    400038: rail_002
+    400040: rail_003
+    400042: lamp-collider-l
+    400044: lamp-collider-r
+    400046: lamp-l
+    400048: lamp-r
+    2300000: //RootNode
+    2300002: asteroid-hatch-port
+    2300004: collider-port-petals
+    2300006: collider-port-petals_001
+    2300008: collider-port-petals_002
+    2300010: collider-port-petals_003
+    2300012: collider-port-wall
+    2300014: collider-port-wall-small
+    2300016: collider-port-wall-small_001
+    2300018: collider-port-wall-small_002
+    2300020: collider-port-wall-small_003
+    2300022: collider-port-wall_001
+    2300024: collider-port-wall_002
+    2300026: collider-port-wall_003
+    2300028: collider-s2-plate
+    2300030: rail
+    2300032: rail_001
+    2300034: rail_002
+    2300036: rail_003
+    2300038: lamp-collider-l
+    2300040: lamp-collider-r
+    3300000: //RootNode
+    3300002: asteroid-hatch-port
+    3300004: collider-port-petals
+    3300006: collider-port-petals_001
+    3300008: collider-port-petals_002
+    3300010: collider-port-petals_003
+    3300012: collider-port-wall
+    3300014: collider-port-wall-small
+    3300016: collider-port-wall-small_001
+    3300018: collider-port-wall-small_002
+    3300020: collider-port-wall-small_003
+    3300022: collider-port-wall_001
+    3300024: collider-port-wall_002
+    3300026: collider-port-wall_003
+    3300028: collider-s2-plate
+    3300030: rail
+    3300032: rail_001
+    3300034: rail_002
+    3300036: rail_003
+    3300038: lamp-collider-l
+    3300040: lamp-collider-r
+    4300000: s2-plate
+    4300002: rail
+    4300004: rail_003
+    4300006: rail_002
+    4300008: rail_001
+    4300010: collider-s2-plate
+    4300012: asteroid-hatch-port
+    4300014: collider-port-wall_003
+    4300016: collider-port-wall_002
+    4300018: collider-port-wall_001
+    4300020: collider-port-wall-small
+    4300022: collider-port-wall-small_003
+    4300024: collider-port-wall-small_002
+    4300026: collider-port-wall-small_001
+    4300028: collider-port-petals
+    4300030: collider-port-petals_001
+    4300032: collider-port-petals_002
+    4300034: collider-port-petals_003
+    4300036: collider-port-wall
+    4300038: lamp-collider-l
+    4300040: lamp-collider-r
+    7400000: Default Take
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Default Take
+      takeName: Default Take
+      firstFrame: 1
+      lastFrame: 2
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: asteroid-hatch-port
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-petals
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-petals_001
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-petals_002
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-petals_003
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-wall
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-wall-small
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-wall-small_001
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-wall-small_002
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-wall-small_003
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-wall_001
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-wall_002
+        weight: 1
+      - path: asteroid-hatch-port/collider-port-wall_003
+        weight: 1
+      - path: asteroid-hatch-port/port-docking-node
+        weight: 1
+      - path: collider-s2-plate
+        weight: 1
+      - path: lamp
+        weight: 1
+      - path: rail
+        weight: 1
+      - path: rail_001
+        weight: 1
+      - path: rail_002
+        weight: 1
+      - path: rail_003
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

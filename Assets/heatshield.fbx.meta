@@ -1,0 +1,157 @@
+fileFormatVersion: 2
+guid: d68604a237a435842a1f39219715c0d2
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: collider-heatshield
+    100002: //RootNode
+    100004: collider
+    100006: collider-bottom
+    100008: collider-wall
+    100010: collider-wall_001
+    100012: collider-wall_002
+    100014: collider-wall_003
+    100016: collider-wall_004
+    100018: collider-wall_005
+    100020: collider-wall_006
+    100022: collider-wall_007
+    100024: port-collider
+    100026: square-heatshield
+    100028: collider-bottom_001
+    100030: collider-bottom_002
+    100032: fairing
+    100034: Point
+    100036: Point_001
+    400000: collider-heatshield
+    400002: //RootNode
+    400004: collider
+    400006: collider-bottom
+    400008: collider-wall
+    400010: collider-wall_001
+    400012: collider-wall_002
+    400014: collider-wall_003
+    400016: collider-wall_004
+    400018: collider-wall_005
+    400020: collider-wall_006
+    400022: collider-wall_007
+    400024: port-collider
+    400026: square-heatshield
+    400028: collider-bottom_001
+    400030: collider-bottom_002
+    400032: fairing
+    400034: Point
+    400036: Point_001
+    2300000: collider-heatshield
+    2300002: //RootNode
+    2300004: collider-bottom
+    2300006: collider-wall
+    2300008: collider-wall_001
+    2300010: collider-wall_002
+    2300012: collider-wall_003
+    2300014: collider-wall_004
+    2300016: collider-wall_005
+    2300018: collider-wall_006
+    2300020: collider-wall_007
+    2300022: port-collider
+    2300024: square-heatshield
+    2300026: collider-bottom_001
+    2300028: collider-bottom_002
+    2300030: fairing
+    3300000: collider-heatshield
+    3300002: //RootNode
+    3300004: collider-bottom
+    3300006: collider-wall
+    3300008: collider-wall_001
+    3300010: collider-wall_002
+    3300012: collider-wall_003
+    3300014: collider-wall_004
+    3300016: collider-wall_005
+    3300018: collider-wall_006
+    3300020: collider-wall_007
+    3300022: port-collider
+    3300024: square-heatshield
+    3300026: collider-bottom_001
+    3300028: collider-bottom_002
+    3300030: fairing
+    4300000: square-heatshield
+    4300002: collider-heatshield
+    4300004: port-collider
+    4300006: collider-wall_007
+    4300008: collider-wall_006
+    4300010: collider-wall_003
+    4300012: collider-wall_002
+    4300014: collider-wall_001
+    4300016: collider-wall
+    4300018: collider-bottom
+    4300020: collider-wall_005
+    4300022: collider-wall_004
+    4300024: fairing
+    4300026: collider-bottom_002
+    4300028: collider-bottom_001
+    7400000: Default Take
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,118 @@
+fileFormatVersion: 2
+guid: 81f6af795f3a5e2409d20e4b98d93f50
+ModelImporter:
+  serializedVersion: 21
+  fileIDToRecycleName:
+    100000: rcs-port-collider
+    100002: RCSthruster_012
+    100004: RCSthruster_013
+    100006: RCSthruster_014
+    100008: RCSthruster_015
+    100010: RCSthruster_016
+    100012: RCSthruster_017
+    100014: RCSthruster_018
+    100016: RCSthruster_019
+    100018: RCSthruster_020
+    100020: RCSthruster_021
+    100022: RCSthruster_022
+    100024: RCSthruster_023
+    100026: //RootNode
+    100028: thrusters
+    400000: rcs-port-collider
+    400002: RCSthruster_012
+    400004: RCSthruster_013
+    400006: RCSthruster_014
+    400008: RCSthruster_015
+    400010: RCSthruster_016
+    400012: RCSthruster_017
+    400014: RCSthruster_018
+    400016: RCSthruster_019
+    400018: RCSthruster_020
+    400020: RCSthruster_021
+    400022: RCSthruster_022
+    400024: RCSthruster_023
+    400026: //RootNode
+    400028: thrusters
+    2300000: rcs-port-collider
+    2300002: //RootNode
+    3300000: rcs-port-collider
+    3300002: //RootNode
+    4300000: rcs-port
+    4300002: rcs-port-collider
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

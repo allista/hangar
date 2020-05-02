@@ -1,0 +1,232 @@
+fileFormatVersion: 2
+guid: 2c6e8333d6be03143ad00b1636303bdf
+ModelImporter:
+  serializedVersion: 21
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: battery
+    100004: battery_001
+    100006: battery_002
+    100008: battery_003
+    100010: collider-base
+    100012: collider-drill-adapter
+    100014: collider-drill-head
+    100016: collider-drill-stem
+    100018: collider-generator
+    100020: collider-generator_001
+    100022: collider-generator_002
+    100024: collider-generator_003
+    100026: dock-position
+    100028: drill
+    100030: drill-holder
+    100032: drill-holder_001
+    100034: drill-holder_002
+    100036: drill-holder_003
+    100038: generator
+    100040: generator_001
+    100042: generator_002
+    100044: generator_003
+    100046: machinery
+    100048: RCS
+    100050: RCS_001
+    100052: RCS_002
+    100054: RCS_003
+    100056: RCS_004
+    100058: RCS_005
+    100060: RCS_006
+    100062: RCS_007
+    100064: RCS_008
+    100066: RCS_009
+    100068: RCS_010
+    100070: RCS_011
+    100072: RCS_012
+    100074: RCS_013
+    100076: RCS_014
+    100078: RCS_015
+    100080: thrusters
+    100082: top-dock-position
+    400000: //RootNode
+    400002: battery
+    400004: battery_001
+    400006: battery_002
+    400008: battery_003
+    400010: collider-base
+    400012: collider-drill-adapter
+    400014: collider-drill-head
+    400016: collider-drill-stem
+    400018: collider-generator
+    400020: collider-generator_001
+    400022: collider-generator_002
+    400024: collider-generator_003
+    400026: dock-position
+    400028: drill
+    400030: drill-holder
+    400032: drill-holder_001
+    400034: drill-holder_002
+    400036: drill-holder_003
+    400038: generator
+    400040: generator_001
+    400042: generator_002
+    400044: generator_003
+    400046: machinery
+    400048: RCS
+    400050: RCS_001
+    400052: RCS_002
+    400054: RCS_003
+    400056: RCS_004
+    400058: RCS_005
+    400060: RCS_006
+    400062: RCS_007
+    400064: RCS_008
+    400066: RCS_009
+    400068: RCS_010
+    400070: RCS_011
+    400072: RCS_012
+    400074: RCS_013
+    400076: RCS_014
+    400078: RCS_015
+    400080: thrusters
+    400082: top-dock-position
+    2300000: //RootNode
+    2300002: battery
+    2300004: battery_001
+    2300006: battery_002
+    2300008: battery_003
+    2300010: collider-base
+    2300012: collider-drill-adapter
+    2300014: collider-drill-head
+    2300016: collider-drill-stem
+    2300018: collider-generator
+    2300020: collider-generator_001
+    2300022: collider-generator_002
+    2300024: collider-generator_003
+    2300026: drill
+    2300028: drill-holder
+    2300030: drill-holder_001
+    2300032: drill-holder_002
+    2300034: drill-holder_003
+    2300036: generator
+    2300038: generator_001
+    2300040: generator_002
+    2300042: generator_003
+    3300000: //RootNode
+    3300002: battery
+    3300004: battery_001
+    3300006: battery_002
+    3300008: battery_003
+    3300010: collider-base
+    3300012: collider-drill-adapter
+    3300014: collider-drill-head
+    3300016: collider-drill-stem
+    3300018: collider-generator
+    3300020: collider-generator_001
+    3300022: collider-generator_002
+    3300024: collider-generator_003
+    3300026: drill
+    3300028: drill-holder
+    3300030: drill-holder_001
+    3300032: drill-holder_002
+    3300034: drill-holder_003
+    3300036: generator
+    3300038: generator_001
+    3300040: generator_002
+    3300042: generator_003
+    4300000: factory-base
+    4300002: collider-base
+    4300004: drill
+    4300006: collider-drill-head
+    4300008: collider-drill-adapter
+    4300010: collider-drill-stem
+    4300012: drill-holder
+    4300014: drill-holder_003
+    4300016: drill-holder_002
+    4300018: drill-holder_001
+    4300020: battery_003
+    4300022: battery_002
+    4300024: battery_001
+    4300026: battery
+    4300028: generator
+    4300030: collider-generator
+    4300032: generator_003
+    4300034: collider-generator_003
+    4300036: generator_002
+    4300038: collider-generator_002
+    4300040: generator_001
+    4300042: collider-generator_001
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

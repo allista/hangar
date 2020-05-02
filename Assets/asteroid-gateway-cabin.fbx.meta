@@ -1,0 +1,275 @@
+fileFormatVersion: 2
+guid: 7f20486481fc2704d9428d60df4b3c81
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: airlock
+    100002: //RootNode
+    100004: door-ladder-trigger
+    100006: ladder
+    100008: ladder-fixer
+    100010: ladder-fixer_001
+    100012: ladder-fixer_002
+    100014: ladder-trigger
+    100016: ladder-trigger_002
+    100018: ladder-trigger_003
+    100020: ladder_001
+    100022: ladder_002
+    100024: ladder_003
+    100026: space-door
+    100028: window_000
+    100030: window_001
+    100032: window_002
+    100034: window_003
+    100036: window_004
+    100038: window_005
+    100040: windows
+    100042: lamp
+    100044: lamp-body
+    100046: lamp-holder
+    100048: collider
+    100050: gateway-cabins
+    100052: Point
+    100054: Point_001
+    400000: airlock
+    400002: //RootNode
+    400004: door-ladder-trigger
+    400006: ladder
+    400008: ladder-fixer
+    400010: ladder-fixer_001
+    400012: ladder-fixer_002
+    400014: ladder-trigger
+    400016: ladder-trigger_002
+    400018: ladder-trigger_003
+    400020: ladder_001
+    400022: ladder_002
+    400024: ladder_003
+    400026: space-door
+    400028: window_000
+    400030: window_001
+    400032: window_002
+    400034: window_003
+    400036: window_004
+    400038: window_005
+    400040: windows
+    400042: lamp
+    400044: lamp-body
+    400046: lamp-holder
+    400048: collider
+    400050: gateway-cabins
+    400052: Point
+    400054: Point_001
+    2300000: airlock
+    2300002: //RootNode
+    2300004: door-ladder-trigger
+    2300006: ladder
+    2300008: ladder-fixer
+    2300010: ladder-fixer_001
+    2300012: ladder-fixer_002
+    2300014: ladder-trigger
+    2300016: ladder-trigger_002
+    2300018: ladder-trigger_003
+    2300020: ladder_001
+    2300022: ladder_002
+    2300024: ladder_003
+    2300026: space-door
+    2300028: window_000
+    2300030: window_001
+    2300032: window_002
+    2300034: window_003
+    2300036: window_004
+    2300038: window_005
+    2300040: lamp-body
+    2300042: lamp-holder
+    2300044: collider
+    2300046: gateway-cabins
+    3300000: airlock
+    3300002: //RootNode
+    3300004: door-ladder-trigger
+    3300006: ladder
+    3300008: ladder-fixer
+    3300010: ladder-fixer_001
+    3300012: ladder-fixer_002
+    3300014: ladder-trigger
+    3300016: ladder-trigger_002
+    3300018: ladder-trigger_003
+    3300020: ladder_001
+    3300022: ladder_002
+    3300024: ladder_003
+    3300026: space-door
+    3300028: window_000
+    3300030: window_001
+    3300032: window_002
+    3300034: window_003
+    3300036: window_004
+    3300038: window_005
+    3300040: lamp-body
+    3300042: lamp-holder
+    3300044: collider
+    3300046: gateway-cabins
+    4300000: gateway-cabins
+    4300002: space-door
+    4300004: airlock
+    4300006: door-ladder-trigger
+    4300008: ladder
+    4300010: ladder-fixer_001
+    4300012: ladder-trigger
+    4300014: ladder_001
+    4300016: ladder-trigger_002
+    4300018: ladder_002
+    4300020: ladder-trigger_003
+    4300022: ladder-fixer_002
+    4300024: ladder-fixer
+    4300026: ladder_003
+    4300028: window_000
+    4300030: window_001
+    4300032: window_002
+    4300034: window_003
+    4300036: window_004
+    4300038: window_005
+    4300040: lamp-holder
+    4300042: lamp-body
+    4300044: collider
+    7400000: ladder
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: ladder
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 249
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: collider
+        weight: 1
+      - path: lamp-holder
+        weight: 1
+      - path: lamp-holder/lamp-body
+        weight: 1
+      - path: lamp-holder/lamp-body/lamp
+        weight: 1
+      - path: space-door
+        weight: 1
+      - path: space-door/airlock
+        weight: 1
+      - path: space-door/door-ladder-trigger
+        weight: 1
+      - path: space-door/ladder
+        weight: 1
+      - path: space-door/ladder/ladder-fixer_001
+        weight: 1
+      - path: space-door/ladder/ladder-trigger
+        weight: 1
+      - path: space-door/ladder/ladder_001
+        weight: 1
+      - path: space-door/ladder/ladder_001/ladder-trigger_002
+        weight: 1
+      - path: space-door/ladder/ladder_001/ladder_002
+        weight: 1
+      - path: space-door/ladder/ladder_001/ladder_002/ladder-trigger_003
+        weight: 1
+      - path: space-door/ladder-fixer
+        weight: 1
+      - path: space-door/ladder-fixer_002
+        weight: 1
+      - path: space-door/ladder_003
+        weight: 1
+      - path: windows
+        weight: 1
+      - path: windows/window_000
+        weight: 1
+      - path: windows/window_001
+        weight: 1
+      - path: windows/window_002
+        weight: 1
+      - path: windows/window_003
+        weight: 1
+      - path: windows/window_004
+        weight: 1
+      - path: windows/window_005
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
