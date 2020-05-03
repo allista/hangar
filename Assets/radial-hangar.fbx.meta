@@ -1,0 +1,345 @@
+fileFormatVersion: 2
+guid: 2c41c88bb6b7a2a408a3c7a656f523a1
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: base
+    100002: base-collider
+    100004: collider
+    100006: door
+    100008: door-collider
+    100010: door-collider-l
+    100012: door-collider-l_001
+    100014: door-collider-m
+    100016: door-collider-m_001
+    100018: door-collider-m_002
+    100020: door-collider-m_003
+    100022: door-collider-s
+    100024: door-collider-s_001
+    100026: door-collider-s_002
+    100028: door-collider-s_003
+    100030: door-collider-top
+    100032: door-collider-top_001
+    100034: door-collider_001
+    100036: door_001
+    100038: hangar-base-collider
+    100040: hangar-space
+    100042: hangar-trigger
+    100044: hangar-wall-b
+    100046: hangar-wall-b_001
+    100048: hangar-wall-b_002
+    100050: hangar-wall-b_003
+    100052: hangar-wall-s
+    100054: hangar-wall-s_001
+    100056: hangar-wall-s_002
+    100058: hangar-wall-s_003
+    100060: hangar-wall-s_004
+    100062: //RootNode
+    100064: rail
+    100066: rail_001
+    100068: rail_002
+    100070: rail_003
+    100072: launch-position
+    100074: lamp
+    400000: base
+    400002: base-collider
+    400004: collider
+    400006: door
+    400008: door-collider
+    400010: door-collider-l
+    400012: door-collider-l_001
+    400014: door-collider-m
+    400016: door-collider-m_001
+    400018: door-collider-m_002
+    400020: door-collider-m_003
+    400022: door-collider-s
+    400024: door-collider-s_001
+    400026: door-collider-s_002
+    400028: door-collider-s_003
+    400030: door-collider-top
+    400032: door-collider-top_001
+    400034: door-collider_001
+    400036: door_001
+    400038: hangar-base-collider
+    400040: hangar-space
+    400042: hangar-trigger
+    400044: hangar-wall-b
+    400046: hangar-wall-b_001
+    400048: hangar-wall-b_002
+    400050: hangar-wall-b_003
+    400052: hangar-wall-s
+    400054: hangar-wall-s_001
+    400056: hangar-wall-s_002
+    400058: hangar-wall-s_003
+    400060: hangar-wall-s_004
+    400062: //RootNode
+    400064: rail
+    400066: rail_001
+    400068: rail_002
+    400070: rail_003
+    400072: launch-position
+    400074: lamp
+    2300000: base
+    2300002: base-collider
+    2300004: door
+    2300006: door-collider-l
+    2300008: door-collider-l_001
+    2300010: door-collider-m
+    2300012: door-collider-m_001
+    2300014: door-collider-m_002
+    2300016: door-collider-m_003
+    2300018: door-collider-s
+    2300020: door-collider-s_001
+    2300022: door-collider-s_002
+    2300024: door-collider-s_003
+    2300026: door-collider-top
+    2300028: door-collider-top_001
+    2300030: door_001
+    2300032: hangar-base-collider
+    2300034: hangar-space
+    2300036: hangar-trigger
+    2300038: hangar-wall-b
+    2300040: hangar-wall-b_001
+    2300042: hangar-wall-b_002
+    2300044: hangar-wall-b_003
+    2300046: hangar-wall-s
+    2300048: hangar-wall-s_001
+    2300050: hangar-wall-s_002
+    2300052: hangar-wall-s_003
+    2300054: hangar-wall-s_004
+    2300056: //RootNode
+    2300058: rail
+    2300060: rail_001
+    2300062: rail_002
+    2300064: rail_003
+    3300000: base
+    3300002: base-collider
+    3300004: door
+    3300006: door-collider-l
+    3300008: door-collider-l_001
+    3300010: door-collider-m
+    3300012: door-collider-m_001
+    3300014: door-collider-m_002
+    3300016: door-collider-m_003
+    3300018: door-collider-s
+    3300020: door-collider-s_001
+    3300022: door-collider-s_002
+    3300024: door-collider-s_003
+    3300026: door-collider-top
+    3300028: door-collider-top_001
+    3300030: door_001
+    3300032: hangar-base-collider
+    3300034: hangar-space
+    3300036: hangar-trigger
+    3300038: hangar-wall-b
+    3300040: hangar-wall-b_001
+    3300042: hangar-wall-b_002
+    3300044: hangar-wall-b_003
+    3300046: hangar-wall-s
+    3300048: hangar-wall-s_001
+    3300050: hangar-wall-s_002
+    3300052: hangar-wall-s_003
+    3300054: hangar-wall-s_004
+    3300056: //RootNode
+    3300058: rail
+    3300060: rail_001
+    3300062: rail_002
+    3300064: rail_003
+    4300000: hangar
+    4300002: hangar-space
+    4300004: hangar-trigger
+    4300006: base
+    4300008: base-collider
+    4300010: door
+    4300012: rail_001
+    4300014: rail
+    4300016: door-collider-m_001
+    4300018: door-collider-s_001
+    4300020: door-collider-s
+    4300022: door-collider-l
+    4300024: door-collider-m
+    4300026: door-collider-top
+    4300028: door_001
+    4300030: rail_003
+    4300032: rail_002
+    4300034: door-collider-top_001
+    4300036: door-collider-m_003
+    4300038: door-collider-l_001
+    4300040: door-collider-s_003
+    4300042: door-collider-s_002
+    4300044: door-collider-m_002
+    4300046: hangar-wall-s_004
+    4300048: hangar-wall-s_003
+    4300050: hangar-wall-s_002
+    4300052: hangar-wall-s_001
+    4300054: hangar-wall-s
+    4300056: hangar-wall-b_003
+    4300058: hangar-wall-b_002
+    4300060: hangar-wall-b_001
+    4300062: hangar-wall-b
+    4300064: hangar-base-collider
+    7400000: open-gates
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: open-gates
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 149
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: base
+        weight: 1
+      - path: base/base-collider
+        weight: 1
+      - path: collider
+        weight: 1
+      - path: collider/hangar-base-collider
+        weight: 1
+      - path: collider/hangar-wall-b
+        weight: 1
+      - path: collider/hangar-wall-b_001
+        weight: 1
+      - path: collider/hangar-wall-b_002
+        weight: 1
+      - path: collider/hangar-wall-b_003
+        weight: 1
+      - path: collider/hangar-wall-s
+        weight: 1
+      - path: collider/hangar-wall-s_001
+        weight: 1
+      - path: collider/hangar-wall-s_002
+        weight: 1
+      - path: collider/hangar-wall-s_003
+        weight: 1
+      - path: collider/hangar-wall-s_004
+        weight: 1
+      - path: door
+        weight: 1
+      - path: door/door-collider
+        weight: 1
+      - path: door/door-collider/door-collider-l
+        weight: 1
+      - path: door/door-collider/door-collider-m
+        weight: 1
+      - path: door/door-collider/door-collider-m_001
+        weight: 1
+      - path: door/door-collider/door-collider-s
+        weight: 1
+      - path: door/door-collider/door-collider-s_001
+        weight: 1
+      - path: door/door-collider/door-collider-top
+        weight: 1
+      - path: door/rail
+        weight: 1
+      - path: door/rail_001
+        weight: 1
+      - path: door_001
+        weight: 1
+      - path: door_001/door-collider_001
+        weight: 1
+      - path: door_001/door-collider_001/door-collider-l_001
+        weight: 1
+      - path: door_001/door-collider_001/door-collider-m_002
+        weight: 1
+      - path: door_001/door-collider_001/door-collider-m_003
+        weight: 1
+      - path: door_001/door-collider_001/door-collider-s_002
+        weight: 1
+      - path: door_001/door-collider_001/door-collider-s_003
+        weight: 1
+      - path: door_001/door-collider_001/door-collider-top_001
+        weight: 1
+      - path: door_001/rail_002
+        weight: 1
+      - path: door_001/rail_003
+        weight: 1
+      - path: hangar-space
+        weight: 1
+      - path: hangar-space/hangar-trigger
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

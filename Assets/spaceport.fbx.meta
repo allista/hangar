@@ -1,0 +1,644 @@
+fileFormatVersion: 2
+guid: 0e17946fff812904b9f90f061781f358
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: circular-hinge-l-b
+    100002: circular-hinge-l-t
+    100004: circular-hinge-r-b
+    100006: circular-hinge-r-t
+    100008: cockpit-position
+    100010: collider
+    100012: collider-back
+    100014: collider-back-left
+    100016: collider-back-right
+    100018: collider-bottom
+    100020: collider-dock
+    100022: collider-front
+    100024: collider-front-dock
+    100026: collider-front-dock-left
+    100028: collider-front-dock-right
+    100030: collider-front-left
+    100032: collider-front-right
+    100034: collider-left
+    100036: collider-right
+    100038: docking_port
+    100040: dockingNode
+    100042: hangar-lamp-position
+    100044: hangar_space
+    100046: hangar_trigger
+    100048: launch_position
+    100050: left-gate
+    100052: left-gate-axis
+    100054: right-gate
+    100056: right-gate-axis
+    100058: //RootNode
+    100060: window_000
+    100062: window_001
+    100064: window_002
+    100066: window_003
+    100068: window_004
+    100070: window_005
+    100072: window_006
+    100074: window_007
+    100076: window_008
+    100078: window_009
+    100080: windows
+    100082: hangar-lamp
+    100084: hangar_lamp
+    100086: flags
+    100088: flagTransform
+    100090: flagTransform_001
+    100092: docking_port_collider
+    100094: rsc-port
+    100096: rsc-port-collider
+    100098: RSCthruster
+    100100: RSCthruster_001
+    100102: RSCthruster_002
+    100104: RSCthruster_003
+    100106: RSCthruster_004
+    100108: RSCthruster_005
+    100110: RSCthruster_006
+    100112: RSCthruster_007
+    100114: RSCthruster_008
+    100116: RSCthruster_009
+    100118: thrusters
+    100120: RCSthruster
+    100122: RCSthruster_001
+    100124: RCSthruster_002
+    100126: RCSthruster_003
+    100128: RCSthruster_004
+    100130: RCSthruster_005
+    100132: RCSthruster_006
+    100134: RCSthruster_007
+    100136: RCSthruster_008
+    100138: RCSthruster_009
+    100140: rcs
+    100142: rcs-port-collider
+    100144: rcs-port-collider_001
+    100146: rcs-port-collider_002
+    100148: rcs-port-collider_003
+    100150: RCSthruster_010
+    100152: RCSthruster_011
+    100154: RCSthruster_012
+    100156: RCSthruster_013
+    100158: RCSthruster_014
+    100160: RCSthruster_015
+    100162: RCSthruster_016
+    100164: RCSthruster_017
+    100166: RCSthruster_018
+    100168: RCSthruster_019
+    100170: RCSthruster_020
+    100172: RCSthruster_021
+    100174: RCSthruster_022
+    100176: RCSthruster_023
+    100178: RCSthruster_024
+    100180: RCSthruster_025
+    100182: RCSthruster_026
+    100184: RCSthruster_027
+    100186: RCSthruster_028
+    100188: RCSthruster_029
+    100190: RCSthruster_030
+    100192: RCSthruster_031
+    100194: RCSthruster_032
+    100196: RCSthruster_033
+    100198: RCSthruster_034
+    100200: RCSthruster_035
+    100202: RCSthruster_036
+    100204: RCSthruster_037
+    100206: RCSthruster_038
+    100208: RCSthruster_039
+    100210: rsc-port_001
+    100212: rsc-port_002
+    100214: rsc-port_003
+    100216: thrusters_001
+    100218: thrusters_002
+    100220: thrusters_003
+    100222: cabin-space
+    100224: coridor
+    100226: door-machinery
+    100228: side-space-internals
+    100230: spaceport
+    100232: collider-fron-left
+    100234: collider-fron-right
+    100236: dock-position
+    100238: airlock_001
+    100240: cockpit
+    100242: collider-airlock_001
+    100244: collider-base_001
+    100246: collider-left_002
+    100248: collider-right_002
+    100250: collider-top_001
+    100252: collider_002
+    100254: stairs_001
+    100256: airlock
+    100258: collider-airlock
+    100260: collider-base
+    100262: collider-left_001
+    100264: collider-right_001
+    100266: collider-top
+    100268: stairs
+    400000: circular-hinge-l-b
+    400002: circular-hinge-l-t
+    400004: circular-hinge-r-b
+    400006: circular-hinge-r-t
+    400008: cockpit-position
+    400010: collider
+    400012: collider-back
+    400014: collider-back-left
+    400016: collider-back-right
+    400018: collider-bottom
+    400020: collider-dock
+    400022: collider-front
+    400024: collider-front-dock
+    400026: collider-front-dock-left
+    400028: collider-front-dock-right
+    400030: collider-front-left
+    400032: collider-front-right
+    400034: collider-left
+    400036: collider-right
+    400038: docking_port
+    400040: dockingNode
+    400042: hangar-lamp-position
+    400044: hangar_space
+    400046: hangar_trigger
+    400048: launch_position
+    400050: left-gate
+    400052: left-gate-axis
+    400054: right-gate
+    400056: right-gate-axis
+    400058: //RootNode
+    400060: window_000
+    400062: window_001
+    400064: window_002
+    400066: window_003
+    400068: window_004
+    400070: window_005
+    400072: window_006
+    400074: window_007
+    400076: window_008
+    400078: window_009
+    400080: windows
+    400082: hangar-lamp
+    400084: hangar_lamp
+    400086: flags
+    400088: flagTransform
+    400090: flagTransform_001
+    400092: docking_port_collider
+    400094: rsc-port
+    400096: rsc-port-collider
+    400098: RSCthruster
+    400100: RSCthruster_001
+    400102: RSCthruster_002
+    400104: RSCthruster_003
+    400106: RSCthruster_004
+    400108: RSCthruster_005
+    400110: RSCthruster_006
+    400112: RSCthruster_007
+    400114: RSCthruster_008
+    400116: RSCthruster_009
+    400118: thrusters
+    400120: RCSthruster
+    400122: RCSthruster_001
+    400124: RCSthruster_002
+    400126: RCSthruster_003
+    400128: RCSthruster_004
+    400130: RCSthruster_005
+    400132: RCSthruster_006
+    400134: RCSthruster_007
+    400136: RCSthruster_008
+    400138: RCSthruster_009
+    400140: rcs
+    400142: rcs-port-collider
+    400144: rcs-port-collider_001
+    400146: rcs-port-collider_002
+    400148: rcs-port-collider_003
+    400150: RCSthruster_010
+    400152: RCSthruster_011
+    400154: RCSthruster_012
+    400156: RCSthruster_013
+    400158: RCSthruster_014
+    400160: RCSthruster_015
+    400162: RCSthruster_016
+    400164: RCSthruster_017
+    400166: RCSthruster_018
+    400168: RCSthruster_019
+    400170: RCSthruster_020
+    400172: RCSthruster_021
+    400174: RCSthruster_022
+    400176: RCSthruster_023
+    400178: RCSthruster_024
+    400180: RCSthruster_025
+    400182: RCSthruster_026
+    400184: RCSthruster_027
+    400186: RCSthruster_028
+    400188: RCSthruster_029
+    400190: RCSthruster_030
+    400192: RCSthruster_031
+    400194: RCSthruster_032
+    400196: RCSthruster_033
+    400198: RCSthruster_034
+    400200: RCSthruster_035
+    400202: RCSthruster_036
+    400204: RCSthruster_037
+    400206: RCSthruster_038
+    400208: RCSthruster_039
+    400210: rsc-port_001
+    400212: rsc-port_002
+    400214: rsc-port_003
+    400216: thrusters_001
+    400218: thrusters_002
+    400220: thrusters_003
+    400222: cabin-space
+    400224: coridor
+    400226: door-machinery
+    400228: side-space-internals
+    400230: spaceport
+    400232: collider-fron-left
+    400234: collider-fron-right
+    400236: dock-position
+    400238: airlock_001
+    400240: cockpit
+    400242: collider-airlock_001
+    400244: collider-base_001
+    400246: collider-left_002
+    400248: collider-right_002
+    400250: collider-top_001
+    400252: collider_002
+    400254: stairs_001
+    400256: airlock
+    400258: collider-airlock
+    400260: collider-base
+    400262: collider-left_001
+    400264: collider-right_001
+    400266: collider-top
+    400268: stairs
+    2300000: circular-hinge-l-b
+    2300002: circular-hinge-l-t
+    2300004: circular-hinge-r-b
+    2300006: circular-hinge-r-t
+    2300008: collider-back
+    2300010: collider-back-left
+    2300012: collider-back-right
+    2300014: collider-bottom
+    2300016: collider-front
+    2300018: collider-front-dock
+    2300020: collider-front-dock-left
+    2300022: collider-front-dock-right
+    2300024: collider-front-left
+    2300026: collider-front-right
+    2300028: collider-left
+    2300030: collider-right
+    2300032: docking_port
+    2300034: hangar_space
+    2300036: hangar_trigger
+    2300038: left-gate
+    2300040: right-gate
+    2300042: //RootNode
+    2300044: window_000
+    2300046: window_001
+    2300048: window_002
+    2300050: window_003
+    2300052: window_004
+    2300054: window_005
+    2300056: window_006
+    2300058: window_007
+    2300060: window_008
+    2300062: window_009
+    2300064: flagTransform
+    2300066: flagTransform_001
+    2300068: docking_port_collider
+    2300070: rsc-port
+    2300072: rsc-port-collider
+    2300074: rcs-port-collider
+    2300076: rcs-port-collider_001
+    2300078: rcs-port-collider_002
+    2300080: rcs-port-collider_003
+    2300082: rsc-port_001
+    2300084: rsc-port_002
+    2300086: rsc-port_003
+    2300088: cabin-space
+    2300090: coridor
+    2300092: door-machinery
+    2300094: spaceport
+    2300096: collider-fron-left
+    2300098: collider-fron-right
+    2300100: airlock_001
+    2300102: cockpit
+    2300104: collider-airlock_001
+    2300106: collider-base_001
+    2300108: collider-left_002
+    2300110: collider-right_002
+    2300112: collider-top_001
+    2300114: stairs_001
+    2300116: airlock
+    2300118: collider-airlock
+    2300120: collider-base
+    2300122: collider-left_001
+    2300124: collider-right_001
+    2300126: collider-top
+    2300128: stairs
+    3300000: circular-hinge-l-b
+    3300002: circular-hinge-l-t
+    3300004: circular-hinge-r-b
+    3300006: circular-hinge-r-t
+    3300008: collider-back
+    3300010: collider-back-left
+    3300012: collider-back-right
+    3300014: collider-bottom
+    3300016: collider-front
+    3300018: collider-front-dock
+    3300020: collider-front-dock-left
+    3300022: collider-front-dock-right
+    3300024: collider-front-left
+    3300026: collider-front-right
+    3300028: collider-left
+    3300030: collider-right
+    3300032: docking_port
+    3300034: hangar_space
+    3300036: hangar_trigger
+    3300038: left-gate
+    3300040: right-gate
+    3300042: //RootNode
+    3300044: window_000
+    3300046: window_001
+    3300048: window_002
+    3300050: window_003
+    3300052: window_004
+    3300054: window_005
+    3300056: window_006
+    3300058: window_007
+    3300060: window_008
+    3300062: window_009
+    3300064: flagTransform
+    3300066: flagTransform_001
+    3300068: docking_port_collider
+    3300070: rsc-port
+    3300072: rsc-port-collider
+    3300074: rcs-port-collider
+    3300076: rcs-port-collider_001
+    3300078: rcs-port-collider_002
+    3300080: rcs-port-collider_003
+    3300082: rsc-port_001
+    3300084: rsc-port_002
+    3300086: rsc-port_003
+    3300088: cabin-space
+    3300090: coridor
+    3300092: door-machinery
+    3300094: spaceport
+    3300096: collider-fron-left
+    3300098: collider-fron-right
+    3300100: airlock_001
+    3300102: cockpit
+    3300104: collider-airlock_001
+    3300106: collider-base_001
+    3300108: collider-left_002
+    3300110: collider-right_002
+    3300112: collider-top_001
+    3300114: stairs_001
+    3300116: airlock
+    3300118: collider-airlock
+    3300120: collider-base
+    3300122: collider-left_001
+    3300124: collider-right_001
+    3300126: collider-top
+    3300128: stairs
+    4300000: spaceport
+    4300002: hangar_trigger
+    4300004: right-gate
+    4300006: circular-hinge-r-b
+    4300008: circular-hinge-r-t
+    4300010: left-gate
+    4300012: circular-hinge-l-b
+    4300014: circular-hinge-l-t
+    4300016: hangar_space
+    4300018: docking_port
+    4300020: window_009
+    4300022: window_008
+    4300024: window_007
+    4300026: window_006
+    4300028: window_005
+    4300030: window_004
+    4300032: window_002
+    4300034: window_001
+    4300036: window_000
+    4300038: window_003
+    4300040: collider-back
+    4300042: collider-back-left
+    4300044: collider-back-right
+    4300046: collider-bottom
+    4300048: collider-front
+    4300050: collider-front-left
+    4300052: collider-front-right
+    4300054: collider-left
+    4300056: collider-right
+    4300058: collider-front-dock-left
+    4300060: collider-front-dock-right
+    4300062: collider-front-dock
+    4300064: flagTransform_001
+    4300066: flagTransform
+    4300068: docking_port_collider
+    4300070: rsc-port
+    4300072: rsc-port-collider
+    4300074: rsc-port_003
+    4300076: rcs-port-collider_003
+    4300078: rsc-port_002
+    4300080: rcs-port-collider_002
+    4300082: rsc-port_001
+    4300084: rcs-port-collider_001
+    4300086: rcs-port-collider
+    4300088: cabin-space
+    4300090: coridor
+    4300092: door-machinery
+    4300094: collider-fron-right
+    4300096: collider-fron-left
+    4300098: cockpit
+    4300100: airlock_001
+    4300102: stairs_001
+    4300104: collider-airlock_001
+    4300106: collider-base_001
+    4300108: collider-left_002
+    4300110: collider-right_002
+    4300112: collider-top_001
+    4300114: airlock
+    4300116: collider-airlock
+    4300118: collider-base
+    4300120: collider-left_001
+    4300122: collider-right_001
+    4300124: collider-top
+    4300126: stairs
+    7400000: open-gates
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: open-gates
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 199
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: cockpit-position
+        weight: 1
+      - path: collider
+        weight: 1
+      - path: collider/collider-back
+        weight: 1
+      - path: collider/collider-back-left
+        weight: 1
+      - path: collider/collider-back-right
+        weight: 1
+      - path: collider/collider-bottom
+        weight: 1
+      - path: collider/collider-dock
+        weight: 1
+      - path: collider/collider-dock/collider-front-dock
+        weight: 1
+      - path: collider/collider-dock/collider-front-dock-left
+        weight: 1
+      - path: collider/collider-dock/collider-front-dock-right
+        weight: 1
+      - path: collider/collider-front
+        weight: 1
+      - path: collider/collider-front-left
+        weight: 1
+      - path: collider/collider-front-right
+        weight: 1
+      - path: collider/collider-left
+        weight: 1
+      - path: collider/collider-right
+        weight: 1
+      - path: docking_port
+        weight: 1
+      - path: dockingNode
+        weight: 1
+      - path: hangar-lamp-position
+        weight: 1
+      - path: hangar_space
+        weight: 1
+      - path: hangar_trigger
+        weight: 1
+      - path: launch_position
+        weight: 1
+      - path: left-gate
+        weight: 1
+      - path: left-gate/circular-hinge-l-b
+        weight: 1
+      - path: left-gate/circular-hinge-l-t
+        weight: 1
+      - path: left-gate-axis
+        weight: 1
+      - path: right-gate
+        weight: 1
+      - path: right-gate/circular-hinge-r-b
+        weight: 1
+      - path: right-gate/circular-hinge-r-t
+        weight: 1
+      - path: right-gate-axis
+        weight: 1
+      - path: windows
+        weight: 1
+      - path: windows/window_000
+        weight: 1
+      - path: windows/window_001
+        weight: 1
+      - path: windows/window_002
+        weight: 1
+      - path: windows/window_003
+        weight: 1
+      - path: windows/window_004
+        weight: 1
+      - path: windows/window_005
+        weight: 1
+      - path: windows/window_006
+        weight: 1
+      - path: windows/window_007
+        weight: 1
+      - path: windows/window_008
+        weight: 1
+      - path: windows/window_009
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

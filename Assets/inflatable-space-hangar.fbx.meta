@@ -1,0 +1,958 @@
+fileFormatVersion: 2
+guid: fa1e7652343a2274e8d1886d51a56dfc
+timeCreated: 1473243820
+licenseType: Free
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: adapter
+    100002: adapter-collider
+    100004: back-wall
+    100006: back-wall-collider
+    100008: bar
+    100010: bar-b
+    100012: bar-t
+    100014: bone
+    100016: cable
+    100018: cable_001
+    100020: cable_002
+    100022: cable_003
+    100024: canvas
+    100026: canvas-armature
+    100028: canvas-collider
+    100030: canvas-collider_001
+    100032: canvas-collider_002
+    100034: canvas-collider_003
+    100036: canvas_0
+    100038: door-l
+    100040: door-l-collider
+    100042: door-l-collider_001
+    100044: door-l-collider_002
+    100046: door-l-collider_003
+    100048: door-l_0
+    100050: door-r
+    100052: door-r-collider
+    100054: door-r_0
+    100056: fix-holder
+    100058: fix-holder_001
+    100060: fix-holder_002
+    100062: fix-holder_003
+    100064: gate-armature
+    100066: gate-frame
+    100068: gate-frame-collider
+    100070: gate-frame-collider_001
+    100072: gate-frame-collider_002
+    100074: gate-frame-collider_003
+    100076: gate-frame-collider_004
+    100078: gate-frame-collider_005
+    100080: gate-frame-collider_006
+    100082: gate-frame-collider_007
+    100084: hangar-space
+    100086: hangar-trigger
+    100088: hinge-b
+    100090: hinge-b_001
+    100092: hinge-collider
+    100094: hinge-collider_001
+    100096: hinge-collider_002
+    100098: hinge-collider_003
+    100100: hinge-holder
+    100102: hinge-holder_001
+    100104: hinge-holder_002
+    100106: hinge-holder_003
+    100108: hinge-t
+    100110: hinge-t_001
+    100112: //RootNode
+    100114: launch-position
+    100116: strut
+    100118: strut_001
+    100120: strut_002
+    100122: strut_003
+    100124: canvas-collider_004
+    100126: canvas-collider_005
+    100128: canvas-collider_006
+    100130: canvas-collider_007
+    100132: canvas-collider_008
+    100134: canvas-collider_009
+    100136: canvas-collider_010
+    100138: canvas-collider_011
+    100140: canvas-collider_012
+    100142: canvas-collider_013
+    100144: bar_end
+    100146: bone_end
+    100148: cable.001
+    100150: cable.002
+    100152: cable.003
+    100154: canvas 1
+    100156: canvas-collider.001
+    100158: canvas-collider.002
+    100160: canvas-collider.003
+    100162: canvas-collider.004
+    100164: canvas-collider.005
+    100166: canvas-collider.006
+    100168: canvas-collider.007
+    100170: canvas-collider.008
+    100172: canvas-collider.009
+    100174: canvas-collider.010
+    100176: canvas-collider.011
+    100178: canvas-collider.012
+    100180: canvas-collider.013
+    100182: door-l 1
+    100184: door-l-collider.001
+    100186: door-l-collider.002
+    100188: door-l-collider.003
+    100190: door-l_end
+    100192: door-r 1
+    100194: door-r_end
+    100196: fix-holder.001
+    100198: fix-holder.002
+    100200: fix-holder.003
+    100202: gate-frame-collider.001
+    100204: gate-frame-collider.002
+    100206: gate-frame-collider.003
+    100208: gate-frame-collider.004
+    100210: gate-frame-collider.005
+    100212: gate-frame-collider.006
+    100214: gate-frame-collider.007
+    100216: hinge-b.001
+    100218: hinge-collider.001
+    100220: hinge-collider.002
+    100222: hinge-collider.003
+    100224: hinge-holder.001
+    100226: hinge-holder.002
+    100228: hinge-holder.003
+    100230: hinge-t.001
+    100232: strut.001
+    100234: strut.002
+    100236: strut.003
+    100238: left-light
+    100240: right-light
+    400000: adapter
+    400002: adapter-collider
+    400004: back-wall
+    400006: back-wall-collider
+    400008: bar
+    400010: bar-b
+    400012: bar-t
+    400014: bone
+    400016: cable
+    400018: cable_001
+    400020: cable_002
+    400022: cable_003
+    400024: canvas
+    400026: canvas-armature
+    400028: canvas-collider
+    400030: canvas-collider_001
+    400032: canvas-collider_002
+    400034: canvas-collider_003
+    400036: canvas_0
+    400038: door-l
+    400040: door-l-collider
+    400042: door-l-collider_001
+    400044: door-l-collider_002
+    400046: door-l-collider_003
+    400048: door-l_0
+    400050: door-r
+    400052: door-r-collider
+    400054: door-r_0
+    400056: fix-holder
+    400058: fix-holder_001
+    400060: fix-holder_002
+    400062: fix-holder_003
+    400064: gate-armature
+    400066: gate-frame
+    400068: gate-frame-collider
+    400070: gate-frame-collider_001
+    400072: gate-frame-collider_002
+    400074: gate-frame-collider_003
+    400076: gate-frame-collider_004
+    400078: gate-frame-collider_005
+    400080: gate-frame-collider_006
+    400082: gate-frame-collider_007
+    400084: hangar-space
+    400086: hangar-trigger
+    400088: hinge-b
+    400090: hinge-b_001
+    400092: hinge-collider
+    400094: hinge-collider_001
+    400096: hinge-collider_002
+    400098: hinge-collider_003
+    400100: hinge-holder
+    400102: hinge-holder_001
+    400104: hinge-holder_002
+    400106: hinge-holder_003
+    400108: hinge-t
+    400110: hinge-t_001
+    400112: //RootNode
+    400114: launch-position
+    400116: strut
+    400118: strut_001
+    400120: strut_002
+    400122: strut_003
+    400124: canvas-collider_004
+    400126: canvas-collider_005
+    400128: canvas-collider_006
+    400130: canvas-collider_007
+    400132: canvas-collider_008
+    400134: canvas-collider_009
+    400136: canvas-collider_010
+    400138: canvas-collider_011
+    400140: canvas-collider_012
+    400142: canvas-collider_013
+    400144: bar_end
+    400146: bone_end
+    400148: cable.001
+    400150: cable.002
+    400152: cable.003
+    400154: canvas 1
+    400156: canvas-collider.001
+    400158: canvas-collider.002
+    400160: canvas-collider.003
+    400162: canvas-collider.004
+    400164: canvas-collider.005
+    400166: canvas-collider.006
+    400168: canvas-collider.007
+    400170: canvas-collider.008
+    400172: canvas-collider.009
+    400174: canvas-collider.010
+    400176: canvas-collider.011
+    400178: canvas-collider.012
+    400180: canvas-collider.013
+    400182: door-l 1
+    400184: door-l-collider.001
+    400186: door-l-collider.002
+    400188: door-l-collider.003
+    400190: door-l_end
+    400192: door-r 1
+    400194: door-r_end
+    400196: fix-holder.001
+    400198: fix-holder.002
+    400200: fix-holder.003
+    400202: gate-frame-collider.001
+    400204: gate-frame-collider.002
+    400206: gate-frame-collider.003
+    400208: gate-frame-collider.004
+    400210: gate-frame-collider.005
+    400212: gate-frame-collider.006
+    400214: gate-frame-collider.007
+    400216: hinge-b.001
+    400218: hinge-collider.001
+    400220: hinge-collider.002
+    400222: hinge-collider.003
+    400224: hinge-holder.001
+    400226: hinge-holder.002
+    400228: hinge-holder.003
+    400230: hinge-t.001
+    400232: strut.001
+    400234: strut.002
+    400236: strut.003
+    400238: left-light
+    400240: right-light
+    2300000: adapter
+    2300002: adapter-collider
+    2300004: back-wall
+    2300006: back-wall-collider
+    2300008: bar-b
+    2300010: bar-t
+    2300012: cable
+    2300014: cable_001
+    2300016: cable_002
+    2300018: cable_003
+    2300020: canvas
+    2300022: canvas-collider
+    2300024: canvas-collider_001
+    2300026: canvas-collider_002
+    2300028: canvas-collider_003
+    2300030: door-l
+    2300032: door-l-collider
+    2300034: door-l-collider_001
+    2300036: door-l-collider_002
+    2300038: door-l-collider_003
+    2300040: door-r
+    2300042: door-r-collider
+    2300044: fix-holder
+    2300046: fix-holder_001
+    2300048: fix-holder_002
+    2300050: fix-holder_003
+    2300052: gate-frame
+    2300054: gate-frame-collider
+    2300056: gate-frame-collider_001
+    2300058: gate-frame-collider_002
+    2300060: gate-frame-collider_003
+    2300062: gate-frame-collider_004
+    2300064: gate-frame-collider_005
+    2300066: gate-frame-collider_006
+    2300068: gate-frame-collider_007
+    2300070: hangar-space
+    2300072: hangar-trigger
+    2300074: hinge-b
+    2300076: hinge-b_001
+    2300078: hinge-collider
+    2300080: hinge-collider_001
+    2300082: hinge-collider_002
+    2300084: hinge-collider_003
+    2300086: hinge-holder
+    2300088: hinge-holder_001
+    2300090: hinge-holder_002
+    2300092: hinge-holder_003
+    2300094: hinge-t
+    2300096: hinge-t_001
+    2300098: strut
+    2300100: strut_001
+    2300102: strut_002
+    2300104: strut_003
+    2300106: canvas-collider_004
+    2300108: canvas-collider_005
+    2300110: canvas-collider_006
+    2300112: canvas-collider_007
+    2300114: canvas-collider_008
+    2300116: canvas-collider_009
+    2300118: canvas-collider_010
+    2300120: canvas-collider_011
+    2300122: canvas-collider_012
+    2300124: canvas-collider_013
+    2300126: cable.001
+    2300128: cable.002
+    2300130: cable.003
+    2300132: canvas-collider.001
+    2300134: canvas-collider.002
+    2300136: canvas-collider.003
+    2300138: canvas-collider.004
+    2300140: canvas-collider.005
+    2300142: canvas-collider.006
+    2300144: canvas-collider.007
+    2300146: canvas-collider.008
+    2300148: canvas-collider.009
+    2300150: canvas-collider.010
+    2300152: canvas-collider.011
+    2300154: canvas-collider.012
+    2300156: canvas-collider.013
+    2300158: door-l-collider.001
+    2300160: door-l-collider.002
+    2300162: door-l-collider.003
+    2300164: fix-holder.001
+    2300166: fix-holder.002
+    2300168: fix-holder.003
+    2300170: gate-frame-collider.001
+    2300172: gate-frame-collider.002
+    2300174: gate-frame-collider.003
+    2300176: gate-frame-collider.004
+    2300178: gate-frame-collider.005
+    2300180: gate-frame-collider.006
+    2300182: gate-frame-collider.007
+    2300184: hinge-b.001
+    2300186: hinge-collider.001
+    2300188: hinge-collider.002
+    2300190: hinge-collider.003
+    2300192: hinge-holder.001
+    2300194: hinge-holder.002
+    2300196: hinge-holder.003
+    2300198: hinge-t.001
+    2300200: strut.001
+    2300202: strut.002
+    2300204: strut.003
+    3300000: adapter
+    3300002: adapter-collider
+    3300004: back-wall
+    3300006: back-wall-collider
+    3300008: bar-b
+    3300010: bar-t
+    3300012: cable
+    3300014: cable_001
+    3300016: cable_002
+    3300018: cable_003
+    3300020: canvas
+    3300022: canvas-collider
+    3300024: canvas-collider_001
+    3300026: canvas-collider_002
+    3300028: canvas-collider_003
+    3300030: door-l
+    3300032: door-l-collider
+    3300034: door-l-collider_001
+    3300036: door-l-collider_002
+    3300038: door-l-collider_003
+    3300040: door-r
+    3300042: door-r-collider
+    3300044: fix-holder
+    3300046: fix-holder_001
+    3300048: fix-holder_002
+    3300050: fix-holder_003
+    3300052: gate-frame
+    3300054: gate-frame-collider
+    3300056: gate-frame-collider_001
+    3300058: gate-frame-collider_002
+    3300060: gate-frame-collider_003
+    3300062: gate-frame-collider_004
+    3300064: gate-frame-collider_005
+    3300066: gate-frame-collider_006
+    3300068: gate-frame-collider_007
+    3300070: hangar-space
+    3300072: hangar-trigger
+    3300074: hinge-b
+    3300076: hinge-b_001
+    3300078: hinge-collider
+    3300080: hinge-collider_001
+    3300082: hinge-collider_002
+    3300084: hinge-collider_003
+    3300086: hinge-holder
+    3300088: hinge-holder_001
+    3300090: hinge-holder_002
+    3300092: hinge-holder_003
+    3300094: hinge-t
+    3300096: hinge-t_001
+    3300098: strut
+    3300100: strut_001
+    3300102: strut_002
+    3300104: strut_003
+    3300106: canvas-collider_004
+    3300108: canvas-collider_005
+    3300110: canvas-collider_006
+    3300112: canvas-collider_007
+    3300114: canvas-collider_008
+    3300116: canvas-collider_009
+    3300118: canvas-collider_010
+    3300120: canvas-collider_011
+    3300122: canvas-collider_012
+    3300124: canvas-collider_013
+    3300126: cable.001
+    3300128: cable.002
+    3300130: cable.003
+    3300132: canvas-collider.001
+    3300134: canvas-collider.002
+    3300136: canvas-collider.003
+    3300138: canvas-collider.004
+    3300140: canvas-collider.005
+    3300142: canvas-collider.006
+    3300144: canvas-collider.007
+    3300146: canvas-collider.008
+    3300148: canvas-collider.009
+    3300150: canvas-collider.010
+    3300152: canvas-collider.011
+    3300154: canvas-collider.012
+    3300156: canvas-collider.013
+    3300158: door-l-collider.001
+    3300160: door-l-collider.002
+    3300162: door-l-collider.003
+    3300164: fix-holder.001
+    3300166: fix-holder.002
+    3300168: fix-holder.003
+    3300170: gate-frame-collider.001
+    3300172: gate-frame-collider.002
+    3300174: gate-frame-collider.003
+    3300176: gate-frame-collider.004
+    3300178: gate-frame-collider.005
+    3300180: gate-frame-collider.006
+    3300182: gate-frame-collider.007
+    3300184: hinge-b.001
+    3300186: hinge-collider.001
+    3300188: hinge-collider.002
+    3300190: hinge-collider.003
+    3300192: hinge-holder.001
+    3300194: hinge-holder.002
+    3300196: hinge-holder.003
+    3300198: hinge-t.001
+    3300200: strut.001
+    3300202: strut.002
+    3300204: strut.003
+    4300000: back-wall
+    4300002: back-wall-collider
+    4300004: cable
+    4300006: cable_002
+    4300008: cable_003
+    4300010: cable_001
+    4300012: adapter
+    4300014: adapter-collider
+    4300016: strut_003
+    4300018: strut_002
+    4300020: strut_001
+    4300022: strut
+    4300024: fix-holder
+    4300026: fix-holder_002
+    4300028: fix-holder_003
+    4300030: fix-holder_001
+    4300032: gate-frame
+    4300034: gate-frame-collider_007
+    4300036: gate-frame-collider_006
+    4300038: gate-frame-collider_005
+    4300040: gate-frame-collider_004
+    4300042: gate-frame-collider_003
+    4300044: gate-frame-collider_002
+    4300046: gate-frame-collider_001
+    4300048: gate-frame-collider
+    4300050: hinge-holder
+    4300052: hinge-collider_002
+    4300054: hinge-holder_002
+    4300056: hinge-collider
+    4300058: hinge-holder_003
+    4300060: hinge-collider_001
+    4300062: hinge-holder_001
+    4300064: hinge-collider_003
+    4300066: bar-t
+    4300068: bar-b
+    4300070: door-l
+    4300072: door-l-collider_003
+    4300074: door-l-collider_002
+    4300076: door-l-collider_001
+    4300078: hinge-t
+    4300080: hinge-b
+    4300082: door-l-collider
+    4300084: door-r
+    4300086: door-r-collider
+    4300088: hinge-t_001
+    4300090: hinge-b_001
+    4300092: canvas
+    4300094: canvas-collider_003
+    4300096: canvas-collider_002
+    4300098: canvas-collider_001
+    4300100: canvas-collider
+    4300102: hangar-space
+    4300104: hangar-trigger
+    4300106: canvas-collider_013
+    4300108: canvas-collider_012
+    4300110: canvas-collider_011
+    4300112: canvas-collider_010
+    4300114: canvas-collider_009
+    4300116: canvas-collider_008
+    4300118: canvas-collider_007
+    4300120: canvas-collider_006
+    4300122: canvas-collider_005
+    4300124: canvas-collider_004
+    4300126: strut.003
+    4300128: strut.002
+    4300130: strut.001
+    4300132: fix-holder.002
+    4300134: fix-holder.003
+    4300136: fix-holder.001
+    4300138: gate-frame-collider.007
+    4300140: gate-frame-collider.006
+    4300142: gate-frame-collider.005
+    4300144: gate-frame-collider.004
+    4300146: gate-frame-collider.003
+    4300148: hinge-collider.002
+    4300150: door-l-collider.003
+    4300152: door-l-collider.002
+    4300154: door-l-collider.001
+    4300156: canvas-collider.013
+    4300158: canvas-collider.002
+    4300160: canvas-collider.012
+    4300162: canvas-collider.011
+    4300164: canvas-collider.010
+    4300166: canvas-collider.003
+    4300168: canvas-collider.009
+    4300170: canvas-collider.008
+    4300172: canvas-collider.007
+    4300174: canvas-collider.001
+    4300176: canvas-collider.006
+    4300178: canvas-collider.005
+    4300180: canvas-collider.004
+    7400000: Default Take
+    7400002: gate-action
+    7400004: inflate-action
+    7400006: gate-action0
+    7400008: canvas-armature|inflate-action
+    7400010: gate-armature|gate-action
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: inflate-action
+      takeName: inflate-action
+      firstFrame: 0
+      lastFrame: 599
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: back-wall
+        weight: 1
+      - path: back-wall/adapter
+        weight: 1
+      - path: back-wall/adapter/adapter-collider
+        weight: 1
+      - path: back-wall/adapter/strut
+        weight: 1
+      - path: back-wall/adapter/strut_001
+        weight: 1
+      - path: back-wall/adapter/strut_002
+        weight: 1
+      - path: back-wall/adapter/strut_003
+        weight: 1
+      - path: back-wall/back-wall-collider
+        weight: 1
+      - path: back-wall/cable
+        weight: 1
+      - path: back-wall/cable_001
+        weight: 1
+      - path: back-wall/cable_002
+        weight: 1
+      - path: back-wall/cable_003
+        weight: 1
+      - path: back-wall/canvas-armature
+        weight: 1
+      - path: back-wall/canvas-armature/canvas_0
+        weight: 1
+      - path: back-wall/canvas-armature/canvas_0/bone
+        weight: 1
+      - path: back-wall/fix-holder
+        weight: 1
+      - path: back-wall/fix-holder_001
+        weight: 1
+      - path: back-wall/fix-holder_002
+        weight: 1
+      - path: back-wall/fix-holder_003
+        weight: 1
+      - path: canvas
+        weight: 1
+      - path: canvas/canvas-collider
+        weight: 1
+      - path: canvas/canvas-collider_001
+        weight: 1
+      - path: canvas/canvas-collider_002
+        weight: 1
+      - path: canvas/canvas-collider_003
+        weight: 1
+      - path: canvas/canvas-collider_004
+        weight: 1
+      - path: canvas/canvas-collider_005
+        weight: 1
+      - path: canvas/canvas-collider_006
+        weight: 1
+      - path: canvas/canvas-collider_007
+        weight: 1
+      - path: canvas/canvas-collider_008
+        weight: 1
+      - path: canvas/canvas-collider_009
+        weight: 1
+      - path: canvas/canvas-collider_010
+        weight: 1
+      - path: canvas/canvas-collider_011
+        weight: 1
+      - path: canvas/canvas-collider_012
+        weight: 1
+      - path: canvas/canvas-collider_013
+        weight: 1
+      - path: canvas/hangar-space
+        weight: 1
+      - path: canvas/hangar-space/hangar-trigger
+        weight: 1
+      - path: canvas/hangar-space/launch-position
+        weight: 1
+      - path: gate-frame
+        weight: 1
+      - path: gate-frame/bar-b
+        weight: 1
+      - path: gate-frame/bar-t
+        weight: 1
+      - path: gate-frame/door-l
+        weight: 1
+      - path: gate-frame/door-l/door-l-collider
+        weight: 1
+      - path: gate-frame/door-l/door-l-collider_001
+        weight: 1
+      - path: gate-frame/door-l/door-l-collider_002
+        weight: 1
+      - path: gate-frame/door-l/door-l-collider_003
+        weight: 1
+      - path: gate-frame/door-l/hinge-b
+        weight: 1
+      - path: gate-frame/door-l/hinge-t
+        weight: 1
+      - path: gate-frame/door-r
+        weight: 1
+      - path: gate-frame/door-r/door-r-collider
+        weight: 1
+      - path: gate-frame/door-r/hinge-b_001
+        weight: 1
+      - path: gate-frame/door-r/hinge-t_001
+        weight: 1
+      - path: gate-frame/gate-armature
+        weight: 1
+      - path: gate-frame/gate-armature/bar
+        weight: 1
+      - path: gate-frame/gate-armature/door-l_0
+        weight: 1
+      - path: gate-frame/gate-armature/door-r_0
+        weight: 1
+      - path: gate-frame/gate-frame-collider
+        weight: 1
+      - path: gate-frame/gate-frame-collider_001
+        weight: 1
+      - path: gate-frame/gate-frame-collider_002
+        weight: 1
+      - path: gate-frame/gate-frame-collider_003
+        weight: 1
+      - path: gate-frame/gate-frame-collider_004
+        weight: 1
+      - path: gate-frame/gate-frame-collider_005
+        weight: 1
+      - path: gate-frame/gate-frame-collider_006
+        weight: 1
+      - path: gate-frame/gate-frame-collider_007
+        weight: 1
+      - path: gate-frame/hinge-holder
+        weight: 1
+      - path: gate-frame/hinge-holder/hinge-collider_002
+        weight: 1
+      - path: gate-frame/hinge-holder_001
+        weight: 1
+      - path: gate-frame/hinge-holder_001/hinge-collider_003
+        weight: 1
+      - path: gate-frame/hinge-holder_002
+        weight: 1
+      - path: gate-frame/hinge-holder_002/hinge-collider
+        weight: 1
+      - path: gate-frame/hinge-holder_003
+        weight: 1
+      - path: gate-frame/hinge-holder_003/hinge-collider_001
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    - serializedVersion: 16
+      name: Default Take
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 599
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: back-wall
+        weight: 1
+      - path: back-wall/adapter
+        weight: 1
+      - path: back-wall/adapter/adapter-collider
+        weight: 1
+      - path: back-wall/adapter/strut
+        weight: 1
+      - path: back-wall/adapter/strut_001
+        weight: 1
+      - path: back-wall/adapter/strut_002
+        weight: 1
+      - path: back-wall/adapter/strut_003
+        weight: 1
+      - path: back-wall/back-wall-collider
+        weight: 1
+      - path: back-wall/cable
+        weight: 1
+      - path: back-wall/cable_001
+        weight: 1
+      - path: back-wall/cable_002
+        weight: 1
+      - path: back-wall/cable_003
+        weight: 1
+      - path: back-wall/canvas-armature
+        weight: 1
+      - path: back-wall/canvas-armature/canvas_0
+        weight: 1
+      - path: back-wall/canvas-armature/canvas_0/bone
+        weight: 1
+      - path: back-wall/fix-holder
+        weight: 1
+      - path: back-wall/fix-holder_001
+        weight: 1
+      - path: back-wall/fix-holder_002
+        weight: 1
+      - path: back-wall/fix-holder_003
+        weight: 1
+      - path: canvas
+        weight: 1
+      - path: canvas/canvas-collider
+        weight: 1
+      - path: canvas/canvas-collider_001
+        weight: 1
+      - path: canvas/canvas-collider_002
+        weight: 1
+      - path: canvas/canvas-collider_003
+        weight: 1
+      - path: canvas/canvas-collider_004
+        weight: 1
+      - path: canvas/canvas-collider_005
+        weight: 1
+      - path: canvas/canvas-collider_006
+        weight: 1
+      - path: canvas/canvas-collider_007
+        weight: 1
+      - path: canvas/canvas-collider_008
+        weight: 1
+      - path: canvas/canvas-collider_009
+        weight: 1
+      - path: canvas/canvas-collider_010
+        weight: 1
+      - path: canvas/canvas-collider_011
+        weight: 1
+      - path: canvas/canvas-collider_012
+        weight: 1
+      - path: canvas/canvas-collider_013
+        weight: 1
+      - path: canvas/hangar-space
+        weight: 1
+      - path: canvas/hangar-space/hangar-trigger
+        weight: 1
+      - path: canvas/hangar-space/launch-position
+        weight: 1
+      - path: gate-frame
+        weight: 1
+      - path: gate-frame/bar-b
+        weight: 1
+      - path: gate-frame/bar-t
+        weight: 1
+      - path: gate-frame/door-l
+        weight: 1
+      - path: gate-frame/door-l/door-l-collider
+        weight: 1
+      - path: gate-frame/door-l/door-l-collider_001
+        weight: 1
+      - path: gate-frame/door-l/door-l-collider_002
+        weight: 1
+      - path: gate-frame/door-l/door-l-collider_003
+        weight: 1
+      - path: gate-frame/door-l/hinge-b
+        weight: 1
+      - path: gate-frame/door-l/hinge-t
+        weight: 1
+      - path: gate-frame/door-r
+        weight: 1
+      - path: gate-frame/door-r/door-r-collider
+        weight: 1
+      - path: gate-frame/door-r/hinge-b_001
+        weight: 1
+      - path: gate-frame/door-r/hinge-t_001
+        weight: 1
+      - path: gate-frame/gate-armature
+        weight: 1
+      - path: gate-frame/gate-armature/bar
+        weight: 1
+      - path: gate-frame/gate-armature/door-l_0
+        weight: 1
+      - path: gate-frame/gate-armature/door-r_0
+        weight: 1
+      - path: gate-frame/gate-frame-collider
+        weight: 1
+      - path: gate-frame/gate-frame-collider_001
+        weight: 1
+      - path: gate-frame/gate-frame-collider_002
+        weight: 1
+      - path: gate-frame/gate-frame-collider_003
+        weight: 1
+      - path: gate-frame/gate-frame-collider_004
+        weight: 1
+      - path: gate-frame/gate-frame-collider_005
+        weight: 1
+      - path: gate-frame/gate-frame-collider_006
+        weight: 1
+      - path: gate-frame/gate-frame-collider_007
+        weight: 1
+      - path: gate-frame/hinge-holder
+        weight: 1
+      - path: gate-frame/hinge-holder/hinge-collider_002
+        weight: 1
+      - path: gate-frame/hinge-holder_001
+        weight: 1
+      - path: gate-frame/hinge-holder_001/hinge-collider_003
+        weight: 1
+      - path: gate-frame/hinge-holder_002
+        weight: 1
+      - path: gate-frame/hinge-holder_002/hinge-collider
+        weight: 1
+      - path: gate-frame/hinge-holder_003
+        weight: 1
+      - path: gate-frame/hinge-holder_003/hinge-collider_001
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 100
+    meshCompression: 1
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

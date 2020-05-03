@@ -1,0 +1,411 @@
+fileFormatVersion: 2
+guid: 2bcbfe550b0ad9f45932f807d5fab5d2
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: 1
+    100002: 2
+    100004: Armature
+    100006: back-door
+    100008: battery
+    100010: battery_001
+    100012: case
+    100014: collider
+    100016: collider-back
+    100018: collider-bottom
+    100020: collider-door
+    100022: collider-left
+    100024: collider-right
+    100026: collider-top
+    100028: compressor-position
+    100030: door
+    100032: doors
+    100034: front-door
+    100036: hangar-space
+    100038: hinge
+    100040: hinge_001
+    100042: hinge_002
+    100044: hinge_003
+    100046: hinge_004
+    100048: hinge_005
+    100050: hinge_006
+    100052: hinge_007
+    100054: inflatable-hangar
+    100056: //RootNode
+    100058: launch-position
+    100060: left-door
+    100062: reactor-position
+    100064: right-door
+    100066: hangar
+    100068: hangar-collider
+    100070: unity-orientator
+    100072: hangar-transform
+    100074: hangar-trigger
+    100076: cross-pipe
+    100078: fixing-rod
+    100080: fixing-rod_001
+    100082: left-pipe
+    100084: left-pump
+    100086: motor
+    100088: right-pipe
+    100090: right-pump
+    100092: rib
+    100094: rib_001
+    100096: rib_002
+    100098: rib_003
+    100100: rib_004
+    100102: rib_005
+    100104: rib_006
+    100106: rib_007
+    400000: 1
+    400002: 2
+    400004: Armature
+    400006: back-door
+    400008: battery
+    400010: battery_001
+    400012: case
+    400014: collider
+    400016: collider-back
+    400018: collider-bottom
+    400020: collider-door
+    400022: collider-left
+    400024: collider-right
+    400026: collider-top
+    400028: compressor-position
+    400030: door
+    400032: doors
+    400034: front-door
+    400036: hangar-space
+    400038: hinge
+    400040: hinge_001
+    400042: hinge_002
+    400044: hinge_003
+    400046: hinge_004
+    400048: hinge_005
+    400050: hinge_006
+    400052: hinge_007
+    400054: inflatable-hangar
+    400056: //RootNode
+    400058: launch-position
+    400060: left-door
+    400062: reactor-position
+    400064: right-door
+    400066: hangar
+    400068: hangar-collider
+    400070: unity-orientator
+    400072: hangar-transform
+    400074: hangar-trigger
+    400076: cross-pipe
+    400078: fixing-rod
+    400080: fixing-rod_001
+    400082: left-pipe
+    400084: left-pump
+    400086: motor
+    400088: right-pipe
+    400090: right-pump
+    400092: rib
+    400094: rib_001
+    400096: rib_002
+    400098: rib_003
+    400100: rib_004
+    400102: rib_005
+    400104: rib_006
+    400106: rib_007
+    2300000: back-door
+    2300002: battery
+    2300004: battery_001
+    2300006: case
+    2300008: collider
+    2300010: front-door
+    2300012: hinge
+    2300014: hinge_001
+    2300016: hinge_002
+    2300018: hinge_003
+    2300020: hinge_004
+    2300022: hinge_005
+    2300024: hinge_006
+    2300026: hinge_007
+    2300028: left-door
+    2300030: right-door
+    2300032: collider-door
+    2300034: hangar-space
+    2300036: collider-back
+    2300038: collider-bottom
+    2300040: collider-left
+    2300042: collider-right
+    2300044: collider-top
+    2300046: door
+    2300048: hangar-trigger
+    2300050: cross-pipe
+    2300052: fixing-rod
+    2300054: fixing-rod_001
+    2300056: left-pipe
+    2300058: left-pump
+    2300060: motor
+    2300062: right-pipe
+    2300064: right-pump
+    2300066: rib
+    2300068: rib_001
+    2300070: rib_002
+    2300072: rib_003
+    2300074: rib_004
+    2300076: rib_005
+    2300078: rib_006
+    2300080: rib_007
+    3300000: back-door
+    3300002: battery
+    3300004: battery_001
+    3300006: case
+    3300008: collider
+    3300010: front-door
+    3300012: hinge
+    3300014: hinge_001
+    3300016: hinge_002
+    3300018: hinge_003
+    3300020: hinge_004
+    3300022: hinge_005
+    3300024: hinge_006
+    3300026: hinge_007
+    3300028: left-door
+    3300030: right-door
+    3300032: collider-door
+    3300034: hangar-space
+    3300036: collider-back
+    3300038: collider-bottom
+    3300040: collider-left
+    3300042: collider-right
+    3300044: collider-top
+    3300046: door
+    3300048: hangar-trigger
+    3300050: cross-pipe
+    3300052: fixing-rod
+    3300054: fixing-rod_001
+    3300056: left-pipe
+    3300058: left-pump
+    3300060: motor
+    3300062: right-pipe
+    3300064: right-pump
+    3300066: rib
+    3300068: rib_001
+    3300070: rib_002
+    3300072: rib_003
+    3300074: rib_004
+    3300076: rib_005
+    3300078: rib_006
+    3300080: rib_007
+    4300000: case
+    4300002: battery_001
+    4300004: collider
+    4300006: battery
+    4300008: left-door
+    4300010: hinge_006
+    4300012: hinge_007
+    4300014: right-door
+    4300016: hinge_004
+    4300018: hinge_005
+    4300020: front-door
+    4300022: hinge
+    4300024: hinge_001
+    4300026: back-door
+    4300028: hinge_002
+    4300030: hinge_003
+    4300032: collider-door
+    4300034: door
+    4300036: collider-top
+    4300038: collider-back
+    4300040: collider-right
+    4300042: collider-left
+    4300044: collider-bottom
+    4300046: hangar-space
+    4300048: inflatable-hangar
+    4300050: hangar-trigger
+    4300052: motor
+    4300054: cross-pipe
+    4300056: right-pump
+    4300058: right-pipe
+    4300060: left-pump
+    4300062: left-pipe
+    4300064: fixing-rod
+    4300066: fixing-rod_001
+    4300068: rib
+    4300070: rib_001
+    4300072: rib_002
+    4300074: rib_003
+    4300076: rib_006
+    4300078: rib_007
+    4300080: rib_004
+    4300082: rib_005
+    7400000: inflate
+    7400002: ArmatureAction
+    7400004: inflate
+    9500000: //RootNode
+    11100000: //RootNode
+    13700000: collider-back
+    13700002: collider-bottom
+    13700004: collider-door
+    13700006: collider-left
+    13700008: collider-right
+    13700010: collider-top
+    13700012: door
+    13700014: hangar-space
+    13700016: inflatable-hangar
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: inflate
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 249
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: case
+        weight: 1
+      - path: case/Armature
+        weight: 1
+      - path: case/Armature/1
+        weight: 1
+      - path: case/Armature/1/2
+        weight: 1
+      - path: case/battery
+        weight: 1
+      - path: case/battery_001
+        weight: 1
+      - path: case/collider
+        weight: 1
+      - path: case/compressor-position
+        weight: 1
+      - path: case/doors
+        weight: 1
+      - path: case/doors/back-door
+        weight: 1
+      - path: case/doors/back-door/hinge_002
+        weight: 1
+      - path: case/doors/back-door/hinge_003
+        weight: 1
+      - path: case/doors/front-door
+        weight: 1
+      - path: case/doors/front-door/hinge
+        weight: 1
+      - path: case/doors/front-door/hinge_001
+        weight: 1
+      - path: case/doors/left-door
+        weight: 1
+      - path: case/doors/left-door/hinge_006
+        weight: 1
+      - path: case/doors/left-door/hinge_007
+        weight: 1
+      - path: case/doors/right-door
+        weight: 1
+      - path: case/doors/right-door/hinge_004
+        weight: 1
+      - path: case/doors/right-door/hinge_005
+        weight: 1
+      - path: case/hangar
+        weight: 1
+      - path: case/hangar/hangar-collider
+        weight: 1
+      - path: case/reactor-position
+        weight: 1
+      - path: collider-back
+        weight: 1
+      - path: collider-bottom
+        weight: 1
+      - path: collider-door
+        weight: 1
+      - path: collider-left
+        weight: 1
+      - path: collider-right
+        weight: 1
+      - path: collider-top
+        weight: 1
+      - path: door
+        weight: 1
+      - path: hangar-space
+        weight: 1
+      - path: hangar-space/launch-position
+        weight: 1
+      - path: inflatable-hangar
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: case
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

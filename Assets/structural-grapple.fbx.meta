@@ -1,0 +1,510 @@
+fileFormatVersion: 2
+guid: acb4a91a722629b498ea122a66b4e058
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: clamp-position
+    100002: clinch
+    100004: clinch-cap
+    100006: clinch_001
+    100008: clinch_002
+    100010: clinch_003
+    100012: collider
+    100014: harpoon
+    100016: harpoon_001
+    100018: harpoon_002
+    100020: harpoon_003
+    100022: inner-cylinder
+    100024: inner-cylinder-axis
+    100026: inner-cylinder-axis_001
+    100028: inner-cylinder-axis_002
+    100030: inner-cylinder-axis_003
+    100032: inner-cylinder_001
+    100034: inner-cylinder_002
+    100036: inner-cylinder_003
+    100038: lever-clinch-joint
+    100040: lever-clinch-joint_001
+    100042: lever-clinch-joint_002
+    100044: lever-clinch-joint_003
+    100046: lever1
+    100048: lever1-axis
+    100050: lever1-axis_001
+    100052: lever1-axis_002
+    100054: lever1-axis_003
+    100056: lever1_001
+    100058: lever1_002
+    100060: lever1_003
+    100062: lever2
+    100064: lever2-axis
+    100066: lever2-axis_001
+    100068: lever2-axis_002
+    100070: lever2-axis_003
+    100072: lever2_001
+    100074: lever2_002
+    100076: lever2_003
+    100078: outer-cylinder
+    100080: outer-cylinder-axis
+    100082: outer-cylinder-axis_001
+    100084: outer-cylinder-axis_002
+    100086: outer-cylinder-axis_003
+    100088: outer-cylinder_001
+    100090: outer-cylinder_002
+    100092: outer-cylinder_003
+    100094: struct-grapple_002
+    100096: struct-grapple_003
+    100098: struct-grapple_004
+    100100: //RootNode
+    100102: left-lamp
+    100104: left-lamp-body
+    100106: right-lamp
+    100108: right-lamp-body
+    100110: lights
+    100112: clinch-cap_001
+    100114: clinch-cap_002
+    100116: clinch-cap_003
+    100118: cap-collider
+    100120: cap-collider_001
+    100122: cap-collider_002
+    100124: cap-collider_003
+    100126: clamp-position_001
+    100128: clamp-position_002
+    100130: clamp-position_003
+    100132: bolt
+    100134: bolt-ori
+    400000: clamp-position
+    400002: clinch
+    400004: clinch-cap
+    400006: clinch_001
+    400008: clinch_002
+    400010: clinch_003
+    400012: collider
+    400014: harpoon
+    400016: harpoon_001
+    400018: harpoon_002
+    400020: harpoon_003
+    400022: inner-cylinder
+    400024: inner-cylinder-axis
+    400026: inner-cylinder-axis_001
+    400028: inner-cylinder-axis_002
+    400030: inner-cylinder-axis_003
+    400032: inner-cylinder_001
+    400034: inner-cylinder_002
+    400036: inner-cylinder_003
+    400038: lever-clinch-joint
+    400040: lever-clinch-joint_001
+    400042: lever-clinch-joint_002
+    400044: lever-clinch-joint_003
+    400046: lever1
+    400048: lever1-axis
+    400050: lever1-axis_001
+    400052: lever1-axis_002
+    400054: lever1-axis_003
+    400056: lever1_001
+    400058: lever1_002
+    400060: lever1_003
+    400062: lever2
+    400064: lever2-axis
+    400066: lever2-axis_001
+    400068: lever2-axis_002
+    400070: lever2-axis_003
+    400072: lever2_001
+    400074: lever2_002
+    400076: lever2_003
+    400078: outer-cylinder
+    400080: outer-cylinder-axis
+    400082: outer-cylinder-axis_001
+    400084: outer-cylinder-axis_002
+    400086: outer-cylinder-axis_003
+    400088: outer-cylinder_001
+    400090: outer-cylinder_002
+    400092: outer-cylinder_003
+    400094: struct-grapple_002
+    400096: struct-grapple_003
+    400098: struct-grapple_004
+    400100: //RootNode
+    400102: left-lamp
+    400104: left-lamp-body
+    400106: right-lamp
+    400108: right-lamp-body
+    400110: lights
+    400112: clinch-cap_001
+    400114: clinch-cap_002
+    400116: clinch-cap_003
+    400118: cap-collider
+    400120: cap-collider_001
+    400122: cap-collider_002
+    400124: cap-collider_003
+    400126: clamp-position_001
+    400128: clamp-position_002
+    400130: clamp-position_003
+    400132: bolt
+    400134: bolt-ori
+    2300000: clinch
+    2300002: clinch-cap
+    2300004: clinch_001
+    2300006: clinch_002
+    2300008: clinch_003
+    2300010: collider
+    2300012: inner-cylinder
+    2300014: inner-cylinder-axis
+    2300016: inner-cylinder-axis_001
+    2300018: inner-cylinder-axis_002
+    2300020: inner-cylinder-axis_003
+    2300022: inner-cylinder_001
+    2300024: inner-cylinder_002
+    2300026: inner-cylinder_003
+    2300028: lever-clinch-joint
+    2300030: lever-clinch-joint_001
+    2300032: lever-clinch-joint_002
+    2300034: lever-clinch-joint_003
+    2300036: lever1
+    2300038: lever1-axis
+    2300040: lever1-axis_001
+    2300042: lever1-axis_002
+    2300044: lever1-axis_003
+    2300046: lever1_001
+    2300048: lever1_002
+    2300050: lever1_003
+    2300052: lever2
+    2300054: lever2-axis
+    2300056: lever2-axis_001
+    2300058: lever2-axis_002
+    2300060: lever2-axis_003
+    2300062: lever2_001
+    2300064: lever2_002
+    2300066: lever2_003
+    2300068: outer-cylinder
+    2300070: outer-cylinder-axis
+    2300072: outer-cylinder-axis_001
+    2300074: outer-cylinder-axis_002
+    2300076: outer-cylinder-axis_003
+    2300078: outer-cylinder_001
+    2300080: outer-cylinder_002
+    2300082: outer-cylinder_003
+    2300084: struct-grapple_002
+    2300086: struct-grapple_003
+    2300088: struct-grapple_004
+    2300090: //RootNode
+    2300092: left-lamp-body
+    2300094: right-lamp-body
+    2300096: clinch-cap_001
+    2300098: clinch-cap_002
+    2300100: clinch-cap_003
+    2300102: cap-collider
+    2300104: cap-collider_001
+    2300106: cap-collider_002
+    2300108: cap-collider_003
+    2300110: bolt
+    3300000: clinch
+    3300002: clinch-cap
+    3300004: clinch_001
+    3300006: clinch_002
+    3300008: clinch_003
+    3300010: collider
+    3300012: inner-cylinder
+    3300014: inner-cylinder-axis
+    3300016: inner-cylinder-axis_001
+    3300018: inner-cylinder-axis_002
+    3300020: inner-cylinder-axis_003
+    3300022: inner-cylinder_001
+    3300024: inner-cylinder_002
+    3300026: inner-cylinder_003
+    3300028: lever-clinch-joint
+    3300030: lever-clinch-joint_001
+    3300032: lever-clinch-joint_002
+    3300034: lever-clinch-joint_003
+    3300036: lever1
+    3300038: lever1-axis
+    3300040: lever1-axis_001
+    3300042: lever1-axis_002
+    3300044: lever1-axis_003
+    3300046: lever1_001
+    3300048: lever1_002
+    3300050: lever1_003
+    3300052: lever2
+    3300054: lever2-axis
+    3300056: lever2-axis_001
+    3300058: lever2-axis_002
+    3300060: lever2-axis_003
+    3300062: lever2_001
+    3300064: lever2_002
+    3300066: lever2_003
+    3300068: outer-cylinder
+    3300070: outer-cylinder-axis
+    3300072: outer-cylinder-axis_001
+    3300074: outer-cylinder-axis_002
+    3300076: outer-cylinder-axis_003
+    3300078: outer-cylinder_001
+    3300080: outer-cylinder_002
+    3300082: outer-cylinder_003
+    3300084: struct-grapple_002
+    3300086: struct-grapple_003
+    3300088: struct-grapple_004
+    3300090: //RootNode
+    3300092: left-lamp-body
+    3300094: right-lamp-body
+    3300096: clinch-cap_001
+    3300098: clinch-cap_002
+    3300100: clinch-cap_003
+    3300102: cap-collider
+    3300104: cap-collider_001
+    3300106: cap-collider_002
+    3300108: cap-collider_003
+    3300110: bolt
+    4300000: struct-grapple
+    4300002: collider
+    4300004: lever1_003
+    4300006: lever1-axis_003
+    4300008: clinch_003
+    4300010: lever-clinch-joint_003
+    4300012: struct-grapple_004
+    4300014: inner-cylinder-axis_003
+    4300016: inner-cylinder_003
+    4300018: outer-cylinder_003
+    4300020: outer-cylinder-axis_003
+    4300022: lever2_003
+    4300024: lever2-axis_003
+    4300026: lever1_002
+    4300028: clinch_002
+    4300030: struct-grapple_003
+    4300032: lever-clinch-joint_002
+    4300034: lever1-axis_002
+    4300036: inner-cylinder-axis_002
+    4300038: inner-cylinder_002
+    4300040: lever2_002
+    4300042: lever2-axis_002
+    4300044: outer-cylinder_002
+    4300046: outer-cylinder-axis_002
+    4300048: lever1_001
+    4300050: lever1-axis_001
+    4300052: clinch_001
+    4300054: lever-clinch-joint_001
+    4300056: struct-grapple_002
+    4300058: inner-cylinder-axis_001
+    4300060: inner-cylinder_001
+    4300062: outer-cylinder_001
+    4300064: outer-cylinder-axis_001
+    4300066: lever2_001
+    4300068: lever2-axis_001
+    4300070: lever1
+    4300072: clinch
+    4300074: clinch-cap
+    4300076: lever-clinch-joint
+    4300078: lever1-axis
+    4300080: inner-cylinder-axis
+    4300082: inner-cylinder
+    4300084: lever2
+    4300086: lever2-axis
+    4300088: outer-cylinder
+    4300090: outer-cylinder-axis
+    4300092: right-lamp-body
+    4300094: left-lamp-body
+    4300096: clinch-cap_003
+    4300098: clinch-cap_002
+    4300100: clinch-cap_001
+    4300102: cap-collider_003
+    4300104: cap-collider_002
+    4300106: cap-collider_001
+    4300108: cap-collider
+    4300110: bolt
+    7400000: arm
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: arm
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 99
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: clamp-position
+        weight: 1
+      - path: collider
+        weight: 1
+      - path: harpoon
+        weight: 1
+      - path: harpoon/lever1
+        weight: 1
+      - path: harpoon/lever1/clinch
+        weight: 1
+      - path: harpoon/lever1/clinch/clinch-cap
+        weight: 1
+      - path: harpoon/lever1/clinch/lever-clinch-joint
+        weight: 1
+      - path: harpoon/lever1/inner-cylinder-axis
+        weight: 1
+      - path: harpoon/lever1/inner-cylinder-axis/inner-cylinder
+        weight: 1
+      - path: harpoon/lever1/lever1-axis
+        weight: 1
+      - path: harpoon/lever2
+        weight: 1
+      - path: harpoon/lever2/lever2-axis
+        weight: 1
+      - path: harpoon/outer-cylinder
+        weight: 1
+      - path: harpoon/outer-cylinder/outer-cylinder-axis
+        weight: 1
+      - path: harpoon_001
+        weight: 1
+      - path: harpoon_001/lever1_001
+        weight: 1
+      - path: harpoon_001/lever1_001/clinch_001
+        weight: 1
+      - path: harpoon_001/lever1_001/clinch_001/lever-clinch-joint_001
+        weight: 1
+      - path: harpoon_001/lever1_001/clinch_001/struct-grapple_002
+        weight: 1
+      - path: harpoon_001/lever1_001/inner-cylinder-axis_001
+        weight: 1
+      - path: harpoon_001/lever1_001/inner-cylinder-axis_001/inner-cylinder_001
+        weight: 1
+      - path: harpoon_001/lever1_001/lever1-axis_001
+        weight: 1
+      - path: harpoon_001/lever2_001
+        weight: 1
+      - path: harpoon_001/lever2_001/lever2-axis_001
+        weight: 1
+      - path: harpoon_001/outer-cylinder_001
+        weight: 1
+      - path: harpoon_001/outer-cylinder_001/outer-cylinder-axis_001
+        weight: 1
+      - path: harpoon_002
+        weight: 1
+      - path: harpoon_002/lever1_002
+        weight: 1
+      - path: harpoon_002/lever1_002/clinch_002
+        weight: 1
+      - path: harpoon_002/lever1_002/clinch_002/lever-clinch-joint_002
+        weight: 1
+      - path: harpoon_002/lever1_002/clinch_002/struct-grapple_003
+        weight: 1
+      - path: harpoon_002/lever1_002/inner-cylinder-axis_002
+        weight: 1
+      - path: harpoon_002/lever1_002/inner-cylinder-axis_002/inner-cylinder_002
+        weight: 1
+      - path: harpoon_002/lever1_002/lever1-axis_002
+        weight: 1
+      - path: harpoon_002/lever2_002
+        weight: 1
+      - path: harpoon_002/lever2_002/lever2-axis_002
+        weight: 1
+      - path: harpoon_002/outer-cylinder_002
+        weight: 1
+      - path: harpoon_002/outer-cylinder_002/outer-cylinder-axis_002
+        weight: 1
+      - path: harpoon_003
+        weight: 1
+      - path: harpoon_003/lever1_003
+        weight: 1
+      - path: harpoon_003/lever1_003/clinch_003
+        weight: 1
+      - path: harpoon_003/lever1_003/clinch_003/lever-clinch-joint_003
+        weight: 1
+      - path: harpoon_003/lever1_003/clinch_003/struct-grapple_004
+        weight: 1
+      - path: harpoon_003/lever1_003/inner-cylinder-axis_003
+        weight: 1
+      - path: harpoon_003/lever1_003/inner-cylinder-axis_003/inner-cylinder_003
+        weight: 1
+      - path: harpoon_003/lever1_003/lever1-axis_003
+        weight: 1
+      - path: harpoon_003/lever2_003
+        weight: 1
+      - path: harpoon_003/lever2_003/lever2-axis_003
+        weight: 1
+      - path: harpoon_003/outer-cylinder_003
+        weight: 1
+      - path: harpoon_003/outer-cylinder_003/outer-cylinder-axis_003
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

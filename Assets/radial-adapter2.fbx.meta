@@ -1,0 +1,117 @@
+fileFormatVersion: 2
+guid: 8552c90cacee21043bfba97f3ef20950
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: attachNode
+    100002: collider-radial
+    100004: collider-s1-s1
+    100006: //RootNode
+    100008: attachNode_002
+    100010: collider-fixing-bar
+    100012: collider-s1-s1_001
+    100014: fixing-bar
+    100016: collider-fixing-bar_003
+    100018: fixing-bar_003
+    400000: attachNode
+    400002: collider-radial
+    400004: collider-s1-s1
+    400006: //RootNode
+    400008: attachNode_002
+    400010: collider-fixing-bar
+    400012: collider-s1-s1_001
+    400014: fixing-bar
+    400016: collider-fixing-bar_003
+    400018: fixing-bar_003
+    2300000: collider-radial
+    2300002: collider-s1-s1
+    2300004: //RootNode
+    2300006: collider-fixing-bar
+    2300008: collider-s1-s1_001
+    2300010: fixing-bar
+    2300012: collider-fixing-bar_003
+    2300014: fixing-bar_003
+    3300000: collider-radial
+    3300002: collider-s1-s1
+    3300004: //RootNode
+    3300006: collider-fixing-bar
+    3300008: collider-s1-s1_001
+    3300010: fixing-bar
+    3300012: collider-fixing-bar_003
+    3300014: fixing-bar_003
+    4300000: radial-adapter-s1-2
+    4300002: collider-radial
+    4300004: collider-s1-s1
+    4300006: radial-adapter-s1-2-mk2
+    4300008: fixing-bar
+    4300010: collider-fixing-bar
+    4300012: collider-s1-s1_001
+    4300014: fixing-bar_003
+    4300016: collider-fixing-bar_003
+    7400000: Default Take
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 2
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
