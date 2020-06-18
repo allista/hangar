@@ -91,7 +91,7 @@ namespace AtHangar
         {
             var info = base.GetInfo();
             if(!LaunchVelocity.IsZero())
-                info += string.Format("Jettison Velocity: {0:F1}m/s\n", LaunchVelocity.magnitude);
+                info += $"Jettison Velocity: {LaunchVelocity.magnitude:F1}m/s\n";
             return info;
         }
 
