@@ -622,34 +622,6 @@ namespace AtHangar
                 }
             }
         }
-
-#if DEBUG
-        //        Vector3d last_pos = Vector3d.zero;
-        //        Vector3d last_opos = Vector3d.zero;
-        //        public override void FixedUpdate()
-        //        {
-        //            base.FixedUpdate();
-        //            if(debris != null && debris.Count > 0)
-        //            {
-        //                var d = debris[0];
-        //                var delta = (d.vessel.CoM-last_pos).magnitude;
-        //                var odelta = (d.orbit.pos-last_opos).magnitude;
-        //                this.Log("delta pos:  {}\n" +
-        //                         "delta orb:  {}\n" +
-        //                         "pos-CB - orb: {}\n" +
-        //                         "orbit:\n{}\n" +
-        //                         "driver.offsetByFrame {}, was {}\n" +
-        //                         "driver.localCoM {}", 
-        //                         delta.ToString("F3"), 
-        //                         odelta.ToString("F3"),
-        //                         (d.vessel.CoMD-d.vessel.mainBody.position).xzy-d.orbit.pos,
-        //                         d.orbit, d.vessel.orbitDriver.offsetPosByAFrame, d.vessel.orbitDriver.wasOffsetPosByAFrame,
-        //                         d.vessel.orbitDriver.localCoM);
-        //                last_pos = d.vessel.CoM;
-        //                last_opos = d.orbit.pos;
-        //            }
-        //        }
-#endif
     }
 
     public class HangarFairingsUpdater : ModuleUpdater<HangarFairings>
