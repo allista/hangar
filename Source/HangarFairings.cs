@@ -151,6 +151,7 @@ namespace AtHangar
             new_storage.OnStorageEmpty += on_storage_empty;
         }
 
+        [SuppressMessage("ReSharper", "DelegateSubtraction")]
         protected override void on_storage_remove(HangarStorage old_storage)
         {
             base.on_storage_remove(old_storage);
@@ -226,6 +227,7 @@ namespace AtHangar
                 vessel.SpawnCrew();
         }
 
+        [SuppressMessage("ReSharper", "DelegateSubtraction")]
         public override void OnDestroy()
         {
             base.OnDestroy();
