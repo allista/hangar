@@ -108,8 +108,9 @@ namespace AtHangar
             if(info == null) return null;
             //set part's transform and parent the debris model to the part
             var part = Instantiate(info.partPrefab);
-            part.transform.position = debris_transform.position;
-            part.transform.rotation = original_part.transform.rotation;
+            var partTransform = part.transform;
+            partTransform.position = debris_transform.position;
+            partTransform.rotation = original_part.transform.rotation;
             //copy the model and resize it
             var debris_object = Instantiate(debris_transform.gameObject).transform;
             var debris_part_model = part.transform.Find("model");
