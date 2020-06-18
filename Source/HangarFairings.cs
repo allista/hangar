@@ -43,13 +43,13 @@ namespace AtHangar
         [UI_FloatEdit(scene = UI_Scene.All, minValue = 0, maxValue = 2)]
         public float JettisonPower = 1;
 
-        List<Transform> fairings = new List<Transform>();
-        List<AttachNode> decoupleNodes = new List<AttachNode>();
+        private List<Transform> fairings = new List<Transform>();
+        private List<AttachNode> decoupleNodes = new List<AttachNode>();
 
         [KSPField(isPersistant = true)] public float debris_cost, debris_mass = -1f;
 
         [KSPField] public string FxGroup = "decouple";
-        FXGroup FX;
+        private FXGroup FX;
 
         [KSPField(isPersistant = true)]
         public int CrewCapacity = 0;
@@ -59,7 +59,7 @@ namespace AtHangar
 
         private readonly List<Debris> debris = new List<Debris>();
 
-        class PayloadRes : ConfigNodeObject
+        private class PayloadRes : ConfigNodeObject
         {
             [Persistent] public string name = "";
             [Persistent] public double amount = 0;
@@ -82,7 +82,8 @@ namespace AtHangar
                 }
             }
         }
-        readonly List<PayloadRes> payload_resources = new List<PayloadRes>();
+
+        private readonly List<PayloadRes> payload_resources = new List<PayloadRes>();
 
         public override string GetInfo()
         {
@@ -104,7 +105,7 @@ namespace AtHangar
         #endregion
 
         #region IMultipleDragCube
-        static readonly string[] cube_names = { "Fairing", "Clean" };
+        private static readonly string[] cube_names = { "Fairing", "Clean" };
         public string[] GetDragCubeNames() => cube_names;
 
         public void AssumeDragCubePosition(string anim)
@@ -128,7 +129,7 @@ namespace AtHangar
 
         protected override Vector3 launchVelocity => base.launchVelocity * JettisonPower;
 
-        void find_fairings()
+        private void find_fairings()
         {
             fairings.Clear();
             foreach(var fairing in Utils.ParseLine(Fairings, Utils.Comma))
@@ -247,7 +248,7 @@ namespace AtHangar
             return true;
         }
 
-        bool store_payload_resources(PackedVessel payload)
+        private bool store_payload_resources(PackedVessel payload)
         {
             if(payload_resources.Count > 0) return false;
             var res_mass = 0.0;
@@ -280,7 +281,7 @@ namespace AtHangar
             }
         }
 
-        bool restore_payload_resources(PackedVessel payload)
+        private bool restore_payload_resources(PackedVessel payload)
         {
             if(payload_resources.Count == 0) return true;
             if(HighLogic.LoadedSceneIsEditor)
@@ -302,7 +303,7 @@ namespace AtHangar
             return true;
         }
 
-        bool clear_payload_resouces()
+        private bool clear_payload_resouces()
         {
             if(payload_resources.Count == 0) return true;
             if(Storage != null && Storage.Ready && Storage.VesselsCount > 0) return false;
@@ -311,27 +312,27 @@ namespace AtHangar
             return true;
         }
 
-        void on_ship_stored(PackedVessel pc)
+        private void on_ship_stored(PackedVessel pc)
         {
             update_crew_capacity(pc.CrewCapacity);
             store_payload_resources(pc);
         }
 
-        void on_ship_removed(PackedVessel pc)
+        private void on_ship_removed(PackedVessel pc)
         {
             if(HighLogic.LoadedSceneIsEditor)
                 update_crew_capacity(0);
             restore_payload_resources(pc);
         }
 
-        void on_storage_empty()
+        private void on_storage_empty()
         {
             if(HighLogic.LoadedSceneIsEditor)
                 update_crew_capacity(0);
             clear_payload_resouces();
         }
 
-        void update_crew_capacity(int capacity)
+        private void update_crew_capacity(int capacity)
         {
             part.CrewCapacity = CrewCapacity = capacity;
             if(part.partInfo != null && part.partInfo.partPrefab != null)
@@ -346,9 +347,9 @@ namespace AtHangar
             }
         }
 
-        struct ForceTarget
+        private struct ForceTarget
         {
-            static readonly System.Random rnd = new System.Random();
+            private static readonly System.Random rnd = new System.Random();
             public Vector3 pos;
             public Vector3 force;
             public Rigidbody target;
@@ -477,8 +478,8 @@ namespace AtHangar
             debris.Clear();
         }
 
-        ConfigNode flightPlanNode;
-        Vector3d orbitalVelocityAfterNode;
+        private ConfigNode flightPlanNode;
+        private Vector3d orbitalVelocityAfterNode;
         protected override void on_vessel_loaded(Vessel vsl)
         {
             base.on_vessel_loaded(vsl);
@@ -546,7 +547,7 @@ namespace AtHangar
             base.on_vessel_launched(vsl);
         }
 
-        IEnumerator<YieldInstruction> delayed_launch()
+        private IEnumerator<YieldInstruction> delayed_launch()
         {
             //check state
             if(!HighLogic.LoadedSceneIsFlight || Storage == null || !Storage.Ready) yield break;
