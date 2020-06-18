@@ -305,7 +305,7 @@ namespace AtHangar
             return true;
         }
 
-        private bool clear_payload_resouces()
+        private bool clear_payload_resources()
         {
             if(payload_resources.Count == 0) return true;
             if(Storage != null && Storage.Ready && Storage.VesselsCount > 0) return false;
@@ -331,7 +331,7 @@ namespace AtHangar
         {
             if(HighLogic.LoadedSceneIsEditor)
                 update_crew_capacity(0);
-            clear_payload_resouces();
+            clear_payload_resources();
         }
 
         private void update_crew_capacity(int capacity)
