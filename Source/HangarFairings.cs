@@ -158,6 +158,15 @@ namespace AtHangar
             old_storage.OnStorageEmpty -= on_storage_empty;
         }
 
+        private void disable_decouplers(string nodeId)
+        {
+            foreach(var m in part.FindModulesImplementing<ModuleDecouplerBase>())
+            {
+                if(m.explosiveNodeID == nodeId)
+                    m.EnableModule(false);
+            }
+        }
+
         protected override void early_setup(StartState state)
         {
             base.early_setup(state);
@@ -202,7 +211,11 @@ namespace AtHangar
             foreach(var nodeID in Utils.ParseLine(DecoupleNodes, Utils.Comma))
             {
                 var node = part.FindAttachNode(nodeID);
-                if(node != null) decoupleNodes.Add(node);
+                if(node == null)
+                    continue;
+                decoupleNodes.Add(node);
+                if(jettisoned)
+                    disable_decouplers(node.id);
             }
             JettisonDirection.Normalize();
             if(vessel != null) 
@@ -379,12 +392,13 @@ namespace AtHangar
             }
             foreach(var node in decoupleNodes)
             {
-                if(node.attachedPart != null)
-                {
-                    if(node.attachedPart == part.parent)
-                        decouple.Add(part);
-                    else decouple.Add(node.attachedPart);
-                }
+                if(node.attachedPart == null)
+                    continue;
+                if(node.attachedPart == part.parent)
+                    decouple.Add(part);
+                else
+                    decouple.Add(node.attachedPart);
+                disable_decouplers(node.id);
             }
             var jettison = new List<ForceTarget>(decouple.Count);
             var jettisonPower = Utils.ClampL(JettisonPower, 0.01f);
