@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
 using KSP.UI;
@@ -59,6 +60,8 @@ namespace AtHangar
 
         private readonly List<Debris> debris = new List<Debris>();
 
+        [SuppressMessage("ReSharper", "MemberCanBePrivate.Local"),
+         SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
         private class PayloadRes : ConfigNodeObject
         {
             [Persistent] public string name = "";
