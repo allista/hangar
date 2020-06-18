@@ -96,8 +96,10 @@ namespace AtHangar
         }
 
         #region IPart*Modifiers
-        public float GetModuleCost(float defaultCost, ModifierStagingSituation situation) { return jettisoned ? -debris_cost : 0f; }
-        public ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+        public float GetModuleCost(float defaultCost, ModifierStagingSituation situation) =>
+            jettisoned ? -debris_cost : 0f;
+
+        public ModifierChangeWhen GetModuleCostChangeWhen() => ModifierChangeWhen.CONSTANTLY;
 
         public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
         {
