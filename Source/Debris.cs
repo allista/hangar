@@ -18,7 +18,7 @@ namespace AtHangar
 
         [KSPField(isPersistant = true)] public string original_part_name = string.Empty;
         [KSPField(isPersistant = true)] public string debris_transform_name = string.Empty;
-        [KSPField(isPersistant = true)] public float  saved_cost, saved_mass = -1f;
+        [KSPField(isPersistant = true)] public float saved_cost, saved_mass = -1f;
         [KSPField(isPersistant = true)] public Vector3 local_scale = Vector3.one;
         [KSPField(isPersistant = true)] public Quaternion local_rotation = Quaternion.identity;
         [KSPField(isPersistant = true)] public float selfDestruct = -1;
@@ -47,17 +47,19 @@ namespace AtHangar
 
         public override void OnStart(StartState state)
         {
-            if(actual_object == null &&    !string.IsNullOrEmpty(original_part_name) && !string.IsNullOrEmpty(debris_transform_name))
+            if(actual_object == null
+               && !string.IsNullOrEmpty(original_part_name)
+               && !string.IsNullOrEmpty(debris_transform_name))
             {
                 var info = PartLoader.getPartInfoByName(original_part_name);
-                if(info == null) 
-                { 
+                if(info == null)
+                {
                     this.Log("WARNING: {} part was not found in the database!", original_part_name);
                     return;
                 }
                 actual_object = info.partPrefab.FindModelTransform(debris_transform_name);
-                if(actual_object == null) 
-                { 
+                if(actual_object == null)
+                {
                     this.Log("WARNING: {} part does not have {} transform!", original_part_name, debris_transform_name);
                     return;
                 }
@@ -79,8 +81,10 @@ namespace AtHangar
 
         private IEnumerator<YieldInstruction> update_drag_cubes()
         {
-            if(!HighLogic.LoadedSceneIsFlight) yield break;
-            for(var i = skip_updates; i > 0; i--) yield return new WaitForFixedUpdate();
+            if(!HighLogic.LoadedSceneIsFlight)
+                yield break;
+            for(var i = skip_updates; i > 0; i--)
+                yield return new WaitForFixedUpdate();
             part.DragCubes.ClearCubes();
             part.DragCubes.Cubes.Add(DragCubeSystem.Instance.RenderProceduralDragCube(part));
             part.DragCubes.ResetCubeWeights();
@@ -107,7 +111,8 @@ namespace AtHangar
         {
             //get the part form DB
             var info = PartLoader.getPartInfoByName(DEBRIS_PART);
-            if(info == null) return null;
+            if(info == null)
+                return null;
             //set part's transform and parent the debris model to the part
             var part = Instantiate(info.partPrefab);
             var partTransform = part.transform;
@@ -132,10 +137,11 @@ namespace AtHangar
             part.orgRot = Quaternion.identity;
             //initialize Debris module
             var debris = part.Modules.GetModule<Debris>();
-            if(debris == null) 
-            { 
+            if(debris == null)
+            {
                 Utils.Log("WARNING: {} part does not have Debris module!", DEBRIS_PART);
-                Destroy(part.gameObject); return null; 
+                Destroy(part.gameObject);
+                return null;
             }
             debris.actual_object = debris_object;
             debris.saved_cost = cost;
@@ -157,9 +163,10 @@ namespace AtHangar
             part.flagURL = original_part.flagURL;
             //set part's velocities
             part.Rigidbody.angularVelocity = original_part.Rigidbody.angularVelocity;
-            part.Rigidbody.velocity = original_part.Rigidbody.velocity + 
-                Vector3.Cross(original_part.Rigidbody.worldCenterOfMass-part.Rigidbody.worldCenterOfMass, 
-                              part.Rigidbody.angularVelocity);
+            part.Rigidbody.velocity = original_part.Rigidbody.velocity
+                                      + Vector3.Cross(
+                                          original_part.Rigidbody.worldCenterOfMass - part.Rigidbody.worldCenterOfMass,
+                                          part.Rigidbody.angularVelocity);
             //setup discovery info
             vessel.DiscoveryInfo.SetLastObservedTime(Planetarium.GetUniversalTime());
             vessel.DiscoveryInfo.SetUnobservedLifetime(lifetime);
@@ -172,4 +179,3 @@ namespace AtHangar
         }
     }
 }
-
