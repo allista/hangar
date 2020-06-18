@@ -41,7 +41,7 @@ namespace AtHangar
             guiActiveEditor = true,
             guiName = "Jettison Power",
             guiFormat = "P0")]
-        [UI_FloatEdit(scene = UI_Scene.All, minValue = 0, maxValue = 2)]
+        [UI_FloatRange(scene = UI_Scene.All, minValue = 0, maxValue = 2, stepIncrement = 0.01f)]
         public float JettisonPower = 1;
 
         private readonly List<Transform> fairings = new List<Transform>();
