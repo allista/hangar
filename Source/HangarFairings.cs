@@ -44,8 +44,8 @@ namespace AtHangar
         [UI_FloatEdit(scene = UI_Scene.All, minValue = 0, maxValue = 2)]
         public float JettisonPower = 1;
 
-        private List<Transform> fairings = new List<Transform>();
-        private List<AttachNode> decoupleNodes = new List<AttachNode>();
+        private readonly List<Transform> fairings = new List<Transform>();
+        private readonly List<AttachNode> decoupleNodes = new List<AttachNode>();
 
         [KSPField(isPersistant = true)] public float debris_cost, debris_mass = -1f;
 
@@ -351,10 +351,10 @@ namespace AtHangar
         private struct ForceTarget
         {
             private static readonly Random rnd = new Random();
-            public Vector3 pos;
-            public Vector3 force;
-            public Rigidbody target;
-            public float add_torque;
+            public readonly Vector3 pos;
+            public readonly Vector3 force;
+            public readonly Rigidbody target;
+            public readonly float add_torque;
 
             public ForceTarget(Rigidbody target, Vector3 force, Vector3 pos, float add_torque = 0)
             {
