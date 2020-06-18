@@ -29,11 +29,13 @@ namespace AtHangar
         public Rigidbody Rigidbody => part != null ? part.Rigidbody : null;
 
         #region IPart*Modifiers
-        public float GetModuleCost(float defaultCost, ModifierStagingSituation sit) { return saved_cost-defaultCost; }
-        public ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+        public float GetModuleCost(float defaultCost, ModifierStagingSituation sit) => saved_cost - defaultCost;
 
-        public float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return saved_mass-defaultMass; }
-        public ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+        public ModifierChangeWhen GetModuleCostChangeWhen() => ModifierChangeWhen.CONSTANTLY;
+
+        public float GetModuleMass(float defaultMass, ModifierStagingSituation sit) => saved_mass - defaultMass;
+
+        public ModifierChangeWhen GetModuleMassChangeWhen() => ModifierChangeWhen.CONSTANTLY;
         #endregion
 
         public void DetectCollisions(bool detect)
