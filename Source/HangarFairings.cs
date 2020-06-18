@@ -16,7 +16,7 @@ using AT_Utils;
 
 namespace AtHangar
 {
-    public class HangarFairings : Hangar, IPartCostModifier, IPartMassModifier, IMultipleDragCube
+    public class HangarFairings : Hangar, IPartCostModifier, IMultipleDragCube
     {
         [KSPField] public string Fairings = "fairings";
         [KSPField] public float FairingsDensity = 0.5f; //t/m3
