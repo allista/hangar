@@ -35,6 +35,14 @@ namespace AtHangar
         [UI_Toggle(scene = UI_Scene.All, enabledText = "Armed", disabledText = "Disarmed")]
         public bool DebrisAutoDestroy;
 
+        [KSPField(isPersistant = true,
+            guiActive = true,
+            guiActiveEditor = true,
+            guiName = "Jettison Power",
+            guiFormat = "P0")]
+        [UI_FloatEdit(scene = UI_Scene.All, minValue = 0, maxValue = 2)]
+        public float JettisonPower = 1;
+
         List<Transform> fairings = new List<Transform>();
         List<AttachNode> decoupleNodes = new List<AttachNode>();
 
@@ -117,6 +125,8 @@ namespace AtHangar
             BaseCoMOffset = CoMOffset;
             if(jettisoned) part.CoMOffset = BaseCoMOffset;
         }
+
+        protected override Vector3 launchVelocity => base.launchVelocity * JettisonPower;
 
         void find_fairings()
         {
@@ -377,6 +387,9 @@ namespace AtHangar
                 }
             }
             var jettison = new List<ForceTarget>(decouple.Count);
+            var jettisonPower = Utils.ClampL(JettisonPower, 0.01f);
+            var jettisonForce = JettisonForce * jettisonPower / 2;
+            var jettisonTorque = JettisonTorque * jettisonPower;
             foreach(var p in decouple)
             {
                 var force_target = p;
@@ -386,7 +399,7 @@ namespace AtHangar
                 if(force_target.Rigidbody != null)
                 {
                     var pos = force_target.Rigidbody.worldCenterOfMass;
-                    var force = (pos - part.Rigidbody.worldCenterOfMass).normalized * Utils.ClampH(force_target.mass, 1) * JettisonForce * 0.5f;
+                    var force = (pos - part.Rigidbody.worldCenterOfMass).normalized * (Utils.ClampH(force_target.mass, 1) * jettisonForce);
                     jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos, 0));
                 }
                 yield return null;
@@ -398,9 +411,9 @@ namespace AtHangar
             foreach(var f in fairings)
             {
                 var d = Debris.SetupOnTransform(part, f, FairingsDensity, FairingsCost, DebrisLifetime);
-                var force = f.TransformDirection(JettisonDirection) * JettisonForce * 0.5f;
+                var force = f.TransformDirection(JettisonDirection) * jettisonForce;
                 var pos = d.Rigidbody.worldCenterOfMass;
-                jettison.Add(new ForceTarget(d.Rigidbody, force, pos, JettisonTorque));
+                jettison.Add(new ForceTarget(d.Rigidbody, force, pos, jettisonTorque));
                 if(DebrisAutoDestroy)
                     d.selfDestruct = debrisDestroyCountdown;
                 d.DetectCollisions(false);
