@@ -53,7 +53,7 @@ namespace AtHangar
         private FXGroup FX;
 
         [KSPField(isPersistant = true)]
-        public int CrewCapacity = 0;
+        public int CrewCapacity;
 
         [KSPField(isPersistant = true)]
         public bool jettisoned, launch_in_progress;
@@ -65,8 +65,8 @@ namespace AtHangar
         private class PayloadRes : ConfigNodeObject
         {
             [Persistent] public string name = "";
-            [Persistent] public double amount = 0;
-            [Persistent] public double maxAmount = 0;
+            [Persistent] public double amount;
+            [Persistent] public double maxAmount;
 
             public PayloadRes() { }
             public PayloadRes(PartResource res)
@@ -415,7 +415,7 @@ namespace AtHangar
                 {
                     var pos = force_target.Rigidbody.worldCenterOfMass;
                     var force = (pos - part.Rigidbody.worldCenterOfMass).normalized * (Utils.ClampH(force_target.mass, 1) * jettisonForce);
-                    jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos, 0));
+                    jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos));
                 }
                 yield return null;
             }
