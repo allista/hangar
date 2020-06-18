@@ -14,7 +14,7 @@ namespace AtHangar
 {
     public class Debris : PartModule, IPartCostModifier, IPartMassModifier
     {
-        const string DEBRIS_PART = "GenericDebris";
+        private const string DEBRIS_PART = "GenericDebris";
 
         [KSPField(isPersistant = true)] public string original_part_name = string.Empty;
         [KSPField(isPersistant = true)] public string debris_transform_name = string.Empty;
@@ -73,8 +73,9 @@ namespace AtHangar
                 StartCoroutine(self_destruct());
         }
 
-        const int skip_updates = 10;
-        IEnumerator<YieldInstruction> update_drag_cubes()
+        private const int skip_updates = 10;
+
+        private IEnumerator<YieldInstruction> update_drag_cubes()
         {
             if(!HighLogic.LoadedSceneIsFlight) yield break;
             for(int i = skip_updates; i > 0; i--) yield return new WaitForFixedUpdate();
