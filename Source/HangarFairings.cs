@@ -163,6 +163,7 @@ namespace AtHangar
 
         private void disable_decouplers(string nodeId)
         {
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach(var m in part.FindModulesImplementing<ModuleDecouplerBase>())
             {
                 if(m.explosiveNodeID == nodeId)
@@ -385,13 +386,10 @@ namespace AtHangar
             vsl.crew.Clear();
             vsl.crew.AddRange(part.protoModuleCrew);
             //decouple surface attached parts and decoupleNodes
-            var decouple = new List<Part>();
-            foreach(var p in part.children)
-            {
-                if(p.srfAttachNode != null &&
-                   p.srfAttachNode.attachedPart == part)
-                    decouple.Add(p);
-            }
+            var decouple = part.children
+                .Where(p => p.srfAttachNode?.attachedPart == part)
+                .ToList();
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach(var node in decoupleNodes)
             {
                 if(node.attachedPart == null)
