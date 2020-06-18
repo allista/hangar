@@ -252,9 +252,10 @@ namespace AtHangar
             return true;
         }
 
-        private bool store_payload_resources(PackedVessel payload)
+        private void store_payload_resources(PackedVessel payload)
         {
-            if(payload_resources.Count > 0) return false;
+            if(payload_resources.Count > 0)
+                return;
             var res_mass = 0.0;
             var resources = payload.resources;
             foreach(var r in resources.resourcesNames)
@@ -271,7 +272,6 @@ namespace AtHangar
             }
             payload.mass -= (float)res_mass;
             Storage.UpdateParams();
-            return true;
         }
 
         public void ResetPayloadResources()
@@ -284,9 +284,10 @@ namespace AtHangar
             }
         }
 
-        private bool restore_payload_resources(PackedVessel payload)
+        private void restore_payload_resources(PackedVessel payload)
         {
-            if(payload_resources.Count == 0) return true;
+            if(payload_resources.Count == 0)
+                return;
             if(HighLogic.LoadedSceneIsEditor)
                 ResetPayloadResources();
             var res_mass = 0.0;
@@ -302,16 +303,16 @@ namespace AtHangar
             payload.mass += (float)res_mass;
             payload_resources.Clear();
             Storage.UpdateParams();
-            return true;
         }
 
-        private bool clear_payload_resources()
+        private void clear_payload_resources()
         {
-            if(payload_resources.Count == 0) return true;
-            if(Storage != null && Storage.Ready && Storage.VesselsCount > 0) return false;
+            if(payload_resources.Count == 0)
+                return;
+            if(Storage != null && Storage.Ready && Storage.VesselsCount > 0)
+                return;
             payload_resources.ForEach(r => part.Resources.Remove(r.name));
             payload_resources.Clear();
-            return true;
         }
 
         private void on_ship_stored(PackedVessel pc)
