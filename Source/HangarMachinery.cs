@@ -148,7 +148,7 @@ namespace AtHangar
             //vessel facilities
             if(NoCrewTransfers) info += "Crew transfer not available\n";
             if(NoResourceTransfers) info += "Resources transfer not available\n";
-            if(LaunchVelocity != Vector3.zero) info += "Has integrated launch system\n";
+            if(!LaunchVelocity.IsZero()) info += "Has integrated launch system\n";
             return info;
         }
         #endregion
