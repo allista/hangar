@@ -444,7 +444,7 @@ namespace AtHangar
             //this event is catched by FlightLogger
             StartCoroutine(CallbackUtil.DelayedCallback(5, update_debris_after_launch));
             GameEvents.onStageSeparation.Fire(new EventReport(FlightEvents.STAGESEPARATION, part, null, null, StageManager.CurrentStage, string.Empty));
-            if(FX != null) FX.Burst();
+            FX?.Burst();
             if(DebrisAutoDestroy && vessel.Parts.Count == 1 && vessel.Parts.First() == part)
                 StartCoroutine(self_destruct(debrisDestroyCountdown));
             jettisoned = true;
