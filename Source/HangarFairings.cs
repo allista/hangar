@@ -394,10 +394,7 @@ namespace AtHangar
             {
                 if(node.attachedPart == null)
                     continue;
-                if(node.attachedPart == part.parent)
-                    decouple.Add(part);
-                else
-                    decouple.Add(node.attachedPart);
+                decouple.Add(node.attachedPart == part.parent ? part : node.attachedPart);
                 disable_decouplers(node.id);
             }
             var jettison = new List<ForceTarget>(decouple.Count);
