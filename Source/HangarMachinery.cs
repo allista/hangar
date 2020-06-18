@@ -551,6 +551,8 @@ namespace AtHangar
         #endregion
 
         #region Restore
+        protected virtual Vector3 launchVelocity => LaunchVelocity;
+
         #region Positioning
         protected virtual IEnumerable<YieldInstruction> before_vessel_launch(PackedVessel vsl) { yield break; }
 
@@ -566,7 +568,7 @@ namespace AtHangar
             spawning_vessel_on_rails = false;
             if(hangar_damper != null)
             {
-                if(LaunchWithPunch && !LaunchVelocity.IsZero())
+                if(LaunchWithPunch && !launchVelocity.IsZero())
                     hangar_damper.EnableDamper(false);
                 else
                 {
@@ -663,7 +665,7 @@ namespace AtHangar
             var spawn_transfrom = get_spawn_transform(vsl, out spawn_offset);
             spawn_offset -= vsl.metric.center;
             if(LaunchWithPunch)
-                dV = LaunchVelocity.Local2LocalDir(part.partTransform, spawn_transfrom);
+                dV = launchVelocity.Local2LocalDir(part.partTransform, spawn_transfrom);
             if(vsl is StoredVessel sv)
             {
                 //this is for compatibility with the old crew transfer framework
