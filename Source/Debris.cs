@@ -21,8 +21,12 @@ namespace AtHangar
         [KSPField(isPersistant = true)] public float  saved_cost, saved_mass = -1f;
         [KSPField(isPersistant = true)] public Vector3 local_scale = Vector3.one;
         [KSPField(isPersistant = true)] public Quaternion local_rotation = Quaternion.identity;
+        [KSPField(isPersistant = true)] public float selfDestruct = -1;
+        [KSPField(isPersistant = true)] public float selfDestructPower;
 
         public Transform actual_object;
+
+        public Rigidbody Rigidbody => part != null ? part.Rigidbody : null;
 
         #region IPart*Modifiers
         public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation sit) { return saved_cost-defaultCost; }
@@ -31,6 +35,13 @@ namespace AtHangar
         public virtual float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return saved_mass-defaultMass; }
         public virtual ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
         #endregion
+
+        public void DetectCollisions(bool detect)
+        {
+            if(part == null)
+                return;
+            part.SetDetectCollisions(detect);
+        }
 
         public override void OnStart(StartState state)
         {
@@ -58,6 +69,8 @@ namespace AtHangar
                 part.transform.hasChanged = true;
             }
             StartCoroutine(update_drag_cubes());
+            if(selfDestruct > 0)
+                StartCoroutine(self_destruct());
         }
 
         const int skip_updates = 10;
@@ -71,9 +84,23 @@ namespace AtHangar
             part.DragCubes.ForceUpdate(true, true, true);
         }
 
-        public static Part SetupOnTransform(Part original_part, 
-                                            Transform debris_transform, 
-                                            float density, float cost, double lifetime)
+        private IEnumerator<YieldInstruction> self_destruct()
+        {
+            var endUT = Planetarium.GetUniversalTime() + selfDestruct;
+            while(Planetarium.GetUniversalTime() < endUT)
+                yield return null;
+            FXMonger.Explode(part, vessel.GetWorldPos3D(), selfDestructPower);
+            yield return null;
+            part.Die();
+        }
+
+        public static Debris SetupOnTransform(
+            Part original_part,
+            Transform debris_transform,
+            float density,
+            float cost,
+            double lifetime
+        )
         {
             //get the part form DB
             var info = PartLoader.getPartInfoByName(DEBRIS_PART);
@@ -137,7 +164,7 @@ namespace AtHangar
             //inform the game about the new vessel
             GameEvents.onNewVesselCreated.Fire(vessel);
             //return the part
-            return part;
+            return debris;
         }
     }
 }

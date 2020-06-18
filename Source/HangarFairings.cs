@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using KSP.UI;
 using KSP.UI.Screens;
@@ -24,7 +25,15 @@ namespace AtHangar
         [KSPField] public float JettisonForce = 50f;
         [KSPField] public float JettisonTorque = 5f;
         [KSPField] public double DebrisLifetime = 600;
+        [KSPField] public float DestroyDebrisIn = 10;
         [KSPField] public string DecoupleNodes = "";
+
+        [KSPField(isPersistant = true,
+            guiName = "Debris destruction",
+            guiActive = true,
+            guiActiveEditor = true)]
+        [UI_Toggle(scene = UI_Scene.All, enabledText = "Armed", disabledText = "Disarmed")]
+        public bool DebrisAutoDestroy;
 
         List<Transform> fairings = new List<Transform>();
         List<AttachNode> decoupleNodes = new List<AttachNode>();
@@ -39,7 +48,8 @@ namespace AtHangar
 
         [KSPField(isPersistant = true)]
         public bool jettisoned, launch_in_progress;
-        List<Part> debris = new List<Part>();
+
+        private readonly List<Debris> debris = new List<Debris>();
 
         class PayloadRes : ConfigNodeObject
         {
@@ -381,16 +391,19 @@ namespace AtHangar
                 }
                 yield return null;
             }
-            //spawn debirs
-            debris = new List<Part>();
+            //spawn debris
+            debris.Clear();
             debris_cost = 0;
+            var debrisDestroyCountdown = Utils.ClampL(DestroyDebrisIn, 1);
             foreach(var f in fairings)
             {
                 var d = Debris.SetupOnTransform(part, f, FairingsDensity, FairingsCost, DebrisLifetime);
                 var force = f.TransformDirection(JettisonDirection) * JettisonForce * 0.5f;
                 var pos = d.Rigidbody.worldCenterOfMass;
                 jettison.Add(new ForceTarget(d.Rigidbody, force, pos, JettisonTorque));
-                d.SetDetectCollisions(false);
+                if(DebrisAutoDestroy)
+                    d.selfDestruct = debrisDestroyCountdown;
+                d.DetectCollisions(false);
                 d.vessel.IgnoreGForces(10);
                 debris_cost += FairingsCost;
                 debris.Add(d);
@@ -405,19 +418,34 @@ namespace AtHangar
             StartCoroutine(CallbackUtil.DelayedCallback(5, update_debris_after_launch));
             GameEvents.onStageSeparation.Fire(new EventReport(FlightEvents.STAGESEPARATION, part, null, null, StageManager.CurrentStage, string.Empty));
             if(FX != null) FX.Burst();
+            if(DebrisAutoDestroy && vessel.Parts.Count == 1 && vessel.Parts.First() == part)
+                StartCoroutine(self_destruct(debrisDestroyCountdown));
             jettisoned = true;
         }
 
-        void update_debris_after_launch()
+        private IEnumerator<YieldInstruction> self_destruct(float countdown)
+        {
+            var endUT = Planetarium.GetUniversalTime() + countdown;
+            while(Planetarium.GetUniversalTime() < endUT)
+                yield return null;
+            FXMonger.Explode(part, vessel.GetWorldPos3D(), explosionPower(part.Rigidbody));
+            yield return null;
+            part.Die();
+        }
+
+        private static float explosionPower(Rigidbody rb) => Utils.Clamp(rb.mass - 0.1f, 0, 5);
+
+        private void update_debris_after_launch()
         {
             debris_mass = 0;
-            debris.ForEach(p =>
+            debris.ForEach(d =>
             {
-                if(p != null && p.Rigidbody != null)
-                {
-                    debris_mass += p.Rigidbody.mass;
-                    p.SetDetectCollisions(true);
-                }
+                if(d == null || d.Rigidbody == null)
+                    return;
+                if(DebrisAutoDestroy)
+                    d.selfDestructPower = explosionPower(d.Rigidbody);
+                debris_mass += d.Rigidbody.mass;
+                d.DetectCollisions(true);
             });
             debris.Clear();
         }
