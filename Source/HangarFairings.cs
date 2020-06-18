@@ -78,11 +78,10 @@ namespace AtHangar
 
             public void ApplyTo(PartResource res)
             {
-                if(name == res.resourceName)
-                {
-                    res.amount = amount;
-                    res.maxAmount = maxAmount;
-                }
+                if(name != res.resourceName)
+                    return;
+                res.amount = amount;
+                res.maxAmount = maxAmount;
             }
         }
 
@@ -229,6 +228,7 @@ namespace AtHangar
         public override void OnDestroy()
         {
             base.OnDestroy();
+            // ReSharper disable once InvertIf
             if(Storage != null)
             {
                 Storage.OnVesselStored -= on_ship_stored;
@@ -243,6 +243,7 @@ namespace AtHangar
         {
             if(!base.can_store_packed_vessel(vsl, in_flight))
                 return false;
+            // ReSharper disable once InvertIf
             if(Storage.VesselsCount > 0)
             {
                 Utils.Message("Payload is already stored");
@@ -262,12 +263,11 @@ namespace AtHangar
                 if(Globals.Instance.ResourcesBlacklist.IndexOf(r) >= 0) continue;
                 var res = part.Resources.Add(r, resources.ResourceAmount(r), resources.ResourceCapacity(r),
                                              true, true, true, true, PartResource.FlowMode.Both);
-                if(res != null)
-                {
-                    payload_resources.Add(new PayloadRes(res));
-                    resources.TransferResource(r, -res.amount);
-                    res_mass += res.amount * res.info.density;
-                }
+                if(res == null)
+                    continue;
+                payload_resources.Add(new PayloadRes(res));
+                resources.TransferResource(r, -res.amount);
+                res_mass += res.amount * res.info.density;
             }
             payload.mass -= (float)res_mass;
             Storage.UpdateParams();
@@ -293,12 +293,11 @@ namespace AtHangar
             foreach(var r in payload_resources)
             {
                 var res = part.Resources.Get(r.name);
-                if(res != null)
-                {
-                    res_mass += res.amount * res.info.density;
-                    payload.resources.TransferResource(r.name, res.amount);
-                    part.Resources.Remove(res);
-                }
+                if(res == null)
+                    continue;
+                res_mass += res.amount * res.info.density;
+                payload.resources.TransferResource(r.name, res.amount);
+                part.Resources.Remove(res);
             }
             payload.mass += (float)res_mass;
             payload_resources.Clear();
@@ -340,14 +339,13 @@ namespace AtHangar
             part.CrewCapacity = CrewCapacity = capacity;
             if(part.partInfo != null && part.partInfo.partPrefab != null)
                 part.partInfo.partPrefab.CrewCapacity = part.CrewCapacity;
-            if(HighLogic.LoadedSceneIsEditor)
-            {
-                ShipConstruction.ShipConfig = EditorLogic.fetch.ship.SaveShip();
-                ShipConstruction.ShipManifest = HighLogic.CurrentGame.CrewRoster.DefaultCrewForVessel(ShipConstruction.ShipConfig);
-                if(CrewAssignmentDialog.Instance != null)
-                    CrewAssignmentDialog.Instance.RefreshCrewLists(ShipConstruction.ShipManifest, false, true);
-                Utils.UpdateEditorGUI();
-            }
+            if(!HighLogic.LoadedSceneIsEditor)
+                return;
+            ShipConstruction.ShipConfig = EditorLogic.fetch.ship.SaveShip();
+            ShipConstruction.ShipManifest = HighLogic.CurrentGame.CrewRoster.DefaultCrewForVessel(ShipConstruction.ShipConfig);
+            if(CrewAssignmentDialog.Instance != null)
+                CrewAssignmentDialog.Instance.RefreshCrewLists(ShipConstruction.ShipManifest, false, true);
+            Utils.UpdateEditorGUI();
         }
 
         private struct ForceTarget
@@ -370,13 +368,12 @@ namespace AtHangar
             {
                 target.AddForceAtPosition(force, pos, ForceMode.Force);
                 counterpart.AddForceAtPosition(-force, pos, ForceMode.Force);
-                if(add_torque > 0)
-                {
-                    var rnd_torque = new Vector3((float)rnd.NextDouble() - 0.5f,
-                                                 (float)rnd.NextDouble() - 0.5f,
-                                                 (float)rnd.NextDouble() - 0.5f);
-                    target.AddRelativeTorque(rnd_torque * add_torque, ForceMode.VelocityChange);
-                }
+                if(!(add_torque > 0))
+                    return;
+                var rnd_torque = new Vector3((float)rnd.NextDouble() - 0.5f,
+                    (float)rnd.NextDouble() - 0.5f,
+                    (float)rnd.NextDouble() - 0.5f);
+                target.AddRelativeTorque(rnd_torque * add_torque, ForceMode.VelocityChange);
             }
         }
 
@@ -583,13 +580,12 @@ namespace AtHangar
         [KSPEvent(guiActive = true, guiName = "Show Payload", guiActiveUnfocused = true, externalToEVAOnly = false, unfocusedRange = 300)]
         public void ShowPayload()
         {
-            if(Storage.VesselsCount > 0)
-            {
-                if(highlighted_content == null)
-                    HighlightContentTemporary(Storage.GetVessels()[0], 5, ContentState.Fits);
-                else
-                    SetHighlightedContent(null);
-            }
+            if(Storage.VesselsCount <= 0)
+                return;
+            if(highlighted_content == null)
+                HighlightContentTemporary(Storage.GetVessels()[0], 5, ContentState.Fits);
+            else
+                SetHighlightedContent(null);
         }
 
         [KSPEvent(guiActive = true, guiName = "Jettison Payload", guiActiveUnfocused = true, externalToEVAOnly = true, unfocusedRange = 4)]
@@ -620,6 +616,7 @@ namespace AtHangar
         {
             base.OnLoad(node);
             var payload_node = node.GetNode("PAYLOAD_RESOURCES");
+            // ReSharper disable once InvertIf
             if(payload_node != null)
             {
                 foreach(var rn in payload_node.GetNodes("RESOURCE"))
