@@ -8,10 +8,11 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using UnityEngine;
+using AT_Utils;
 using KSP.UI;
 using KSP.UI.Screens;
-using AT_Utils;
+using UnityEngine;
+using Random = System.Random;
 
 namespace AtHangar
 {
@@ -351,7 +352,7 @@ namespace AtHangar
 
         private struct ForceTarget
         {
-            private static readonly System.Random rnd = new System.Random();
+            private static readonly Random rnd = new Random();
             public Vector3 pos;
             public Vector3 force;
             public Rigidbody target;
