@@ -173,7 +173,6 @@ namespace AtHangar
                     stagingToggleEnabledEditor = true;
                     stagingToggleEnabledFlight = true;
                     Events["ToggleStaging"].advancedTweakable = false;
-                    SetStaging(true);
                     part.UpdateStageability(true, true);
                 }
             }
