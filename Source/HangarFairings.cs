@@ -349,13 +349,13 @@ namespace AtHangar
             Utils.UpdateEditorGUI();
         }
 
-        private struct ForceTarget
+        private readonly struct ForceTarget
         {
             private static readonly Random rnd = new Random();
-            public readonly Vector3 pos;
-            public readonly Vector3 force;
-            public readonly Rigidbody target;
-            public readonly float add_torque;
+            private readonly Vector3 pos;
+            private readonly Vector3 force;
+            private readonly Rigidbody target;
+            private readonly float add_torque;
 
             public ForceTarget(Rigidbody target, Vector3 force, Vector3 pos, float add_torque = 0)
             {
