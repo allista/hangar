@@ -78,7 +78,7 @@ namespace AtHangar
         private IEnumerator<YieldInstruction> update_drag_cubes()
         {
             if(!HighLogic.LoadedSceneIsFlight) yield break;
-            for(int i = skip_updates; i > 0; i--) yield return new WaitForFixedUpdate();
+            for(var i = skip_updates; i > 0; i--) yield return new WaitForFixedUpdate();
             part.DragCubes.ClearCubes();
             part.DragCubes.Cubes.Add(DragCubeSystem.Instance.RenderProceduralDragCube(part));
             part.DragCubes.ResetCubeWeights();
