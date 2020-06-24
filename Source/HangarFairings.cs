@@ -668,7 +668,6 @@ namespace AtHangar
         protected override void on_rescale(ModulePair<HangarFairings> mp, Scale scale)
         {
             mp.module.JettisonForce = mp.base_module.JettisonForce * scale.absolute.volume;
-            mp.module.JettisonTorque = mp.base_module.JettisonTorque * scale.absolute.volume;
             mp.module.FairingsCost = mp.base_module.FairingsCost * scale.absolute.volume;
             mp.module.UpdateCoMOffset(scale.ScaleVector(mp.base_module.BaseCoMOffset));
             if(HighLogic.LoadedSceneIsEditor)
