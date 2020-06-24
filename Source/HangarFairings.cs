@@ -554,14 +554,8 @@ namespace AtHangar
                             return;
                         var nearest_node = vsl.patchedConicSolver.maneuverNodes[0];
                         var o = nearest_node.patch;
-                        var norm = o.GetOrbitNormal().normalized;
-                        var prograde = o.getOrbitalVelocityAtUT(nearest_node.UT);
-                        var orbitalDeltaV = orbitalVelocityAfterNode - prograde;
-                        prograde.Normalize();
-                        var radial = Vector3d.Cross(prograde, norm).normalized;
-                        nearest_node.DeltaV = new Vector3d(Vector3d.Dot(orbitalDeltaV, radial),
-                            Vector3d.Dot(orbitalDeltaV, norm),
-                            Vector3d.Dot(orbitalDeltaV, prograde));
+                        var orbitalDeltaV = orbitalVelocityAfterNode - o.getOrbitalVelocityAtUT(nearest_node.UT);
+                        nearest_node.DeltaV = Utils.Orbital2NodeDeltaV(o, orbitalDeltaV, nearest_node.UT);
                         vsl.patchedConicSolver.UpdateFlightPlan();
                     }));
             }
