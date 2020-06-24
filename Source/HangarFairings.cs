@@ -23,8 +23,9 @@ namespace AtHangar
         [KSPField] public float FairingsCost = 20f; //credits per fairing
         [KSPField] public Vector3 BaseCoMOffset = Vector3.zero;
         [KSPField] public Vector3 JettisonDirection = Vector3.up;
+        [KSPField] public Vector3 JettisonForcePos = Vector3.zero;
         [KSPField] public float JettisonForce = 50f;
-        [KSPField] public float JettisonTorque = 5f;
+        [KSPField] public float JettisonTorque;
         [KSPField] public double DebrisLifetime = 600;
         [KSPField] public float DestroyDebrisIn = 10;
         [KSPField] public string DecoupleNodes = "";
@@ -445,6 +446,8 @@ namespace AtHangar
                 var d = Debris.SetupOnTransform(part, f, FairingsDensity, FairingsCost, DebrisLifetime);
                 var force = f.TransformDirection(JettisonDirection) * jettisonForce;
                 var pos = d.Rigidbody.worldCenterOfMass;
+                if(!JettisonForcePos.IsZero())
+                    pos += f.TransformVector(JettisonForcePos);
                 jettison.Add(new ForceTarget(d.Rigidbody, force, pos, jettisonTorque));
                 if(DebrisAutoDestroy)
                     d.selfDestruct = debrisDestroyCountdown;
