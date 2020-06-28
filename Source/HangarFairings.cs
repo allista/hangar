@@ -5,12 +5,12 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AT_Utils;
 using KSP.UI;
-using KSP.UI.Screens;
 using UnityEngine;
 using Random = System.Random;
 
@@ -19,8 +19,8 @@ namespace AtHangar
     public class HangarFairings : Hangar, IPartCostModifier, IMultipleDragCube
     {
         [KSPField] public string Fairings = "fairings";
-        [KSPField] public float FairingsDensity = 0.5f; //t/m3
         [KSPField] public float FairingsCost = 20f; //credits per fairing
+        [KSPField] public float BaseSpecificMass = 0.5f; // by default the base has 50% of the total mass
         [KSPField] public Vector3 BaseCoMOffset = Vector3.zero;
         [KSPField] public Vector3 JettisonDirection = Vector3.up;
         [KSPField] public Vector3 JettisonForcePos = Vector3.zero;
@@ -47,6 +47,7 @@ namespace AtHangar
         public float JettisonPower = 1;
 
         private readonly List<Transform> fairings = new List<Transform>();
+        private readonly Dictionary<Transform, float> fairingsSpecificMass = new Dictionary<Transform, float>();
         private readonly List<AttachNode> decoupleNodes = new List<AttachNode>();
 
         [KSPField(isPersistant = true)] public float debris_cost, debris_mass = -1f;
@@ -137,15 +138,61 @@ namespace AtHangar
 
         protected override Vector3 launchVelocity => base.launchVelocity * JettisonPower;
 
-        private void find_fairings()
+        private bool find_fairings()
         {
             fairings.Clear();
+            fairingsSpecificMass.Clear();
+            var totalFairingsMass = 0f;
+            var numEqualMassFairings = 0;
             foreach(var fairing in Utils.ParseLine(Fairings, Utils.Comma))
             {
-                var transforms = part.FindModelTransforms(fairing);
+                var name_mass = fairing.Split(new[] { ':' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                var fairingName = name_mass[0];
+                var fairingMass = -1f;
+                if(name_mass.Length > 1)
+                    float.TryParse(name_mass[1], out fairingMass);
+                var transforms = part.FindModelTransforms(fairingName);
                 if(transforms != null)
+                {
                     fairings.AddRange(transforms);
+                    foreach(var t in transforms)
+                    {
+                        fairingsSpecificMass.Add(t, fairingMass);
+                        if(fairingMass > 0)
+                            totalFairingsMass += fairingMass;
+                        else
+                            numEqualMassFairings += 1;
+                    }
+                }
+                else
+                    this.Warning($"Unable to find fairings transform(s): {fairingName}");
             }
+            if(fairings.Count == 0)
+            {
+                this.ConfigurationInvalid($"No fairings were found or configured");
+                return false;
+            }
+            if(totalFairingsMass >= 1)
+            {
+                this.ConfigurationInvalid($"Total specific mass of the {part.Title()} is greater than 1");
+                return false;
+            }
+            if(numEqualMassFairings == 0)
+                BaseSpecificMass = 1 - totalFairingsMass;
+            if(BaseSpecificMass < 0.1f)
+                this.Warning("Specific mass of the base is less then 10%");
+            // calculate specific masses of fairings that didn't provide them
+            // ReSharper disable once InvertIf
+            if(numEqualMassFairings > 0)
+            {
+                var fairingMass = (1 - BaseSpecificMass - totalFairingsMass) / numEqualMassFairings;
+                foreach(var t in fairingsSpecificMass.Keys.ToArray())
+                {
+                    if(fairingsSpecificMass[t] < 0)
+                        fairingsSpecificMass[t] = fairingMass;
+                }
+            }
+            return true;
         }
 
         protected override void on_storage_add(HangarStorage new_storage)
@@ -189,41 +236,37 @@ namespace AtHangar
             Events["EditName"].active = false;
             FX = part.findFxGroup(FxGroup);
             //setup fairings
-            find_fairings();
-            if(fairings.Count > 0)
+            if(!find_fairings())
+                return;
+            if(jettisoned)
             {
-                if(jettisoned)
-                {
-                    fairings.ForEach(f => f.gameObject.SetActive(false));
-                    part.DragCubes.SetCubeWeight("Fairing ", 0f);
-                    part.DragCubes.SetCubeWeight("Clean ", 1f);
-                    part.CoMOffset = BaseCoMOffset;
-                    part.stagingIcon = string.Empty;
-                    stagingToggleEnabledEditor = false;
-                    stagingToggleEnabledFlight = false;
-                    Events[nameof(ToggleStaging)].active = false;
-                    Fields[nameof(JettisonPower)].guiActive = false;
-                    Fields[nameof(DestroyDebrisIn)].guiActive = false;
-                    SetStaging(false);
-                    part.UpdateStageability(true, true);
-                }
-                else
-                {
-                    fairings.ForEach(f => f.gameObject.SetActive(true));
-                    part.DragCubes.SetCubeWeight("Fairing ", 1f);
-                    part.DragCubes.SetCubeWeight("Clean ", 0f);
-                    part.stagingIcon = "DECOUPLER_HOR";
-                    stagingToggleEnabledEditor = true;
-                    stagingToggleEnabledFlight = true;
-                    Events[nameof(ToggleStaging)].active = true;
-                    Events[nameof(ToggleStaging)].advancedTweakable = false;
-                    Fields[nameof(JettisonPower)].guiActive = true;
-                    Fields[nameof(DestroyDebrisIn)].guiActive = true;
-                    part.UpdateStageability(true, true);
-                }
+                fairings.ForEach(f => f.gameObject.SetActive(false));
+                part.DragCubes.SetCubeWeight("Fairing ", 0f);
+                part.DragCubes.SetCubeWeight("Clean ", 1f);
+                part.CoMOffset = BaseCoMOffset;
+                part.stagingIcon = string.Empty;
+                stagingToggleEnabledEditor = false;
+                stagingToggleEnabledFlight = false;
+                Events[nameof(ToggleStaging)].active = false;
+                Fields[nameof(JettisonPower)].guiActive = false;
+                Fields[nameof(DestroyDebrisIn)].guiActive = false;
+                SetStaging(false);
+                part.UpdateStageability(true, true);
             }
             else
-                this.Log("No Fairings transforms found with the name: {}", Fairings);
+            {
+                fairings.ForEach(f => f.gameObject.SetActive(true));
+                part.DragCubes.SetCubeWeight("Fairing ", 1f);
+                part.DragCubes.SetCubeWeight("Clean ", 0f);
+                part.stagingIcon = "DECOUPLER_HOR";
+                stagingToggleEnabledEditor = true;
+                stagingToggleEnabledFlight = true;
+                Events[nameof(ToggleStaging)].active = true;
+                Events[nameof(ToggleStaging)].advancedTweakable = false;
+                Fields[nameof(JettisonPower)].guiActive = true;
+                Fields[nameof(DestroyDebrisIn)].guiActive = true;
+                part.UpdateStageability(true, true);
+            }
             //setup attach nodes
             decoupleNodes.Clear();
             foreach(var nodeID in Utils.ParseLine(DecoupleNodes, Utils.Comma))
@@ -450,10 +493,12 @@ namespace AtHangar
             debris.Clear();
             debris_cost = 0;
             debris_mass = 0;
+            var partMass = part.Rigidbody.mass - vsl.mass - part.resourceMass;
             var debrisDestroyCountdown = Utils.ClampL(DestroyDebrisIn, 1);
             foreach(var f in fairings)
             {
-                var d = Debris.SetupOnTransform(part, f, FairingsDensity, FairingsCost, DebrisLifetime);
+                var m = partMass * fairingsSpecificMass[f];
+                var d = Debris.SetupOnTransform(part, f, m, FairingsCost, DebrisLifetime);
                 var force = f.TransformDirection(JettisonDirection) * jettisonForce;
                 var pos = d.Rigidbody.worldCenterOfMass;
                 if(!JettisonForcePos.IsZero())

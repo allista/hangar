@@ -104,7 +104,7 @@ namespace AtHangar
         public static Debris SetupOnTransform(
             Part original_part,
             Transform debris_transform,
-            float density,
+            float mass,
             float cost,
             double lifetime
         )
@@ -132,7 +132,7 @@ namespace AtHangar
             part.gameObject.SetActive(true);
             part.physicalSignificance = Part.PhysicalSignificance.NONE;
             part.PromoteToPhysicalPart();
-            part.Rigidbody.SetDensity(density);
+            part.Rigidbody.mass = mass;
             part.orgPos = Vector3.zero;
             part.orgRot = Quaternion.identity;
             //initialize Debris module
