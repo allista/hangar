@@ -27,15 +27,15 @@ namespace AtHangar
         [KSPField] public float JettisonForce = 50f;
         [KSPField] public float JettisonTorque;
         [KSPField] public double DebrisLifetime = 600;
-        [KSPField] public float DestroyDebrisIn = 10;
         [KSPField] public string DecoupleNodes = "";
 
         [KSPField(isPersistant = true,
-            guiName = "Debris destruction",
+            guiName = "Debris Destruction In",
             guiActive = true,
-            guiActiveEditor = true)]
-        [UI_Toggle(scene = UI_Scene.All, enabledText = "Armed", disabledText = "Disarmed")]
-        public bool DebrisAutoDestroy;
+            guiActiveEditor = true,
+            guiUnits = "s")]
+        [UI_FloatRange(scene = UI_Scene.All, minValue = 0, maxValue = 60, stepIncrement = 1)]
+        public float DestroyDebrisIn;
 
         [KSPField(isPersistant = true,
             guiActive = true,
@@ -449,11 +449,13 @@ namespace AtHangar
                 if(!JettisonForcePos.IsZero())
                     pos += f.TransformVector(JettisonForcePos);
                 jettison.Add(new ForceTarget(d.Rigidbody, force, pos, jettisonTorque));
-                if(DebrisAutoDestroy)
+                if(DestroyDebrisIn > 0)
                     d.selfDestruct = debrisDestroyCountdown;
                 d.DetectCollisions(false);
                 d.vessel.IgnoreGForces(10);
                 debris_cost += FairingsCost;
+                if(DestroyDebrisIn > 0)
+                    d.selfDestructPower = explosionPower(d.Rigidbody);
                 debris.Add(d);
             }
             //apply force to spawned/decoupled objects
@@ -471,7 +473,7 @@ namespace AtHangar
                 StageManager.CurrentStage,
                 string.Empty));
             FX?.Burst();
-            if(DebrisAutoDestroy && vessel.Parts.Count == 1 && vessel.Parts.First() == part)
+            if(DestroyDebrisIn > 0 && vessel.Parts.Count == 1 && vessel.Parts.First() == part)
                 StartCoroutine(self_destruct(debrisDestroyCountdown));
             jettisoned = true;
         }
@@ -495,8 +497,6 @@ namespace AtHangar
             {
                 if(d == null || d.Rigidbody == null)
                     return;
-                if(DebrisAutoDestroy)
-                    d.selfDestructPower = explosionPower(d.Rigidbody);
                 debris_mass += d.Rigidbody.mass;
                 d.DetectCollisions(true);
             });
