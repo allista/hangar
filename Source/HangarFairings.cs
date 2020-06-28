@@ -396,7 +396,7 @@ namespace AtHangar
             {
                 target.AddForceAtPosition(force, pos, ForceMode.Force);
                 counterpart.AddForceAtPosition(-force, pos, ForceMode.Force);
-                if(!(add_torque > 0))
+                if(add_torque <= 0)
                     return;
                 var rnd_torque = new Vector3((float)rnd.NextDouble() - 0.5f,
                     (float)rnd.NextDouble() - 0.5f,
