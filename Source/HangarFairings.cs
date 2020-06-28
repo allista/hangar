@@ -440,6 +440,7 @@ namespace AtHangar
             //spawn debris
             debris.Clear();
             debris_cost = 0;
+            debris_mass = 0;
             var debrisDestroyCountdown = Utils.ClampL(DestroyDebrisIn, 1);
             foreach(var f in fairings)
             {
@@ -454,6 +455,7 @@ namespace AtHangar
                 d.DetectCollisions(false);
                 d.vessel.IgnoreGForces(10);
                 debris_cost += FairingsCost;
+                debris_mass += d.Rigidbody.mass;
                 if(DestroyDebrisIn > 0)
                     d.selfDestructPower = explosionPower(d.Rigidbody);
                 debris.Add(d);
@@ -475,6 +477,7 @@ namespace AtHangar
             FX?.Burst();
             if(DestroyDebrisIn > 0 && vessel.Parts.Count == 1 && vessel.Parts.First() == part)
                 StartCoroutine(self_destruct(debrisDestroyCountdown));
+            part.CoMOffset = BaseCoMOffset;
             jettisoned = true;
         }
 
@@ -492,12 +495,10 @@ namespace AtHangar
 
         private void update_debris_after_launch()
         {
-            debris_mass = 0;
             debris.ForEach(d =>
             {
                 if(d == null || d.Rigidbody == null)
                     return;
-                debris_mass += d.Rigidbody.mass;
                 d.DetectCollisions(true);
             });
             debris.Clear();
@@ -562,8 +563,6 @@ namespace AtHangar
             //disable storage, launch event and action
             Storage.EnableModule(false);
             Events["LaunchVessel"].active = Actions["LaunchVesselAction"].active = false;
-            //update CoM and crew capacity
-            part.CoMOffset = BaseCoMOffset;
             update_crew_capacity(0);
             base.on_vessel_launched(vsl);
         }
