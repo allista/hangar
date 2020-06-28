@@ -487,7 +487,10 @@ namespace AtHangar
             FX?.Burst();
             if(DestroyDebrisIn > 0 && vessel.Parts.Count == 1 && vessel.Parts.First() == part)
                 StartCoroutine(self_destruct(debrisDestroyCountdown));
-            part.CoMOffset = BaseCoMOffset;
+            part.CoMOffset = Vector3.Lerp(
+                BaseCoMOffset,
+                part.CoMOffset,
+                vsl.mass / (part.Rigidbody.mass - debris_mass));
             jettisoned = true;
         }
 
@@ -520,6 +523,7 @@ namespace AtHangar
         protected override void on_vessel_loaded(Vessel vsl)
         {
             base.on_vessel_loaded(vsl);
+            part.CoMOffset = BaseCoMOffset;
             //transfer the target and controls
             vsl.protoVessel.targetInfo = vessel.BackupVessel().targetInfo;
             vsl.ResumeTarget();
