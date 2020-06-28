@@ -13,13 +13,6 @@ using AT_Utils;
 
 namespace AtHangar
 {
-    /// <summary>
-    /// Loads hangar configuration presets at game loading
-    /// </summary>
-    [KSPAddon(KSPAddon.Startup.Instantly, true)]    
-    public class HangarGlobalsLoader : MonoBehaviour
-    { public void Start() { Globals.Load(); } }
-
     class Globals : PluginGlobals<Globals>
     {
         //store vessel
