@@ -477,7 +477,7 @@ namespace AtHangar
             part.DragCubes.SetCubeWeight("Clean ", 1f);
             part.DragCubes.ForceUpdate(true, true, true);
             //this event is catched by FlightLogger
-            StartCoroutine(CallbackUtil.DelayedCallback(5, update_debris_after_launch));
+            StartCoroutine(CallbackUtil.DelayedCallback(10, update_debris_after_launch));
             GameEvents.onStageSeparation.Fire(new EventReport(FlightEvents.STAGESEPARATION,
                 part,
                 null,
