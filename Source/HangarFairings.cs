@@ -444,6 +444,7 @@ namespace AtHangar
                     jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos));
                 }
                 yield return null;
+                force_target.vessel.IgnoreGForces(10);
             }
             //spawn debris
             debris.Clear();
