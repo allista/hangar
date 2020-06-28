@@ -469,6 +469,7 @@ namespace AtHangar
                     d.selfDestructPower = explosionPower(d.Rigidbody);
                 debris.Add(d);
             }
+            vessel.IgnoreGForces(10);
             //apply force to spawned/decoupled objects
             jettison.ForEach(j => j.Apply(part.Rigidbody));
             //update drag cubes
