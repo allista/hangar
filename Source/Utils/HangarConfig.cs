@@ -26,13 +26,6 @@ namespace AtHangar
         [Persistent] public float  MaxSqrRelVelocity     = 1f;    //m/s
         [Persistent] public float  MaxSqrRelAcceleration = 0.01f; //m/s2
         [Persistent] public bool   EnableVesselPacking   = true;
-        //restore vessel
-        [Persistent] public float  MaxSqrAngularVelocity = 0.01f; //5.73 deg/s
-        [Persistent] public float  MaxSqrSurfaceVelocity = 0.01f; //m/s
-        [Persistent] public float  MaxGeeForce           = 0.2f;  //g
-        [Persistent] public float  MaxStaticPressure     = 0.01f; //atm
-        //misc
-        [Persistent] public string KethaneMapCollider  = "MapOverlay collider";
         [Persistent] public bool   UseStockAppLauncher = false;
         [Persistent] public string DontCloneResources  = "ElectricCharge, LiquidFuel, Oxidizer, Ore, XenonGas, MonoPropellant";
         public string[] ResourcesBlacklist { get; private set; }
