@@ -5,15 +5,16 @@
 //
 //  Copyright (c) 2015 Allis Tauri
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
+using System.Diagnostics.CodeAnalysis;
 using AT_Utils;
+using UnityEngine;
 
 namespace AtHangar
 {
-    class Globals : PluginGlobals<Globals>
+    [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global"),
+     SuppressMessage("ReSharper", "ConvertToConstant.Global"),
+     SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    internal class Globals : PluginGlobals<Globals>
     {
         //store vessel
         [Persistent] public float  MaxSqrRelVelocity     = 1f;    //m/s
