@@ -25,6 +25,7 @@ namespace AtHangar
         [KSPField] public Vector3 JettisonDirection = Vector3.up;
         [KSPField] public Vector3 JettisonForcePos = Vector3.zero;
         [KSPField] public float JettisonForce = 50f;
+        [KSPField] public float MinJettisonPower = 0.01f;
         [KSPField] public float JettisonTorque;
         [KSPField] public double DebrisLifetime = 600;
         [KSPField] public string DecoupleNodes = "";
@@ -419,7 +420,9 @@ namespace AtHangar
                 disable_decouplers(node.id);
             }
             var jettison = new List<ForceTarget>(decouple.Count);
-            var jettisonPower = Utils.ClampL(JettisonPower, 0.01f);
+            var jettisonPower = JettisonPower <= 1
+                ? Mathf.LerpUnclamped(MinJettisonPower, 1, JettisonPower)
+                : JettisonPower;
             var jettisonForce = JettisonForce * jettisonPower / 2;
             var jettisonTorque = JettisonTorque * jettisonPower;
             foreach(var p in decouple)
