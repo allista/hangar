@@ -201,7 +201,9 @@ namespace AtHangar
                     part.stagingIcon = string.Empty;
                     stagingToggleEnabledEditor = false;
                     stagingToggleEnabledFlight = false;
-                    Events["ToggleStaging"].advancedTweakable = true;
+                    Events[nameof(ToggleStaging)].active = false;
+                    Fields[nameof(JettisonPower)].guiActive = false;
+                    Fields[nameof(DestroyDebrisIn)].guiActive = false;
                     SetStaging(false);
                     part.UpdateStageability(true, true);
                 }
@@ -213,7 +215,10 @@ namespace AtHangar
                     part.stagingIcon = "DECOUPLER_HOR";
                     stagingToggleEnabledEditor = true;
                     stagingToggleEnabledFlight = true;
-                    Events["ToggleStaging"].advancedTweakable = false;
+                    Events[nameof(ToggleStaging)].active = true;
+                    Events[nameof(ToggleStaging)].advancedTweakable = false;
+                    Fields[nameof(JettisonPower)].guiActive = true;
+                    Fields[nameof(DestroyDebrisIn)].guiActive = true;
                     part.UpdateStageability(true, true);
                 }
             }
