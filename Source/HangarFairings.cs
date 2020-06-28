@@ -480,10 +480,10 @@ namespace AtHangar
             StartCoroutine(CallbackUtil.DelayedCallback(10, update_debris_after_launch));
             GameEvents.onStageSeparation.Fire(new EventReport(FlightEvents.STAGESEPARATION,
                 part,
-                null,
-                null,
-                StageManager.CurrentStage,
-                string.Empty));
+                vsl.name,
+                vessel.GetDisplayName(),
+                vessel.currentStage,
+                $"{vsl.name} separated from {vessel.GetDisplayName()}"));
             FX?.Burst();
             if(DestroyDebrisIn > 0 && vessel.Parts.Count == 1 && vessel.Parts.First() == part)
                 StartCoroutine(self_destruct(debrisDestroyCountdown));
