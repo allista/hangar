@@ -587,7 +587,7 @@ namespace AtHangar
             var data = new BaseEventDetails(BaseEventDetails.Sender.STAGING);
             data.Set<PartModule>("hangar", this);
             process_on_vessel_launched_data(data);
-            vsl.Parts.ForEach(p => p.SendEvent("onLaunchedFromHangar", data));
+            vsl.rootPart.SendEvent("onLaunchedFromHangar", data);
             if(hangar_damper != null
                && hangar_damper.DamperEnabled
                && !hangar_damper.EnableControls)
