@@ -454,6 +454,8 @@ namespace AtHangar
 
             public void Apply(Rigidbody counterpart)
             {
+                if(counterpart == null || target == null)
+                    return;
                 var forceW = target.transform.TransformDirection(force);
                 var posW = target.transform.TransformPoint(pos);
                 target.AddForceAtPosition(forceW, posW, ForceMode.Force);
