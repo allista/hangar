@@ -431,14 +431,16 @@ namespace AtHangar
             {
                 this.add_torque = add_torque;
                 this.target = target;
-                this.force = force;
-                this.pos = pos;
+                this.force = target.transform.InverseTransformDirection(force);
+                this.pos = target.transform.InverseTransformPoint(pos);
             }
 
             public void Apply(Rigidbody counterpart)
             {
-                target.AddForceAtPosition(force, pos, ForceMode.Force);
-                counterpart.AddForceAtPosition(-force, pos, ForceMode.Force);
+                var forceW = target.transform.TransformDirection(force);
+                var posW = target.transform.TransformPoint(pos);
+                target.AddForceAtPosition(forceW, posW, ForceMode.Force);
+                counterpart.AddForceAtPosition(-forceW, posW, ForceMode.Force);
                 if(add_torque <= 0)
                     return;
                 var rnd_torque = new Vector3((float)rnd.NextDouble() - 0.5f,
