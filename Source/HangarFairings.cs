@@ -473,6 +473,8 @@ namespace AtHangar
         {
             if(fairings.Count == 0 || jettisoned)
                 yield break;
+            //save part mass for the future
+            var partMass = part.Rigidbody.mass - vsl.mass - part.resourceMass;
             //store crew
             vsl.crew.Clear();
             vsl.crew.AddRange(part.protoModuleCrew);
@@ -526,7 +528,6 @@ namespace AtHangar
             debris.Clear();
             debris_cost = 0;
             debris_mass = 0;
-            var partMass = part.Rigidbody.mass - vsl.mass - part.resourceMass;
             var debrisDestroyCountdown = Utils.ClampL(DestroyDebrisIn, 1);
             foreach(var f in fairings)
             {
