@@ -129,7 +129,7 @@ namespace AtHangar
         public bool IsMultipleCubesActive => true;
         #endregion
 
-        public void UpdateCoMOffset(Vector3 CoMOffset)
+        public void UpdateBaseCoMOffset(Vector3 CoMOffset)
         {
             BaseCoMOffset = CoMOffset;
             if(jettisoned)
@@ -726,7 +726,7 @@ namespace AtHangar
         {
             mp.module.JettisonForce = mp.base_module.JettisonForce * scale.absolute.volume;
             mp.module.FairingsCost = mp.base_module.FairingsCost * scale.absolute.volume;
-            mp.module.UpdateCoMOffset(scale.ScaleVector(mp.base_module.BaseCoMOffset));
+            mp.module.UpdateBaseCoMOffset(scale.ScaleVector(mp.base_module.BaseCoMOffset));
             if(HighLogic.LoadedSceneIsEditor)
                 mp.module.ResetPayloadResources();
         }
