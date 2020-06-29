@@ -512,7 +512,15 @@ namespace AtHangar
                 yield return null;
                 force_target.vessel.IgnoreGForces(10);
             }
+            //apply force to decoupled parts and wait for them to clear away
+            if(jettison.Count > 0)
+            {
+                FX?.Burst();
+                jettison.ForEach(j => j.Apply(part.Rigidbody));
+                yield return new WaitForSeconds(3);
+            }
             //spawn debris
+            jettison.Clear();
             debris.Clear();
             debris_cost = 0;
             debris_mass = 0;
@@ -538,7 +546,7 @@ namespace AtHangar
                 debris.Add(d);
             }
             vessel.IgnoreGForces(10);
-            //apply force to spawned/decoupled objects
+            //apply force to spawned debris
             jettison.ForEach(j => j.Apply(part.Rigidbody));
             //update drag cubes
             part.DragCubes.SetCubeWeight("Fairing ", 0f);
