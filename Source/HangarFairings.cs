@@ -457,6 +457,11 @@ namespace AtHangar
             {
                 if(counterpart == null || target == null)
                     return;
+                Utils.Debug("Applying force: {} => {}, at {}, {}",
+                    counterpart,
+                    target,
+                    pos,
+                    force);
                 var forceW = target.transform.TransformDirection(force);
                 var posW = target.transform.TransformPoint(pos);
                 target.AddForceAtPosition(forceW, posW, ForceMode.Force);
@@ -468,6 +473,16 @@ namespace AtHangar
                     (float)rnd.NextDouble() - 0.5f);
                 target.AddRelativeTorque(rnd_torque * add_torque, ForceMode.VelocityChange);
             }
+
+#if DEBUG
+            public void Draw()
+            {
+                Utils.GLDrawPoint(target.worldCenterOfMass, Color.green);
+                Utils.GLVec(target.transform.TransformPoint(pos),
+                    target.transform.TransformDirection(force / 10),
+                    Color.magenta);
+            }
+#endif
         }
 
         private class ForceList : List<ForceTarget>
@@ -563,7 +578,12 @@ namespace AtHangar
                 debris.Add(d);
             }
             vessel.IgnoreGForces(10);
-            jettisonForces.Apply(part.Rigidbody);
+            jettisonForces.Apply(part.Rigidbody
+#if DEBUG
+                ,
+                false
+#endif
+            );
             //update drag cubes
             part.DragCubes.SetCubeWeight("Fairing ", 0f);
             part.DragCubes.SetCubeWeight("Clean ", 1f);
@@ -763,6 +783,15 @@ namespace AtHangar
                 }
             }
         }
+
+#if DEBUG
+        private void OnRenderObject()
+        {
+            if(part != null && part.Rigidbody != null)
+                Utils.GLDrawPoint(part.Rigidbody.worldCenterOfMass, Color.red);
+            jettisonForces.ForEach(f => f.Draw());
+        }
+#endif
     }
 
     public class HangarFairingsUpdater : ModuleUpdater<HangarFairings>
