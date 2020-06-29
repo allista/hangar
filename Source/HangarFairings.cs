@@ -60,6 +60,7 @@ namespace AtHangar
         [KSPField(isPersistant = true)] public bool jettisoned, launch_in_progress;
 
         private readonly List<Debris> debris = new List<Debris>();
+        private readonly ForceList jettisonForces = new ForceList();
 
         [SuppressMessage("ReSharper", "MemberCanBePrivate.Local"),
          SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
@@ -469,6 +470,19 @@ namespace AtHangar
             }
         }
 
+        private class ForceList : List<ForceTarget>
+        {
+            public void Add(Rigidbody target, Vector3 force, Vector3 pos, float add_torque = 0) =>
+                Add(new ForceTarget(target, force, pos, add_torque));
+
+            public void Apply(Rigidbody counterpart, bool clear = true)
+            {
+                ForEach(f => f.Apply(counterpart));
+                if(clear)
+                    Clear();
+            }
+        }
+
         protected override IEnumerable<YieldInstruction> before_vessel_launch(PackedVessel vsl)
         {
             if(fairings.Count == 0 || jettisoned)
@@ -490,7 +504,7 @@ namespace AtHangar
                 decouple.Add(node.attachedPart == part.parent ? part : node.attachedPart);
                 disable_decouplers(node.id);
             }
-            var jettison = new List<ForceTarget>(decouple.Count);
+            jettisonForces.Clear();
             var jettisonPower = JettisonPower <= 1
                 ? Mathf.LerpUnclamped(MinJettisonPower, 1, JettisonPower)
                 : JettisonPower;
@@ -511,20 +525,19 @@ namespace AtHangar
                                    / TimeWarp.fixedDeltaTime;
                     var force = (pos - part.Rigidbody.worldCenterOfMass).normalized
                                 * Utils.Clamp(jettisonForce, minForce, minForce * 10);
-                    jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos));
+                    jettisonForces.Add(force_target.Rigidbody, force, pos);
                 }
                 yield return null;
                 force_target.vessel.IgnoreGForces(10);
             }
             //apply force to decoupled parts and wait for them to clear away
-            if(jettison.Count > 0)
+            if(jettisonForces.Count > 0)
             {
                 FX?.Burst();
-                jettison.ForEach(j => j.Apply(part.Rigidbody));
+                jettisonForces.Apply(part.Rigidbody);
                 yield return new WaitForSeconds(3);
             }
             //spawn debris
-            jettison.Clear();
             debris.Clear();
             debris_cost = 0;
             debris_mass = 0;
@@ -538,7 +551,7 @@ namespace AtHangar
                 var pos = d.Rigidbody.worldCenterOfMass;
                 if(!JettisonForcePos.IsZero())
                     pos += f.TransformVector(JettisonForcePos);
-                jettison.Add(new ForceTarget(d.Rigidbody, force, pos, jettisonTorque));
+                jettisonForces.Add(d.Rigidbody, force, pos, jettisonTorque);
                 if(DestroyDebrisIn > 0)
                     d.selfDestruct = debrisDestroyCountdown;
                 d.DetectCollisions(false);
@@ -550,8 +563,7 @@ namespace AtHangar
                 debris.Add(d);
             }
             vessel.IgnoreGForces(10);
-            //apply force to spawned debris
-            jettison.ForEach(j => j.Apply(part.Rigidbody));
+            jettisonForces.Apply(part.Rigidbody);
             //update drag cubes
             part.DragCubes.SetCubeWeight("Fairing ", 0f);
             part.DragCubes.SetCubeWeight("Clean ", 1f);
