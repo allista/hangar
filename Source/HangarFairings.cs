@@ -529,11 +529,12 @@ namespace AtHangar
             debris_cost = 0;
             debris_mass = 0;
             var debrisDestroyCountdown = Utils.ClampL(DestroyDebrisIn, 1);
+            jettisonForce /= fairingsSpecificMass.Values.Max();
             foreach(var f in fairings)
             {
-                var m = partMass * fairingsSpecificMass[f];
-                var d = Debris.SetupOnTransform(part, f, m, FairingsCost, DebrisLifetime);
-                var force = f.TransformDirection(JettisonDirection) * jettisonForce;
+                var specMass = fairingsSpecificMass[f];
+                var d = Debris.SetupOnTransform(part, f, partMass * specMass, FairingsCost, DebrisLifetime);
+                var force = f.TransformDirection(JettisonDirection) * (jettisonForce * specMass);
                 var pos = d.Rigidbody.worldCenterOfMass;
                 if(!JettisonForcePos.IsZero())
                     pos += f.TransformVector(JettisonForcePos);
