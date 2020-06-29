@@ -501,8 +501,12 @@ namespace AtHangar
                 if(force_target.Rigidbody != null)
                 {
                     var pos = force_target.Rigidbody.worldCenterOfMass;
+                    var minForce = (float)(force_target == part.parent
+                                       ? vessel.totalMass - part.MassWithChildren()
+                                       : force_target.MassWithChildren())
+                                   / TimeWarp.fixedDeltaTime;
                     var force = (pos - part.Rigidbody.worldCenterOfMass).normalized
-                                * (Utils.ClampH(force_target.mass, 1) * jettisonForce);
+                                * Utils.Clamp(jettisonForce, minForce, minForce * 10);
                     jettison.Add(new ForceTarget(force_target.Rigidbody, force, pos));
                 }
                 yield return null;
