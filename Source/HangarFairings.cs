@@ -245,11 +245,6 @@ namespace AtHangar
                 part.DragCubes.SetCubeWeight("Clean ", 1f);
                 part.UpdateCoMOffset(BaseCoMOffset);
                 part.stagingIcon = string.Empty;
-                stagingToggleEnabledEditor = false;
-                stagingToggleEnabledFlight = false;
-                Events[nameof(ToggleStaging)].active = false;
-                Fields[nameof(JettisonPower)].guiActive = false;
-                Fields[nameof(DestroyDebrisIn)].guiActive = false;
                 SetStaging(false);
                 part.UpdateStageability(true, true);
             }
@@ -259,14 +254,9 @@ namespace AtHangar
                 part.DragCubes.SetCubeWeight("Fairing ", 1f);
                 part.DragCubes.SetCubeWeight("Clean ", 0f);
                 part.stagingIcon = "DECOUPLER_HOR";
-                stagingToggleEnabledEditor = true;
-                stagingToggleEnabledFlight = true;
-                Events[nameof(ToggleStaging)].active = true;
-                Events[nameof(ToggleStaging)].advancedTweakable = false;
-                Fields[nameof(JettisonPower)].guiActive = true;
-                Fields[nameof(DestroyDebrisIn)].guiActive = true;
                 part.UpdateStageability(true, true);
             }
+            update_PAW();
             //setup attach nodes
             decoupleNodes.Clear();
             foreach(var nodeID in Utils.ParseLine(DecoupleNodes, Utils.Comma))
@@ -419,6 +409,33 @@ namespace AtHangar
             Utils.UpdateEditorGUI();
         }
 
+        private void update_PAW()
+        {
+            if(jettisoned)
+            {
+                stagingToggleEnabledEditor = false;
+                stagingToggleEnabledFlight = false;
+                Events[nameof(ToggleStaging)].active = false;
+                Events[nameof(LaunchVessel)].active = false;
+                Events[nameof(ShowPayload)].active = false;
+                Actions[nameof(LaunchVesselAction)].active = false;
+                Fields[nameof(JettisonPower)].guiActive = false;
+                Fields[nameof(DestroyDebrisIn)].guiActive = false;
+            }
+            else
+            {
+                stagingToggleEnabledEditor = true;
+                stagingToggleEnabledFlight = true;
+                Events[nameof(ToggleStaging)].active = true;
+                Events[nameof(ToggleStaging)].advancedTweakable = false;
+                Events[nameof(LaunchVessel)].active = true;
+                Events[nameof(ShowPayload)].active = true;
+                Actions[nameof(LaunchVesselAction)].active = true;
+                Fields[nameof(JettisonPower)].guiActive = true;
+                Fields[nameof(DestroyDebrisIn)].guiActive = true;
+            }
+        }
+
         private readonly struct ForceTarget
         {
             private static readonly Random rnd = new Random();
@@ -539,6 +556,7 @@ namespace AtHangar
                 part.CoMOffset,
                 vsl.mass / (part.Rigidbody.mass - debris_mass)));
             jettisoned = true;
+            update_PAW();
         }
 
         private IEnumerator<YieldInstruction> self_destruct(float countdown)
@@ -623,7 +641,6 @@ namespace AtHangar
             }
             //disable storage, launch event and action
             Storage.EnableModule(false);
-            Events["LaunchVessel"].active = Actions["LaunchVesselAction"].active = false;
             update_crew_capacity(0);
             base.on_vessel_launched(vsl);
         }
