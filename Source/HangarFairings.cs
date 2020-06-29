@@ -133,7 +133,7 @@ namespace AtHangar
         {
             BaseCoMOffset = CoMOffset;
             if(jettisoned)
-                part.CoMOffset = BaseCoMOffset;
+                part.UpdateCoMOffset(BaseCoMOffset);
         }
 
         protected override Vector3 launchVelocity => base.launchVelocity * JettisonPower;
@@ -243,7 +243,7 @@ namespace AtHangar
                 fairings.ForEach(f => f.gameObject.SetActive(false));
                 part.DragCubes.SetCubeWeight("Fairing ", 0f);
                 part.DragCubes.SetCubeWeight("Clean ", 1f);
-                part.CoMOffset = BaseCoMOffset;
+                part.UpdateCoMOffset(BaseCoMOffset);
                 part.stagingIcon = string.Empty;
                 stagingToggleEnabledEditor = false;
                 stagingToggleEnabledFlight = false;
@@ -534,10 +534,10 @@ namespace AtHangar
             FX?.Burst();
             if(DestroyDebrisIn > 0 && vessel.Parts.Count == 1 && vessel.Parts.First() == part)
                 StartCoroutine(self_destruct(debrisDestroyCountdown));
-            part.CoMOffset = Vector3.Lerp(
+            part.UpdateCoMOffset(Vector3.Lerp(
                 BaseCoMOffset,
                 part.CoMOffset,
-                vsl.mass / (part.Rigidbody.mass - debris_mass));
+                vsl.mass / (part.Rigidbody.mass - debris_mass)));
             jettisoned = true;
         }
 
@@ -570,7 +570,6 @@ namespace AtHangar
         protected override void on_vessel_loaded(Vessel vsl)
         {
             base.on_vessel_loaded(vsl);
-            part.CoMOffset = BaseCoMOffset;
             //transfer the target and controls
             vsl.protoVessel.targetInfo = vessel.BackupVessel().targetInfo;
             vsl.ResumeTarget();
@@ -600,6 +599,7 @@ namespace AtHangar
 
         protected override void on_vessel_launched(Vessel vsl)
         {
+            part.UpdateCoMOffset(BaseCoMOffset);
             FlightInputHandler.ResumeVesselCtrlState(vsl);
             //transfer the flight plan
             if(flightPlanNode != null && vsl.patchedConicSolver != null)
