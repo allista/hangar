@@ -477,6 +477,8 @@ namespace AtHangar
 #if DEBUG
             public void Draw()
             {
+                if(target == null)
+                    return;
                 Utils.GLDrawPoint(target.worldCenterOfMass, Color.green);
                 Utils.GLVec(target.transform.TransformPoint(pos),
                     target.transform.TransformDirection(force / 10),
