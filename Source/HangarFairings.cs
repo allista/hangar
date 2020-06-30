@@ -153,7 +153,7 @@ namespace AtHangar
                 if(name_mass.Length > 1)
                     float.TryParse(name_mass[1], out fairingMass);
                 var transforms = part.FindModelTransforms(fairingName);
-                if(transforms != null)
+                if(transforms != null && transforms.Length > 0)
                 {
                     fairings.AddRange(transforms);
                     foreach(var t in transforms)
