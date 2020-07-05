@@ -3,7 +3,26 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.5.0.3**
+* **v3.6.0**
+    * **Fairings**
+        * Added **Jettison Power** PAW control to be able to change
+        both jettison force, torque and launch velocity of the payload
+        in flight.
+        * Added **Debris Destruction In** PAW control that, if set to a values
+        greater than zero, arms delayed action demolition charges in fairing 
+        debris (including the base, if it's not attached to anything).
+        * Disabling relevant Decouplers and other PAW controls after jettisoning. 
+        * Added **hibernation** to command modules
+        * If fairings has other parts attached to it, these parts are now
+        jettisoned with _limited_ force *3 seconds before* the payload is
+        jettisoned (_to avoid collisions with the debris, while not launching
+        them into the Sun_).
+        * Improved and fixed box fairings model, decreased its jettison force
+        * Many fixes to the jettison logic, including CoM changes,
+        linear and angular impulse conservation and others.
+    * Allowing to change the **aspect ratio of the Small VTOL Hangar**
+
+* v3.5.0.3
     * Added all relevant .meta files from Unity project
     * Compiled against AT_Utils 1.9.3
 

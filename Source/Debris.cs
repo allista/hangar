@@ -14,37 +14,52 @@ namespace AtHangar
 {
     public class Debris : PartModule, IPartCostModifier, IPartMassModifier
     {
-        const string DEBRIS_PART = "GenericDebris";
+        private const string DEBRIS_PART = "GenericDebris";
 
         [KSPField(isPersistant = true)] public string original_part_name = string.Empty;
         [KSPField(isPersistant = true)] public string debris_transform_name = string.Empty;
-        [KSPField(isPersistant = true)] public float  saved_cost, saved_mass = -1f;
+        [KSPField(isPersistant = true)] public float saved_cost, saved_mass = -1f;
         [KSPField(isPersistant = true)] public Vector3 local_scale = Vector3.one;
         [KSPField(isPersistant = true)] public Quaternion local_rotation = Quaternion.identity;
+        [KSPField(isPersistant = true)] public float selfDestruct = -1;
+        [KSPField(isPersistant = true)] public float selfDestructPower;
 
         public Transform actual_object;
 
-        #region IPart*Modifiers
-        public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation sit) { return saved_cost-defaultCost; }
-        public virtual ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+        public Rigidbody Rigidbody => part != null ? part.Rigidbody : null;
 
-        public virtual float GetModuleMass(float defaultMass, ModifierStagingSituation sit) { return saved_mass-defaultMass; }
-        public virtual ModifierChangeWhen GetModuleMassChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+        #region IPart*Modifiers
+        public float GetModuleCost(float defaultCost, ModifierStagingSituation sit) => saved_cost - defaultCost;
+
+        public ModifierChangeWhen GetModuleCostChangeWhen() => ModifierChangeWhen.CONSTANTLY;
+
+        public float GetModuleMass(float defaultMass, ModifierStagingSituation sit) => saved_mass - defaultMass;
+
+        public ModifierChangeWhen GetModuleMassChangeWhen() => ModifierChangeWhen.CONSTANTLY;
         #endregion
+
+        public void DetectCollisions(bool detect)
+        {
+            if(part == null)
+                return;
+            part.SetDetectCollisions(detect);
+        }
 
         public override void OnStart(StartState state)
         {
-            if(actual_object == null &&    !string.IsNullOrEmpty(original_part_name) && !string.IsNullOrEmpty(debris_transform_name))
+            if(actual_object == null
+               && !string.IsNullOrEmpty(original_part_name)
+               && !string.IsNullOrEmpty(debris_transform_name))
             {
                 var info = PartLoader.getPartInfoByName(original_part_name);
-                if(info == null) 
-                { 
+                if(info == null)
+                {
                     this.Log("WARNING: {} part was not found in the database!", original_part_name);
                     return;
                 }
                 actual_object = info.partPrefab.FindModelTransform(debris_transform_name);
-                if(actual_object == null) 
-                { 
+                if(actual_object == null)
+                {
                     this.Log("WARNING: {} part does not have {} transform!", original_part_name, debris_transform_name);
                     return;
                 }
@@ -58,30 +73,51 @@ namespace AtHangar
                 part.transform.hasChanged = true;
             }
             StartCoroutine(update_drag_cubes());
+            if(selfDestruct > 0)
+                StartCoroutine(self_destruct());
         }
 
-        const int skip_updates = 10;
-        IEnumerator<YieldInstruction> update_drag_cubes()
+        private const int skip_updates = 10;
+
+        private IEnumerator<YieldInstruction> update_drag_cubes()
         {
-            if(!HighLogic.LoadedSceneIsFlight) yield break;
-            for(int i = skip_updates; i > 0; i--) yield return new WaitForFixedUpdate();
+            if(!HighLogic.LoadedSceneIsFlight)
+                yield break;
+            for(var i = skip_updates; i > 0; i--)
+                yield return new WaitForFixedUpdate();
             part.DragCubes.ClearCubes();
             part.DragCubes.Cubes.Add(DragCubeSystem.Instance.RenderProceduralDragCube(part));
             part.DragCubes.ResetCubeWeights();
             part.DragCubes.ForceUpdate(true, true, true);
         }
 
-        public static Part SetupOnTransform(Part original_part, 
-                                            Transform debris_transform, 
-                                            float density, float cost, double lifetime)
+        private IEnumerator<YieldInstruction> self_destruct()
+        {
+            var endUT = Planetarium.GetUniversalTime() + selfDestruct;
+            while(Planetarium.GetUniversalTime() < endUT)
+                yield return null;
+            FXMonger.Explode(part, vessel.GetWorldPos3D(), selfDestructPower);
+            yield return null;
+            part.Die();
+        }
+
+        public static Debris SetupOnTransform(
+            Part original_part,
+            Transform debris_transform,
+            float mass,
+            float cost,
+            double lifetime
+        )
         {
             //get the part form DB
             var info = PartLoader.getPartInfoByName(DEBRIS_PART);
-            if(info == null) return null;
+            if(info == null)
+                return null;
             //set part's transform and parent the debris model to the part
             var part = Instantiate(info.partPrefab);
-            part.transform.position = debris_transform.position;
-            part.transform.rotation = original_part.transform.rotation;
+            var partTransform = part.transform;
+            partTransform.position = debris_transform.position;
+            partTransform.rotation = original_part.transform.rotation;
             //copy the model and resize it
             var debris_object = Instantiate(debris_transform.gameObject).transform;
             var debris_part_model = part.transform.Find("model");
@@ -96,15 +132,16 @@ namespace AtHangar
             part.gameObject.SetActive(true);
             part.physicalSignificance = Part.PhysicalSignificance.NONE;
             part.PromoteToPhysicalPart();
-            part.Rigidbody.SetDensity(density);
+            part.Rigidbody.mass = mass;
             part.orgPos = Vector3.zero;
             part.orgRot = Quaternion.identity;
             //initialize Debris module
             var debris = part.Modules.GetModule<Debris>();
-            if(debris == null) 
-            { 
+            if(debris == null)
+            {
                 Utils.Log("WARNING: {} part does not have Debris module!", DEBRIS_PART);
-                Destroy(part.gameObject); return null; 
+                Destroy(part.gameObject);
+                return null;
             }
             debris.actual_object = debris_object;
             debris.saved_cost = cost;
@@ -126,9 +163,10 @@ namespace AtHangar
             part.flagURL = original_part.flagURL;
             //set part's velocities
             part.Rigidbody.angularVelocity = original_part.Rigidbody.angularVelocity;
-            part.Rigidbody.velocity = original_part.Rigidbody.velocity + 
-                Vector3.Cross(original_part.Rigidbody.worldCenterOfMass-part.Rigidbody.worldCenterOfMass, 
-                              part.Rigidbody.angularVelocity);
+            part.Rigidbody.velocity = original_part.Rigidbody.velocity
+                                      + Vector3.Cross(
+                                          original_part.Rigidbody.worldCenterOfMass - part.Rigidbody.worldCenterOfMass,
+                                          part.Rigidbody.angularVelocity);
             //setup discovery info
             vessel.DiscoveryInfo.SetLastObservedTime(Planetarium.GetUniversalTime());
             vessel.DiscoveryInfo.SetUnobservedLifetime(lifetime);
@@ -137,8 +175,7 @@ namespace AtHangar
             //inform the game about the new vessel
             GameEvents.onNewVesselCreated.Fire(vessel);
             //return the part
-            return part;
+            return debris;
         }
     }
 }
-

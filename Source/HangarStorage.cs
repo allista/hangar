@@ -13,7 +13,7 @@ using AT_Utils;
 
 namespace AtHangar
 {
-    public class HangarStorage : HangarPassage, IPartCostModifier, IPartMassModifier, IControllableModule
+    public class HangarStorage : HangarPassage, IPartCostModifier, IPartMassModifier
     {
         #region callbacks
         public delegate void PackedVesselHandler(PackedVessel pv);

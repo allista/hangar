@@ -148,7 +148,7 @@ namespace AtHangar
             //vessel facilities
             if(NoCrewTransfers) info += "Crew transfer not available\n";
             if(NoResourceTransfers) info += "Resources transfer not available\n";
-            if(LaunchVelocity != Vector3.zero) info += "Has integrated launch system\n";
+            if(!LaunchVelocity.IsZero()) info += "Has integrated launch system\n";
             return info;
         }
         #endregion
@@ -551,6 +551,8 @@ namespace AtHangar
         #endregion
 
         #region Restore
+        protected virtual Vector3 launchVelocity => LaunchVelocity;
+
         #region Positioning
         protected virtual IEnumerable<YieldInstruction> before_vessel_launch(PackedVessel vsl) { yield break; }
 
@@ -566,7 +568,7 @@ namespace AtHangar
             spawning_vessel_on_rails = false;
             if(hangar_damper != null)
             {
-                if(LaunchWithPunch && !LaunchVelocity.IsZero())
+                if(LaunchWithPunch && !launchVelocity.IsZero())
                     hangar_damper.EnableDamper(false);
                 else
                 {
@@ -585,7 +587,7 @@ namespace AtHangar
             var data = new BaseEventDetails(BaseEventDetails.Sender.STAGING);
             data.Set<PartModule>("hangar", this);
             process_on_vessel_launched_data(data);
-            vsl.Parts.ForEach(p => p.SendEvent("onLaunchedFromHangar", data));
+            vsl.rootPart.SendEvent("onLaunchedFromHangar", data);
             if(hangar_damper != null
                && hangar_damper.DamperEnabled
                && !hangar_damper.EnableControls)
@@ -663,7 +665,7 @@ namespace AtHangar
             var spawn_transfrom = get_spawn_transform(vsl, out spawn_offset);
             spawn_offset -= vsl.metric.center;
             if(LaunchWithPunch)
-                dV = LaunchVelocity.Local2LocalDir(part.partTransform, spawn_transfrom);
+                dV = launchVelocity.Local2LocalDir(part.partTransform, spawn_transfrom);
             if(vsl is StoredVessel sv)
             {
                 //this is for compatibility with the old crew transfer framework
