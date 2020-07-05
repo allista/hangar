@@ -19,7 +19,6 @@
     [
         { "name": "ModuleManager" },
         { "name": "AT-Utils" },
-        { "name": "ConfigurableContainers-Core" },
         { "name": "CommunityResourcePack" }
     ],
 
