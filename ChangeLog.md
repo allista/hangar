@@ -3,7 +3,11 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.6.0**
+* **v3.6.0.1**
+    * Compatible with KSP 1.10
+    * Fixed solr panel config of the Small Ground Hangar
+
+* v3.6.0
     * **Fairings**
         * Added **Jettison Power** PAW control to be able to change
         both jettison force, torque and launch velocity of the payload
