@@ -5,13 +5,14 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
 using AT_Utils;
 
 namespace AtHangar
 {
-    public class HangarStorageDynamic : HangarStorage, ITankManager
+    public class HangarStorageDynamic : HangarStorage, ITankManagerHost
     {
         [KSPField(isPersistant = true)] public float TotalVolume;
         [KSPField(isPersistant = true)] public Vector3 StorageSize;
@@ -74,7 +75,21 @@ namespace AtHangar
                                        m + (metal_for_hull(t.Volume) + metal_for_tank(t.TankType, t.Volume)) *
                                        metal_pump.Resource.density);
                 }
+                tank_manager.onValidateNewTank += onValidateNewTank;
+                tank_manager.onTankFailedToAdd += onTankFailedToAdd;
+                tank_manager.onTankRemoved += onTankRemoved;
             }
+        }
+
+        [SuppressMessage("ReSharper", "DelegateSubtraction")]
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            if(tank_manager == null)
+                return;
+            tank_manager.onValidateNewTank -= onValidateNewTank;
+            tank_manager.onTankFailedToAdd -= onTankFailedToAdd;
+            tank_manager.onTankRemoved -= onTankRemoved;
         }
 
         protected override void update_metrics()
@@ -153,6 +168,9 @@ namespace AtHangar
             return type != null ? type.AddMass(volume) / metal_pump.Resource.density : 0;
         }
 
+        private float metal_for_tank_and_hull(string tank_name, float volume) =>
+            metal_for_hull(volume) + metal_for_tank(tank_name, volume);
+
         bool convert_metal(float metal)
         {
             metal_pump.RequestTransfer(metal);
@@ -179,47 +197,34 @@ namespace AtHangar
             return true;
         }
 
-        float _add_tank_last_volume, _add_tank_metal;
-        float add_tank(string tank_name, float volume, bool percent)
+        private string onValidateNewTank(string tankType, float volume)
         {
-            if(percent) volume = Volume * volume / 100;
-            if(metal_pump != null)
-            {
-                if(!volume.Equals(_add_tank_last_volume))
-                    _add_tank_metal = metal_for_hull(volume) + metal_for_tank(tank_name, volume);
-                GUILayout.Label(Utils.formatUnits(_add_tank_metal), GUILayout.Width(60));
-            }
-            _add_tank_last_volume = volume;
-            var max = GUILayout.Button("Max");
-            if(max || volume > Volume) volume = Volume;
-            if(volume <= 0) GUILayout.Label("Add", Styles.inactive);
-            else if(GUILayout.Button("Add", Styles.open_button))
-            {
-                if(metal_pump == null || convert_metal(_add_tank_metal))
-                {
-                    change_size(-volume);
-                    tank_manager.AddVolume(tank_name, volume); //liters
-                }
-                else if(metal_pump != null)
-                    Utils.Message("Not enough {0} to build {1} tank. Need {2}.",
-                                  BuildTanksFrom, Utils.formatVolume(volume), _add_tank_metal);
-            }
-            return percent ? (Volume.Equals(0) ? 0 : volume / Volume * 100) : volume;
+            if(metal_pump == null)
+                return null;
+            var neededMetal = metal_for_tank_and_hull(tankType, volume);
+            if(!convert_metal(neededMetal))
+                return
+                    $"Not enough {BuildTanksFrom} to build {Utils.formatVolume(volume)} tank.\nNeed {Utils.formatBigValue(neededMetal,"u")}.";
+            change_size(-volume);
+            return null;
         }
 
-        void remove_tank(ModuleSwitchableTank tank)
+        private void onTankFailedToAdd(string tankType, float volume)
         {
-            var volume = tank.Volume;
-            if(!tank_manager.RemoveTank(tank)) return;
-            if(metal_pump != null && !convert_metal(-metal_for_hull(volume) - metal_for_tank(tank.TankType, volume))) return;
+            if(metal_pump != null)
+                convert_metal(-metal_for_tank_and_hull(tankType, volume));
             change_size(volume);
+        }
+
+        private void onTankRemoved(ModuleSwitchableTank tank)
+        {
+            if(metal_pump != null)
+                convert_metal(-metal_for_tank_and_hull(tank.TankType, tank.Volume));
+            change_size(tank.Volume);
         }
         #endregion
 
         #region GUI
-        enum TankWindows { None, EditTanks } //maybe we'll need more in the future
-        readonly Multiplexer<TankWindows> selected_window = new Multiplexer<TankWindows>();
-
         [KSPEvent(guiActive = true, guiName = "Edit Tanks", active = false)]
         public void EditTanks()
         {
@@ -227,31 +232,23 @@ namespace AtHangar
             {
                 Utils.Message("There are some ships docked inside this hangar.\n" +
                               "All works on resource tanks are prohibited for safety reasons.");
-                selected_window[TankWindows.EditTanks] = false;
-            }
-            else selected_window.Toggle(TankWindows.EditTanks);
-            if(selected_window[TankWindows.EditTanks])
-                tank_manager.UnlockEditor();
-        }
-
-        public void OnGUI()
-        {
-            if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
-            if(!selected_window) return;
-            if(tank_manager == null) return;
-            if(VesselsCount > 0)
-            {
-                selected_window[TankWindows.EditTanks] = false;
-                tank_manager.UnlockEditor();
                 return;
             }
-            Styles.Init();
-            if(selected_window[TankWindows.EditTanks])
+            tank_manager.UI.Toggle(this);
+        }
+
+        private void LateUpdate()
+        {
+            if(tank_manager == null || !tank_manager.UI.IsShown)
+                return;
+            if(VesselsCount > 0)
             {
-                var title = string.Format("Available Volume: {0}", Utils.formatVolume(Volume));
-                tank_manager.DrawTanksManagerWindow(GetInstanceID(), title, add_tank, remove_tank);
-                if(tank_manager.Closed) selected_window[TankWindows.EditTanks] = false;
+                Utils.Message("There are some ships docked inside this hangar.\n" +
+                              "All works on resource tanks are prohibited for safety reasons.");
+                tank_manager.UI.Close();
+                return;
             }
+            tank_manager.UI.OnLateUpdate();
         }
         #endregion
     }

@@ -196,7 +196,7 @@ namespace AtHangar
             GameEvents.OnVesselRecoveryRequested.Add(onVesselRecoveryRequested);
         }
 
-        public void OnDestroy()
+        public virtual void OnDestroy()
         {
             GameEvents.OnVesselRecoveryRequested.Remove(onVesselRecoveryRequested);
         }

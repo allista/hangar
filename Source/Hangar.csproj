@@ -90,6 +90,11 @@
             <Name>AnisotropicPartResizer</Name>
             <Private>False</Private>
         </ProjectReference>
+        <ProjectReference Include="..\..\AT_Utils\ConfigurableContainers\CC.UI\CC.UI.csproj">
+            <Project>{3e7aa3ab-1064-4a2e-9d8f-0e20b83a2249}</Project>
+            <Name>CC.UI</Name>
+            <Private>False</Private>
+        </ProjectReference>
         <ProjectReference Include="..\..\AT_Utils\MultiAnimators\MultiAnimators.csproj">
             <Project>{42F1AC2D-21CA-42BC-8AC2-7CBE21775813}</Project>
             <Name>MultiAnimators</Name>
