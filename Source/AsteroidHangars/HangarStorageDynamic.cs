@@ -68,6 +68,7 @@ namespace AtHangar
             var node = ModuleSave.GetNode(SwitchableTankManager.NODE_NAME)
                        ?? new ConfigNode(SwitchableTankManager.NODE_NAME);
             tank_manager.Load(node);
+            tank_manager.Volume = TotalVolume;
             Events[nameof(EditTanks)].active = true;
             if(BuildTanksFrom != string.Empty)
             {
@@ -109,6 +110,7 @@ namespace AtHangar
             if(volume < 0 || tank_manager != null && tank_manager.TanksCount > 0)
                 return false;
             TotalVolume += volume;
+            tank_manager.Volume = TotalVolume;
             if(!(TotalVolume - Volume > UpdateVolumeThreshold))
                 return true;
             max_side = Mathf.Pow(TotalVolume, 1f / 3);
