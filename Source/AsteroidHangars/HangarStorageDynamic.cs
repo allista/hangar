@@ -42,8 +42,10 @@ namespace AtHangar
 
         public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
         {
-            var add_mass = tank_manager == null ? 0 :
-                tank_manager.Tanks.Aggregate(0f, (m, t) => m + metal_for_tank(t.TankType, t.Volume) * metal_pump.Resource.density);
+            var add_mass = tank_manager == null
+                ? 0
+                : tank_manager.Tanks.Aggregate(0f,
+                    (m, t) => m + metal_for_tank(t.TankType, t.Volume) * metal_pump.Resource.density);
             return base.GetModuleMass(defaultMass, sit) + TanksMass - add_mass;
         }
         #endregion
@@ -60,20 +62,26 @@ namespace AtHangar
             {
                 tank_manager = new SwitchableTankManager(this);
                 if(ModuleSave == null)
-                { this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
-                var node = ModuleSave.GetNode(SwitchableTankManager.NODE_NAME) ??
-                    new ConfigNode(SwitchableTankManager.NODE_NAME);
+                {
+                    this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!");
+                    return;
+                }
+                var node = ModuleSave.GetNode(SwitchableTankManager.NODE_NAME)
+                           ?? new ConfigNode(SwitchableTankManager.NODE_NAME);
                 tank_manager.Load(node);
                 Events["EditTanks"].active = true;
                 if(BuildTanksFrom != string.Empty)
                 {
                     metal_pump = new ResourcePump(part, BuildTanksFrom);
-                    if(!metal_pump.Valid) metal_pump = null;
+                    if(!metal_pump.Valid)
+                        metal_pump = null;
                     else if(TanksMass <= 0)
                         TanksMass = tank_manager.Tanks
-                            .Aggregate(0f, (m, t) =>
-                                       m + (metal_for_hull(t.Volume) + metal_for_tank(t.TankType, t.Volume)) *
-                                       metal_pump.Resource.density);
+                            .Aggregate(0f,
+                                (m, t) =>
+                                    m
+                                    + (metal_for_hull(t.Volume) + metal_for_tank(t.TankType, t.Volume))
+                                    * metal_pump.Resource.density);
                 }
                 tank_manager.onValidateNewTank += onValidateNewTank;
                 tank_manager.onTankFailedToAdd += onTankFailedToAdd;
@@ -100,7 +108,8 @@ namespace AtHangar
 
         public bool AddVolume(float volume)
         {
-            if(volume < 0 || tank_manager != null && tank_manager.TanksCount > 0) return false;
+            if(volume < 0 || tank_manager != null && tank_manager.TanksCount > 0)
+                return false;
             TotalVolume += volume;
             if(TotalVolume - Volume > UpdateVolumeThreshold)
             {
@@ -111,9 +120,7 @@ namespace AtHangar
             return true;
         }
 
-        public bool CanAddVolume => VesselsCount == 0 &&
-                tank_manager != null &&
-                tank_manager.TanksCount == 0;
+        public bool CanAddVolume => VesselsCount == 0 && tank_manager != null && tank_manager.TanksCount == 0;
 
         public override void OnSave(ConfigNode node)
         {
@@ -150,17 +157,23 @@ namespace AtHangar
                 var a = Mathf.Pow(WidthToLengthRatio * V, 1f / 3);
                 var b = V / (a * a);
                 if(volume < 0 && b > StorageSize.y)
-                { b = StorageSize.y; a = Mathf.Sqrt(V / b); }
+                {
+                    b = StorageSize.y;
+                    a = Mathf.Sqrt(V / b);
+                }
                 else if(volume > 0 && b > max_side)
-                { b = max_side; a = Mathf.Sqrt(V / b); }
+                {
+                    b = max_side;
+                    a = Mathf.Sqrt(V / b);
+                }
                 StorageSize = new Vector3(a, b, a);
             }
             Setup();
         }
 
         //area is calculated for a box with sides [a, a, 2a], where a*a*2a = volume
-        float metal_for_hull(float volume) => 
-        Mathf.Sign(volume) * 10 * Mathf.Pow(Mathf.Abs(volume) / 2, 2f / 3) * ResourcePerArea;
+        float metal_for_hull(float volume) =>
+            Mathf.Sign(volume) * 10 * Mathf.Pow(Mathf.Abs(volume) / 2, 2f / 3) * ResourcePerArea;
 
         float metal_for_tank(string tank_name, float volume)
         {
@@ -192,7 +205,8 @@ namespace AtHangar
                         Utils.Message("Not enough storage for {0}. The excess was disposed of.", BuildTanksFrom);
                     TanksMass += metal * metal_pump.Resource.density;
                 }
-                if(TanksMass < 0) TanksMass = 0;
+                if(TanksMass < 0)
+                    TanksMass = 0;
             }
             return true;
         }
@@ -204,7 +218,7 @@ namespace AtHangar
             var neededMetal = metal_for_tank_and_hull(tankType, volume);
             if(!convert_metal(neededMetal))
                 return
-                    $"Not enough {BuildTanksFrom} to build {Utils.formatVolume(volume)} tank.\nNeed {Utils.formatBigValue(neededMetal,"u")}.";
+                    $"Not enough {BuildTanksFrom} to build {Utils.formatVolume(volume)} tank.\nNeed {Utils.formatBigValue(neededMetal, "u")}.";
             change_size(-volume);
             return null;
         }
@@ -230,8 +244,8 @@ namespace AtHangar
         {
             if(VesselsCount > 0)
             {
-                Utils.Message("There are some ships docked inside this hangar.\n" +
-                              "All works on resource tanks are prohibited for safety reasons.");
+                Utils.Message("There are some ships docked inside this hangar.\n"
+                              + "All works on resource tanks are prohibited for safety reasons.");
                 return;
             }
             tank_manager.UI.Toggle(this);
@@ -243,8 +257,8 @@ namespace AtHangar
                 return;
             if(VesselsCount > 0)
             {
-                Utils.Message("There are some ships docked inside this hangar.\n" +
-                              "All works on resource tanks are prohibited for safety reasons.");
+                Utils.Message("There are some ships docked inside this hangar.\n"
+                              + "All works on resource tanks are prohibited for safety reasons.");
                 tank_manager.UI.Close();
                 return;
             }
@@ -253,4 +267,3 @@ namespace AtHangar
         #endregion
     }
 }
-
