@@ -57,35 +57,34 @@ namespace AtHangar
             Fields["hangar_d"].guiActive = true;
             max_side = Mathf.Pow(TotalVolume, 1f / 3);
             //init tank manager
-            if(HasTankManager)
+            if(!HasTankManager)
+                return;
+            tank_manager = new SwitchableTankManager(this);
+            if(ModuleSave == null)
             {
-                tank_manager = new SwitchableTankManager(this);
-                if(ModuleSave == null)
-                {
-                    this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!");
-                    return;
-                }
-                var node = ModuleSave.GetNode(SwitchableTankManager.NODE_NAME)
-                           ?? new ConfigNode(SwitchableTankManager.NODE_NAME);
-                tank_manager.Load(node);
-                Events["EditTanks"].active = true;
-                if(BuildTanksFrom != string.Empty)
-                {
-                    metal_pump = new ResourcePump(part, BuildTanksFrom);
-                    if(!metal_pump.Valid)
-                        metal_pump = null;
-                    else if(TanksMass <= 0)
-                        TanksMass = tank_manager.Tanks
-                            .Aggregate(0f,
-                                (m, t) =>
-                                    m
-                                    + (metal_for_hull(t.Volume) + metal_for_tank(t.TankType, t.Volume))
-                                    * metal_pump.Resource.density);
-                }
-                tank_manager.onValidateNewTank += onValidateNewTank;
-                tank_manager.onTankFailedToAdd += onTankFailedToAdd;
-                tank_manager.onTankRemoved += onTankRemoved;
+                this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!");
+                return;
             }
+            var node = ModuleSave.GetNode(SwitchableTankManager.NODE_NAME)
+                       ?? new ConfigNode(SwitchableTankManager.NODE_NAME);
+            tank_manager.Load(node);
+            Events["EditTanks"].active = true;
+            if(BuildTanksFrom != string.Empty)
+            {
+                metal_pump = new ResourcePump(part, BuildTanksFrom);
+                if(!metal_pump.Valid)
+                    metal_pump = null;
+                else if(TanksMass <= 0)
+                    TanksMass = tank_manager.Tanks
+                        .Aggregate(0f,
+                            (m, t) =>
+                                m
+                                + (metal_for_hull(t.Volume) + metal_for_tank(t.TankType, t.Volume))
+                                * metal_pump.Resource.density);
+            }
+            tank_manager.onValidateNewTank += onValidateNewTank;
+            tank_manager.onTankFailedToAdd += onTankFailedToAdd;
+            tank_manager.onTankRemoved += onTankRemoved;
         }
 
         [SuppressMessage("ReSharper", "DelegateSubtraction")]
@@ -110,12 +109,11 @@ namespace AtHangar
             if(volume < 0 || tank_manager != null && tank_manager.TanksCount > 0)
                 return false;
             TotalVolume += volume;
-            if(TotalVolume - Volume > UpdateVolumeThreshold)
-            {
-                max_side = Mathf.Pow(TotalVolume, 1f / 3);
-                StorageSize = new Vector3(max_side, max_side, max_side);
-                Setup();
-            }
+            if(!(TotalVolume - Volume > UpdateVolumeThreshold))
+                return true;
+            max_side = Mathf.Pow(TotalVolume, 1f / 3);
+            StorageSize = new Vector3(max_side, max_side, max_side);
+            Setup();
             return true;
         }
 
@@ -185,27 +183,26 @@ namespace AtHangar
         private bool convert_metal(float metal)
         {
             metal_pump.RequestTransfer(metal);
-            if(metal_pump.TransferResource())
+            if(!metal_pump.TransferResource())
+                return true;
+            if(metal > 0)
             {
-                if(metal > 0)
+                if(metal_pump.PartialTransfer)
                 {
-                    if(metal_pump.PartialTransfer)
-                    {
-                        metal_pump.Revert();
-                        metal_pump.Clear();
-                        return false;
-                    }
-                    TanksMass += metal_pump.Result * metal_pump.Resource.density;
+                    metal_pump.Revert();
+                    metal_pump.Clear();
+                    return false;
                 }
-                else
-                {
-                    if(metal_pump.PartialTransfer && metal_pump.Ratio < 0.999f)
-                        Utils.Message("Not enough storage for {0}. The excess was disposed of.", BuildTanksFrom);
-                    TanksMass += metal * metal_pump.Resource.density;
-                }
-                if(TanksMass < 0)
-                    TanksMass = 0;
+                TanksMass += metal_pump.Result * metal_pump.Resource.density;
             }
+            else
+            {
+                if(metal_pump.PartialTransfer && metal_pump.Ratio < 0.999f)
+                    Utils.Message("Not enough storage for {0}. The excess was disposed of.", BuildTanksFrom);
+                TanksMass += metal * metal_pump.Resource.density;
+            }
+            if(TanksMass < 0)
+                TanksMass = 0;
             return true;
         }
 
