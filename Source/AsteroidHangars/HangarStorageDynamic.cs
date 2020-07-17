@@ -16,7 +16,7 @@ namespace AtHangar
     {
         [KSPField(isPersistant = true)] public float TotalVolume;
         [KSPField(isPersistant = true)] public Vector3 StorageSize;
-        [KSPField(isPersistant = true)] float TanksMass;
+        [KSPField(isPersistant = true)] private float TanksMass;
         [KSPField] public float WidthToLengthRatio = 0.5f;
         [KSPField] public float UpdateVolumeThreshold = 0.1f; //m^3
         [KSPField] public bool HasTankManager;
@@ -25,9 +25,9 @@ namespace AtHangar
 
         [SerializeField] public ConfigNode ModuleSave;
 
-        SwitchableTankManager tank_manager;
-        ResourcePump metal_pump;
-        float max_side;
+        private SwitchableTankManager tank_manager;
+        private ResourcePump metal_pump;
+        private float max_side;
 
         public SwitchableTankManager GetTankManager() => tank_manager;
 
@@ -42,10 +42,9 @@ namespace AtHangar
 
         public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
         {
-            var add_mass = tank_manager == null
-                ? 0
-                : tank_manager.Tanks.Aggregate(0f,
-                    (m, t) => m + metal_for_tank(t.TankType, t.Volume) * metal_pump.Resource.density);
+            var add_mass = tank_manager?.Tanks.Aggregate(0f,
+                               (m, t) => m + metal_for_tank(t.TankType, t.Volume) * metal_pump.Resource.density)
+                           ?? 0;
             return base.GetModuleMass(defaultMass, sit) + TanksMass - add_mass;
         }
         #endregion
@@ -125,8 +124,7 @@ namespace AtHangar
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
-            if(tank_manager != null)
-                tank_manager.SaveInto(node);
+            tank_manager?.SaveInto(node);
         }
 
         public override void OnLoad(ConfigNode node)
@@ -147,7 +145,7 @@ namespace AtHangar
         }
 
         #region Tanks
-        void change_size(float volume)
+        private void change_size(float volume)
         {
             var V = Mathf.Clamp(Volume + volume, 0, TotalVolume);
             if(V.Equals(0))
@@ -172,10 +170,10 @@ namespace AtHangar
         }
 
         //area is calculated for a box with sides [a, a, 2a], where a*a*2a = volume
-        float metal_for_hull(float volume) =>
+        private float metal_for_hull(float volume) =>
             Mathf.Sign(volume) * 10 * Mathf.Pow(Mathf.Abs(volume) / 2, 2f / 3) * ResourcePerArea;
 
-        float metal_for_tank(string tank_name, float volume)
+        private float metal_for_tank(string tank_name, float volume)
         {
             var type = SwitchableTankType.GetTankType(tank_name);
             return type != null ? type.AddMass(volume) / metal_pump.Resource.density : 0;
@@ -184,7 +182,7 @@ namespace AtHangar
         private float metal_for_tank_and_hull(string tank_name, float volume) =>
             metal_for_hull(volume) + metal_for_tank(tank_name, volume);
 
-        bool convert_metal(float metal)
+        private bool convert_metal(float metal)
         {
             metal_pump.RequestTransfer(metal);
             if(metal_pump.TransferResource())
