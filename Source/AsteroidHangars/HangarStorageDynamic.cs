@@ -53,8 +53,8 @@ namespace AtHangar
         {
             SpawnSpaceSensor = false;
             base.early_setup(state);
-            Fields["hangar_v"].guiActive = true;
-            Fields["hangar_d"].guiActive = true;
+            Fields[nameof(hangar_v)].guiActive = true;
+            Fields[nameof(hangar_d)].guiActive = true;
             max_side = Mathf.Pow(TotalVolume, 1f / 3);
             //init tank manager
             if(!HasTankManager)
@@ -68,7 +68,7 @@ namespace AtHangar
             var node = ModuleSave.GetNode(SwitchableTankManager.NODE_NAME)
                        ?? new ConfigNode(SwitchableTankManager.NODE_NAME);
             tank_manager.Load(node);
-            Events["EditTanks"].active = true;
+            Events[nameof(EditTanks)].active = true;
             if(BuildTanksFrom != string.Empty)
             {
                 metal_pump = new ResourcePump(part, BuildTanksFrom);
