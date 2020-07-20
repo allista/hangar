@@ -97,6 +97,7 @@ namespace AtHangar
             tank_manager.onValidateNewTank -= onValidateNewTank;
             tank_manager.onTankFailedToAdd -= onTankFailedToAdd;
             tank_manager.onTankRemoved -= onTankRemoved;
+            tank_manager.UI?.Close();
         }
 
         protected override void update_metrics()
