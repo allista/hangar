@@ -212,6 +212,9 @@ namespace AtHangar
 
         private string onValidateNewTank(string tankType, float volume)
         {
+            if(VesselsCount > 0)
+                return "There are some ships docked inside this hangar.\n"
+                       + "All works on resource tanks are prohibited for safety reasons.";
             if(metal_pump == null)
                 return null;
             var neededMetal = metal_for_tank_and_hull(tankType, volume);
@@ -241,12 +244,6 @@ namespace AtHangar
         [KSPEvent(guiActive = true, guiName = "Edit Tanks", active = false)]
         public void EditTanks()
         {
-            if(VesselsCount > 0)
-            {
-                Utils.Message("There are some ships docked inside this hangar.\n"
-                              + "All works on resource tanks are prohibited for safety reasons.");
-                return;
-            }
             tank_manager.UI.Toggle(this);
         }
 
@@ -254,13 +251,6 @@ namespace AtHangar
         {
             if(tank_manager == null || !tank_manager.UI.IsShown)
                 return;
-            if(VesselsCount > 0)
-            {
-                Utils.Message("There are some ships docked inside this hangar.\n"
-                              + "All works on resource tanks are prohibited for safety reasons.");
-                tank_manager.UI.Close();
-                return;
-            }
             tank_manager.UI.OnLateUpdate();
         }
         #endregion
