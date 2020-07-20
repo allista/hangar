@@ -108,7 +108,7 @@ namespace AtHangar
 
         public bool AddVolume(float volume)
         {
-            if(volume < 0 || tank_manager != null && tank_manager.TanksCount > 0)
+            if(volume < 0 || tank_manager == null || tank_manager.TanksCount > 0)
                 return false;
             TotalVolume += volume;
             tank_manager.Volume = TotalVolume;
