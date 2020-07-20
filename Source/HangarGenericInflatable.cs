@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using AT_Utils;
+using AT_Utils.UI;
 
 namespace AtHangar
 {
@@ -71,7 +72,6 @@ namespace AtHangar
 
         //GUI
         [KSPField(guiName = "Compressed Gas", guiActive = true)] public string CompressedGasDisplay;
-        SimpleWarning warning;
 
         //modules and nodes
         readonly List<IControllableModule> controlled_modules = new List<IControllableModule>();
@@ -124,8 +124,6 @@ namespace AtHangar
         public override void OnAwake()
         {
             base.OnAwake();
-            warning = gameObject.AddComponent<SimpleWarning>();
-            warning.yesCallback = deflate;
             GameEvents.onGamePause.Add(onPause);
             GameEvents.onGameUnpause.Add(onUnpause);
             GameEvents.onEditorShipModified.Add(UpdateGUI);
@@ -134,7 +132,6 @@ namespace AtHangar
         public override void OnDestroy()
         {
             base.OnDestroy();
-            Destroy(warning);
             GameEvents.onGamePause.Remove(onPause);
             GameEvents.onGameUnpause.Remove(onUnpause);
             GameEvents.onEditorShipModified.Remove(UpdateGUI);
@@ -337,7 +334,11 @@ namespace AtHangar
         [KSPEvent(guiActiveEditor = true, guiActive = true, guiName = "Inflate", active = true)]
         public void Inflate()
         {
-            if(!has_compressed_gas) return;
+            if(!has_compressed_gas)
+            {
+                Utils.Message("Cannot inflate, there's not enough compressed gas.");
+                return;
+            }
             if(State != AnimatorState.Closed) return;
             if(!CanEnableModules()) return;
             if(HighLogic.LoadedSceneIsFlight) CompressedGas = 0;
@@ -351,20 +352,24 @@ namespace AtHangar
         {
             if(State != AnimatorState.Opened) return;
             if(!CanDisableModules()) return;
-            if(warning.WindowEnabled) return;
             if(has_compressed_gas || Recompressable)
                 deflate();
             else
             {
                 if(!Compressor.Valid)
-                    warning.Message = "This part is not equipped with a compressor. " +
-                                      "You will not be able to inflate it again. " +
-                                      "Are you sure you want to deflate the hangar?";
+                    DialogFactory.Danger("This part is not equipped with a compressor. "
+                                                          + "You will not be able to inflate it again. "
+                                                          + "Are you sure you want to deflate the hangar?",
+                        deflate,
+                        context: this
+                    );
                 else if(!part.vessel.mainBody.atmosphere)
-                    warning.Message = "There's no atmosphere here. " +
-                                      "You will not be able to inflate this part again." +
-                                      "Are you sure you want to deflate it?";
-                warning.Show(true);
+                    DialogFactory.Danger("There's no atmosphere here. "
+                                                          + "You will not be able to inflate this part again."
+                                                          + "Are you sure you want to deflate it?",
+                        deflate,
+                        context: this
+                    );
             }
         }
 
