@@ -9,10 +9,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
 using AT_Utils;
+using CC.UI;
 
 namespace AtHangar
 {
-    public class HangarStorageDynamic : HangarStorage, ITankManagerHost
+    public class HangarStorageDynamic : HangarStorage, ITankManagerHost, ITankManagerCapabilities
     {
         [KSPField(isPersistant = true)] public float TotalVolume;
         [KSPField(isPersistant = true)] public Vector3 StorageSize;
@@ -47,6 +48,15 @@ namespace AtHangar
                            ?? 0;
             return base.GetModuleMass(defaultMass, sit) + TanksMass - add_mass;
         }
+        #endregion
+
+        #region ITankManagerCapabilities
+        public bool AddRemoveEnabled => VesselsCount == 0;
+        public bool ConfirmRemove => !HighLogic.LoadedSceneIsEditor;
+        public bool TypeChangeEnabled => HighLogic.LoadedSceneIsEditor;
+        public bool VolumeChangeEnabled => HighLogic.LoadedSceneIsEditor;
+        public bool FillEnabled => HighLogic.LoadedSceneIsEditor;
+        public bool EmptyEnabled => HighLogic.LoadedSceneIsEditor;
         #endregion
 
         protected override void early_setup(StartState state)
