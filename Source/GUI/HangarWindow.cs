@@ -185,6 +185,7 @@ namespace AtHangar
             next_update = Time.time; 
             GameEvents.onVesselChange.Add(onVesselChange);
             GameEvents.onVesselWasModified.Add(onVesselWasModified);
+            GameEvents.onEditorShipModified.Add(onShipConstructModified);
         }
 
         public override void OnDestroy()
@@ -192,6 +193,7 @@ namespace AtHangar
             UnlockControls();
             GameEvents.onVesselChange.Remove(onVesselChange);
             GameEvents.onVesselWasModified.Remove(onVesselWasModified);
+            GameEvents.onEditorShipModified.Remove(onShipConstructModified);
             base.OnDestroy();
         }
 
@@ -214,14 +216,20 @@ namespace AtHangar
 
         public override void Show(bool show)
         {
-            if(vesselModule == null)
+            if(vessel_metric.Empty)
                 return;
-            vesselModule.ShowHangarWindow = show;
+            if(vesselModule != null)
+                vesselModule.ShowHangarWindow = show;
             base.Show(show);
         }
 
         void onVesselWasModified(Vessel vsl)
         { if(vsl != null && vessel == vsl) update_lists(); }
+
+        void onShipConstructModified(ShipConstruct ship)
+        {
+            update_vessel_metric();
+        }
 
 
         public void Update() 
