@@ -93,6 +93,7 @@ namespace AtHangar
                                 + (metal_for_hull(t.Volume) + metal_for_tank(t.TankType, t.Volume))
                                 * metal_pump.Resource.density);
             }
+            tank_manager.onNewTankVolumeChanged += onNewTankVolumeChanged;
             tank_manager.onValidateNewTank += onValidateNewTank;
             tank_manager.onTankFailedToAdd += onTankFailedToAdd;
             tank_manager.onTankRemoved += onTankRemoved;
@@ -104,6 +105,7 @@ namespace AtHangar
             base.OnDestroy();
             if(tank_manager == null)
                 return;
+            tank_manager.onNewTankVolumeChanged -= onNewTankVolumeChanged;
             tank_manager.onValidateNewTank -= onValidateNewTank;
             tank_manager.onTankFailedToAdd -= onTankFailedToAdd;
             tank_manager.onTankRemoved -= onTankRemoved;
@@ -220,17 +222,24 @@ namespace AtHangar
             return true;
         }
 
+        private string onNewTankVolumeChanged(string tankType, float volume)
+        {
+            var neededMetal = metal_for_tank_and_hull(tankType, volume);
+            return $"Tank will require <b>{Utils.formatBigValue(neededMetal, "u")} of {BuildTanksFrom}</b> to build";
+        }
+
         private string onValidateNewTank(string tankType, float volume)
         {
             if(VesselsCount > 0)
-                return "There are some ships docked inside this hangar.\n"
+                return "There are some <b>ships docked inside</b> this hangar.\n"
                        + "All works on resource tanks are prohibited for safety reasons.";
             if(metal_pump == null)
                 return null;
             var neededMetal = metal_for_tank_and_hull(tankType, volume);
             if(!convert_metal(neededMetal))
                 return
-                    $"Not enough {BuildTanksFrom} to build {Utils.formatVolume(volume)} tank.\nNeed {Utils.formatBigValue(neededMetal, "u")}.";
+                    $"<b>Not enough {BuildTanksFrom}</b> to build {Utils.formatVolume(volume)} tank.\n"
+                    + $"Need <b>{Utils.formatBigValue(neededMetal, "u")}</b>.";
             change_size(-volume);
             return null;
         }
