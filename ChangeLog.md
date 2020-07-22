@@ -1,9 +1,16 @@
-###Delete the old version of the mod before installing a new one.
+### Delete the old version of the mod before installing a new one.
 _You may keep the Hangar.user (if you have one) and config.xml files to preserve your settings._
 
 ***
 
-* **v3.6.0.1**
+* **v3.6.1**
+    * **Squad cargo bays can store a vessel in flight now**
+    * Asteroid Hatch features new UI from Configurable Containers
+    * **Fixed ship loading into hangars in editor**
+    * Fixed HangarWindow not showing/hiding in Editor
+    * Using new uGUI dialogs for warnings
+
+* v3.6.0.1
     * Compatible with KSP 1.10
     * Fixed solr panel config of the Small Ground Hangar
 

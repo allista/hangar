@@ -5,11 +5,10 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using AT_Utils;
+using AT_Utils.UI;
 
 namespace AtHangar
 {
@@ -56,7 +55,6 @@ namespace AtHangar
 
         DockedVesselInfo this_vessel;
         DockedVesselInfo docked_vessel;
-        SimpleWarning warning;
 
         AttachNode grappleNode;
         Vector3 grapplePos, grappleOrt, grappleOrt2;
@@ -77,21 +75,11 @@ namespace AtHangar
         public override void OnAwake()
         {
             base.OnAwake();
-            warning = gameObject.AddComponent<SimpleWarning>();
-            warning.Message = "This will fix the grapple permanently. " +
-                              "You will not be able to decouple it ever again. " +
-                              "Are you sure you want to continue?";
-            warning.yesCallback = () =>
-            {
-                if(fixAnimator != null) fixAnimator.Open();
-                StartCoroutine(delayed_disable_decoupling());
-            };
             GameEvents.onPartJointBreak.Add(onPartJointBreak);
         }
 
         void OnDestroy()
         {
-            Destroy(warning);
             GameEvents.onPartJointBreak.Remove(onPartJointBreak);
         }
 
@@ -499,7 +487,16 @@ namespace AtHangar
                 Utils.Message("Already working...");
                 return;
             }
-            warning.Show(true);
+            DialogFactory.Danger("This will fix the grapple permanently. "
+                                           + "You will not be able to decouple it ever again. "
+                                           + "Are you sure you want to continue?",
+                () =>
+                {
+                    if(fixAnimator != null)
+                        fixAnimator.Open();
+                    StartCoroutine(delayed_disable_decoupling());
+                },
+                context: this);
         }
 
         #endregion

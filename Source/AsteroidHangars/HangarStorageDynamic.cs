@@ -5,17 +5,19 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
 using AT_Utils;
+using CC.UI;
 
 namespace AtHangar
 {
-    public class HangarStorageDynamic : HangarStorage, ITankManager
+    public class HangarStorageDynamic : HangarStorage, ITankManagerHost, ITankManagerCapabilities
     {
         [KSPField(isPersistant = true)] public float TotalVolume;
         [KSPField(isPersistant = true)] public Vector3 StorageSize;
-        [KSPField(isPersistant = true)] float TanksMass;
+        [KSPField(isPersistant = true)] private float TanksMass;
         [KSPField] public float WidthToLengthRatio = 0.5f;
         [KSPField] public float UpdateVolumeThreshold = 0.1f; //m^3
         [KSPField] public bool HasTankManager;
@@ -24,9 +26,9 @@ namespace AtHangar
 
         [SerializeField] public ConfigNode ModuleSave;
 
-        SwitchableTankManager tank_manager;
-        ResourcePump metal_pump;
-        float max_side;
+        private SwitchableTankManager tank_manager;
+        private ResourcePump metal_pump;
+        private float max_side;
 
         public SwitchableTankManager GetTankManager() => tank_manager;
 
@@ -41,40 +43,73 @@ namespace AtHangar
 
         public override float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
         {
-            var add_mass = tank_manager == null ? 0 :
-                tank_manager.Tanks.Aggregate(0f, (m, t) => m + metal_for_tank(t.TankType, t.Volume) * metal_pump.Resource.density);
+            var add_mass = tank_manager?.Tanks.Aggregate(0f,
+                               (m, t) => m + metal_for_tank(t.TankType, t.Volume) * metal_pump.Resource.density)
+                           ?? 0;
             return base.GetModuleMass(defaultMass, sit) + TanksMass - add_mass;
         }
+        #endregion
+
+        #region ITankManagerCapabilities
+        public bool AddRemoveEnabled => VesselsCount == 0;
+        public bool ConfirmRemove => !HighLogic.LoadedSceneIsEditor;
+        public bool TypeChangeEnabled => HighLogic.LoadedSceneIsEditor;
+        public bool VolumeChangeEnabled => HighLogic.LoadedSceneIsEditor;
+        public bool FillEnabled => HighLogic.LoadedSceneIsEditor;
+        public bool EmptyEnabled => HighLogic.LoadedSceneIsEditor;
         #endregion
 
         protected override void early_setup(StartState state)
         {
             SpawnSpaceSensor = false;
             base.early_setup(state);
-            Fields["hangar_v"].guiActive = true;
-            Fields["hangar_d"].guiActive = true;
+            Fields[nameof(hangar_v)].guiActive = true;
+            Fields[nameof(hangar_d)].guiActive = true;
             max_side = Mathf.Pow(TotalVolume, 1f / 3);
             //init tank manager
-            if(HasTankManager)
+            if(!HasTankManager)
+                return;
+            tank_manager = new SwitchableTankManager(this);
+            if(ModuleSave == null)
             {
-                tank_manager = new SwitchableTankManager(this);
-                if(ModuleSave == null)
-                { this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
-                var node = ModuleSave.GetNode(SwitchableTankManager.NODE_NAME) ??
-                    new ConfigNode(SwitchableTankManager.NODE_NAME);
-                tank_manager.Load(node);
-                Events["EditTanks"].active = true;
-                if(BuildTanksFrom != string.Empty)
-                {
-                    metal_pump = new ResourcePump(part, BuildTanksFrom);
-                    if(!metal_pump.Valid) metal_pump = null;
-                    else if(TanksMass <= 0)
-                        TanksMass = tank_manager.Tanks
-                            .Aggregate(0f, (m, t) =>
-                                       m + (metal_for_hull(t.Volume) + metal_for_tank(t.TankType, t.Volume)) *
-                                       metal_pump.Resource.density);
-                }
+                this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!");
+                return;
             }
+            var node = ModuleSave.GetNode(SwitchableTankManager.NODE_NAME)
+                       ?? new ConfigNode(SwitchableTankManager.NODE_NAME);
+            tank_manager.Load(node);
+            tank_manager.Volume = TotalVolume;
+            Events[nameof(EditTanks)].active = TotalVolume > 0;
+            if(BuildTanksFrom != string.Empty)
+            {
+                metal_pump = new ResourcePump(part, BuildTanksFrom);
+                if(!metal_pump.Valid)
+                    metal_pump = null;
+                else if(TanksMass <= 0)
+                    TanksMass = tank_manager.Tanks
+                        .Aggregate(0f,
+                            (m, t) =>
+                                m
+                                + (metal_for_hull(t.Volume) + metal_for_tank(t.TankType, t.Volume))
+                                * metal_pump.Resource.density);
+            }
+            tank_manager.onNewTankVolumeChanged += onNewTankVolumeChanged;
+            tank_manager.onValidateNewTank += onValidateNewTank;
+            tank_manager.onTankFailedToAdd += onTankFailedToAdd;
+            tank_manager.onTankRemoved += onTankRemoved;
+        }
+
+        [SuppressMessage("ReSharper", "DelegateSubtraction")]
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            if(tank_manager == null)
+                return;
+            tank_manager.onNewTankVolumeChanged -= onNewTankVolumeChanged;
+            tank_manager.onValidateNewTank -= onValidateNewTank;
+            tank_manager.onTankFailedToAdd -= onTankFailedToAdd;
+            tank_manager.onTankRemoved -= onTankRemoved;
+            tank_manager.UI?.Close();
         }
 
         protected override void update_metrics()
@@ -85,26 +120,25 @@ namespace AtHangar
 
         public bool AddVolume(float volume)
         {
-            if(volume < 0 || tank_manager != null && tank_manager.TanksCount > 0) return false;
+            if(volume < 0 || tank_manager == null || tank_manager.TanksCount > 0)
+                return false;
             TotalVolume += volume;
-            if(TotalVolume - Volume > UpdateVolumeThreshold)
-            {
-                max_side = Mathf.Pow(TotalVolume, 1f / 3);
-                StorageSize = new Vector3(max_side, max_side, max_side);
-                Setup();
-            }
+            tank_manager.Volume = TotalVolume;
+            Events[nameof(EditTanks)].active = TotalVolume > 0;
+            if(!(TotalVolume - Volume > UpdateVolumeThreshold))
+                return true;
+            max_side = Mathf.Pow(TotalVolume, 1f / 3);
+            StorageSize = new Vector3(max_side, max_side, max_side);
+            Setup();
             return true;
         }
 
-        public bool CanAddVolume => VesselsCount == 0 &&
-                tank_manager != null &&
-                tank_manager.TanksCount == 0;
+        public bool CanAddVolume => VesselsCount == 0 && tank_manager != null && tank_manager.TanksCount == 0;
 
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
-            if(tank_manager != null)
-                tank_manager.SaveInto(node);
+            tank_manager?.SaveInto(node);
         }
 
         public override void OnLoad(ConfigNode node)
@@ -125,7 +159,7 @@ namespace AtHangar
         }
 
         #region Tanks
-        void change_size(float volume)
+        private void change_size(float volume)
         {
             var V = Mathf.Clamp(Volume + volume, 0, TotalVolume);
             if(V.Equals(0))
@@ -135,125 +169,109 @@ namespace AtHangar
                 var a = Mathf.Pow(WidthToLengthRatio * V, 1f / 3);
                 var b = V / (a * a);
                 if(volume < 0 && b > StorageSize.y)
-                { b = StorageSize.y; a = Mathf.Sqrt(V / b); }
+                {
+                    b = StorageSize.y;
+                    a = Mathf.Sqrt(V / b);
+                }
                 else if(volume > 0 && b > max_side)
-                { b = max_side; a = Mathf.Sqrt(V / b); }
+                {
+                    b = max_side;
+                    a = Mathf.Sqrt(V / b);
+                }
                 StorageSize = new Vector3(a, b, a);
             }
             Setup();
         }
 
         //area is calculated for a box with sides [a, a, 2a], where a*a*2a = volume
-        float metal_for_hull(float volume) => 
-        Mathf.Sign(volume) * 10 * Mathf.Pow(Mathf.Abs(volume) / 2, 2f / 3) * ResourcePerArea;
+        private float metal_for_hull(float volume) =>
+            Mathf.Sign(volume) * 10 * Mathf.Pow(Mathf.Abs(volume) / 2, 2f / 3) * ResourcePerArea;
 
-        float metal_for_tank(string tank_name, float volume)
+        private float metal_for_tank(string tank_name, float volume)
         {
             var type = SwitchableTankType.GetTankType(tank_name);
             return type != null ? type.AddMass(volume) / metal_pump.Resource.density : 0;
         }
 
-        bool convert_metal(float metal)
+        private float metal_for_tank_and_hull(string tank_name, float volume) =>
+            metal_for_hull(volume) + metal_for_tank(tank_name, volume);
+
+        private bool convert_metal(float metal)
         {
             metal_pump.RequestTransfer(metal);
-            if(metal_pump.TransferResource())
+            if(!metal_pump.TransferResource())
+                return true;
+            if(metal > 0)
             {
-                if(metal > 0)
+                if(metal_pump.PartialTransfer)
                 {
-                    if(metal_pump.PartialTransfer)
-                    {
-                        metal_pump.Revert();
-                        metal_pump.Clear();
-                        return false;
-                    }
-                    TanksMass += metal_pump.Result * metal_pump.Resource.density;
+                    metal_pump.Revert();
+                    metal_pump.Clear();
+                    return false;
                 }
-                else
-                {
-                    if(metal_pump.PartialTransfer && metal_pump.Ratio < 0.999f)
-                        Utils.Message("Not enough storage for {0}. The excess was disposed of.", BuildTanksFrom);
-                    TanksMass += metal * metal_pump.Resource.density;
-                }
-                if(TanksMass < 0) TanksMass = 0;
+                TanksMass += metal_pump.Result * metal_pump.Resource.density;
             }
+            else
+            {
+                if(metal_pump.PartialTransfer && metal_pump.Ratio < 0.999f)
+                    Utils.Message("Not enough storage for {0}. The excess was disposed of.", BuildTanksFrom);
+                TanksMass += metal * metal_pump.Resource.density;
+            }
+            if(TanksMass < 0)
+                TanksMass = 0;
             return true;
         }
 
-        float _add_tank_last_volume, _add_tank_metal;
-        float add_tank(string tank_name, float volume, bool percent)
+        private string onNewTankVolumeChanged(string tankType, float volume)
         {
-            if(percent) volume = Volume * volume / 100;
-            if(metal_pump != null)
-            {
-                if(!volume.Equals(_add_tank_last_volume))
-                    _add_tank_metal = metal_for_hull(volume) + metal_for_tank(tank_name, volume);
-                GUILayout.Label(Utils.formatUnits(_add_tank_metal), GUILayout.Width(60));
-            }
-            _add_tank_last_volume = volume;
-            var max = GUILayout.Button("Max");
-            if(max || volume > Volume) volume = Volume;
-            if(volume <= 0) GUILayout.Label("Add", Styles.inactive);
-            else if(GUILayout.Button("Add", Styles.open_button))
-            {
-                if(metal_pump == null || convert_metal(_add_tank_metal))
-                {
-                    change_size(-volume);
-                    tank_manager.AddVolume(tank_name, volume); //liters
-                }
-                else if(metal_pump != null)
-                    Utils.Message("Not enough {0} to build {1} tank. Need {2}.",
-                                  BuildTanksFrom, Utils.formatVolume(volume), _add_tank_metal);
-            }
-            return percent ? (Volume.Equals(0) ? 0 : volume / Volume * 100) : volume;
+            var neededMetal = metal_for_tank_and_hull(tankType, volume);
+            return $"Tank will require <b>{Utils.formatBigValue(neededMetal, "u")} of {BuildTanksFrom}</b> to build";
         }
 
-        void remove_tank(ModuleSwitchableTank tank)
+        private string onValidateNewTank(string tankType, float volume)
         {
-            var volume = tank.Volume;
-            if(!tank_manager.RemoveTank(tank)) return;
-            if(metal_pump != null && !convert_metal(-metal_for_hull(volume) - metal_for_tank(tank.TankType, volume))) return;
+            if(VesselsCount > 0)
+                return "There are some <b>ships docked inside</b> this hangar.\n"
+                       + "All works on resource tanks are prohibited for safety reasons.";
+            if(metal_pump == null)
+                return null;
+            var neededMetal = metal_for_tank_and_hull(tankType, volume);
+            if(!convert_metal(neededMetal))
+                return
+                    $"<b>Not enough {BuildTanksFrom}</b> to build {Utils.formatVolume(volume)} tank.\n"
+                    + $"Need <b>{Utils.formatBigValue(neededMetal, "u")}</b>.";
+            change_size(-volume);
+            return null;
+        }
+
+        private void onTankFailedToAdd(string tankType, float volume)
+        {
+            if(metal_pump != null)
+                convert_metal(-metal_for_tank_and_hull(tankType, volume));
             change_size(volume);
+        }
+
+        private void onTankRemoved(ModuleSwitchableTank tank)
+        {
+            if(metal_pump != null)
+                convert_metal(-metal_for_tank_and_hull(tank.TankType, tank.Volume));
+            change_size(tank.Volume);
         }
         #endregion
 
         #region GUI
-        enum TankWindows { None, EditTanks } //maybe we'll need more in the future
-        readonly Multiplexer<TankWindows> selected_window = new Multiplexer<TankWindows>();
-
         [KSPEvent(guiActive = true, guiName = "Edit Tanks", active = false)]
         public void EditTanks()
         {
-            if(VesselsCount > 0)
-            {
-                Utils.Message("There are some ships docked inside this hangar.\n" +
-                              "All works on resource tanks are prohibited for safety reasons.");
-                selected_window[TankWindows.EditTanks] = false;
-            }
-            else selected_window.Toggle(TankWindows.EditTanks);
-            if(selected_window[TankWindows.EditTanks])
-                tank_manager.UnlockEditor();
+            tank_manager.UI.Toggle(this);
         }
 
-        public void OnGUI()
+        private void LateUpdate()
         {
-            if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
-            if(!selected_window) return;
-            if(tank_manager == null) return;
-            if(VesselsCount > 0)
-            {
-                selected_window[TankWindows.EditTanks] = false;
-                tank_manager.UnlockEditor();
+            if(tank_manager == null || !tank_manager.UI.IsShown)
                 return;
-            }
-            Styles.Init();
-            if(selected_window[TankWindows.EditTanks])
-            {
-                var title = string.Format("Available Volume: {0}", Utils.formatVolume(Volume));
-                tank_manager.DrawTanksManagerWindow(GetInstanceID(), title, add_tank, remove_tank);
-                if(tank_manager.Closed) selected_window[TankWindows.EditTanks] = false;
-            }
+            tank_manager.UI.OnLateUpdate();
         }
         #endregion
     }
 }
-
