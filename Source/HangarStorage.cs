@@ -1,4 +1,4 @@
-//   HangarStorage.cs
+﻿//   HangarStorage.cs
 //
 //  Author:
 //       Allis Tauri <allista@gmail.com>
@@ -178,7 +178,7 @@ namespace AtHangar
         {
             _stored_vessels = VesselsCount.ToString();
             _stored_mass = Utils.formatMass(VesselsMass);
-            _stored_cost = VesselsCost.ToString();
+            _stored_cost = VesselsCost.ToString("F0");
             _used_volume = Volume > 0 ? UsedVolumeFrac.ToString("P1") : "N/A";
         }
 
