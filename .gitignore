@@ -21,12 +21,13 @@ Assets/Tests/
 *~
 *.swp
 *.blend1
+*.blend1.meta
 *.log
 *.mdb
 *.pyc
 *.bak
 *.pdb
-*.blend1.meta
+
 vessel_positioning.txt
 Source/Hangar.userprefs
 Assembly-CSharp.dump
