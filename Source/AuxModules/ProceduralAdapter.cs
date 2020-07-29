@@ -265,7 +265,7 @@ namespace AtHangar
             var data = new BaseEventDetails(BaseEventDetails.Sender.AUTO);
             data.Set<string>("volName", "Tankage");
             data.Set<double>("newTotalVolume", body.current.V*UsableVolumeRatio);
-            part.SendEvent("OnPartVolumeChanged", data);
+            part.SendEvent("OnPartVolumeChanged", data, 0);
             old_size = size;
             old_aspect = aspect;
             Utils.UpdateEditorGUI();
