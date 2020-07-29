@@ -268,7 +268,8 @@ namespace AtHangar
             part.SendEvent("OnPartVolumeChanged", data, 0);
             old_size = size;
             old_aspect = aspect;
-            StartCoroutine(CallbackUtil.DelayedCallback(1, UpdateDragCube));
+            if(HighLogic.LoadedSceneIsFlight)
+                StartCoroutine(CallbackUtil.DelayedCallback(1, UpdateDragCube));
             part.UpdatePartMenu(true);
             just_loaded = false;
         }
