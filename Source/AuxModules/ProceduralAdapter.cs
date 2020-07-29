@@ -176,13 +176,15 @@ namespace AtHangar
             sides += sides%2; // make sides even
             //update meshes
             var collider_mesh = new Mesh();
+            body_collider.enabled = false;
             body.current.WriteTo(sides, body_mesh);
             body.current.WriteTo(sides/2, collider_mesh, for_collider: true);
             Destroy(body_collider.sharedMesh);
             body_collider.sharedMesh = collider_mesh;
-            body_collider.enabled = false;
             body_collider.enabled = true;
+            part.ResetModelSkinnedMeshRenderersCache();
             part.ResetModelMeshRenderersCache();
+            part.ResetModelRenderersCache();
             //calculate mass and cost changes
             mass = body.current.Area*AreaDensity;
             cost = body.current.Area*AreaCost;
