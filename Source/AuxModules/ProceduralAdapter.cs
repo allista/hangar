@@ -8,6 +8,7 @@
 using System;
 using UnityEngine;
 using AT_Utils;
+using JetBrains.Annotations;
 
 namespace AtHangar
 {
@@ -18,18 +19,21 @@ namespace AtHangar
         [UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f, sigFigs = 4)]
         public float topSize = 1.0f;
 
+        [UsedImplicitly] private FloatFieldWatcher topSizeWatcher;
+
         [KSPField(isPersistant=true, guiActiveEditor=true, guiName="Bottom Size", guiFormat="S4")]
         [UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f, sigFigs = 4)]
         public float bottomSize = 1.0f;
+
+        [UsedImplicitly] private FloatFieldWatcher bottomSizeWatcher;
 
         void update_and_break_struts()
         {
             UpdateMesh(); 
             part.BreakConnectedCompoundParts();
         }
-        protected override void on_aspect_changed(object value) => update_and_break_struts();
-        protected virtual void on_top_size_changed(object value) => update_and_break_struts();
-        protected virtual void on_bottom_size_changed(object value) => update_and_break_struts();
+
+        protected override void on_aspect_changed() => update_and_break_struts();
 
         //module config
         [KSPField] public float AreaCost     = 9f;
@@ -117,17 +121,16 @@ namespace AtHangar
                 setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
                 setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
                 setup_field(Fields["aspect"], minAspect, maxAspect, aspectStepLarge, aspectStepSmall);
-                Fields["topSize"].OnValueModified += on_top_size_changed;
-                Fields["bottomSize"].OnValueModified += on_bottom_size_changed;
+                topSizeWatcher = new FloatFieldWatcher(Fields[nameof(topSize)])
+                {
+                    epsilon = 1e-4f, onValueChanged = update_and_break_struts
+                };
+                bottomSizeWatcher = new FloatFieldWatcher(Fields[nameof(bottomSize)])
+                {
+                    epsilon = 1e-4f, onValueChanged = update_and_break_struts
+                };
             }
             StartCoroutine(CallbackUtil.WaitUntil(() => passage == null || passage.Ready, UpdateMesh));
-        }
-
-        protected override void OnDestroy()
-        {
-            Fields[nameof(topSize)].OnValueModified -= on_top_size_changed;
-            Fields[nameof(bottomSize)].OnValueModified -= on_bottom_size_changed;
-            base.OnDestroy();
         }
 
         void get_part_components()
