@@ -141,11 +141,11 @@ namespace AtHangar
                 //get transforms and meshes
                 Transform bodyT = part.FindModelTransform(BodyName);
                 if(bodyT == null)
-                    this.Log("'{}' transform does not exists in the {1}", 
+                    this.Log("'{}' transform does not exists in the {}",
                         BodyName, part.name);
                 Transform colliderT = part.FindModelTransform(ColliderName);
                 if(colliderT == null)
-                    this.Log("'{}' transform does not exists in the {1}", 
+                    this.Log("'{}' transform does not exists in the {}",
                         ColliderName, part.name);
                 //The mesh method unshares any shared meshes
                 MeshFilter body_mesh_filter = bodyT.GetComponent<MeshFilter>();
