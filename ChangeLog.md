@@ -3,7 +3,11 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
-* **v3.6.1**
+* **v3.6.2**
+    * Improved Procedural Adapter behaviour in Editor
+    * Fixed lag in Editor when opening PAW of hangars in symmetry group
+
+* v3.6.1
     * **Squad cargo bays can store a vessel in flight now**
     * Asteroid Hatch features new UI from Configurable Containers
     * **Fixed ship loading into hangars in editor**

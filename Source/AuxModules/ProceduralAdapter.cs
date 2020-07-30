@@ -8,6 +8,7 @@
 using System;
 using UnityEngine;
 using AT_Utils;
+using JetBrains.Annotations;
 
 namespace AtHangar
 {
@@ -18,18 +19,21 @@ namespace AtHangar
         [UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f, sigFigs = 4)]
         public float topSize = 1.0f;
 
+        [UsedImplicitly] private FloatFieldWatcher topSizeWatcher;
+
         [KSPField(isPersistant=true, guiActiveEditor=true, guiName="Bottom Size", guiFormat="S4")]
         [UI_FloatEdit(scene=UI_Scene.Editor, minValue=0.5f, maxValue=10, incrementLarge=1.0f, incrementSmall=0.1f, incrementSlide=0.001f, sigFigs = 4)]
         public float bottomSize = 1.0f;
+
+        [UsedImplicitly] private FloatFieldWatcher bottomSizeWatcher;
 
         void update_and_break_struts()
         {
             UpdateMesh(); 
             part.BreakConnectedCompoundParts();
         }
-        protected override void on_aspect_changed(object value) => update_and_break_struts();
-        protected virtual void on_top_size_changed(object value) => update_and_break_struts();
-        protected virtual void on_bottom_size_changed(object value) => update_and_break_struts();
+
+        protected override void on_aspect_changed() => update_and_break_struts();
 
         //module config
         [KSPField] public float AreaCost     = 9f;
@@ -117,17 +121,16 @@ namespace AtHangar
                 setup_field(Fields["topSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
                 setup_field(Fields["bottomSize"], minSize, maxSize, sizeStepLarge, sizeStepSmall);
                 setup_field(Fields["aspect"], minAspect, maxAspect, aspectStepLarge, aspectStepSmall);
-                Fields["topSize"].OnValueModified += on_top_size_changed;
-                Fields["bottomSize"].OnValueModified += on_bottom_size_changed;
+                topSizeWatcher = new FloatFieldWatcher(Fields[nameof(topSize)])
+                {
+                    epsilon = 1e-4f, onValueChanged = update_and_break_struts
+                };
+                bottomSizeWatcher = new FloatFieldWatcher(Fields[nameof(bottomSize)])
+                {
+                    epsilon = 1e-4f, onValueChanged = update_and_break_struts
+                };
             }
             StartCoroutine(CallbackUtil.WaitUntil(() => passage == null || passage.Ready, UpdateMesh));
-        }
-
-        protected override void OnDestroy()
-        {
-            Fields[nameof(topSize)].OnValueModified -= on_top_size_changed;
-            Fields[nameof(bottomSize)].OnValueModified -= on_bottom_size_changed;
-            base.OnDestroy();
         }
 
         void get_part_components()
@@ -138,11 +141,11 @@ namespace AtHangar
                 //get transforms and meshes
                 Transform bodyT = part.FindModelTransform(BodyName);
                 if(bodyT == null)
-                    this.Log("'{}' transform does not exists in the {1}", 
+                    this.Log("'{}' transform does not exists in the {}",
                         BodyName, part.name);
                 Transform colliderT = part.FindModelTransform(ColliderName);
                 if(colliderT == null)
-                    this.Log("'{}' transform does not exists in the {1}", 
+                    this.Log("'{}' transform does not exists in the {}",
                         ColliderName, part.name);
                 //The mesh method unshares any shared meshes
                 MeshFilter body_mesh_filter = bodyT.GetComponent<MeshFilter>();
@@ -173,13 +176,15 @@ namespace AtHangar
             sides += sides%2; // make sides even
             //update meshes
             var collider_mesh = new Mesh();
+            body_collider.enabled = false;
             body.current.WriteTo(sides, body_mesh);
             body.current.WriteTo(sides/2, collider_mesh, for_collider: true);
             Destroy(body_collider.sharedMesh);
             body_collider.sharedMesh = collider_mesh;
-            body_collider.enabled = false;
             body_collider.enabled = true;
+            part.ResetModelSkinnedMeshRenderersCache();
             part.ResetModelMeshRenderersCache();
+            part.ResetModelRenderersCache();
             //calculate mass and cost changes
             mass = body.current.Area*AreaDensity;
             cost = body.current.Area*AreaCost;
@@ -260,11 +265,12 @@ namespace AtHangar
             var data = new BaseEventDetails(BaseEventDetails.Sender.AUTO);
             data.Set<string>("volName", "Tankage");
             data.Set<double>("newTotalVolume", body.current.V*UsableVolumeRatio);
-            part.SendEvent("OnPartVolumeChanged", data);
+            part.SendEvent("OnPartVolumeChanged", data, 0);
             old_size = size;
             old_aspect = aspect;
-            Utils.UpdateEditorGUI();
-            StartCoroutine(CallbackUtil.DelayedCallback(1, UpdateDragCube));
+            if(HighLogic.LoadedSceneIsFlight)
+                StartCoroutine(CallbackUtil.DelayedCallback(1, UpdateDragCube));
+            part.UpdatePartMenu(true);
             just_loaded = false;
         }
     }

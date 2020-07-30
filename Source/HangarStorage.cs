@@ -174,21 +174,12 @@ namespace AtHangar
             set_part_params(reset);
         }
 
-        virtual protected void on_set_part_params()
-        {
-            var el = EditorLogic.fetch;
-            if(el != null) GameEvents.onEditorShipModified.Fire(el.ship);
-            //            else if(part.vessel != null) GameEvents.onVesselWasModified.Fire(part.vessel);
-        }
-
-        virtual protected void set_part_params(bool reset = false)
+        protected virtual void set_part_params(bool reset = false)
         {
             _stored_vessels = VesselsCount.ToString();
             _stored_mass = Utils.formatMass(VesselsMass);
-            _stored_cost = VesselsCost.ToString();
+            _stored_cost = VesselsCost.ToString("F0");
             _used_volume = Volume > 0 ? UsedVolumeFrac.ToString("P1") : "N/A";
-            on_set_part_params();
-            part.UpdatePartMenu();
         }
 
         public override void OnAwake()
