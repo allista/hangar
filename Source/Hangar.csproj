@@ -15,7 +15,7 @@
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
         <OutputPath>..\GameData\Hangar\Plugins</OutputPath>
-        <DefineConstants>DEBUG;</DefineConstants>
+        <DefineConstants>DEBUG;NIGHTBUILD</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
         <ConsolePause>false</ConsolePause>
