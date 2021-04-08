@@ -29,8 +29,8 @@ namespace AtHangar
 
         void update_and_break_struts()
         {
-            UpdateMesh(); 
-            part.BreakConnectedCompoundParts();
+            using(part.ReconnectCompoundParts())
+                UpdateMesh(); 
         }
 
         protected override void on_aspect_changed() => update_and_break_struts();
