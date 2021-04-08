@@ -96,7 +96,7 @@ namespace AtHangar
             orig_cost = cone.Area * AreaCost;
         }
 
-        public override void SaveDefaults()
+        protected override void SaveDefaults()
         {
             old_size = size;
             base.SaveDefaults();
