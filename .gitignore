@@ -60,3 +60,4 @@ Assembly-CSharp*
 **/UserPrefs.xml
 Hangar.sln
 Packages/manifest.json
+/GameData/Hangar/Parts/@thumbs

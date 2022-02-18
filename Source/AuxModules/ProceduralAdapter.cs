@@ -29,8 +29,8 @@ namespace AtHangar
 
         void update_and_break_struts()
         {
-            UpdateMesh(); 
-            part.BreakConnectedCompoundParts();
+            using(part.ReconnectCompoundParts())
+                UpdateMesh(); 
         }
 
         protected override void on_aspect_changed() => update_and_break_struts();
@@ -96,7 +96,7 @@ namespace AtHangar
             orig_cost = cone.Area * AreaCost;
         }
 
-        public override void SaveDefaults()
+        protected override void SaveDefaults()
         {
             old_size = size;
             base.SaveDefaults();

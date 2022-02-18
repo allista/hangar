@@ -34,7 +34,7 @@ namespace AtHangar
         { 
             if(construct == null) return;
             if(construct.parts.Count == 0) return;
-            //sort parts from root to leavs
+            //sort parts from root to leaves
             var parts = construct.parts[0].AllConnectedParts();
             metric = new Metric(parts, true); 
         }
