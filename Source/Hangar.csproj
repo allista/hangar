@@ -8,7 +8,7 @@
         <RootNamespace>AtHangar</RootNamespace>
         <AssemblyName>Hangar</AssemblyName>
         <newfilesearch>OnLoadAutoInsert</newfilesearch>
-        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <DebugSymbols>true</DebugSymbols>
