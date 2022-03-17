@@ -1,0 +1,5 @@
+dll_path: GameData/Hangar/Plugins/Hangar.dll
+archive_path: Releases
+github_url: allista/hangar
+search_paths:
+    - Source
