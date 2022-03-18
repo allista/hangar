@@ -1,5 +1,6 @@
 dll_path: GameData/Hangar/Plugins/Hangar.dll
 archive_path: Releases
 github_url: allista/hangar
+spacedock_mod_id: 1000
 search_paths:
     - Source
