@@ -1,4 +1,7 @@
+# Hangar Change Log
+
 ### Delete the old version of the mod before installing a new one.
+
 _You may keep the Hangar.user (if you have one) and config.xml files to preserve your settings._
 
 ***
@@ -197,7 +200,7 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
     * Fixed content hull mesh rendering on hangar resize.
     * Fixed metric calculation for the stock RadialDrill part.
 
-* _v3.4.0-1 TODO_
+* v3.4.0.1 _TODO_
 
 * v3.3.3
     * **Single Use Grapples**:
@@ -393,11 +396,11 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
         * Some textures were merged, and some resized.
         
 
-* v2.0.0
+* v2.0.0.3 - released as v2.0.0
     * Lowered drag of the Habitable Inline Hangar a little (rounded ends should count for something).
     * Wrote a proper [**documentation**](https://github.com/allista/hangar/wiki).
     
-* v2.0.0-beta.1
+* v2.0.0.2 - beta
     * Fixed mass calculation on resize of a hangar that has some vessels stored in editor.
     * Corrected definition of resources: no need to install Extraplanetary Launchpads for converters to work.
     * Fixed the bug that caused a part with configurable switchable tanks to lose tanks configuration on "Revert to VAB/SPH".
@@ -411,7 +414,7 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
     * Added more info for Passage, Storage and Hangars modules in part library.
     * Parts with HangarStorage module now always reset their base mass to the value from part.cfg.
 
-* v2.0.0-beta.0
+* v2.0.0.1 - beta
 
     * I has rewrote the core implementation of Hangar module to allow for new features to be added. It should **not** break any saves by itself, but there's so much new in the code that some nasty bugs are inevitably there at this point.
     * Three major features are added: 
@@ -427,7 +430,7 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
             * The challenge of creating a hangar inside an asteroid is even more complex, as digging produces grinded Rock resource which you should dispose of or convert: Rock->Ore+Silicates; Ore->Metal+Slag. And while Slag is a waste product and Silicates are only usable if you are playing with MKS/OKS, the Metal may be used to **build resource containers inside the asteroid**. Each container has a type that defines which resources it may hold. If a tank is empty its resource may be switched within the type. This functionality is available through the part menu of the **Asteroid Hatch**.
             * Also, several parts with the same capability are provided and may be used to build cargo vessels of broad specialization. **In Editor** these parts may also be partitioned into several sub-containers of different types.
 
-* 1.3.0
+* v1.3.0
     * **Recompiled for KSP 0.25.0**
     * Added **Inflatable Ground Hangars**. They are very light, cheap and tough. You can drop them from orbit using smallest thrusters and parachutes, then fix them to the ground with the anchor, inflate them and store rovers inside. If they're not needed you may deflate them and pack again. The downside, though, is that you can't use resource or crew transfer inside of these.
     * Added **Small Square Heatshield** for Inflatable Hangars.
