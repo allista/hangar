@@ -6,6 +6,11 @@ _You may keep the Hangar.user (if you have one) and config.xml files to preserve
 
 ***
 
+## v3.6.2.2 / 2022-03-31
+
+* Compiled for KSP 1.12.3 and latest AT_Utils
+* Internal project changes for CI/CD
+
 ## v3.6.2.1
 
 * KSP: 1.11.1
